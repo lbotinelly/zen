@@ -15,6 +15,7 @@ namespace Zen.Base.Module.Log
 
         public enum EContentType
         {
+            Critical = 1,
             Audit = 10,
             Exception = 20,
             StartupSequence = 30,
@@ -30,6 +31,7 @@ namespace Zen.Base.Module.Log
 
         public static Dictionary<EContentType, ConsoleColor> ContentColors = new Dictionary<EContentType, ConsoleColor>
         {
+            {EContentType.Critical, ConsoleColor.DarkRed},
             {EContentType.Audit, ConsoleColor.Green},
             {EContentType.Exception, ConsoleColor.Red},
             {EContentType.StartupSequence, ConsoleColor.Yellow},

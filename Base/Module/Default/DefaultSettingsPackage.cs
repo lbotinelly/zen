@@ -16,7 +16,6 @@ namespace Zen.Base.Module.Default
         {
             Log = new NullLogProvider();
             Cache = new NullCacheProvider();
-            Encryption = new NullEncryptionProvider();
             Environment = new DefaultEnvironmentProvider();
             Authorization = new NullAuthorizationProvider();
             GlobalConnectionBundleType = null;

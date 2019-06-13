@@ -3,20 +3,22 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Zen.Base;
+using Zen.Base.Common;
 using Zen.Base.Module.Encryption;
 
 namespace Zen.Module.Encryption.AES
 {
 
-    public class AesEncryptionProvider : IEncryptionProvider
+    [Priority(Level = -1)]
+    public class AesEncryptionProvider : EncryptionProviderPrimitive
     {
         private readonly object _lock = new object();
 
         private RijndaelManaged _aesAlg;
 
         private bool _isInitialized;
-        private string _rjiv = "";
-        private string _rjkey = "";
+        private string _rjiv;
+        private string _rjkey;
 
         #region Instanced methods
 
@@ -39,7 +41,7 @@ namespace Zen.Module.Encryption.AES
         }
 
         // ReSharper disable once InconsistentNaming
-        public string Decrypt(string pContent)
+        public override string Decrypt(string pContent)
         {
             InitSettings();
 
@@ -65,7 +67,7 @@ namespace Zen.Module.Encryption.AES
         }
 
         // ReSharper disable once InconsistentNaming
-        public string Encrypt(string pContent)
+        public override string Encrypt(string pContent)
         {
             InitSettings();
 
@@ -111,7 +113,7 @@ namespace Zen.Module.Encryption.AES
 
         #endregion
 
-        public void Configure(params string[] oParms)
+        public override void Configure(params string[] oParms)
         {
             if (oParms.Length >= 1)
                 _rjkey = oParms[0];
@@ -120,10 +122,11 @@ namespace Zen.Module.Encryption.AES
                 _rjiv = oParms[1];
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             Events.Bootup.Actions.Add(InitSettings);
             Events.Shutdown.Actions.Add(Shutdown);
         }
+
     }
 }

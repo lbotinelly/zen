@@ -1,13 +1,13 @@
 ﻿using System;
-using Microsoft.Extensions.Logging;
-using Zen.Base.Common;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
 namespace Zen.Base.Module.Log
 {
-    [Priority(Level = -99)]
     public abstract class LogProvider : ILogProvider
     {
-        private ILogger<LogProvider> _logger;
+        private Logger _logger;
 
         public virtual Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Debug;
 
@@ -42,6 +42,8 @@ namespace Zen.Base.Module.Log
 
         public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
 
+        public virtual void Debug(string content) { Add(content, Message.EContentType.Debug); }
+
         public virtual void Maintenance(string content) { Add(content, Message.EContentType.Maintenance); }
 
         public virtual void Add(string content, Message.EContentType type = Message.EContentType.Generic)
@@ -55,39 +57,46 @@ namespace Zen.Base.Module.Log
 
         public virtual void Add(Message m)
         {
-            var targetLevel = LogLevel.None;
+            var targetLevel = LogEventLevel.Debug;
 
             switch (m.Type)
             {
                 case Message.EContentType.Undefined:
                 case Message.EContentType.Generic:
-                    targetLevel = LogLevel.Trace;
+                    targetLevel = LogEventLevel.Verbose;
                     break;
+
                 case Message.EContentType.Debug:
-                    targetLevel = LogLevel.Debug;
+                    targetLevel = LogEventLevel.Debug;
                     break;
 
                 case Message.EContentType.StartupSequence:
                 case Message.EContentType.ShutdownSequence:
                 case Message.EContentType.Info:
                 case Message.EContentType.MoreInfo:
-                    targetLevel = LogLevel.Information;
+                    targetLevel = LogEventLevel.Information;
                     break;
 
                 case Message.EContentType.Warning:
                 case Message.EContentType.Audit:
                 case Message.EContentType.Maintenance:
-                    targetLevel = LogLevel.Information;
+                    targetLevel = LogEventLevel.Warning;
                     break;
 
                 case Message.EContentType.Exception:
-
-                    targetLevel = LogLevel.Error;
+                    targetLevel = LogEventLevel.Error;
                     break;
+
+                case Message.EContentType.Critical:
+                    targetLevel = LogEventLevel.Fatal;
+                    break;
+
                 default: throw new ArgumentOutOfRangeException();
             }
 
-            _logger.Log(targetLevel, m.Content, m);
+            _logger.Write(targetLevel, m.Content, m);
+
+            //_logger.Log(targetLevel, m.Content, m);
         }
 
         public void Initialize()
@@ -96,8 +105,16 @@ namespace Zen.Base.Module.Log
             Events.Shutdown.Actions.Add(Shutdown);
         }
 
-        public void Start() { _logger = ((ILoggerFactory) Current.ServiceProvider.GetService(typeof(ILoggerFactory))).CreateLogger<LogProvider>(); }
+        public void Start()
+        {
+            //_logger = ((ILoggerFactory) Current.ServiceProvider.GetService(typeof(ILoggerFactory))).CreateLogger<LogProvider>();
+            _logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                .MinimumLevel.Debug()
+                .CreateLogger();
+        }
 
-        public virtual void Shutdown() { }
+        public virtual void Shutdown() { Serilog.Log.CloseAndFlush(); }
     }
 }

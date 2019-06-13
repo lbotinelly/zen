@@ -28,7 +28,7 @@ namespace Zen.Module.Data.MongoDB {
         private object _instance;
         private Type _refType;
         private Settings _statements;
-        private DataAttribute _tabledata;
+        private DataConfigAttribute _tabledata;
         public IMongoCollection<BsonDocument> Collection;
         public IMongoDatabase Database;
         public string SourceCollection;

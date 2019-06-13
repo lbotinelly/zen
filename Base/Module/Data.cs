@@ -9,9 +9,9 @@ namespace Zen.Base.Module
     {
         #region Static references
         // ReSharper disable once StaticMemberInGenericType
-        internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataAttribute>> ClassRegistration = new ConcurrentDictionary<Type, Tuple<Settings, DataAttribute>>();
+        internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>> ClassRegistration = new ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>>();
         public static Settings Settings => ClassRegistration[typeof(T)].Item1;
-        public static DataAttribute TableData => ClassRegistration[typeof(T)].Item2;
+        public static DataConfigAttribute TableData => ClassRegistration[typeof(T)].Item2;
         public static string GetIdentifier(Data<T> oRef) { return (oRef.GetType().GetProperty(Settings.IdentifierProperty)?.GetValue(oRef, null) ?? "").ToString(); }
         public static string GetLabel(Data<T> oRef) { return (oRef.GetType().GetProperty(Settings.LabelProperty)?.GetValue(oRef, null) ?? "").ToString(); }
         public static Settings GetSettings(Data<T> oRef) { return ClassRegistration[oRef.GetType()].Item1; }

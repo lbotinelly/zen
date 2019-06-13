@@ -401,6 +401,7 @@ namespace Zen.Base.Assembly
                     preRet.AddRange(
                         from target in preTypes
                         where !target.IsInterface
+                        where !target.IsAbstract
                         where type.IsAssignableFrom(target)
                         where type != target
                         select target);

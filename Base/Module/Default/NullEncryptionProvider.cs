@@ -4,12 +4,12 @@ using Zen.Base.Module.Encryption;
 namespace Zen.Base.Module.Default
 {
     [Priority(Level = -2)]
-    public class NullEncryptionProvider : IEncryptionProvider
+    public class NullEncryptionProvider : EncryptionProviderPrimitive
     {
-        public void Configure(params string[] oParms) { }
-        public string Decrypt(string pContent) => pContent;
-        public string Encrypt(string pContent) => pContent;
+        public override void Configure(params string[] oParms) { }
+        public override string Decrypt(string pContent) => pContent;
+        public override string Encrypt(string pContent) => pContent;
         public void Shutdown() { }
-        public void Initialize() { Events.Shutdown.Actions.Add(Shutdown); }
+        public override void Initialize() { Events.Shutdown.Actions.Add(Shutdown); }
     }
 }
