@@ -10,5 +10,6 @@ namespace Zen.Base.Module.Default
         public string Decrypt(string pContent) => pContent;
         public string Encrypt(string pContent) => pContent;
         public void Shutdown() { }
+        public void Initialize() { Events.Shutdown.Actions.Add(Shutdown); }
     }
 }

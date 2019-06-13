@@ -10,7 +10,7 @@ namespace Zen.Base.Common
 {
     public interface IPackage
     {
-        LogProvider Log { get; set; }
+        ILogProvider Log { get; set; }
         ICacheProvider Cache { get; set; }
         IEnvironmentProvider Environment { get; set; }
         IEncryptionProvider Encryption { get; set; }

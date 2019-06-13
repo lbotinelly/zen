@@ -1,14 +1,13 @@
 ﻿using System;
+using Zen.Base.Common;
 
 namespace Zen.Base.Module.Environment
 {
-    public interface IEnvironmentProvider
+    public interface IEnvironmentProvider : IZenProvider
     {
         IEnvironmentDescriptor Current { get; set; }
         string CurrentCode { get; }
         ProbeItem Probe { get; set; }
-        void ResetToDefault();
-        void Shutdown();
         IEnvironmentDescriptor Get(string serverName);
         event EventHandler EnvironmentChanged;
     }

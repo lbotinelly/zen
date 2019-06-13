@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Text;
+using System.Threading;
+using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 
 namespace Zen.Base
@@ -41,33 +43,59 @@ namespace Zen.Base
 
             Status.ChangeState(Status.EState.Shuttingdown);
 
-            Stop();
-
-            Current.Log.Add("Shutting down " + Current.Authorization.GetType().Name, Message.EContentType.MoreInfo);
-            Current.Authorization.Shutdown();
-
-            Current.Log.Add("Shutting down " + Current.Cache.GetType().Name, Message.EContentType.MoreInfo);
-            Current.Cache.Shutdown();
-
-            Current.Log.Add("Shutting down " + Current.Environment.GetType().Name, Message.EContentType.MoreInfo);
-            Current.Environment.Shutdown();
-
-            Current.Log.Add("Shutting down " + Current.Encryption.GetType().Name, Message.EContentType.MoreInfo);
-            Current.Encryption.Shutdown();
-
+            Current.Log.Add("Shutting down...", Message.EContentType.MoreInfo);
             Current.Log.Add(@"  _|\_/|  ZZZzzz", Message.EContentType.Info);
             Current.Log.Add(@"c(_(-.-)", Message.EContentType.Info);
 
-            Current.Log.Add(@"Stack shutdown concluded.", Message.EContentType.ShutdownSequence);
+            Stop();
 
-            Current.Log.Shutdown();
-
-            try { MediaTypeNames.Application.Exit(); }
-            catch { }
+            //try { MediaTypeNames.Application.Exit(); }
+            //catch { }
             try { Environment.Exit(0); }
             catch { }
         }
 
 
+        private static bool _doShutdown = true;
+
+        private static Thread _workerThread;
+
+        public static void ScheduleTakeDown(int seconds = 30)
+        {
+            _doShutdown = true;
+
+            if (_workerThread != null) return;
+
+            _workerThread = new Thread(() => TakeDown(seconds)) { IsBackground = false };
+            _workerThread.Start();
+        }
+
+        private static void TakeDown(int seconds)
+        {
+            Current.Log.Add("Scheduling shutdown: {0} seconds".format(seconds), Message.EContentType.Maintenance);
+
+            Thread.Sleep(seconds * 1000);
+
+            if (_doShutdown)
+            {
+                Current.Log.Add("Starting scheduled shutdown", Message.EContentType.Maintenance);
+                Thread.Sleep(2 * 1000);
+                End("Scheduled shutdown");
+            }
+        }
+
+        private static void CancelTakeDown()
+        {
+            if (!_doShutdown)
+            {
+                Current.Log.Add("CancelTakeDown: No scheduled shutdown", Message.EContentType.Info);
+                return;
+            }
+
+            _doShutdown = false;
+            _workerThread.Abort();
+
+            Current.Log.Add("CancelTakeDown successful.", Message.EContentType.ShutdownSequence);
+        }
     }
 }

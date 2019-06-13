@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Zen.Base.Common;
 using Zen.Base.Module.Cache;
 
@@ -33,5 +34,8 @@ namespace Zen.Base.Module.Default
         public void RemoveAll(string oSet = null) { }
 
         public object GetSingleton<T>(string fullName = null) { return default(T); }
+        public Action OnStartup() { return null; }
+        public Action OnShutdown() { return null; }
+        public Action OnMaintenance() { return null; }
     }
 }

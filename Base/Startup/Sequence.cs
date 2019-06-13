@@ -1,7 +1,5 @@
-﻿using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,9 +11,7 @@ namespace Zen.Base.Startup
         // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.2
         private readonly ILogger _logger;
 
-        public LifetimeEventsHostedService(
-            ILogger<LifetimeEventsHostedService> logger,
-            IApplicationLifetime appLifetime)
+        public LifetimeEventsHostedService(ILogger<LifetimeEventsHostedService> logger, IApplicationLifetime appLifetime)
         {
             _logger = logger;
             _appLifetime = appLifetime;

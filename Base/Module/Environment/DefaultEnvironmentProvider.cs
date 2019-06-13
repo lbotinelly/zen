@@ -10,11 +10,15 @@ namespace Zen.Base.Module.Environment
 
         ProbeItem IEnvironmentProvider.Probe { get; set; }
 
-        public void ResetToDefault() { }
         public void Shutdown() { }
 
         public IEnvironmentDescriptor Get(string serverName) { throw new NotImplementedException(); }
 
         public event EventHandler EnvironmentChanged;
+
+        public void Initialize()
+        {
+            Events.Shutdown.Actions.Add(Shutdown);
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace Zen.Base.Module.Default
             WebApiCORSDomains = null;
         }
 
-        public LogProvider Log { get; set; }
+        public ILogProvider Log { get; set; }
         public ICacheProvider Cache { get; set; }
         public IEnvironmentProvider Environment { get; set; }
         public IEncryptionProvider Encryption { get; set; }

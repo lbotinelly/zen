@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
 

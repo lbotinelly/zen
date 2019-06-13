@@ -27,13 +27,13 @@ namespace Zen.Module.Data.MongoDB {
         private string _idProp;
         private object _instance;
         private Type _refType;
-        private DataCompiledStatements _statements;
-        private DataSetupAttribute _tabledata;
+        private Settings _statements;
+        private DataAttribute _tabledata;
         public IMongoCollection<BsonDocument> Collection;
         public IMongoDatabase Database;
         public string SourceCollection;
 
-        public MongoDbinterceptor(MongoDbAdapter mongoDbAdapter) { AdapterInstance = mongoDbAdapter; }
+        public MongoDbinterceptor( MongoDbAdapter mongoDbAdapter) { AdapterInstance = mongoDbAdapter; }
 
         public MongoDbAdapter AdapterInstance { get; set; }
 
@@ -42,9 +42,7 @@ namespace Zen.Module.Data.MongoDB {
             get
             {
                 if (_idProp != null) return _idProp;
-
-                _idProp = _statements.IdPropertyRaw;
-                // if (_idProp.ToLower() == "id") _idProp = "_id";
+                _idProp = _statements.IdentifierProperty;
                 return _idProp;
             }
         }
@@ -250,8 +248,8 @@ namespace Zen.Module.Data.MongoDB {
                 case InterceptorQuery.EOperation.Update:
 
                     if (parm == null) return null;
-                    var bQuery = BsonDocument.Parse(Serialization.ToJson(query));
-                    var bTrans = BsonDocument.Parse("{$set: " + Serialization.ToJson(parm) + " }");
+                    var bQuery = BsonDocument.Parse(Zen.Base.Extension.Serialization.ToJson(query));
+                    var bTrans = BsonDocument.Parse("{$set: " + Base.Extension.Serialization.ToJson(parm) + " }");
                     Collection.UpdateMany(bQuery, bTrans);
 
                     return null;

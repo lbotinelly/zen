@@ -119,5 +119,11 @@ namespace Zen.Module.Encryption.AES
             if (oParms.Length >= 2)
                 _rjiv = oParms[1];
         }
+
+        public void Initialize()
+        {
+            Events.Bootup.Actions.Add(InitSettings);
+            Events.Shutdown.Actions.Add(Shutdown);
+        }
     }
 }
