@@ -2,42 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Assembly;
+using Zen.Base.Common;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data.Connection;
+using Zen.Base.Module.Default;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
+using Zen.Base.Module.Identity;
+using Zen.Base.Module.Log;
 
-namespace Zen.Base {
+namespace Zen.Base
+{
     public static class Current
     {
+        internal static ServiceProvider Services { get; }
+
         static Current()
         {
-            try { MediaTypeNames.Application.ApplicationExit += Application_ApplicationExit; } catch { }
 
-            try
-            {
-                AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-                //AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            }
-            catch { }
+            Services = new ServiceCollection()
+                .AddLogging()
+                .ResolveSettingsPackage()
+                .BuildServiceProvider();
 
-            var refObj = ResolveSettingsPackage();
+            try { AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit; } catch { }
 
-            Cache = refObj.Cache;
-            Environment = refObj.Environment;
-            Log = refObj.Log;
-            Encryption = refObj.Encryption;
-            GlobalConnectionBundleType = refObj.GlobalConnectionBundleType;
-            Authorization = refObj.Authorization;
-            WebApiCORSDomains = refObj.WebApiCORSDomains;
-            WebApiCORSDomainMasks = refObj.WebApiCORSDomainMasks;
 
             Log.Add(@"   |\_/|          |", Message.EContentType.Info);
-            Log.Add(@"  >(o.O)<         | Nyan " + System.Reflection.Assembly.GetCallingAssembly().GetName().Version, Message.EContentType.Info);
+            Log.Add(@"  >(o.O)<         | Zen " + System.Reflection.Assembly.GetCallingAssembly().GetName().Version, Message.EContentType.Info);
             Log.Add(@"  c(___)          |", Message.EContentType.Info);
-
-            Log.Add("Settings          : " + refObj.GetType(), Message.EContentType.StartupSequence);
 
             Log.Add("Cache             : " + (Cache == null ? "(none)" : Cache.ToString()), Message.EContentType.MoreInfo);
             Log.Add("Environment       : " + (Environment == null ? "(none)" : Environment.ToString()), Message.EContentType.MoreInfo);
@@ -57,61 +52,40 @@ namespace Zen.Base {
             Sequences.Start();
         }
 
-        public static ICacheProvider Cache { get; }
-        public static IEnvironmentProvider Environment { get; }
-        public static IEncryptionProvider Encryption { get; }
-        public static IAuthorizationProvider Authorization { get; }
-        public static LogProvider Log { get; }
-        public static Type GlobalConnectionBundleType { get; }
+        public static ICacheProvider Cache => Services.GetService<ICacheProvider>();
+        public static IEnvironmentProvider Environment => Services.GetService<IEnvironmentProvider>();
+        public static IEncryptionProvider Encryption => Services.GetService<IEncryptionProvider>();
+        public static IAuthorizationProvider Authorization => Services.GetService<IAuthorizationProvider>();
+        public static LogProvider Log => Services.GetService<LogProvider>();
+        public static Type GlobalConnectionBundleType => Services.GetService<Type>();
 
-        public static string WebApiCORSDomains { get; private set; }
-        public static List<string> WebApiCORSDomainMasks { get; private set; }
 
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e) {  Events.End("Process Exit"); }
+
+        private static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceProviderCfg)
         {
-            Log.Add((Exception)e.ExceptionObject);
-            Sequences.End("Unhandled Exception");
-        }
-
-        private static void CurrentDomain_ProcessExit(object sender, EventArgs e) { Sequences.End("Process Exit"); }
-
-        private static void Application_ApplicationExit(object sender, EventArgs e) { Sequences.End("Application Exit"); }
-
-        private static IPackage ResolveSettingsPackage()
-        {
-            var packages = Management.GetClassesByInterface<IPackage>();
-            if (packages.Any()) return (IPackage)Activator.CreateInstance(packages[0]);
-
-            //No package defined? not to worry; let's create one with the provided pieces.
-
-            var package = new DefaultSettingsPackage();
+            IPackage package = null;
 
             try
             {
-                var logModules = Management.GetClassesByInterface<LogProvider>();
-                if (logModules.Any()) package.Log = logModules[0].CreateInstance<LogProvider>();
+                // If a definition package is available use it; otherwise offer an empty package.
+                package = (Management.GetClassesByInterface<IPackage>().FirstOrDefault() ?? typeof(DefaultSettingsPackage)).CreateInstance<IPackage>();
 
-                var cacheModules = Management.GetClassesByInterface<ICacheProvider>();
-                if (cacheModules.Any()) package.Cache = cacheModules[0].CreateInstance<ICacheProvider>();
+                serviceProviderCfg.AddSingleton(s => package.Log ?? Management.GetClassesByInterface<LogProvider>().FirstOrDefault()?.CreateInstance<LogProvider>());
+                serviceProviderCfg.AddSingleton(s => package.Cache ?? Management.GetClassesByInterface<ICacheProvider>().FirstOrDefault()?.CreateInstance<ICacheProvider>());
+                serviceProviderCfg.AddSingleton(s => package.Encryption ?? Management.GetClassesByInterface<IEncryptionProvider>().FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
+                serviceProviderCfg.AddSingleton(s => package.Environment ?? Management.GetClassesByInterface<IEnvironmentProvider>().FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
+                serviceProviderCfg.AddSingleton(s => package.Encryption ?? Management.GetClassesByInterface<IEncryptionProvider>().FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
+                serviceProviderCfg.AddSingleton(s => package.Authorization ?? Management.GetClassesByInterface<IAuthorizationProvider>().FirstOrDefault()?.CreateInstance<IAuthorizationProvider>());
+                serviceProviderCfg.AddSingleton(s => package.GlobalConnectionBundleType ?? Management.GetClassesByInterface<ConnectionBundlePrimitive>().FirstOrDefault());
 
-                var encryptionModules = Management.GetClassesByInterface<IEncryptionProvider>();
-                if (encryptionModules.Any()) package.Encryption = encryptionModules[0].CreateInstance<IEncryptionProvider>();
-
-                var environmentModules = Management.GetClassesByInterface<IEnvironmentProvider>();
-                if (environmentModules.Any()) package.Environment = environmentModules[0].CreateInstance<IEnvironmentProvider>();
-
-                var authorizationModules = Management.GetClassesByInterface<IAuthorizationProvider>();
-                if (authorizationModules.Any()) package.Authorization = authorizationModules[0].CreateInstance<IAuthorizationProvider>();
-
-                var connectionBundles = Management.GetClassesByInterface<ConnectionBundlePrimitive>();
-                if (connectionBundles.Any()) package.GlobalConnectionBundleType = connectionBundles[0];
             }
             catch (Exception e)
             {
                 //It's OK to ignore errors here.
             }
 
-            return package;
+            return serviceProviderCfg;
         }
     }
 }
