@@ -18,6 +18,8 @@ namespace Zen.Base.Module.Log
         void Info(string content);
         void Debug(string content);
         void Maintenance(string content);
+        void Warn<T>(string v);
         void Warn(string content);
+        void Add<T>(Exception e);
     }
 }

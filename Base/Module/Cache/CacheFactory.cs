@@ -4,13 +4,13 @@ using System.Diagnostics;
 using Zen.Base.Extension;
 
 namespace Zen.Base.Module.Cache {
-    public static class Helper
+    public static class CacheFactory
     {
         #region Cache Management methods
 
-        public static List<T> FetchCacheableListResultByKey<T>(Func<string, List<T>> method, string key) { return FetchCacheableListResultByKey<T>(method, key, 600); }
+        public static List<T> FetchListResultByKey<T>(Func<string, List<T>> method, string key) { return FetchListResultByKey<T>(method, key, 600); }
 
-        public static List<T> FetchCacheableListResultByKey<T>(Func<string, List<T>> method, string key, int cacheTimeOutSeconds = 600)
+        public static List<T> FetchListResultByKey<T>(Func<string, List<T>> method, string key, int cacheTimeOutSeconds = 600)
         {
             var cacheid = typeof(T).CacheKey(key);
 
@@ -28,7 +28,7 @@ namespace Zen.Base.Module.Cache {
             return ret;
         }
 
-        public static void FlushCacheableListResultByKey<T>(string key)
+        public static void FlushListResultByKey<T>(string key)
         {
             var cacheid = typeof(T).CacheKey(key);
 
@@ -39,7 +39,7 @@ namespace Zen.Base.Module.Cache {
 
         }
 
-        public static T FetchCacheableSingleResultByKey<T>(Func<string, T> method, string key, string baseType = null, int cacheTimeOutSeconds = 600)
+        public static T FetchSingleResultByKey<T>(Func<string, T> method, string key, string baseType = null, int cacheTimeOutSeconds = 600)
         {
 
             if (Current.Cache.OperationalStatus != EOperationalStatus.Operational)
@@ -64,8 +64,8 @@ namespace Zen.Base.Module.Cache {
         }
 
 
-        public static void FlushCacheableSingleResultByKey<T>() { FlushCacheableSingleResultByKey<T>("s"); }
-        public static void FlushCacheableSingleResultByKey<T>(string key, string fullNameAlias = null)
+        public static void FlushSingleResultByKey<T>() { FlushSingleResultByKey<T>("s"); }
+        public static void FlushSingleResultByKey<T>(string key, string fullNameAlias = null)
         {
 
             if (Current.Cache.OperationalStatus != EOperationalStatus.Operational)
@@ -76,16 +76,16 @@ namespace Zen.Base.Module.Cache {
             Current.Cache.Remove(cacheid);
         }
 
-        public static void FlushCacheableResultSingleton(string namespaceSpec)
+        public static void FlushResultSingleton(string namespaceSpec)
         {
             if (namespaceSpec == null)
                 throw new ArgumentOutOfRangeException("Invalid cache source. Specify namespaceSpec.");
 
-            FlushCacheableResultSingleton<string>(namespaceSpec);
+            FlushResultSingleton<string>(namespaceSpec);
         }
 
 
-        public static void FlushCacheableResultSingleton<T>(string namespaceSpec = null)
+        public static void FlushResultSingleton<T>(string namespaceSpec = null)
         {
             string cacheid;
 
@@ -111,7 +111,7 @@ namespace Zen.Base.Module.Cache {
             Current.Cache.Remove(cacheid);
         }
 
-        public static T FetchCacheableResultSingleton<T>(Func<T> method, object singletonLock, string namespaceSpec = null, int timeOutSeconds = 600)
+        public static T FetchResultSingleton<T>(Func<T> method, object singletonLock, string namespaceSpec = null, int timeOutSeconds = 600)
         {
             string cacheid;
 

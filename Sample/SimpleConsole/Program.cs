@@ -1,16 +1,16 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
-using Zen.Base.Module.Data;
 using Zen.Base.Module.Encryption;
 
 namespace SimpleConsole
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Current.Log.Info("Hello World!");
 
@@ -24,7 +24,6 @@ namespace SimpleConsole
             var encrypted = sourceStr.Encrypt();
             var decrypted = encrypted.Decrypt();
 
-
             Current.Log.Info($"sourceStr: {sourceStr}");
             Current.Log.Info($"md5Hashed: {md5Hashed}");
             Current.Log.Info($"Hash_Guid: {Hash_Guid}");
@@ -34,15 +33,18 @@ namespace SimpleConsole
             Current.Log.Info($"encrypted: {encrypted}");
             Current.Log.Info($"decrypted: {decrypted}");
 
+            var a = SampleModel.All().ToList();
+
+            new SampleModel {Id = Guid.NewGuid().ToString(), Name = "Blah"}.Save();
         }
     }
 
-    [DataConfig]
     public class SampleModel : Data<SampleModel>
     {
-        [Key]
-        public string Id;
         [Display]
         public string Name;
+        [Key]
+        // ReSharper disable once InconsistentNaming
+        public string Id { get; set; }
     }
 }

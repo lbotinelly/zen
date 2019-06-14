@@ -27,5 +27,12 @@ namespace Zen.Base.Module.Log {
 
             return ret;
         }
+
+        internal static Message ToMessage<T>(Exception e)
+        {
+            var tmp = ToMessage(e);
+            tmp.Content = $"{typeof(T).Name}: {tmp.Content}";
+            return tmp;
+        }
     }
 }

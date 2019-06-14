@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Connection;
 
 namespace Zen.Base.Module
@@ -7,25 +8,24 @@ namespace Zen.Base.Module
     {
         #region Bootstrap
         void Initialize<T>() where T : Data<T>;
-        void Setup<T>(Data.Settings statements) where T : Data<T>;
-        void Connect<T>(string statementsConnectionString, ConnectionBundlePrimitive bundle) where T : Data<T>;
+        void Setup<T>(Settings settings) where T : Data<T>;
         #endregion
 
         #region Read
         T Get<T>(string locator) where T : Data<T>;
-        List<T> Get<T>(List<string> identifiers);
+        IEnumerable<T> Get<T>(IEnumerable<string> identifiers);
 
-        List<T> Query<T>(string sqlStatement, object rawObject) where T : Data<T>;
-        List<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype) where T : Data<T>;
-        List<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype, InterceptorQuery.EOperation pOperation) where T : Data<T>;
+        IEnumerable<T> Query<T>(string sqlStatement, object rawObject) where T : Data<T>;
+        IEnumerable<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype) where T : Data<T>;
+        IEnumerable<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype, InterceptorQuery.EOperation pOperation) where T : Data<T>;
 
-        List<T> GetAll<T>(string extraParms = null) where T : Data<T>;
-        List<TU> GetAll<T, TU>(string extraParms = null) where T : Data<T>;
-        List<T> GetAll<T>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>;
-        List<TU> GetAll<T, TU>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>;
+        IEnumerable<T> All<T>(string extraParms = null) where T : Data<T>;
+        IEnumerable<TU> All<T, TU>(string extraParms = null) where T : Data<T>;
+        IEnumerable<T> All<T>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>;
+        IEnumerable<TU> All<T, TU>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>;
 
-        List<T> ReferenceQueryByField<T>(string field, string id) where T : Data<T>;
-        List<T> ReferenceQueryByField<T>(object query) where T : Data<T>;
+        IEnumerable<T> ReferenceQueryByField<T>(string field, string id) where T : Data<T>;
+        IEnumerable<T> ReferenceQueryByField<T>(object query) where T : Data<T>;
 
         long RecordCount<T>() where T : Data<T>;
         long RecordCount<T>(string extraParms) where T : Data<T>;
@@ -36,7 +36,7 @@ namespace Zen.Base.Module
         #region Change 
         void Insert<T>(Data<T> data) where T : Data<T>;
         string Save<T>(Data<T> data) where T : Data<T>;
-        void BulkSave<T>(List<T> source) where T : Data<T>;
+        void BulkSave<T>(IEnumerable<T> source) where T : Data<T>;
         #endregion
 
         #region Remove
@@ -48,7 +48,7 @@ namespace Zen.Base.Module
         #endregion
 
         #region Execute
-        List<T> Do<T>(InterceptorQuery.EOperation pOperation, object query, object parm = null);
+        IEnumerable<T> Do<T>(InterceptorQuery.EOperation pOperation, object query, object parm = null);
         #endregion
     }
 }

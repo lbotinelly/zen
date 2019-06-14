@@ -2,6 +2,6 @@
 {
     public interface IAfterActionPipeline : IPipelinePrimitive
     {
-        void Process<T>(string action, T current, T source) where T : Data<T>;
+        void Process<T>(EAction action, T current, T source) where T : Data<T>;
     }
 }

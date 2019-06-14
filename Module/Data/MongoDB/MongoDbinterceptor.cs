@@ -22,7 +22,7 @@ namespace Zen.Module.Data.MongoDB {
     public class MongoDbinterceptor : IInterceptor
     {
         private IMongoClient _client;
-        private static readonly List<Type> _typeCache = new List<Type>();
+        private static readonly IEnumerable<Type> _typeCache = new IEnumerable<Type>();
 
         private string _idProp;
         private object _instance;
@@ -172,19 +172,19 @@ namespace Zen.Module.Data.MongoDB {
             Collection.DeleteOne(filter);
         }
 
-        public void BulkSave<T>(List<T> source) where T : Data<T>
+        public void BulkSave<T>(IEnumerable<T> source) where T : Data<T>
         {
             var c = 0;
 
             if (source == null)
             {
-                //Current.Log.Add($"{ThreadHelper.Uid} - {Collection.CollectionNamespace}:BulkSave NULL list", Message.EContentType.Info);
+                //Current.Log.Add($"{ThreadHelper.Uid} - {Collection.CollectionNamespace}:BulkSave NULL IEnumerable", Message.EContentType.Info);
                 return;
             }
 
             if (source.Count == 0)
             {
-                //Current.Log.Add($"{ThreadHelper.Uid} - {Collection.CollectionNamespace}:BulkSave Empty list", Message.EContentType.Info);
+                //Current.Log.Add($"{ThreadHelper.Uid} - {Collection.CollectionNamespace}:BulkSave Empty IEnumerable", Message.EContentType.Info);
                 return;
             }
 
@@ -193,7 +193,7 @@ namespace Zen.Module.Data.MongoDB {
             try
             {
 
-                var buffer = new List<ReplaceOneModel<BsonDocument>>();
+                var buffer = new IEnumerable<ReplaceOneModel<BsonDocument>>();
 
 
 
@@ -239,7 +239,7 @@ namespace Zen.Module.Data.MongoDB {
             Collection.InsertOne(document);
         }
 
-        public List<T> Do<T>(InterceptorQuery.EOperation pOperation, object query, object parm = null)
+        public IEnumerable<T> Do<T>(InterceptorQuery.EOperation pOperation, object query, object parm = null)
         {
             switch (pOperation)
             {
@@ -259,9 +259,9 @@ namespace Zen.Module.Data.MongoDB {
             return null;
         }
 
-        public List<T> Query<T>(string sqlStatement, object rawObject) where T : Data<T> { return Query<T, T>(sqlStatement, rawObject); }
+        public IEnumerable<T> Query<T>(string sqlStatement, object rawObject) where T : Data<T> { return Query<T, T>(sqlStatement, rawObject); }
 
-        public List<TU> GetAll<T, TU>(string extraParms = null) where T : Data<T>
+        public IEnumerable<TU> All<T, TU>(string extraParms = null) where T : Data<T>
         {
             if (extraParms != null) return Query<T, TU>("{" + extraParms + "}", null);
 
@@ -273,9 +273,9 @@ namespace Zen.Module.Data.MongoDB {
             }
         }
 
-        public List<T> GetAll<T>(DataParametrizedGet parm, string extraParms = null) where T : Data<T> { return GetAll<T, T>(parm, extraParms); }
+        public IEnumerable<T> All<T>(DataParametrizedGet parm, string extraParms = null) where T : Data<T> { return All<T, T>(parm, extraParms); }
 
-        public List<TU> GetAll<T, TU>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>
+        public IEnumerable<TU> All<T, TU>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>
         {
             var queryFilter = parm.ToBsonQuery(extraParms);
             var querySort = parm.ToBsonFilter();
@@ -325,13 +325,13 @@ namespace Zen.Module.Data.MongoDB {
             return Collection.Count(q);
         }
 
-        public List<T> ReferenceQueryByField<T>(string field, string id) where T : Data<T>
+        public IEnumerable<T> ReferenceQueryByField<T>(string field, string id) where T : Data<T>
         {
             var q = $"{{'{field}': '{id}'}}";
             return Query<T>(q, null);
         }
 
-        public List<T> ReferenceQueryByField<T>(object query) where T : Data<T>
+        public IEnumerable<T> ReferenceQueryByField<T>(object query) where T : Data<T>
         {
             var q = query
                 .ToDictionary()
@@ -346,7 +346,7 @@ namespace Zen.Module.Data.MongoDB {
             Connect<T>(_statements.ConnectionString, _statements.Bundle);
         }
 
-        public List<T> Get<T>(List<string> identifiers)
+        public IEnumerable<T> Get<T>(IEnumerable<string> identifiers)
         {
             var filter = Builders<BsonDocument>.Filter.In("_id", identifiers);
             var col = Collection.Find(filter).ToList();
@@ -354,11 +354,11 @@ namespace Zen.Module.Data.MongoDB {
             return res;
         }
 
-        public List<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype) where T : Data<T> { return Query<T, TU>(statement, rawObject, ptype, InterceptorQuery.EOperation.Query); }
+        public IEnumerable<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype) where T : Data<T> { return Query<T, TU>(statement, rawObject, ptype, InterceptorQuery.EOperation.Query); }
 
-        public List<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype, InterceptorQuery.EOperation pOperation) where T : Data<T>
+        public IEnumerable<TU> Query<T, TU>(string statement, object rawObject, InterceptorQuery.EType ptype, InterceptorQuery.EOperation pOperation) where T : Data<T>
         {
-            List<TU> ret = null;
+            IEnumerable<TU> ret = null;
 
             switch (pOperation)
             {
@@ -372,7 +372,7 @@ namespace Zen.Module.Data.MongoDB {
             return ret;
         }
 
-        public void Initialize<T>() where T : Data<T>
+        public void Initialize<T>(Settings settings) where T : Data<T>
         {
             // Check for the presence of text indexes '$**'
             try
@@ -387,7 +387,7 @@ namespace Zen.Module.Data.MongoDB {
             }
         }
 
-        public List<T> GetAll<T>(string extraParms = null) where T : Data<T> { return GetAll<T, T>(); }
+        public IEnumerable<T> All<T>(string extraParms = null) where T : Data<T> { return All<T, T>(); }
 
         public void CopyTo(string originSet, string destinationSet, bool wipeDestination = false)
         {
@@ -413,7 +413,7 @@ namespace Zen.Module.Data.MongoDB {
             Database.RunCommand(command);
         }
 
-        public List<TU> Query<T, TU>(string sqlStatement, object rawObject) where T : Data<T>
+        public IEnumerable<TU> Query<T, TU>(string sqlStatement, object rawObject) where T : Data<T>
         {
             var rawQuery = sqlStatement ?? BsonExtensionMethods.ToJson(rawObject);
 
@@ -425,7 +425,7 @@ namespace Zen.Module.Data.MongoDB {
             return transform;
         }
 
-        public List<TU> GetAll<TU>(IMongoCollection<BsonDocument> sourceCollection)
+        public IEnumerable<TU> GetAll<TU>(IMongoCollection<BsonDocument> sourceCollection)
         {
             var src = sourceCollection
                 .Find(new BsonDocument())
@@ -544,7 +544,7 @@ namespace Zen.Module.Data.MongoDB {
         private void SetCollection() { Collection = Database.GetCollection<BsonDocument>(SourceCollection); }
         public void ClearCollection(string name) { Database.GetCollection<BsonDocument>(name).DeleteMany(new BsonDocument()); }
         public void DropCollection(string name) { Database.DropCollection(name); }
-        public List<TU> GetCollection<TU>(string name) { return GetAll<TU>(Database.GetCollection<BsonDocument>(name)); }
+        public IEnumerable<TU> GetCollection<TU>(string name) { return GetAll<TU>(Database.GetCollection<BsonDocument>(name)); }
         public TU GetCollectionMember<TU>(string name, string locator) where TU : Data<TU> { return Get<TU>(Database.GetCollection<BsonDocument>(name), locator); }
 
         public void AddSourceCollectionSuffix(string suffix)

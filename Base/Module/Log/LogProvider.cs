@@ -34,11 +34,30 @@ namespace Zen.Base.Module.Log
             if (e.InnerException != null) Add(e.InnerException);
         }
 
+        public virtual void Add<T>(Exception e, string message, string token = null)
+        {
+            if (e is AggregateException es)
+            {
+                foreach (var e1 in es.InnerExceptions) Add<T>(e1, message, token);
+                return;
+            }
+
+            Add(Converter.ToMessage<T>(e));
+
+            if (e.InnerException != null) Add<T>(e.InnerException);
+        }
+
         public virtual void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic) { Add(t.FullName + " : " + message, type); }
 
         public virtual void Add(string pMessage, Exception e) { Add(e, pMessage, null); }
 
+        public void Warn<T>(string v){Warn(typeof(T).Name + ": " + v);}
         public virtual void Warn(string content) { Add(content, Message.EContentType.Warning); }
+
+        public void Add<T>(Exception e)
+        {
+            Add<T>(e, null,null);
+        }
 
         public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
 

@@ -39,7 +39,10 @@ namespace Zen.Base.Extension
             "CommonLanguageRuntimeLibrary"
         };
 
-        public static TU ToType<TU, T>(this T source) where TU : Data<TU> where T : Data<T> { return source.ToJson().FromJson<TU>(); }
+        public static TU ToType<TU, T>(this T source) where T : Data<T>
+        {
+            return source.ToJson().FromJson<TU>();
+        }
 
         public static void CopyProperties<T>(this T source, T destination)
         {

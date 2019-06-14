@@ -24,5 +24,6 @@ namespace Zen.Base.Module.Data {
         public string PersistentEnvironmentCode { get; set; }
         public bool SuppressErrors { get; set; }
         public bool IgnoreEnvironmentPrefix { get; set; }
+        public string DisplayProperty { get; set; }
     }
 }
