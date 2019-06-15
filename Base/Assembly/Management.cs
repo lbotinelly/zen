@@ -38,13 +38,11 @@ namespace Zen.Base.Assembly
 #pragma warning disable 618
             AppDomain.CurrentDomain.SetShadowCopyFiles();
 
-            var targetScDir = Configuration.DataDirectory + "\\sc";
+            var targetScDir = $"{Configuration.DataDirectory}{Path.PathSeparator}sc";
 
             if (!Directory.Exists(targetScDir)) Directory.CreateDirectory(targetScDir);
 
             AppDomain.CurrentDomain.SetCachePath(targetScDir);
-
-            //Modules.Log.System.Add($"    ShadowCopy @ {targetScDir}", Message.EContentType.Info);
 
 #pragma warning restore 618
 
@@ -78,16 +76,12 @@ namespace Zen.Base.Assembly
 
                 //var modList = AssemblyCache.Select(i => i.Value.ToString().Split(',')[0]).ToJson();
 
-                //Modules.Log.System.Add("   Loading " + modList, Message.EContentType.MoreInfo);
-
                 foreach (var item in AssemblyCache)
                 {
                     errCount = 0;
 
                     try { item.Value.GetTypes(); } catch (Exception e)
                     {
-                        //Modules.Log.System.Add("   ERR loading " + item.Value.ToString().Split(',')[0], Message.EContentType.Exception);
-
                         if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
                         {
                             //foreach (var exSub in ((ReflectionTypeLoadException) e).LoaderExceptions) Modules.Log.System.Add(exSub.Message, Message.EContentType.Warning);
@@ -96,16 +90,7 @@ namespace Zen.Base.Assembly
                         errCount++;
                     }
                 }
-
-                //Modules.Log.System.Add("    Previous " + lastErrCount + ", current " + errCount + " errors");
             }
-
-            //Modules.Log.System.Add("Loaded modules: ");
-            //foreach (var item in AssemblyCache) Modules.Log.System.Add("    " + item.Value.Location + " (" + item.Value + ")");
-
-            //Modules.Log.System.Add("Fatal Load Errors: " + errCount);
-
-            //Modules.Log.System.Add("Warm-up FINISH", Message.EContentType.StartupSequence);
         }
 
         private static System.Reflection.Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }

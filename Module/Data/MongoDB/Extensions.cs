@@ -7,7 +7,7 @@ using Zen.Base.Module;
 namespace Zen.Module.Data.MongoDB {
     public static class Extensions
     {
-        public static BsonDocument ToBsonQuery(this DataParametrizedGet parm, string extraParms = null)
+        public static BsonDocument ToBsonQuery(this QueryPayload parm, string extraParms = null)
         {
             string query = null;
 
@@ -56,7 +56,7 @@ namespace Zen.Module.Data.MongoDB {
             return queryFilter;
         }
 
-        public static BsonDocument ToBsonFilter(this DataParametrizedGet parm)
+        public static BsonDocument ToBsonFilter(this QueryPayload parm)
         {
             var sortFilter = new BsonDocument();
 

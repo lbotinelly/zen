@@ -23,15 +23,16 @@ namespace Zen.Base.Module
 
         private static void ValidateEntityState()
         {
-            if (Info<T>.Settings.State.Status != Settings.EStatus.Operational && Info<T>.Settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+            if (Info<T>.Settings.State.Status != Settings.EStatus.Operational && Info<T>.Settings.State.Status != Settings.EStatus.Initializing)
+                throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
         }
 
         #endregion
 
         public static class Info<T> where T : Data<T>
         {
-            internal static Settings Settings => ClassRegistration[typeof(T)].Item1;
-            internal static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
+            public static Settings Settings => ClassRegistration[typeof(T)].Item1;
+            public static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
         }
 
         #region Static references
@@ -379,7 +380,7 @@ namespace Zen.Base.Module
 
             BeforeSave();
 
-            Info<T>.Settings.Interceptor.Save(rec);
+            Info<T>.Settings.Interceptor.Upsert(rec);
 
             if (Info<T>.Configuration?.UseCaching == true)
                 if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)

@@ -1,6 +1,4 @@
 ﻿using System;
-using Zen.Base.Extension;
-using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Data.Adapter
 {
@@ -10,47 +8,41 @@ namespace Zen.Base.Module.Data.Adapter
 
         public virtual void SetConnectionString<T>() where T : Data<T>
         {
-            var statements = Data<T>.Info<T>.Settings;
-            var tableData = Data<T>.Info<T>.Configuration;
+            var settings = Data<T>.Info<T>.Settings;
+            
+            var envCode = settings.EnvironmentCode;
 
-            var envCode = statements.EnvironmentCode;
-
-            if (!statements.ConnectionCypherKeys.ContainsKey(envCode))
+            if (!settings.ConnectionCypherKeys.ContainsKey(envCode))
             {
-                if (statements.ConnectionCypherKeys.ContainsKey("STA")) //There is a standard code available.
-                {
+                if (settings.ConnectionCypherKeys.ContainsKey("STA")) //There is a standard code available.
                     envCode = "STA";
-
-                }
-                else Current.Log.Warn<T>($"No ConnectionCypherKeys for [STA] environment");
+                else Current.Log.Warn<T>("No ConnectionCypherKeys for [STA] environment");
             }
 
-            if (statements.ConnectionCypherKeys.ContainsKey(envCode))
-                statements.ConnectionString = statements.ConnectionCypherKeys[envCode];
+            if (settings.ConnectionCypherKeys.ContainsKey(envCode))
+                settings.ConnectionString = settings.ConnectionCypherKeys[envCode];
 
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
-            statements.ConnectionString = Current.Encryption.TryDecrypt(statements.ConnectionString);
+            settings.ConnectionString = Current.Encryption.TryDecrypt(settings.ConnectionString);
 
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
-            statements.CredentialsString = Current.Encryption.TryDecrypt(statements.CredentialsString);
+            settings.CredentialsString = Current.Encryption.TryDecrypt(settings.CredentialsString);
 
-            if (string.IsNullOrEmpty(statements.ConnectionString)) Current.Log.Warn<T>($"Connection Cypher Key not set");
+            if (string.IsNullOrEmpty(settings.ConnectionString)) Current.Log.Warn<T>("Connection Cypher Key not set");
 
-            if (!statements.CredentialCypherKeys.ContainsKey(envCode)) return;
+            if (!settings.CredentialCypherKeys.ContainsKey(envCode)) return;
 
             //Handling credentials
+            if (settings.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1)
+                Current.Log.Warn<T>("Credentials set, but no placeholder found on connection string");
 
-            if (statements.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1)
-                Current.Log.Warn<T>($"Credentials set, but no placeholder found on connection string");
-
-            statements.CredentialsString = statements.CredentialCypherKeys[envCode];
+            settings.CredentialsString = settings.CredentialCypherKeys[envCode];
 
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
-            statements.CredentialsString = Current.Encryption.TryDecrypt(statements.CredentialsString);
+            settings.CredentialsString = Current.Encryption.TryDecrypt(settings.CredentialsString);
 
-            statements.ConnectionString = statements.ConnectionString.Replace("{credentials}", statements.CredentialsString);
+            settings.ConnectionString =
+                settings.ConnectionString.Replace("{credentials}", settings.CredentialsString);
         } // ReSharper disable InconsistentNaming
-        protected internal Type dynamicParameterType = null;
-        protected internal bool useOutputParameterForInsertedKeyExtraction = false;
     }
 }

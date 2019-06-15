@@ -17,7 +17,7 @@ namespace Zen.Base.Diagnostics {
         {
             _timeSpan = timeSpan;
             _onThreshold = onThreshold;
-            Events.Shutdown.Actions.Add(FlushCache);
+            Events.ShutdownSequence.Actions.Add(FlushCache);
         }
 
         public void Pip(T type, TU holder) { Pip(type, holder, 1); }

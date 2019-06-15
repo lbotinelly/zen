@@ -13,6 +13,6 @@ namespace Zen.Base.Module.Default
         public bool CheckPermission(string pCode) => true;
         public bool CheckPermission(IEnumerable<string> pCode) => true;
         public void Shutdown() { }
-        public void Initialize() { Events.Shutdown.Actions.Add(Shutdown); }
+        public void Initialize() { Events.ShutdownSequence.Actions.Add(Shutdown); }
     }
 }

@@ -11,7 +11,7 @@ namespace Zen.Base
         static Configuration()
         {
             BaseDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            DataDirectory = BaseDirectory + "\\data";
+            DataDirectory = $"{BaseDirectory}{Path.PathSeparator}data";
 
             Version = System.Reflection.Assembly.GetCallingAssembly().GetName().Version.ToString();
             Host = System.Diagnostics.Process.GetCurrentProcess().ProcessName;

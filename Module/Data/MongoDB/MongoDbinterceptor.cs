@@ -133,7 +133,7 @@ namespace Zen.Module.Data.MongoDB {
             }
         }
 
-        public string Save<T>(Data<T> obj) where T : Data<T>
+        public string Upsert<T>(Data<T> obj) where T : Data<T>
         {
             try
             {
@@ -273,9 +273,9 @@ namespace Zen.Module.Data.MongoDB {
             }
         }
 
-        public IEnumerable<T> All<T>(DataParametrizedGet parm, string extraParms = null) where T : Data<T> { return All<T, T>(parm, extraParms); }
+        public IEnumerable<T> All<T>(QueryPayload parm, string extraParms = null) where T : Data<T> { return All<T, T>(parm, extraParms); }
 
-        public IEnumerable<TU> All<T, TU>(DataParametrizedGet parm, string extraParms = null) where T : Data<T>
+        public IEnumerable<TU> All<T, TU>(QueryPayload parm, string extraParms = null) where T : Data<T>
         {
             var queryFilter = parm.ToBsonQuery(extraParms);
             var querySort = parm.ToBsonFilter();
@@ -313,13 +313,13 @@ namespace Zen.Module.Data.MongoDB {
             return res;
         }
 
-        public long RecordCount<T>() where T : Data<T> { return Collection.Count(new BsonDocument()); }
+        public long Count<T>() where T : Data<T> { return Collection.Count(new BsonDocument()); }
 
-        public long RecordCount<T>(string extraParms) where T : Data<T> { return extraParms == null ? RecordCount<T>() : Collection.Count(BsonDocument.Parse(extraParms)); }
+        public long Count<T>(string extraParms) where T : Data<T> { return extraParms == null ? Count<T>() : Collection.Count(BsonDocument.Parse(extraParms)); }
 
-        public long RecordCount<T>(DataParametrizedGet qTerm) where T : Data<T> { return RecordCount<T>(qTerm, null); }
+        public long Count<T>(QueryPayload qTerm) where T : Data<T> { return Count<T>(qTerm, null); }
 
-        public long RecordCount<T>(DataParametrizedGet qTerm, string parm) where T : Data<T>
+        public long Count<T>(QueryPayload qTerm, string parm) where T : Data<T>
         {
             var q = qTerm.ToBsonQuery(parm);
             return Collection.Count(q);

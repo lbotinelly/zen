@@ -1,0 +1,183 @@
+2019-06-15 00:12:16.760 +00:00 [INF] Zen 1.0.0.0
+2019-06-15 00:12:16.900 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:12:16.901 +00:00 [DBG] 
+2019-06-15 00:12:16.901 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-15 00:12:16.901 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-15 00:12:16.901 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-15 00:12:16.902 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-15 00:12:16.902 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-15 00:12:22.662 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-15 00:12:22.663 +00:00 [DBG]       Application : SimpleConsole
+2019-06-15 00:12:22.664 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-15 00:12:22.664 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2:data
+2019-06-15 00:12:22.665 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:12:22.666 +00:00 [INF] Hello World!
+2019-06-15 00:12:22.677 +00:00 [INF] sourceStr: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:12:22.678 +00:00 [INF] md5Hashed: 61c23d1a355553a2e1d03262b3552edf
+2019-06-15 00:12:22.678 +00:00 [INF] Hash_Guid: 1a3dc2615535a253e1d03262b3552edf
+2019-06-15 00:12:22.679 +00:00 [INF] Sha512Hsh: 7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:12:22.680 +00:00 [INF] Meta_Hash: 61c23d1a355553a2e1d03262b3552edf-7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:12:22.680 +00:00 [INF] To_Base64: VGhlIENhbGlmb3JuaWEgQ29uc3VtZXIgUHJpdmFjeSBBY3QgZ29lcyBpbnRvIGVmZmVjdCBKYW51YXJ5IDEsIDIwMjA=
+2019-06-15 00:12:22.681 +00:00 [INF] encrypted: tr12byz8BKXUnDjtbVPrZHSWcrDPQYK3lfQYvvlrcvbWqy/u+0EC0/j4HnQxEl70y+smCnY2t3L50BHU+iyPGz22O2Qi6o8GT4a+xf0NyxQ=
+2019-06-15 00:12:22.681 +00:00 [INF] decrypted: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:12:25.635 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-15 00:12:25.635 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-15 00:12:25.740 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-15 00:12:25.741 +00:00 [DBG] Settings.Bundle : LiteDbDefaultBundle
+2019-06-15 00:12:25.741 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-15 00:12:25.743 +00:00 [INF] SampleModel : Ready
+2019-06-15 00:13:09.612 +00:00 [INF] Zen 1.0.0.0
+2019-06-15 00:13:09.694 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:13:09.694 +00:00 [DBG] 
+2019-06-15 00:13:09.695 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-15 00:13:09.696 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-15 00:13:09.697 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-15 00:13:09.697 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-15 00:13:09.698 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-15 00:13:09.700 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-15 00:13:09.701 +00:00 [DBG]       Application : SimpleConsole
+2019-06-15 00:13:09.701 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-15 00:13:09.702 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2:data
+2019-06-15 00:13:09.702 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:13:09.703 +00:00 [INF] Hello World!
+2019-06-15 00:13:09.714 +00:00 [INF] sourceStr: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:13:09.715 +00:00 [INF] md5Hashed: 61c23d1a355553a2e1d03262b3552edf
+2019-06-15 00:13:09.715 +00:00 [INF] Hash_Guid: 1a3dc2615535a253e1d03262b3552edf
+2019-06-15 00:13:09.715 +00:00 [INF] Sha512Hsh: 7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:13:09.715 +00:00 [INF] Meta_Hash: 61c23d1a355553a2e1d03262b3552edf-7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:13:09.715 +00:00 [INF] To_Base64: VGhlIENhbGlmb3JuaWEgQ29uc3VtZXIgUHJpdmFjeSBBY3QgZ29lcyBpbnRvIGVmZmVjdCBKYW51YXJ5IDEsIDIwMjA=
+2019-06-15 00:13:09.715 +00:00 [INF] encrypted: tr12byz8BKXUnDjtbVPrZHSWcrDPQYK3lfQYvvlrcvbWqy/u+0EC0/j4HnQxEl70y+smCnY2t3L50BHU+iyPGz22O2Qi6o8GT4a+xf0NyxQ=
+2019-06-15 00:13:09.715 +00:00 [INF] decrypted: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:13:09.755 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-15 00:13:09.755 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-15 00:13:09.858 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-15 00:13:09.858 +00:00 [DBG] Settings.Bundle : LiteDbDefaultBundle
+2019-06-15 00:13:09.859 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-15 00:13:09.859 +00:00 [INF] SampleModel : Ready
+2019-06-15 00:13:50.559 +00:00 [INF] Zen 1.0.0.0
+2019-06-15 00:13:50.644 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:13:50.646 +00:00 [DBG] 
+2019-06-15 00:13:50.649 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-15 00:13:50.651 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-15 00:13:50.653 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-15 00:13:50.656 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-15 00:13:50.658 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-15 00:13:50.661 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-15 00:13:50.663 +00:00 [DBG]       Application : SimpleConsole
+2019-06-15 00:13:50.665 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-15 00:13:50.667 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2:data
+2019-06-15 00:13:50.668 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:13:57.483 +00:00 [INF] Hello World!
+2019-06-15 00:14:16.225 +00:00 [INF] sourceStr: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:14:17.255 +00:00 [INF] md5Hashed: 61c23d1a355553a2e1d03262b3552edf
+2019-06-15 00:14:18.015 +00:00 [INF] Hash_Guid: 1a3dc2615535a253e1d03262b3552edf
+2019-06-15 00:14:18.923 +00:00 [INF] Sha512Hsh: 7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:14:19.800 +00:00 [INF] Meta_Hash: 61c23d1a355553a2e1d03262b3552edf-7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:14:21.112 +00:00 [INF] To_Base64: VGhlIENhbGlmb3JuaWEgQ29uc3VtZXIgUHJpdmFjeSBBY3QgZ29lcyBpbnRvIGVmZmVjdCBKYW51YXJ5IDEsIDIwMjA=
+2019-06-15 00:14:22.259 +00:00 [INF] encrypted: tr12byz8BKXUnDjtbVPrZHSWcrDPQYK3lfQYvvlrcvbWqy/u+0EC0/j4HnQxEl70y+smCnY2t3L50BHU+iyPGz22O2Qi6o8GT4a+xf0NyxQ=
+2019-06-15 00:14:24.904 +00:00 [INF] decrypted: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:15:16.129 +00:00 [INF] Zen 1.0.0.0
+2019-06-15 00:15:16.214 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:15:16.214 +00:00 [DBG] 
+2019-06-15 00:15:16.215 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-15 00:15:16.216 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-15 00:15:16.216 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-15 00:15:16.216 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-15 00:15:16.216 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-15 00:15:16.217 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-15 00:15:16.217 +00:00 [DBG]       Application : SimpleConsole
+2019-06-15 00:15:16.217 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-15 00:15:16.217 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2:data
+2019-06-15 00:15:16.217 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:15:16.218 +00:00 [INF] Hello World!
+2019-06-15 00:15:16.228 +00:00 [INF] sourceStr: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:15:16.228 +00:00 [INF] md5Hashed: 61c23d1a355553a2e1d03262b3552edf
+2019-06-15 00:15:16.228 +00:00 [INF] Hash_Guid: 1a3dc2615535a253e1d03262b3552edf
+2019-06-15 00:15:16.228 +00:00 [INF] Sha512Hsh: 7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:15:16.228 +00:00 [INF] Meta_Hash: 61c23d1a355553a2e1d03262b3552edf-7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:15:16.228 +00:00 [INF] To_Base64: VGhlIENhbGlmb3JuaWEgQ29uc3VtZXIgUHJpdmFjeSBBY3QgZ29lcyBpbnRvIGVmZmVjdCBKYW51YXJ5IDEsIDIwMjA=
+2019-06-15 00:15:16.228 +00:00 [INF] encrypted: tr12byz8BKXUnDjtbVPrZHSWcrDPQYK3lfQYvvlrcvbWqy/u+0EC0/j4HnQxEl70y+smCnY2t3L50BHU+iyPGz22O2Qi6o8GT4a+xf0NyxQ=
+2019-06-15 00:15:16.229 +00:00 [INF] decrypted: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:15:16.271 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-15 00:15:16.272 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-15 00:15:16.382 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-15 00:15:16.382 +00:00 [DBG] Settings.Bundle : LiteDbDefaultBundle
+2019-06-15 00:15:16.382 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-15 00:15:16.383 +00:00 [INF] SampleModel : Ready
+2019-06-15 00:15:16.413 +00:00 [INF] SampleModel have: 0 records
+2019-06-15 00:15:16.833 +00:00 [INF] Stack shutdown initiated: Process Exit
+2019-06-15 00:15:16.834 +00:00 [DBG]     Session Start : 06/15/2019 00:15:15
+2019-06-15 00:15:16.835 +00:00 [DBG]       Session End : 06/15/2019 00:15:16
+2019-06-15 00:15:16.835 +00:00 [DBG]  Session lifetime : 00:00:00.9464914
+2019-06-15 00:15:16.835 +00:00 [INF]   _|\_/|  ZZZzzz
+2019-06-15 00:15:16.835 +00:00 [INF] c(_(-.-)
+2019-06-15 00:21:38.485 +00:00 [INF] Zen 1.0.0.0
+2019-06-15 00:21:38.573 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:21:38.574 +00:00 [DBG] 
+2019-06-15 00:21:38.576 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-15 00:21:38.577 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-15 00:21:38.577 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-15 00:21:38.578 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-15 00:21:38.579 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-15 00:21:38.580 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-15 00:21:38.581 +00:00 [DBG]       Application : SimpleConsole
+2019-06-15 00:21:38.583 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-15 00:21:38.583 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2:data
+2019-06-15 00:21:38.584 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:21:38.585 +00:00 [INF] Hello World!
+2019-06-15 00:21:38.596 +00:00 [INF] sourceStr: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:21:38.596 +00:00 [INF] md5Hashed: 61c23d1a355553a2e1d03262b3552edf
+2019-06-15 00:21:38.596 +00:00 [INF] Hash_Guid: 1a3dc2615535a253e1d03262b3552edf
+2019-06-15 00:21:38.597 +00:00 [INF] Sha512Hsh: 7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:21:38.597 +00:00 [INF] Meta_Hash: 61c23d1a355553a2e1d03262b3552edf-7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:21:38.597 +00:00 [INF] To_Base64: VGhlIENhbGlmb3JuaWEgQ29uc3VtZXIgUHJpdmFjeSBBY3QgZ29lcyBpbnRvIGVmZmVjdCBKYW51YXJ5IDEsIDIwMjA=
+2019-06-15 00:21:38.597 +00:00 [INF] encrypted: tr12byz8BKXUnDjtbVPrZHSWcrDPQYK3lfQYvvlrcvbWqy/u+0EC0/j4HnQxEl70y+smCnY2t3L50BHU+iyPGz22O2Qi6o8GT4a+xf0NyxQ=
+2019-06-15 00:21:38.597 +00:00 [INF] decrypted: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:21:38.640 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-15 00:21:38.640 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-15 00:21:38.742 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-15 00:21:38.742 +00:00 [DBG] Settings.Bundle : LiteDbDefaultBundle
+2019-06-15 00:21:38.742 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-15 00:21:38.743 +00:00 [INF] SampleModel : Ready
+2019-06-15 00:21:38.816 +00:00 [INF] SampleModel have: 1 records
+2019-06-15 00:21:39.231 +00:00 [INF] Stack shutdown initiated: Process Exit
+2019-06-15 00:21:39.232 +00:00 [DBG]     Session Start : 06/15/2019 00:21:38
+2019-06-15 00:21:39.232 +00:00 [DBG]       Session End : 06/15/2019 00:21:39
+2019-06-15 00:21:39.233 +00:00 [DBG]  Session lifetime : 00:00:00.9950301
+2019-06-15 00:21:39.233 +00:00 [INF]   _|\_/|  ZZZzzz
+2019-06-15 00:21:39.233 +00:00 [INF] c(_(-.-)
+2019-06-15 00:24:47.349 +00:00 [INF] Zen 1.0.0.0
+2019-06-15 00:24:47.434 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:24:47.435 +00:00 [DBG] 
+2019-06-15 00:24:47.436 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-15 00:24:47.437 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-15 00:24:47.437 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-15 00:24:47.438 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-15 00:24:47.439 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-15 00:24:47.440 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-15 00:24:47.440 +00:00 [DBG]       Application : SimpleConsole
+2019-06-15 00:24:47.441 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-15 00:24:47.441 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2:data
+2019-06-15 00:24:47.442 +00:00 [DBG] ________________________________________________________________________________
+2019-06-15 00:24:47.443 +00:00 [INF] Hello World!
+2019-06-15 00:24:47.454 +00:00 [INF] sourceStr: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:24:47.454 +00:00 [INF] md5Hashed: 61c23d1a355553a2e1d03262b3552edf
+2019-06-15 00:24:47.455 +00:00 [INF] Hash_Guid: 1a3dc2615535a253e1d03262b3552edf
+2019-06-15 00:24:47.456 +00:00 [INF] Sha512Hsh: 7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:24:47.457 +00:00 [INF] Meta_Hash: 61c23d1a355553a2e1d03262b3552edf-7085a04c0c16e23b8ca76ad472ce0db9cb4fbe6a47ead6aef530dbbef32fcf9b90c35e0b5b622368e64db18a341f1ddcac2b0f04c017acd8c8aa422723f09b63
+2019-06-15 00:24:47.458 +00:00 [INF] To_Base64: VGhlIENhbGlmb3JuaWEgQ29uc3VtZXIgUHJpdmFjeSBBY3QgZ29lcyBpbnRvIGVmZmVjdCBKYW51YXJ5IDEsIDIwMjA=
+2019-06-15 00:24:47.459 +00:00 [INF] encrypted: tr12byz8BKXUnDjtbVPrZHSWcrDPQYK3lfQYvvlrcvbWqy/u+0EC0/j4HnQxEl70y+smCnY2t3L50BHU+iyPGz22O2Qi6o8GT4a+xf0NyxQ=
+2019-06-15 00:24:47.460 +00:00 [INF] decrypted: The California Consumer Privacy Act goes into effect January 1, 2020
+2019-06-15 00:24:47.502 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-15 00:24:47.503 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-15 00:24:47.609 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-15 00:24:47.609 +00:00 [DBG] Settings.Bundle : LiteDbDefaultBundle
+2019-06-15 00:24:47.609 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-15 00:24:47.610 +00:00 [INF] SampleModel : Ready
+2019-06-15 00:24:47.685 +00:00 [INF] SampleModel have: 2 records
+2019-06-15 00:24:48.093 +00:00 [INF] Stack shutdown initiated: Process Exit
+2019-06-15 00:24:48.093 +00:00 [DBG]     Session Start : 06/15/2019 00:24:47
+2019-06-15 00:24:48.094 +00:00 [DBG]       Session End : 06/15/2019 00:24:48
+2019-06-15 00:24:48.094 +00:00 [DBG]  Session lifetime : 00:00:00.9824918
+2019-06-15 00:24:48.094 +00:00 [INF]   _|\_/|  ZZZzzz
+2019-06-15 00:24:48.094 +00:00 [INF] c(_(-.-)

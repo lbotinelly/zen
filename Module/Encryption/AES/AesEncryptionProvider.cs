@@ -124,8 +124,8 @@ namespace Zen.Module.Encryption.AES
 
         public override void Initialize()
         {
-            Events.Bootup.Actions.Add(InitSettings);
-            Events.Shutdown.Actions.Add(Shutdown);
+            Events.StartupSequence.Actions.Add(InitSettings);
+            Events.ShutdownSequence.Actions.Add(Shutdown);
         }
 
     }

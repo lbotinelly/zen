@@ -11,16 +11,25 @@ namespace Zen.Base.Module.Log
 
         public virtual Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Debug;
 
-        public virtual void Add(bool content) { Add(content.ToString()); }
+        public virtual void Add(bool content)
+        {
+            Add(content.ToString());
+        }
 
-        public virtual void Add(string pattern, params object[] replacementStrings) { Add(string.Format(pattern, replacementStrings)); }
+        public virtual void Add(string pattern, params object[] replacementStrings)
+        {
+            Add(string.Format(pattern, replacementStrings));
+        }
 
         public virtual void Add(Exception[] es)
         {
-            foreach (var exception in es) Add(exception, null, null);
+            foreach (var exception in es) Add(exception, null);
         }
 
-        public virtual void Add(Exception e) { Add(e, null, null); }
+        public virtual void Add(Exception e)
+        {
+            Add(e, null);
+        }
 
         public virtual void Add(Exception e, string message, string token = null)
         {
@@ -34,36 +43,50 @@ namespace Zen.Base.Module.Log
             if (e.InnerException != null) Add(e.InnerException);
         }
 
-        public virtual void Add<T>(Exception e, string message, string token = null)
+        public virtual void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic)
         {
-            if (e is AggregateException es)
-            {
-                foreach (var e1 in es.InnerExceptions) Add<T>(e1, message, token);
-                return;
-            }
-
-            Add(Converter.ToMessage<T>(e));
-
-            if (e.InnerException != null) Add<T>(e.InnerException);
+            Add(t.FullName + " : " + message, type);
         }
 
-        public virtual void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic) { Add(t.FullName + " : " + message, type); }
+        public virtual void Add(string pMessage, Exception e)
+        {
+            Add(e, pMessage);
+        }
 
-        public virtual void Add(string pMessage, Exception e) { Add(e, pMessage, null); }
+        public void Warn<T>(string v)
+        {
+            Warn(typeof(T).Name + ": " + v);
+        }
 
-        public void Warn<T>(string v){Warn(typeof(T).Name + ": " + v);}
-        public virtual void Warn(string content) { Add(content, Message.EContentType.Warning); }
+        public virtual void Warn(string content)
+        {
+            Add(content, Message.EContentType.Warning);
+        }
 
         public void Add<T>(Exception e)
         {
-            Add<T>(e, null,null);
+            Add<T>(e, null);
         }
 
-        public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
+        public virtual void Info(string content)
+        {
+            Add(content, Message.EContentType.Info);
+        }
 
-        public virtual void Debug(string content) { Add(content, Message.EContentType.Debug); }
+        public virtual void Debug(string content)
+        {
+            Add(content, Message.EContentType.Debug);
+        }
 
-        public virtual void Maintenance(string content) { Add(content, Message.EContentType.Maintenance); }
+        public void Debug<T>(string content)
+        {
+            Debug(typeof(T).Name + ": " + content);
+        }
+
+        public virtual void Maintenance(string content)
+        {
+            Add(content, Message.EContentType.Maintenance);
+        }
 
         public virtual void Add(string content, Message.EContentType type = Message.EContentType.Generic)
         {
@@ -120,20 +143,37 @@ namespace Zen.Base.Module.Log
 
         public void Initialize()
         {
-            Events.Bootup.Actions.Add(Start);
-            Events.Shutdown.Actions.Add(Shutdown);
+            Events.StartupSequence.Actions.Add(Start);
+            Events.ShutdownSequence.Actions.Add(Shutdown);
+        }
+
+        public virtual void Add<T>(Exception e, string message, string token = null)
+        {
+            if (e is AggregateException es)
+            {
+                foreach (var e1 in es.InnerExceptions) Add<T>(e1, message, token);
+                return;
+            }
+
+            Add(Converter.ToMessage<T>(e));
+
+            if (e.InnerException != null) Add<T>(e.InnerException);
         }
 
         public void Start()
         {
             //_logger = ((ILoggerFactory) Current.ServiceProvider.GetService(typeof(ILoggerFactory))).CreateLogger<LogProvider>();
             _logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
                 .MinimumLevel.Debug()
                 .CreateLogger();
         }
 
-        public virtual void Shutdown() { Serilog.Log.CloseAndFlush(); }
+        public virtual void Shutdown()
+        {
+            Serilog.Log.CloseAndFlush();
+        }
     }
 }

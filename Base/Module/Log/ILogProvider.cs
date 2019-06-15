@@ -17,8 +17,9 @@ namespace Zen.Base.Module.Log
         void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic);
         void Info(string content);
         void Debug(string content);
+        void Debug<T>(string content);
         void Maintenance(string content);
-        void Warn<T>(string v);
+        void Warn<T>(string content);
         void Warn(string content);
         void Add<T>(Exception e);
     }

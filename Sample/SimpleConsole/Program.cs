@@ -35,6 +35,8 @@ namespace SimpleConsole
 
             var a = SampleModel.All().ToList();
 
+            Current.Log.Info($"SampleModel have: {a.Count} records");
+
             new SampleModel {Id = Guid.NewGuid().ToString(), Name = "Blah"}.Save();
         }
     }

@@ -18,7 +18,7 @@ namespace Zen.Base.Module.Environment
 
         public void Initialize()
         {
-            Events.Shutdown.Actions.Add(Shutdown);
+            Events.ShutdownSequence.Actions.Add(Shutdown);
         }
     }
 }

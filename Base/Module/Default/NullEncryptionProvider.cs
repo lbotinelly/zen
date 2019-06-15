@@ -10,6 +10,6 @@ namespace Zen.Base.Module.Default
         public override string Decrypt(string pContent) => pContent;
         public override string Encrypt(string pContent) => pContent;
         public void Shutdown() { }
-        public override void Initialize() { Events.Shutdown.Actions.Add(Shutdown); }
+        public override void Initialize() { Events.ShutdownSequence.Actions.Add(Shutdown); }
     }
 }
