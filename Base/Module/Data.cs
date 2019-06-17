@@ -273,7 +273,7 @@ namespace Zen.Base.Module
         internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>> ClassRegistration
             = new ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>>();
 
-        public static string GetKey(Data<T> oRef)
+        public static string GetDataKey(Data<T> oRef)
         {
             return oRef == null
                 ? null
@@ -281,7 +281,7 @@ namespace Zen.Base.Module
                 .ToString();
         }
 
-        public static string GetDisplay(Data<T> oRef)
+        public static string GetDataDisplay(Data<T> oRef)
         {
             return oRef == null ? null
                 : (oRef.GetType().GetProperty(Info<T>.Settings.DisplayMemberName)?.GetValue(oRef, null) ?? "").ToString();
@@ -321,7 +321,7 @@ namespace Zen.Base.Module
             }
         }
 
-        public void SetDataLabel(object value)
+        public void SetDataDisplay(object value)
         {
             var oRef = this;
             if (value.IsNumeric()) value = Convert.ToInt64(value);
@@ -331,7 +331,7 @@ namespace Zen.Base.Module
 
         public string GetDataKey()
         {
-            return GetKey(this);
+            return GetDataKey(this);
         }
 
         #endregion
@@ -435,7 +435,7 @@ namespace Zen.Base.Module
         {
             if (_cachedIsNew.HasValue) return _cachedIsNew.Value;
 
-            var probe = GetKey(this);
+            var probe = GetDataKey(this);
 
             if (string.IsNullOrEmpty(probe))
             {

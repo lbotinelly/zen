@@ -57,7 +57,7 @@ namespace Zen.Module.Web.Controller
             var attr = Setup;
 
             var ret = true;
-            if (identifier == null) identifier = model != null ? Data<T>.GetIdentifier(model) : "";
+            if (identifier == null) identifier = model != null ? Data<T>.GetDataKey(model) : "";
 
             if (attr != null)
             {
