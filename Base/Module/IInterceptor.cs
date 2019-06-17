@@ -15,15 +15,12 @@ namespace Zen.Base.Module
         T Get<T>(string key) where T : Data<T>;
         IEnumerable<T> Get<T>(IEnumerable<string> keys);
 
-        IEnumerable<T> Query<T>(string statement, object rawObject) where T : Data<T>;
+        IEnumerable<T> Query<T>(string statement) where T : Data<T>;
 
         IEnumerable<T> All<T>(string statement = null) where T : Data<T>;
         IEnumerable<TU> All<T, TU>(string statement = null) where T : Data<T>;
         IEnumerable<T> All<T>(QueryPayload payload, string statement = null) where T : Data<T>;
         IEnumerable<TU> All<T, TU>(QueryPayload payload, string statement = null) where T : Data<T>;
-
-        IEnumerable<T> ReferenceQueryByField<T>(string field, string identifier) where T : Data<T>;
-        IEnumerable<T> ReferenceQueryByField<T>(object query) where T : Data<T>;
 
         long Count<T>() where T : Data<T>;
         long Count<T>(string statement) where T : Data<T>;

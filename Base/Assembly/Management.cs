@@ -13,11 +13,17 @@ namespace Zen.Base.Assembly
     {
         private static readonly object Lock = new object();
 
-        public static readonly ConcurrentDictionary<string, System.Reflection.Assembly> AssemblyCache = new ConcurrentDictionary<string, System.Reflection.Assembly>();
-        private static readonly ConcurrentDictionary<Type, List<Type>> InterfaceClassesCache = new ConcurrentDictionary<Type, List<Type>>();
+        public static readonly ConcurrentDictionary<string, System.Reflection.Assembly> AssemblyCache =
+            new ConcurrentDictionary<string, System.Reflection.Assembly>();
+
+        private static readonly ConcurrentDictionary<Type, List<Type>> InterfaceClassesCache =
+            new ConcurrentDictionary<Type, List<Type>>();
+
         private static readonly List<FileSystemWatcher> FsMonitors = new List<FileSystemWatcher>();
         private static readonly List<string> WatchedSources = new List<string>();
-        public static readonly ConcurrentDictionary<string, string> UniqueAssemblies = new ConcurrentDictionary<string, string>();
+
+        public static readonly ConcurrentDictionary<string, string> UniqueAssemblies =
+            new ConcurrentDictionary<string, string>();
 
         private static readonly List<string> MonitorWhiteList = new List<string>
         {
@@ -38,7 +44,7 @@ namespace Zen.Base.Assembly
 #pragma warning disable 618
             AppDomain.CurrentDomain.SetShadowCopyFiles();
 
-            var targetScDir = $"{Configuration.DataDirectory}{Path.PathSeparator}sc";
+            var targetScDir = $"{Configuration.DataDirectory}{Path.DirectorySeparatorChar}sc";
 
             if (!Directory.Exists(targetScDir)) Directory.CreateDirectory(targetScDir);
 
@@ -59,11 +65,14 @@ namespace Zen.Base.Assembly
             //2nd cycle: Directories/assemblies referenced by system
 
             //    First by process-specific variables...
-            LoadAssembliesFromDirectory(Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Process));
+            LoadAssembliesFromDirectory(
+                Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Process));
             //    then by user-specific variables...
-            LoadAssembliesFromDirectory(Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.User));
+            LoadAssembliesFromDirectory(
+                Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.User));
             //    and finally system-wide variables.
-            LoadAssembliesFromDirectory(Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Machine));
+            LoadAssembliesFromDirectory(
+                Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Machine));
 
             //Now try to load:
 
@@ -80,7 +89,11 @@ namespace Zen.Base.Assembly
                 {
                     errCount = 0;
 
-                    try { item.Value.GetTypes(); } catch (Exception e)
+                    try
+                    {
+                        item.Value.GetTypes();
+                    }
+                    catch (Exception e)
                     {
                         if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
                         {
@@ -93,7 +106,10 @@ namespace Zen.Base.Assembly
             }
         }
 
-        private static System.Reflection.Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }
+        private static System.Reflection.Assembly GetAssemblyByName(string name)
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name);
+        }
 
         private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
@@ -191,7 +207,10 @@ namespace Zen.Base.Assembly
             //Modules.Log.System.Add("Monitoring [" + path + "]", Message.EContentType.StartupSequence);
         }
 
-        public static string WildcardToRegex(string pattern) { return "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$"; }
+        public static string WildcardToRegex(string pattern)
+        {
+            return "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$";
+        }
 
         private static void FileSystemWatcher_OnChanged(object sender, FileSystemEventArgs e)
         {
@@ -207,7 +226,10 @@ namespace Zen.Base.Assembly
                     //TODO: Improve wildcard detection
                     if (name.IndexOf(match) > -1) return;
                 }
-                else if (i.Equals(name)) { return; }
+                else if (i.Equals(name))
+                {
+                    return;
+                }
 
             // No need for system monitors anymore, better to interrupt and dispose all of them.
             foreach (var i in FsMonitors)
@@ -229,13 +251,19 @@ namespace Zen.Base.Assembly
             try
             {
                 //HttpRuntime.UnloadAppDomain();
-            } catch { }
+            }
+            catch
+            {
+            }
 
             //For WinForm apps
             try
             {
                 //Application.Restart(); Environment.Exit(0);
-            } catch { }
+            }
+            catch
+            {
+            }
         }
 
         private static void LoadAssemblyFromPath(string path)
@@ -256,7 +284,8 @@ namespace Zen.Base.Assembly
                 {
                     if (!AssemblyCache.ContainsKey(assy.ToString())) AssemblyCache.TryAdd(assy.ToString(), assy);
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 if (e is ReflectionTypeLoadException exception)
                 {
@@ -279,19 +308,23 @@ namespace Zen.Base.Assembly
 
                 if (limitToMainAssembly) assySource.Add(Configuration.ApplicationAssembly);
                 else
-                    lock (Lock) { assySource = AssemblyCache.Values.ToList(); }
+                    lock (Lock)
+                    {
+                        assySource = AssemblyCache.Values.ToList();
+                    }
 
                 foreach (var asy in assySource)
                     classCol.AddRange(asy
-                                          .GetTypes()
-                                          .Where(type => type.BaseType != null)
-                                          .Where(
-                                              type =>
-                                                  type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == refType
-                                                  || type.BaseType == refType));
+                        .GetTypes()
+                        .Where(type => type.BaseType != null)
+                        .Where(
+                            type =>
+                                type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == refType
+                                || type.BaseType == refType));
 
                 return classCol;
-            } catch (ReflectionTypeLoadException ex)
+            }
+            catch (ReflectionTypeLoadException ex)
             {
                 foreach (var item in ex.LoaderExceptions)
                 {
@@ -299,7 +332,8 @@ namespace Zen.Base.Assembly
                 }
 
                 throw ex;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 //Current.Log.Add($"GetClassesByBaseClass ERR for {refType.Name}: {ex.Message}", Message.EContentType.Warning);
                 throw ex;
@@ -328,13 +362,17 @@ namespace Zen.Base.Assembly
                             foreach (var gta in st.BaseType.GenericTypeArguments)
                                 if (gta == refType)
                                     classCol.Add(st);
-                        } catch { }
+                        }
+                        catch
+                        {
+                        }
                     }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
-                    //Current.Log.Add(e);
+                    // Current.Log.Add(e);
                 }
 
                 return classCol;
@@ -363,11 +401,16 @@ namespace Zen.Base.Assembly
 
                 foreach (var item in AssemblyCache.Values)
                 {
-                    if (excludeCoreNullDefinitions && item == System.Reflection.Assembly.GetExecutingAssembly()) continue;
+                    if (excludeCoreNullDefinitions && item == System.Reflection.Assembly.GetExecutingAssembly())
+                        continue;
 
                     Type[] preTypes;
 
-                    try { preTypes = item.GetTypes(); } catch (Exception e)
+                    try
+                    {
+                        preTypes = item.GetTypes();
+                    }
+                    catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException)
                         {
@@ -431,11 +474,16 @@ namespace Zen.Base.Assembly
 
                 foreach (var item in AssemblyCache.Values)
                 {
-                    if (excludeCoreNullDefinitions && item == System.Reflection.Assembly.GetExecutingAssembly()) continue;
+                    if (excludeCoreNullDefinitions && item == System.Reflection.Assembly.GetExecutingAssembly())
+                        continue;
 
                     Type[] preTypes;
 
-                    try { preTypes = item.GetTypes(); } catch (Exception e)
+                    try
+                    {
+                        preTypes = item.GetTypes();
+                    }
+                    catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException typeLoadException)
                         {
@@ -470,7 +518,8 @@ namespace Zen.Base.Assembly
                 {
                     var level = 0;
 
-                    var attrs = (PriorityAttribute) item.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault();
+                    var attrs = (PriorityAttribute) item.GetCustomAttributes(typeof(PriorityAttribute), true)
+                        .FirstOrDefault();
 
                     if (attrs != null) level = attrs.Level;
 

@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Module\Web\Web.cspro
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9204BB55-EBE6-4065-852D-C74502F38E8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLite", "Module\Data\SQLite\SQLite.csproj", "{EA78B76A-4C00-4D72-B535-A52C6BED26AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{9204BB55-EBE6-4065-852D-C74502F38E8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9204BB55-EBE6-4065-852D-C74502F38E8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9204BB55-EBE6-4065-852D-C74502F38E8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA78B76A-4C00-4D72-B535-A52C6BED26AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA78B76A-4C00-4D72-B535-A52C6BED26AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA78B76A-4C00-4D72-B535-A52C6BED26AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA78B76A-4C00-4D72-B535-A52C6BED26AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1} = {6B8C2E4E-0506-49B6-8F1B-F767D04C9794}
 		{6C3B9F2B-865E-4915-8A5F-9340609861F0} = {6B8C2E4E-0506-49B6-8F1B-F767D04C9794}
 		{6E2715D1-86FA-4E6B-8CAD-70FDB1F33D77} = {EE78388A-8F83-48CD-901B-F6FDC9DC5A30}
+		{EA78B76A-4C00-4D72-B535-A52C6BED26AD} = {092174D6-8002-4BE7-B4E0-954B818C5947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F7669975-FD73-4B57-A032-98D614C3BBC5}

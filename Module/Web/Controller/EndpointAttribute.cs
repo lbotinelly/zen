@@ -2,21 +2,22 @@
 
 namespace Zen.Module.Web.Controller
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class EndpointSetupAttribute : System.Attribute
+    public class EndpointConfiguration
     {
-        public BehaviorDefinition Behavior = new BehaviorDefinition();
+        public BehaviorAttribute Behavior = new BehaviorAttribute();
 
-        public SecurityDefinition Security = new SecurityDefinition();
+        public SecurityAttribute Security = new SecurityAttribute();
 
-        public class SecurityDefinition
+        [AttributeUsage(AttributeTargets.Class)]
+        public class SecurityAttribute : Attribute
         {
             public string Read { get; set; }
             public string Write { get; set; }
             public string Remove { get; set; }
         }
 
-        public class BehaviorDefinition
+        [AttributeUsage(AttributeTargets.Class)]
+        public class BehaviorAttribute : Attribute
         {
             public Type SummaryType { get; set; }
             public bool MustPaginate { get; set; }

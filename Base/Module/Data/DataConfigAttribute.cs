@@ -9,7 +9,7 @@ namespace Zen.Base.Module.Data {
         public bool AutoGenerateMissingSchema { get; set; } = true;
         public Type ConnectionBundleType { get; set; } = null;
         public bool ForceMapUse { get; set; } = false;
-        public string IdentifierColumnName { get; set; }
+        public string KeyName { get; set; }
         public string Label { get; set; }
         public bool IgnoreDataOnMaintenance { get; set; } = false;
         public bool IsInsertableIdentifier { get; set; } = false;

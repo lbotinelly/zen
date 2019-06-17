@@ -1,0 +1,97 @@
+2019-06-16 21:19:10.001 +00:00 [INF] Zen 1.0.0.0
+2019-06-16 21:19:10.081 +00:00 [DBG] ________________________________________________________________________________
+2019-06-16 21:19:10.081 +00:00 [DBG] 
+2019-06-16 21:19:10.086 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-16 21:19:10.087 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-16 21:19:10.087 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-16 21:19:10.087 +00:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-16 21:19:10.097 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-16 21:19:10.099 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-16 21:19:10.099 +00:00 [DBG]       Application : SimpleWebApp
+2019-06-16 21:19:10.099 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-16 21:19:10.099 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2/data
+2019-06-16 21:19:10.099 +00:00 [DBG] ________________________________________________________________________________
+2019-06-16 21:19:10.110 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-16 21:19:10.114 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-16 21:19:10.170 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-16 21:19:10.170 +00:00 [DBG] Settings.Bundle : LiteDbDefaultBundle
+2019-06-16 21:19:10.170 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-16 21:19:10.171 +00:00 [INF] SampleModel : Ready
+2019-06-16 22:16:02.117 +00:00 [INF] Zen 1.0.0.0
+2019-06-16 22:16:02.182 +00:00 [DBG] ________________________________________________________________________________
+2019-06-16 22:16:02.182 +00:00 [DBG] 
+2019-06-16 22:16:02.183 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-16 22:16:02.184 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-16 22:16:02.185 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-16 22:16:02.187 +00:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-16 22:16:02.188 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-16 22:16:02.190 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-16 22:16:02.190 +00:00 [DBG]       Application : SimpleWebApp
+2019-06-16 22:16:02.191 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-16 22:16:02.192 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2/data
+2019-06-16 22:16:02.193 +00:00 [DBG] ________________________________________________________________________________
+2019-06-16 22:16:02.200 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-16 22:16:02.201 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-16 22:16:05.049 +00:00 [WRN] SimpleWebApp.Models.SampleModel ERR Status: CriticalFailure : Object reference not set to an instance of an object.
+2019-06-16 22:17:36.181 +00:00 [INF] Zen 1.0.0.0
+2019-06-16 22:17:36.242 +00:00 [DBG] ________________________________________________________________________________
+2019-06-16 22:17:36.242 +00:00 [DBG] 
+2019-06-16 22:17:36.244 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-16 22:17:36.245 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-16 22:17:36.246 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-16 22:17:36.247 +00:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-16 22:17:36.248 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-16 22:17:36.250 +00:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-16 22:17:36.251 +00:00 [DBG]       Application : SimpleWebApp
+2019-06-16 22:17:36.252 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-06-16 22:17:36.252 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2/data
+2019-06-16 22:17:36.253 +00:00 [DBG] ________________________________________________________________________________
+2019-06-16 22:17:36.258 +00:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-16 22:17:36.258 +00:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-16 22:17:57.012 +00:00 [WRN] SimpleWebApp.Models.SampleModel ERR Status: CriticalFailure : Value cannot be null.
+Parameter name: Settings.IdentifierProperty
+2019-06-16 18:22:32.101 -04:00 [INF] Zen 1.0.0.0
+2019-06-16 18:22:32.221 -04:00 [DBG] ________________________________________________________________________________
+2019-06-16 18:22:32.224 -04:00 [DBG] 
+2019-06-16 18:22:32.226 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-16 18:22:32.228 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-16 18:22:32.237 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-16 18:22:32.241 -04:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-16 18:22:32.250 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-16 18:22:32.256 -04:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-16 18:22:32.258 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-16 18:22:32.262 -04:00 [DBG]      App Location : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-16 18:22:32.271 -04:00 [DBG]          App Data : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-16 18:22:32.274 -04:00 [DBG] ________________________________________________________________________________
+2019-06-16 18:22:32.292 -04:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-16 18:22:32.294 -04:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-16 18:22:57.460 -04:00 [WRN] SimpleWebApp.Models.SampleModel ERR Status: CriticalFailure : Value cannot be null.
+Parameter name: Settings.IdentifierProperty
+2019-06-16 18:23:14.265 -04:00 [INF] Zen 1.0.0.0
+2019-06-16 18:23:14.319 -04:00 [DBG] ________________________________________________________________________________
+2019-06-16 18:23:14.322 -04:00 [DBG] 
+2019-06-16 18:23:14.323 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-16 18:23:14.324 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-16 18:23:14.325 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-16 18:23:14.328 -04:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-16 18:23:14.329 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-16 18:23:14.331 -04:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-16 18:23:14.332 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-16 18:23:14.333 -04:00 [DBG]      App Location : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-16 18:23:14.333 -04:00 [DBG]          App Data : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-16 18:23:14.334 -04:00 [DBG] ________________________________________________________________________________
+2019-06-16 18:23:14.340 -04:00 [WRN] SampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-16 18:23:14.341 -04:00 [WRN] SampleModel: Connection Cypher Key not set
+2019-06-16 18:24:37.859 -04:00 [INF] Zen 1.0.0.0
+2019-06-16 18:24:46.430 -04:00 [DBG] ________________________________________________________________________________
+2019-06-16 18:24:46.435 -04:00 [DBG] 
+2019-06-16 18:24:46.436 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-16 18:24:46.438 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-16 18:24:46.440 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-16 18:24:46.450 -04:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-16 18:24:46.457 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-16 18:24:46.459 -04:00 [DBG] Global BundleType : Zen.Module.Data.LiteDB.LiteDbDefaultBundle
+2019-06-16 18:24:46.460 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-16 18:24:46.461 -04:00 [DBG]      App Location : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-16 18:24:46.462 -04:00 [DBG]          App Data : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-16 18:24:46.463 -04:00 [DBG] ________________________________________________________________________________

@@ -13,89 +13,25 @@ using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable StaticMemberInGenericType
+
 #pragma warning disable 693
 
 namespace Zen.Base.Module
 {
     public abstract class Data<T> where T : Data<T>
     {
-        #region State tools
-
-        private static void ValidateEntityState()
-        {
-            if (Info<T>.Settings.State.Status != Settings.EStatus.Operational && Info<T>.Settings.State.Status != Settings.EStatus.Initializing)
-                throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
-        }
-
-        #endregion
-
-        public static class Info<T> where T : Data<T>
-        {
-            public static Settings Settings => ClassRegistration[typeof(T)].Item1;
-            public static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
-        }
-
-        #region Static references
-
-        // ReSharper disable once StaticMemberInGenericType
-        internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>> ClassRegistration
-            = new ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>>();
-
-        public static string GetIdentifier(Data<T> oRef) { return oRef == null ? null : (oRef.GetType().GetProperty(Info<T>.Settings.IdentifierProperty)?.GetValue(oRef, null) ?? "").ToString(); }
-
-        public static string GetLabel(Data<T> oRef) { return oRef == null ? null : (oRef.GetType().GetProperty(Info<T>.Settings.LabelProperty)?.GetValue(oRef, null) ?? "").ToString(); }
-
         private static string _cacheKeyBase;
-
-        public static string CacheKey(string key = "")
-        {
-            if (_cacheKeyBase != null) return _cacheKeyBase + key;
-
-            _cacheKeyBase = typeof(T) + ":";
-            return _cacheKeyBase + key;
-        }
-
-        public static string CacheKey(Type t, string key = "") { return t.FullName + ":" + key; }
-
-        #endregion
-
-        #region Instanced references
-
-        public void SetDataIdentifier(object value)
-        {
-            var oRef = this;
-            if (value.IsNumeric()) value = Convert.ToInt64(value);
-
-            var refField = GetType().GetField(Info<T>.Settings.IdentifierProperty);
-            if (refField != null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
-            else
-            {
-                var refProp = GetType().GetProperty(Info<T>.Settings.IdentifierProperty);
-                refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
-            }
-        }
-
-        public void SetDataLabel(object value)
-        {
-            var oRef = this;
-            if (value.IsNumeric()) value = Convert.ToInt64(value);
-            var refProp = GetType().GetProperty(Info<T>.Settings.LabelProperty);
-            refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
-        }
-
-        #endregion
-
-        #region bootstrap
-
-        // ReSharper disable once StaticMemberInGenericType
-        // ReSharper disable once InconsistentNaming
-        private static readonly object _accessLock = new object();
-        private bool _isDeleted;
+        private static readonly object _InitializationLock = new object();
         private bool? _cachedIsNew;
+        private bool _isDeleted;
+
+        #region Bootstrap
 
         static Data()
         {
-            lock (_accessLock)
+            lock (_InitializationLock)
             {
                 try
                 {
@@ -104,9 +40,9 @@ namespace Zen.Base.Module
                     // First we prepare a registry containing all necessary information for it to operate.
 
                     ClassRegistration.TryAdd(typeof(T),
-                                             new Tuple<Settings, DataConfigAttribute>(
-                                                 new Settings(),
-                                                 (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute))));
+                        new Tuple<Settings, DataConfigAttribute>(new Settings(),
+                            (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T),
+                                typeof(DataConfigAttribute))));
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -114,30 +50,64 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.State.Step = "Starting TableData/Statements setup";
 
-                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.TableName ?? typeof(T).Name;
+                    Info<T>.Settings.StorageName =
+                        Info<T>.Configuration?.Label ?? Info<T>.Configuration?.TableName ?? typeof(T).Name;
 
-                    Info<T>.Settings.IdentifierProperty =
-                        // If there's a [Key] attribute on a field, use its name;
-                        typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true))?.Name ??
-                        // If there's a [Key] attribute on a Property, use its name;
-                        typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true))?.Name ??
-                        // Otherwise pick from Config
-                        Info<T>.Configuration?.IdentifierColumnName;
 
-                    if (Info<T>.Settings.IdentifierProperty == null)
+
+                    Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
+                    Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
+
+                    if (Info<T>.Settings.KeyField == null && Info<T>.Settings.KeyProperty == null && Info<T>.Configuration?.KeyName != null)
                     {
-                        Info<T>.Settings.State.Status = Settings.EStatus.CriticalFailure;
-                        Info<T>.Settings.State.Description = "No valid Key property found";
+                        // A Key member name was provided. Does it really exist? Let's find out.
+                        // (Some drivers need explicit key property declaration, like LiteDB.)
+
+                        Info<T>.Settings.KeyField = typeof(T).GetFields()
+                            .FirstOrDefault(i => i.Name == Info<T>.Configuration.KeyName);
+                        Info<T>.Settings.KeyProperty = typeof(T).GetProperties()
+                            .FirstOrDefault(i => i.Name == Info<T>.Configuration.KeyName);
+                    }
+
+                    Info<T>.Settings.KeyMemberName =
+                        // If there's a [Key] attribute on a field, use its name;
+                        Info<T>.Settings.KeyField?.Name ??
+                        // If there's a [Key] attribute on a Property, use its name;
+                        Info<T>.Settings.KeyProperty?.Name ??
+                        // Otherwise pick from Config
+                        Info<T>.Configuration?.KeyName;
+
+                    if (Info<T>.Settings.KeyMemberName == null)
+                    {
+
+                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No valid Key member found");
                         return;
                     }
 
-                    Info<T>.Settings.LabelProperty =
+                    if (Info<T>.Settings.KeyField == null && Info<T>.Settings.KeyProperty == null)
+                    {
+                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, $"No member match for Key {Info<T>.Configuration?.KeyName}");
+                        return;
+                    }
+
+                    Info<T>.Settings.DisplayField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true));
+                    Info<T>.Settings.DisplayProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true));
+
+                    if (Info<T>.Settings.DisplayField == null && Info<T>.Settings.DisplayProperty == null && Info<T>.Configuration?.DisplayProperty != null)
+                    {
+                        // A Display member name was provided. Does it really exist? Let's find out.
+                        Info<T>.Settings.DisplayField = typeof(T).GetFields().FirstOrDefault(i => i.Name == Info<T>.Configuration.DisplayProperty);
+                        Info<T>.Settings.DisplayProperty = typeof(T).GetProperties().FirstOrDefault(i => i.Name == Info<T>.Configuration.DisplayProperty);
+                    }
+
+                    Info<T>.Settings.DisplayMemberName =
                         // If there's a [Key] attribute on a field, use its name;
-                        typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true))?.Name ??
+                        Info<T>.Settings.DisplayField?.Name ??
                         // If there's a [Key] attribute on a Property, use its name;
-                        typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true))?.Name ??
-                        // Otherwise pick from Config
-                        Info<T>.Configuration?.DisplayProperty;
+                        Info<T>.Settings.DisplayProperty?.Name;
+
+                    if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
+                        Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
 
                     // Do we have any pipelines defined?
                     var ps = typeof(T).GetCustomAttributes(true).OfType<PipelineAttribute>().ToList();
@@ -149,19 +119,25 @@ namespace Zen.Base.Module
                             Before = (from pipelineAttribute in ps
                                       from type in pipelineAttribute.Types
                                       where typeof(IBeforeActionPipeline).IsAssignableFrom(type)
-                                      select (IBeforeActionPipeline)type.GetConstructor(new Type[] { }).Invoke(new object[] { }))
+                                      select (IBeforeActionPipeline)type.GetConstructor(new Type[] { })
+                                          .Invoke(new object[] { }))
                                 .ToList(),
                             After = (from pipelineAttribute in ps
                                      from type in pipelineAttribute.Types
                                      where typeof(IAfterActionPipeline).IsAssignableFrom(type)
-                                     select (IAfterActionPipeline)type.GetConstructor(new Type[] { }).Invoke(new object[] { }))
+                                     select (IAfterActionPipeline)type.GetConstructor(new Type[] { })
+                                         .Invoke(new object[] { }))
                                 .ToList()
                         };
 
                         // Now let's report what we've just done.
 
-                        if (Info<T>.Settings.Pipelines.Before.Any()) Info<T>.Settings.Statistics["Settings.Pipelines.Before"] = Info<T>.Settings.Pipelines.Before.Select(i => i.GetType().Name).Aggregate((i, j) => i + "," + j);
-                        if (Info<T>.Settings.Pipelines.After.Any()) Info<T>.Settings.Statistics["Settings.Pipelines.After"] = Info<T>.Settings.Pipelines.After.Select(i => i.GetType().Name).Aggregate((i, j) => i + "," + j);
+                        if (Info<T>.Settings.Pipelines.Before.Any())
+                            Info<T>.Settings.Statistics["Settings.Pipelines.Before"] = Info<T>.Settings.Pipelines.Before
+                                .Select(i => i.GetType().Name).Aggregate((i, j) => i + "," + j);
+                        if (Info<T>.Settings.Pipelines.After.Any())
+                            Info<T>.Settings.Statistics["Settings.Pipelines.After"] = Info<T>.Settings.Pipelines.After
+                                .Select(i => i.GetType().Name).Aggregate((i, j) => i + "," + j);
                     }
 
                     Info<T>.Settings.State.Step = "Determining Environment";
@@ -170,17 +146,21 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.Statistics["Current.Environment.Current.Code"] = Current.Environment.Current.Code;
 
-                    Info<T>.Settings.EnvironmentMapping = Attribute.GetCustomAttributes(typeof(T), typeof(EnvironmentMappingAttribute))
+                    Info<T>.Settings.EnvironmentMapping = Attribute
+                        .GetCustomAttributes(typeof(T), typeof(EnvironmentMappingAttribute))
                         .Select(i => (EnvironmentMappingAttribute)i)
                         .ToList();
 
-                    if (Info<T>.Settings.EnvironmentMapping.Any()) Info<T>.Settings.Statistics["Settings.EnvironmentMapping"] = Info<T>.Settings.EnvironmentMapping.ToJson();
+                    if (Info<T>.Settings.EnvironmentMapping.Any())
+                        Info<T>.Settings.Statistics["Settings.EnvironmentMapping"] =
+                            Info<T>.Settings.EnvironmentMapping.ToJson();
 
                     Info<T>.Settings.EnvironmentCode =
                         // If a PersistentEnvironmentCode is defined, use it.
                         Info<T>.Configuration?.PersistentEnvironmentCode ??
                         // Otherwise let's check if there's a mapping defined for the current 'real' environment.
-                        Info<T>.Settings.EnvironmentMapping?.FirstOrDefault(i => i.Origin == Current.Environment.CurrentCode)?.Target ??
+                        Info<T>.Settings.EnvironmentMapping
+                            ?.FirstOrDefault(i => i.Origin == Current.Environment.CurrentCode)?.Target ??
                         // Nothing? Let's just use the current environment then.
                         Current.Environment.CurrentCode;
 
@@ -189,7 +169,8 @@ namespace Zen.Base.Module
 
                     if (refBundle == null)
                     {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No valid connection bundle found");
+                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
+                            "No valid connection bundle found");
                         return;
                     }
 
@@ -200,7 +181,8 @@ namespace Zen.Base.Module
 
                     if (refType.AdapterType == null)
                     {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No AdapterType defined on bundle");
+                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
+                            "No AdapterType defined on bundle");
                         return;
                     }
 
@@ -215,16 +197,21 @@ namespace Zen.Base.Module
                     Info<T>.Settings.Statistics["Settings.Bundle"] = refType.GetType().Name;
 
                     Info<T>.Settings.State.Step = "Setting up CypherKeys";
-                    Info<T>.Settings.ConnectionCypherKeys = Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
+                    Info<T>.Settings.ConnectionCypherKeys =
+                        Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
 
                     Info<T>.Settings.State.Step = "Determining CredentialSets to use";
-                    Info<T>.Settings.CredentialSet = Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
+                    Info<T>.Settings.CredentialSet =
+                        Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle,
+                            Info<T>.Configuration?.CredentialSetType);
 
-                    if (Info<T>.Settings.CredentialSet != null) Info<T>.Settings.Statistics["Settings.CredentialSet"] = Info<T>.Settings.CredentialSet?.GetType().Name;
+                    if (Info<T>.Settings.CredentialSet != null)
+                        Info<T>.Settings.Statistics["Settings.CredentialSet"] =
+                            Info<T>.Settings.CredentialSet?.GetType().Name;
 
-                    Info<T>.Settings.CredentialCypherKeys = Info<T>.Configuration?.CredentialCypherKeys ?? Info<T>.Settings.CredentialSet?.CredentialCypherKeys;
-
-                    Info<T>.Settings.Interceptor = Info<T>.Settings.Adapter.Interceptor;
+                    Info<T>.Settings.CredentialCypherKeys =
+                        Info<T>.Configuration?.CredentialCypherKeys ??
+                        Info<T>.Settings.CredentialSet?.CredentialCypherKeys;
 
                     // Now we're ready to talk to the outside world.
 
@@ -232,12 +219,12 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.Adapter.SetConnectionString<T>();
 
-                    Info<T>.Settings.Interceptor.Setup<T>(Info<T>.Settings);
-                    Info<T>.Settings.Interceptor.Initialize<T>();
+                    Info<T>.Settings.Adapter.Setup<T>(Info<T>.Settings);
+                    Info<T>.Settings.Adapter.Initialize<T>();
 
                     Current.Environment.EnvironmentChanged += Environment_EnvironmentChanged;
 
-                    foreach (var i in Info<T>.Settings.Statistics) Current.Log.Debug(i.Key + " : " + i.Value);
+                    foreach (var (key, value) in Info<T>.Settings.Statistics) Current.Log.Debug(key + " : " + value);
 
                     Info<T>.Settings.State.Set<T>(Settings.EStatus.Operational, "Ready");
                 }
@@ -245,7 +232,8 @@ namespace Zen.Base.Module
                 {
                     Info<T>.Settings.State.Status = Settings.EStatus.CriticalFailure;
 
-                    Info<T>.Settings.State.Description = typeof(T).FullName + " ERR " + Info<T>.Settings.State.Step + " : " + e.Message;
+                    Info<T>.Settings.State.Description =
+                        typeof(T).FullName + " ERR " + Info<T>.Settings.State.Step + " : " + e.Message;
                     Info<T>.Settings.State.Stack = new StackTrace(e, true).FancyString();
 
                     var refEx = e;
@@ -258,6 +246,92 @@ namespace Zen.Base.Module
                     Current.Log.Warn(Info<T>.Settings.State.Description);
                 }
             }
+        }
+
+        #endregion
+
+        #region State tools
+
+        public static class Info<T> where T : Data<T>
+        {
+            public static Settings Settings => ClassRegistration[typeof(T)].Item1;
+            public static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
+        }
+
+        private static void ValidateState()
+        {
+            if (Info<T>.Settings.State.Status != Settings.EStatus.Operational &&
+                Info<T>.Settings.State.Status != Settings.EStatus.Initializing)
+                throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+        }
+
+        #endregion
+
+        #region Static references
+
+        // ReSharper disable once StaticMemberInGenericType
+        internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>> ClassRegistration
+            = new ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>>();
+
+        public static string GetKey(Data<T> oRef)
+        {
+            return oRef == null
+                ? null
+                : (oRef.GetType().GetProperty(Info<T>.Settings.KeyMemberName)?.GetValue(oRef, null) ?? "")
+                .ToString();
+        }
+
+        public static string GetDisplay(Data<T> oRef)
+        {
+            return oRef == null ? null
+                : (oRef.GetType().GetProperty(Info<T>.Settings.DisplayMemberName)?.GetValue(oRef, null) ?? "").ToString();
+        }
+
+
+        public static string CacheKey(string key = "")
+        {
+            if (_cacheKeyBase != null) return _cacheKeyBase + key;
+
+            _cacheKeyBase = typeof(T) + ":";
+            return _cacheKeyBase + key;
+        }
+
+        public static string CacheKey(Type t, string key = "")
+        {
+            return t.FullName + ":" + key;
+        }
+
+        #endregion
+
+        #region Instanced references
+
+        public void SetDataKey(object value)
+        {
+            var oRef = this;
+            if (value.IsNumeric()) value = Convert.ToInt64(value);
+
+            var refField = GetType().GetField(Info<T>.Settings.KeyMemberName);
+            if (refField != null)
+            {
+                refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
+            }
+            {
+                var refProp = GetType().GetProperty(Info<T>.Settings.KeyMemberName);
+                refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
+            }
+        }
+
+        public void SetDataLabel(object value)
+        {
+            var oRef = this;
+            if (value.IsNumeric()) value = Convert.ToInt64(value);
+            var refProp = GetType().GetProperty(Info<T>.Settings.DisplayMemberName);
+            refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
+        }
+
+        public string GetDataKey()
+        {
+            return GetKey(this);
         }
 
         #endregion
@@ -278,7 +352,10 @@ namespace Zen.Base.Module
                 Current.Log.Maintenance(typeof(T) + ": Configuration changed");
                 Info<T>.Settings.Adapter.SetConnectionString<T>();
             }
-            catch (Exception e) { Current.Log.Add(e); }
+            catch (Exception e)
+            {
+                Current.Log.Add(e);
+            }
         }
 
         private static T ProcBeforePipeline(EAction action, T current, T source)
@@ -287,7 +364,14 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.Before == null) return current;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
-                try { if (current != null) current = beforeActionPipeline.Process(action, current, source); } catch (Exception e) { Current.Log.Add<T>(e); }
+                try
+                {
+                    if (current != null) current = beforeActionPipeline.Process(action, current, source);
+                }
+                catch (Exception e)
+                {
+                    Current.Log.Add<T>(e);
+                }
 
             return current;
         }
@@ -297,10 +381,15 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
-                try { afterActionPipeline.Process(action, current, source); } catch (Exception e) { Current.Log.Add<T>(e); }
+                try
+                {
+                    afterActionPipeline.Process(action, current, source);
+                }
+                catch (Exception e)
+                {
+                    Current.Log.Add<T>(e);
+                }
         }
-
-
 
         #endregion
 
@@ -308,32 +397,34 @@ namespace Zen.Base.Module
 
         public static IEnumerable<T> All()
         {
-            ValidateEntityState();
-            return Info<T>.Settings.Interceptor.All<T>();
+            ValidateState();
+            return Info<T>.Settings.Adapter.All<T>();
         }
 
         public static IEnumerable<TU> All<TU>(string extraParms = null)
         {
-            ValidateEntityState();
-            return Info<T>.Settings.Interceptor.All<T, TU>(extraParms);
+            ValidateState();
+            return Info<T>.Settings.Adapter.All<T, TU>(extraParms);
         }
 
-        public static T Get(string identifier)
+        public static T Get(string Key)
         {
-            if (identifier == null) return null;
+            if (Key == null) return null;
 
-            if (Info<T>.Settings.IdentifierProperty == null)
+            if (Info<T>.Settings.KeyMemberName == null)
             {
-                Current.Log.Warn<T>("Identifier not set");
-                throw new MissingPrimaryKeyException("Identifier not set for " + typeof(T).FullName);
+                Current.Log.Warn<T>("Key not set");
+                throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
             }
 
-            return Info<T>.Configuration?.UseCaching == true ? CacheFactory.FetchSingleResultByKey(GetFromDatabase, identifier) : GetFromDatabase(identifier);
+            return Info<T>.Configuration?.UseCaching == true
+                ? CacheFactory.FetchSingleResultByKey(GetFromDatabase, Key)
+                : GetFromDatabase(Key);
         }
 
-        internal static T GetFromDatabase(object identifier)
+        internal static T GetFromDatabase(object Key)
         {
-            return Info<T>.Settings.Interceptor.Get<T>(identifier.ToString());
+            return Info<T>.Settings.Adapter.Get<T>(Key.ToString());
         }
 
         #endregion
@@ -344,7 +435,7 @@ namespace Zen.Base.Module
         {
             if (_cachedIsNew.HasValue) return _cachedIsNew.Value;
 
-            var probe = GetIdentifier(this);
+            var probe = GetKey(this);
 
             if (string.IsNullOrEmpty(probe))
             {
@@ -359,13 +450,14 @@ namespace Zen.Base.Module
         }
 
 
-
         public string Save()
         {
-            ValidateEntityState();
+            ValidateState();
+
 
             if (Info<T>.Configuration != null)
-                if (Info<T>.Configuration.IsReadOnly) throw new Exception("This entity is set as read-only.");
+                if (Info<T>.Configuration.IsReadOnly)
+                    throw new Exception("This entity is set as read-only.");
 
             if (_isDeleted) return null;
             var ret = "";
@@ -380,7 +472,7 @@ namespace Zen.Base.Module
 
             BeforeSave();
 
-            Info<T>.Settings.Interceptor.Upsert(rec);
+            Info<T>.Settings.Adapter.Upsert(rec);
 
             if (Info<T>.Configuration?.UseCaching == true)
                 if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
@@ -410,12 +502,31 @@ namespace Zen.Base.Module
         #endregion
 
         #region Event hooks
-        public virtual void AfterInsert(string newIdentifier) { }
-        public virtual void AfterSave(string newIdentifier) { }
-        public virtual void BeforeSave() { }
-        public virtual void BeforeInsert() { }
-        public virtual void BeforeRemove() { }
-        public virtual void AfterRemove() { }
+
+        public virtual void AfterInsert(string newKey)
+        {
+        }
+
+        public virtual void AfterSave(string newKey)
+        {
+        }
+
+        public virtual void BeforeSave()
+        {
+        }
+
+        public virtual void BeforeInsert()
+        {
+        }
+
+        public virtual void BeforeRemove()
+        {
+        }
+
+        public virtual void AfterRemove()
+        {
+        }
+
         #endregion
     }
 }

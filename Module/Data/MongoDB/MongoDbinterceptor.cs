@@ -42,7 +42,7 @@ namespace Zen.Module.Data.MongoDB {
             get
             {
                 if (_idProp != null) return _idProp;
-                _idProp = _statements.IdentifierProperty;
+                _idProp = _statements.KeyMemberName;
                 return _idProp;
             }
         }
@@ -259,7 +259,7 @@ namespace Zen.Module.Data.MongoDB {
             return null;
         }
 
-        public IEnumerable<T> Query<T>(string sqlStatement, object rawObject) where T : Data<T> { return Query<T, T>(sqlStatement, rawObject); }
+        public IEnumerable<T> Query<T>(string sqlStatement) where T : Data<T> { return Query<T, T>(sqlStatement, rawObject); }
 
         public IEnumerable<TU> All<T, TU>(string extraParms = null) where T : Data<T>
         {
@@ -328,7 +328,7 @@ namespace Zen.Module.Data.MongoDB {
         public IEnumerable<T> ReferenceQueryByField<T>(string field, string id) where T : Data<T>
         {
             var q = $"{{'{field}': '{id}'}}";
-            return Query<T>(q, null);
+            return Query<T>(q);
         }
 
         public IEnumerable<T> ReferenceQueryByField<T>(object query) where T : Data<T>
@@ -337,7 +337,7 @@ namespace Zen.Module.Data.MongoDB {
                 .ToDictionary()
                 .ToJson();
 
-            return Query<T>(q, null);
+            return Query<T>(q);
         }
 
         public void Setup<T>(Base.Module.Data.Settings statements) where T : Data<T>

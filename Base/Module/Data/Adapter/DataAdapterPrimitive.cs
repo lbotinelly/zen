@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Zen.Base.Module.Data.Adapter
 {
-    public abstract class DataAdapterPrimitive
+    public abstract class DataAdapterPrimitive : IInterceptor
     {
-        public IInterceptor Interceptor = null;
-
         public virtual void SetConnectionString<T>() where T : Data<T>
         {
             var settings = Data<T>.Info<T>.Settings;
-            
+
             var envCode = settings.EnvironmentCode;
 
             if (!settings.ConnectionCypherKeys.ContainsKey(envCode))
@@ -44,5 +43,44 @@ namespace Zen.Base.Module.Data.Adapter
             settings.ConnectionString =
                 settings.ConnectionString.Replace("{credentials}", settings.CredentialsString);
         } // ReSharper disable InconsistentNaming
+        public abstract void Initialize<T>() where T : Data<T>;
+
+        public abstract void Setup<T>(Settings settings) where T : Data<T>;
+
+        public abstract T Get<T>(string key) where T : Data<T>;
+
+        public abstract IEnumerable<T> Get<T>(IEnumerable<string> keys);
+
+        public abstract IEnumerable<T> Query<T>(string statement) where T : Data<T>;
+
+        public abstract IEnumerable<T> All<T>(string statement = null) where T : Data<T>;
+
+        public abstract IEnumerable<TU> All<T, TU>(string statement = null) where T : Data<T>;
+
+        public abstract IEnumerable<T> All<T>(QueryPayload payload, string statement = null) where T : Data<T>;
+
+        public abstract IEnumerable<TU> All<T, TU>(QueryPayload payload, string statement = null) where T : Data<T>;
+
+        public abstract long Count<T>() where T : Data<T>;
+
+        public abstract long Count<T>(string statement) where T : Data<T>;
+
+        public abstract long Count<T>(QueryPayload payload) where T : Data<T>;
+
+        public abstract long Count<T>(QueryPayload payload, string statement) where T : Data<T>;
+
+        public abstract void Insert<T>(Data<T> model) where T : Data<T>;
+
+        public abstract void Save<T>(Data<T> model) where T : Data<T>;
+
+        public abstract string Upsert<T>(Data<T> model) where T : Data<T>;
+
+        public abstract void BulkSave<T>(IEnumerable<T> models) where T : Data<T>;
+
+        public abstract void Remove<T>(string key) where T : Data<T>;
+
+        public abstract void Remove<T>(Data<T> model) where T : Data<T>;
+
+        public abstract void RemoveAll<T>() where T : Data<T>;
     }
 }

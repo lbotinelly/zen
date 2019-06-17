@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
@@ -33,10 +34,9 @@ namespace Zen.Base.Module.Data
 
         public string EnvironmentCode;
 
-        public string IdentifierProperty;
+        public string KeyMemberName;
 
-        public IInterceptor Interceptor;
-        public string LabelProperty;
+        public string DisplayMemberName;
 
         public PipelineQueueHandler Pipelines = null;
 
@@ -101,5 +101,9 @@ namespace Zen.Base.Module.Data
 
         public string StorageName { get; set; }
         public List<EnvironmentMappingAttribute> EnvironmentMapping { get; set; }
+        public FieldInfo KeyField { get; set; }
+        public PropertyInfo KeyProperty { get; set; }
+        public FieldInfo DisplayField { get; set; }
+        public PropertyInfo DisplayProperty { get; set; }
     }
 }

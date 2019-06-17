@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace Zen.Base
 {
@@ -11,10 +9,10 @@ namespace Zen.Base
         static Configuration()
         {
             BaseDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            DataDirectory = $"{BaseDirectory}{Path.PathSeparator}data";
+            DataDirectory = $"{BaseDirectory}{Path.DirectorySeparatorChar}data";
 
             Version = System.Reflection.Assembly.GetCallingAssembly().GetName().Version.ToString();
-            Host = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+            Host = Process.GetCurrentProcess().ProcessName;
 
             ApplicationAssembly = GetAppAssembly();
             ApplicationAssemblyName = ApplicationAssembly.GetName().Name;

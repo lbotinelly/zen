@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Zen.Base;
-using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Identity;
 using Zen.Base.Module.Log;
+
+// ReSharper disable InconsistentlySynchronizedField
+// ReSharper disable StaticMemberInGenericType
+// ReSharper disable InconsistentNaming
 
 namespace Zen.Module.Web.Controller
 {
@@ -16,12 +18,41 @@ namespace Zen.Module.Web.Controller
     [ApiController]
     public class DataController<T> : Microsoft.AspNetCore.Mvc.Controller where T : Data<T>
     {
-        public EndpointSetupAttribute Setup =>
-            (EndpointSetupAttribute) Attribute.GetCustomAttribute(GetType(), typeof(EndpointSetupAttribute));
+        // ReSharper disable once StaticMemberInGenericType
+        // ReSharper disable once InconsistentNaming
+        private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
+
+        private static readonly object _lockObject = new object();
+
+        public EndpointConfiguration Setup
+        {
+            get
+            {
+                var typeRef = GetType();
+
+                if (_attributeResolutionCache.ContainsKey(typeRef)) return _attributeResolutionCache[typeRef];
+
+                lock (_lockObject)
+                {
+                    if (_attributeResolutionCache.ContainsKey(typeRef)) return _attributeResolutionCache[typeRef];
+
+                    var newDefinition = new EndpointConfiguration
+                    {
+                        Security = (EndpointConfiguration.SecurityAttribute)Attribute.GetCustomAttribute(typeRef,
+                            typeof(EndpointConfiguration.SecurityAttribute)),
+                        Behavior = (EndpointConfiguration.BehaviorAttribute)Attribute.GetCustomAttribute(typeRef,
+                            typeof(EndpointConfiguration.BehaviorAttribute))
+                    };
+
+                    _attributeResolutionCache.TryAdd(typeRef, newDefinition);
+
+                    return newDefinition;
+                }
+            }
+        }
 
 
-        private void EvaluateAuthorization(ERequestType requestType, EAccessType accessType, string identifier = null,
-            T model = null, string parm3 = null)
+        private void EvaluateAuthorization(ERequestType requestType, EAccessType accessType, string identifier = null, T model = null, string context = null)
         {
             var attr = Setup;
 
@@ -30,7 +61,7 @@ namespace Zen.Module.Web.Controller
 
             if (attr != null)
             {
-                var targetPermissionSet = "";
+                string targetPermissionSet;
 
                 switch (accessType)
                 {
@@ -43,6 +74,8 @@ namespace Zen.Module.Web.Controller
                     case EAccessType.Remove:
                         targetPermissionSet = attr.Security.Remove;
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(accessType), accessType, null);
                 }
 
                 ret = IdentityHelper.HasAnyPermissions(targetPermissionSet);
@@ -51,13 +84,11 @@ namespace Zen.Module.Web.Controller
             if (ret)
                 try
                 {
-                    ret = AuthorizeAction(requestType, accessType, identifier, ref model, parm3);
+                    ret = AuthorizeAction(requestType, accessType, identifier, ref model, context);
                 }
                 catch (Exception e) // User may throw a custom error, and that's fine: let's just log it.
                 {
-                    Current.Log.Add(
-                        $"AUTH {typeof(T).FullName} DENIED {requestType}({accessType}) [{identifier}]. Reason: {e.Message}",
-                        Message.EContentType.Warning);
+                    Current.Log.Warn<T>($"AUTH DENIED {requestType} ({accessType}) [{identifier}]. Reason: {e.Message}");
                     throw new UnauthorizedAccessException("Not authorized: " + e.Message);
                 }
 
@@ -66,6 +97,7 @@ namespace Zen.Module.Web.Controller
             Current.Log.Add(
                 "Auth " + typeof(T).FullName + " DENIED " + requestType + "(" + accessType + ") [" + identifier + "]",
                 Message.EContentType.Warning);
+
             throw new UnauthorizedAccessException("Not authorized.");
         }
 
@@ -78,24 +110,9 @@ namespace Zen.Module.Web.Controller
                 {"remove", Setup.Security == null || IdentityHelper.HasAnyPermissions(Setup.Security.Remove)}
             };
 
-            return new Dictionary<string, object> {{"x-zen-access", ret}};
+            return new Dictionary<string, object> { { "x-zen-access", ret } };
         }
 
-        public virtual bool AuthorizeAction(ERequestType pRequestType, EAccessType pAccessType, string identifier,
-            ref T model, string pContext)
-        {
-            return true;
-        }
-
-        public virtual void PostAction(ERequestType pRequestType, EAccessType pAccessType, string pidentifier = null,
-            T model = null, string pContext = null)
-        {
-        }
-
-        public virtual object InternalPostGet(T source)
-        {
-            return source;
-        }
 
         #region HTTP Methods
 
@@ -136,6 +153,17 @@ namespace Zen.Module.Web.Controller
                 throw;
             }
         }
+
+        #endregion
+
+        #region virtual hooks
+        public virtual void PostAction(ERequestType pRequestType, EAccessType pAccessType, string identifier = null, T model = null, string context = null) { }
+
+        public virtual bool AuthorizeAction(ERequestType pRequestType, EAccessType pAccessType, string identifier, ref T model, string context) { return true; }
+
+
+        public virtual object InternalPostGet(T source) { return source; }
+
 
         #endregion
     }
