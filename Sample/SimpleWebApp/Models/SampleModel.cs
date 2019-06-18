@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Bogus.DataSets;
 using Zen.Base.Module;
 
 namespace SimpleWebApp.Models
@@ -7,7 +8,11 @@ namespace SimpleWebApp.Models
     {
         [Key]
         public string Id { get; set; }
+        public Name.Gender Gender { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         [Display]
-        public string Name { get; set; }
+        public string UserName { get; set; }
+        public string Email { get; set; }
     }
 }

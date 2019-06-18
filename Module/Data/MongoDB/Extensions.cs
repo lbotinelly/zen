@@ -13,7 +13,7 @@ namespace Zen.Module.Data.MongoDB {
 
             BsonDocument queryFilter;
 
-            if (!string.IsNullOrEmpty(parm.QueryTerm)) query = $"$text:{{$search: \'{parm.QueryTerm.Replace("'", "\\'")}\',$caseSensitive: false,$diacriticSensitive: false}}";
+            if (!string.IsNullOrEmpty(parm.PartialQuery)) query = $"$text:{{$search: \'{parm.PartialQuery.Replace("'", "\\'")}\',$caseSensitive: false,$diacriticSensitive: false}}";
 
             if (extraParms != null)
             {

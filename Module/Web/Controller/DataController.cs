@@ -5,6 +5,8 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Zen.Base;
 using Zen.Base.Module;
+using Zen.Base.Module.Data;
+using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Identity;
 using Zen.Base.Module.Log;
 
@@ -52,7 +54,7 @@ namespace Zen.Module.Web.Controller
         }
 
 
-        private void EvaluateAuthorization(ERequestType requestType, EAccessType accessType, string identifier = null, T model = null, string context = null)
+        private void EvaluateAuthorization(ERequestType requestType, EActionType accessType, string identifier = null, T model = null, string context = null)
         {
             var attr = Setup;
 
@@ -65,13 +67,14 @@ namespace Zen.Module.Web.Controller
 
                 switch (accessType)
                 {
-                    case EAccessType.Read:
+                    case EActionType.Read:
                         targetPermissionSet = attr.Security.Read;
                         break;
-                    case EAccessType.Write:
+                    case EActionType.Insert:
+                    case EActionType.Update:
                         targetPermissionSet = attr.Security.Write;
                         break;
-                    case EAccessType.Remove:
+                    case EActionType.Remove:
                         targetPermissionSet = attr.Security.Remove;
                         break;
                     default:
@@ -115,7 +118,6 @@ namespace Zen.Module.Web.Controller
 
 
         #region HTTP Methods
-
         [HttpGet("")]
         public virtual IEnumerable<T> WebApiGetAll()
         {
@@ -131,7 +133,7 @@ namespace Zen.Module.Web.Controller
             {
                 sw.Start();
 
-                EvaluateAuthorization(ERequestType.Get, EAccessType.Read, identifier);
+                EvaluateAuthorization(ERequestType.Get, EActionType.Read, identifier);
 
                 var preRet = Data<T>.Get(identifier);
 
@@ -139,7 +141,7 @@ namespace Zen.Module.Web.Controller
 
                 Current.Log.Debug<T>($"GET {identifier} OK ({sw.ElapsedMilliseconds} ms)");
 
-                PostAction(ERequestType.Get, EAccessType.Read, identifier, preRet);
+                PostAction(ERequestType.Get, EActionType.Read, identifier, preRet);
 
 
                 return new ActionResult<T>(preRet);
@@ -157,9 +159,9 @@ namespace Zen.Module.Web.Controller
         #endregion
 
         #region virtual hooks
-        public virtual void PostAction(ERequestType pRequestType, EAccessType pAccessType, string identifier = null, T model = null, string context = null) { }
+        public virtual void PostAction(ERequestType pRequestType, EActionType pAccessType, string identifier = null, T model = null, string context = null) { }
 
-        public virtual bool AuthorizeAction(ERequestType pRequestType, EAccessType pAccessType, string identifier, ref T model, string context) { return true; }
+        public virtual bool AuthorizeAction(ERequestType pRequestType, EActionType pAccessType, string identifier, ref T model, string context) { return true; }
 
 
         public virtual object InternalPostGet(T source) { return source; }

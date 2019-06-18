@@ -33,9 +33,9 @@ namespace Zen.Module.Data.LiteDB
             if (Data<T>.Info<T>.Settings.KeyProperty == null) Current.Log.Warn<T>("LiteDbAdapter.Initialize: Driver requires a Property to defined as key.");
         }
 
-        public override T Get<T>(string key) { return ((LiteCollection<T>) _dbCol).FindById(key); }
+        public override T Get<T>(string key, QueryModifier modifier) { return ((LiteCollection<T>) _dbCol).FindById(key); }
 
-        public override IEnumerable<T> Get<T>(IEnumerable<string> keys)
+        public override IEnumerable<T> Get<T>(IEnumerable<string> keys, QueryModifier modifier = null)
         {
             var cache = new List<T>();
             foreach (var key in keys) cache.Add(((LiteCollection<T>) _dbCol).FindById(key));
@@ -43,9 +43,9 @@ namespace Zen.Module.Data.LiteDB
             return cache;
         }
 
-        public override IEnumerable<T> Query<T>(string statement) { return null; }
+        public override IEnumerable<T> Query<T>(string statement, QueryModifier modifier = null) { return null; }
 
-        public override IEnumerable<T> All<T>(string statement = null) { return ((LiteCollection<T>) _dbCol).FindAll(); }
+        public override IEnumerable<T> All<T>(string statement = null, QueryModifier modifier = TODO) { return ((LiteCollection<T>) _dbCol).FindAll(); }
 
         public override IEnumerable<TU> All<T, TU>(string statement = null) { return ((LiteCollection<T>) _dbCol).FindAll().Select(i => i.ToType<TU, T>()); }
 
@@ -67,7 +67,7 @@ namespace Zen.Module.Data.LiteDB
 
         public override string Upsert<T>(Data<T> data)
         {
-            if (string.IsNullOrEmpty(Info<T>.GetDataKey(data))) data.SetDataKey(Guid.NewGuid().ToString());
+            if (string.IsNullOrEmpty(Info<T>.GetDataKey(data))) data.SetDataKey(GetNewKey());
 
             ((LiteCollection<T>) _dbCol).Upsert(data.ToJson().FromJson<T>());
             return Info<T>.GetDataKey(data);

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Zen.Base.Assembly;
 using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
@@ -28,7 +29,6 @@ namespace Zen.Base.Module
         private bool _isDeleted;
 
         #region Bootstrap
-
         static Data()
         {
             lock (_InitializationLock)
@@ -188,6 +188,8 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.Adapter = (DataAdapterPrimitive)Activator.CreateInstance(refType.AdapterType);
 
+                    Info<T>.Settings.Adapter.SourceBundle = refType;
+
                     if (Info<T>.Settings.Adapter == null)
                     {
                         Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "Null AdapterType");
@@ -254,16 +256,49 @@ namespace Zen.Base.Module
 
         public static class Info<T> where T : Data<T>
         {
+            static Info() { _cacheKeyBase = typeof(T).FullName ; }
+
             public static Settings Settings => ClassRegistration[typeof(T)].Item1;
             public static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
+
+            public static string CacheKey(string key = "") => _cacheKeyBase + ":" + key;
+
+            public static void TryFlushCachedModel(T model)
+            {
+                if (!(Configuration?.UseCaching == true && Current.Cache.OperationalStatus == EOperationalStatus.Operational)) return;
+
+                var key = model.GetDataKey();
+                Current.Cache.Remove(key);
+            }
+
+            public static void TryFlushCachedCollection()
+            {
+                if (!(Configuration?.UseCaching == true && Current.Cache.OperationalStatus == EOperationalStatus.Operational)) return;
+                Current.Cache.RemoveAll(_cacheKeyBase);
+            }
         }
 
-        private static void ValidateState()
+        private static void ValidateState(EActionType? type = null)
         {
             if (Info<T>.Settings.State.Status != Settings.EStatus.Operational &&
                 Info<T>.Settings.State.Status != Settings.EStatus.Initializing)
                 throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+
+            switch (type)
+            {
+                case null: break;
+                case EActionType.Read: break;
+                case EActionType.Insert:
+                case EActionType.Update:
+                case EActionType.Remove:
+                    if (Info<T>.Configuration != null)
+                        if (Info<T>.Configuration.IsReadOnly)
+                            throw new Exception("This model is set as read-only.");
+                    break;
+                default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
+
 
         #endregion
 
@@ -286,21 +321,6 @@ namespace Zen.Base.Module
             return oRef == null ? null
                 : (oRef.GetType().GetProperty(Info<T>.Settings.DisplayMemberName)?.GetValue(oRef, null) ?? "").ToString();
         }
-
-
-        public static string CacheKey(string key = "")
-        {
-            if (_cacheKeyBase != null) return _cacheKeyBase + key;
-
-            _cacheKeyBase = typeof(T) + ":";
-            return _cacheKeyBase + key;
-        }
-
-        public static string CacheKey(Type t, string key = "")
-        {
-            return t.FullName + ":" + key;
-        }
-
         #endregion
 
         #region Instanced references
@@ -334,6 +354,11 @@ namespace Zen.Base.Module
             return GetDataKey(this);
         }
 
+        public string GetDataDisplay()
+        {
+            return GetDataDisplay(this);
+        }
+
         #endregion
 
         #region Events
@@ -358,32 +383,31 @@ namespace Zen.Base.Module
             }
         }
 
-        private static T ProcBeforePipeline(EAction action, T current, T source)
+        private static T ProcBeforePipeline(EActionType action, EActionScope scope, T currentModel, T originalModel)
         {
-            if (current == null) return null;
-            if (Info<T>.Settings?.Pipelines?.Before == null) return current;
+            if (Info<T>.Settings?.Pipelines?.Before == null) return currentModel;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
                 try
                 {
-                    if (current != null) current = beforeActionPipeline.Process(action, current, source);
+                    currentModel = beforeActionPipeline.Process(action, scope, currentModel, originalModel);
                 }
                 catch (Exception e)
                 {
                     Current.Log.Add<T>(e);
                 }
 
-            return current;
+            return currentModel;
         }
 
-        private static void ProcAfterPipeline(EAction action, T current, T source)
+        private static void ProcAfterPipeline(EActionType action, EActionScope scope, T currentModel, T originalModel)
         {
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
                 try
                 {
-                    afterActionPipeline.Process(action, current, source);
+                    afterActionPipeline.Process(action, scope, currentModel, originalModel);
                 }
                 catch (Exception e)
                 {
@@ -398,13 +422,13 @@ namespace Zen.Base.Module
         public static IEnumerable<T> All()
         {
             ValidateState();
-            return Info<T>.Settings.Adapter.All<T>();
+            return Info<T>.Settings.Adapter.Query<T>();
         }
 
         public static IEnumerable<TU> All<TU>(string extraParms = null)
         {
             ValidateState();
-            return Info<T>.Settings.Adapter.All<T, TU>(extraParms);
+            return Info<T>.Settings.Adapter.Query<T, TU>(extraParms);
         }
 
         public static T Get(string Key)
@@ -420,6 +444,25 @@ namespace Zen.Base.Module
             return Info<T>.Configuration?.UseCaching == true
                 ? CacheFactory.FetchSingleResultByKey(GetFromDatabase, Key)
                 : GetFromDatabase(Key);
+        }
+
+        public static T Remove(string Key)
+        {
+            var targetModel = Get(Key);
+            targetModel?.Remove();
+            return targetModel;
+        }
+
+        public static void RemoveAll()
+        {
+            ValidateState(EActionType.Remove);
+
+            ProcBeforePipeline(EActionType.Remove, EActionScope.Collection, null, null);
+
+            Info<T>.Settings.Adapter.RemoveAll<T>();
+            Info<T>.TryFlushCachedCollection();
+
+            ProcAfterPipeline(EActionType.Remove, EActionScope.Collection, null, null);
         }
 
         internal static T GetFromDatabase(object Key)
@@ -450,53 +493,73 @@ namespace Zen.Base.Module
         }
 
 
-        public string Save()
+        public T Save()
         {
-            ValidateState();
-
-
-            if (Info<T>.Configuration != null)
-                if (Info<T>.Configuration.IsReadOnly)
-                    throw new Exception("This entity is set as read-only.");
-
             if (_isDeleted) return null;
-            var ret = "";
 
-            T oldRec = null;
-            var isNew = IsNew(ref oldRec);
+            ValidateState(EActionType.Update);
 
-            var rec = this;
-            rec = ProcBeforePipeline(isNew ? EAction.Insert : EAction.Update, (T)rec, oldRec);
+            var localModel = (T)this;
+            T storedModel = null;
+            var isNew = IsNew(ref storedModel);
 
-            if (rec == null) return null;
+            var targetActionType = isNew ? EActionType.Insert : EActionType.Update;
+
+
+            localModel = ProcBeforePipeline(targetActionType, EActionScope.Model, localModel, storedModel);
+
+            if (localModel == null) return null;
 
             BeforeSave();
 
-            Info<T>.Settings.Adapter.Upsert(rec);
+            var ret = Info<T>.Settings.Adapter.Save(localModel).GetDataKey();
 
-            if (Info<T>.Configuration?.UseCaching == true)
-                if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
-                {
-                    Current.Cache.Remove(CacheKey(ret));
-                    var types = Management.GetGenericsByBaseClass(typeof(T));
-                    foreach (var t in types)
-                    {
-                        var key = CacheKey(t, ret);
-                        Current.Cache.Remove(key);
-                    }
-                }
+            Info<T>.TryFlushCachedModel(localModel);
 
             if (isNew) AfterInsert(ret);
+
             AfterSave(ret);
 
             _cachedIsNew = null;
 
-            if (Info<T>.Settings?.Pipelines?.After == null) return ret;
+            if (Info<T>.Settings?.Pipelines?.After == null) return localModel;
 
-            rec = Get(ret);
-            ProcAfterPipeline(isNew ? EAction.Insert : EAction.Update, (T)rec, oldRec);
+            localModel = Get(ret);
+            ProcAfterPipeline(targetActionType, EActionScope.Model, localModel, storedModel);
 
-            return ret;
+            return localModel;
+        }
+        public T Remove()
+        {
+            ValidateState(EActionType.Remove);
+
+            var localModel = (T)this;
+            if (_isDeleted) return null;
+
+            T storedModel = null;
+            if (IsNew(ref storedModel)) return null;
+
+            var ret = "";
+
+            localModel = ProcBeforePipeline (EActionType.Remove, EActionScope.Model, localModel, storedModel);
+
+            if (localModel == null) return null;
+
+            BeforeRemove();
+
+            Info<T>.Settings.Adapter.Remove(localModel);
+            Info<T>.TryFlushCachedModel(localModel);
+
+            AfterRemove();
+
+            _isDeleted = true;
+
+            if (Info<T>.Settings?.Pipelines?.After == null) return localModel;
+
+            localModel = Get(ret);
+            ProcAfterPipeline(EActionType.Remove, EActionScope.Model, localModel, storedModel);
+
+            return localModel;
         }
 
         #endregion
@@ -528,5 +591,13 @@ namespace Zen.Base.Module
         }
 
         #endregion
+
+        #region Overrides of Object
+
+        public override string ToString() { return $"{GetDataKey()} : {(GetDataDisplay() ?? this.ToJson())}"; }
+
+        #endregion
     }
+
+    
 }

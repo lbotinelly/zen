@@ -27,10 +27,10 @@ namespace Zen.Module.Data.MongoDB {
 
                 string server;
 
-                try { server = client.Settings.Servers.ToList()[0].Host; } catch (Exception) { server = client.Settings.Server.Host; }
+                try { server = client.Settings.Servers.FirstOrDefault()?.Host; } catch (Exception) { server = client.Settings.Server.Host; }
                 if (server != null) server = " @ " + server;
 
-                Current.Log.Add($"MONGODB_CLIENT_REGISTER {client.Settings.Credential.Identity.Username}{server}", Message.EContentType.StartupSequence);
+                Current.Log.Add($"MONGODB_CLIENT_REGISTER {client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{server}", Message.EContentType.StartupSequence);
 
                 return client;
             }
