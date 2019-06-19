@@ -69,13 +69,16 @@ namespace Zen.Base.Module.Data.Adapter
         public abstract T Save<T>(T model) where T : Data<T>;
         public abstract T Upsert<T>(T model) where T : Data<T>;
 
-        public abstract IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) where T : Data<T>;
-        public abstract IEnumerable<T> BulkSave<T>(IEnumerable<T> models) where T : Data<T>;
-        public abstract IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models) where T : Data<T>;
-
         public abstract void Remove<T>(string key) where T : Data<T>;
         public abstract void Remove<T>(T model) where T : Data<T>;
         public abstract void RemoveAll<T>() where T : Data<T>;
+
+        public abstract IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) where T : Data<T>;
+        public abstract IEnumerable<T> BulkSave<T>(IEnumerable<T> models) where T : Data<T>;
+        public abstract IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models) where T : Data<T>;
+        public abstract void BulkRemove<T>(IEnumerable<string> keys) where T : Data<T>;
+        public abstract void BulkRemove<T>(IEnumerable<T> models) where T : Data<T>;
+
         #endregion
     }
 }

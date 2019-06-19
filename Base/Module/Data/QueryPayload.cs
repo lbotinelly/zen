@@ -1,7 +1,7 @@
 ﻿namespace Zen.Base.Module {
     public class QueryPayload
     {
-        public string FullQuery;
+        public string OmniQuery;
         public string PartialQuery;
         public string OrderBy;
         public string Filter;

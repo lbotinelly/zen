@@ -7,8 +7,6 @@ namespace Zen.Base.Module.Log
     [Serializable]
     public class Message
     {
-        public delegate void MessageArrivedHandler(Message message);
-
         #region Enumerators
 
         //Type-safe-enum pattern standard interface

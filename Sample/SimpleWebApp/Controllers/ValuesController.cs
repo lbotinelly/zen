@@ -3,6 +3,7 @@ using Bogus;
 using Bogus.DataSets;
 using Microsoft.AspNetCore.Mvc;
 using SimpleWebApp.Models;
+using Zen.Base.Module.Data;
 using Zen.Module.Web.Controller;
 
 namespace SimpleWebApp.Controllers
@@ -14,7 +15,9 @@ namespace SimpleWebApp.Controllers
         public IEnumerable<SampleModel> AddRandom()
         {
 
-            SampleModel.RemoveAll();
+            var temp = SampleModel.All();
+
+            temp.Remove();
 
             var newUser = new Faker<SampleModel>()
                     .RuleFor(u => u.Gender, (f, u) => f.PickRandom<Name.Gender>())
@@ -26,7 +29,10 @@ namespace SimpleWebApp.Controllers
 
             var buffer = new List<SampleModel>();
 
-            for (var i = 0; i < 100; i++) { buffer.Add(newUser.Generate().Save()); }
+
+            for (var i = 0; i < 1000; i++) { buffer.Add(newUser.Generate()); }
+
+            buffer.Save();
 
             return buffer;
         }

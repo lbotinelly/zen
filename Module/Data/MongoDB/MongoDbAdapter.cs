@@ -27,7 +27,7 @@ namespace Zen.Module.Data.MongoDB
         private static readonly List<Type> TypeCache = new List<Type>();
         private IMongoClient _client;
 
-        private string _idProp;
+        private string _keyMember;
         private object _instance;
         private Type _refType;
         private Settings _statements;
@@ -36,13 +36,13 @@ namespace Zen.Module.Data.MongoDB
         public IMongoDatabase Database;
         public string SourceCollection;
 
-        private string Identifier
+        private string Key
         {
             get
             {
-                if (_idProp != null) return _idProp;
-                _idProp = _statements.KeyMemberName;
-                return _idProp;
+                if (_keyMember != null) return _keyMember;
+                _keyMember = _statements.KeyMemberName;
+                return _keyMember;
             }
         }
 
@@ -159,7 +159,7 @@ namespace Zen.Module.Data.MongoDB
                                     // Do custom initialization here, e.g. classMap.SetDiscriminator, AutoMap etc
 
                                     classMap.AutoMap();
-                                    classMap.MapIdProperty(Identifier);
+                                    classMap.MapIdProperty(Key);
 
                                     BsonClassMap.RegisterClassMap(classMap);
                                 }
@@ -178,7 +178,7 @@ namespace Zen.Module.Data.MongoDB
         private void ClassMapInitializer(BsonClassMap<MongoDbAdapter> cm)
         {
             cm.AutoMap();
-            cm.MapIdMember(c => c.Identifier);
+            cm.MapIdMember(c => c.Key);
         }
 
         #endregion
@@ -318,9 +318,9 @@ namespace Zen.Module.Data.MongoDB
             }
         }
 
-        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) { return BulkUpsert(models); }
+        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) => BulkUpsert(models);
 
-        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models) { return BulkUpsert(models); }
+        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models) => BulkUpsert(models);
 
         public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models)
         {
@@ -365,6 +365,13 @@ namespace Zen.Module.Data.MongoDB
                 throw;
             }
         }
+
+        public override void BulkRemove<T>(IEnumerable<string> keys)
+        {
+            var filter = Builders<BsonDocument>.Filter.In("_id", keys);
+            Collection.DeleteMany(filter);
+        }
+        public override void BulkRemove<T>(IEnumerable<T> models) => BulkRemove<T>(models.Select(i => i.GetDataKey()));
 
         public override void Remove<T>(string locator)
         {

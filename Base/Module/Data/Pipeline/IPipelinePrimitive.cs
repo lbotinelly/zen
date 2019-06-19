@@ -1,9 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
 
 namespace Zen.Base.Module.Data.Pipeline
 {
     public interface IPipelinePrimitive
     {
-        ConcurrentDictionary<string, object> Headers<T>() where T : Data<T>;
+        Dictionary<string, object> Headers<T>() where T : Data<T>;
     }
 }

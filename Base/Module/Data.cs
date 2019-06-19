@@ -5,14 +5,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using Zen.Base.Assembly;
+using System.Threading.Tasks;
 using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
+using Zen.Base.Module.Log;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StaticMemberInGenericType
@@ -29,6 +29,7 @@ namespace Zen.Base.Module
         private bool _isDeleted;
 
         #region Bootstrap
+
         static Data()
         {
             lock (_InitializationLock)
@@ -39,10 +40,8 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    ClassRegistration.TryAdd(typeof(T),
-                        new Tuple<Settings, DataConfigAttribute>(new Settings(),
-                            (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T),
-                                typeof(DataConfigAttribute))));
+                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(),
+                                             (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute))?? new DataConfigAttribute())  );
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -50,10 +49,7 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.State.Step = "Starting TableData/Statements setup";
 
-                    Info<T>.Settings.StorageName =
-                        Info<T>.Configuration?.Label ?? Info<T>.Configuration?.TableName ?? typeof(T).Name;
-
-
+                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.TableName ?? typeof(T).Name;
 
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
@@ -79,7 +75,6 @@ namespace Zen.Base.Module
 
                     if (Info<T>.Settings.KeyMemberName == null)
                     {
-
                         Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No valid Key member found");
                         return;
                     }
@@ -106,8 +101,7 @@ namespace Zen.Base.Module
                         // If there's a [Key] attribute on a Property, use its name;
                         Info<T>.Settings.DisplayProperty?.Name;
 
-                    if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
-                        Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
+                    if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null) Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
 
                     // Do we have any pipelines defined?
                     var ps = typeof(T).GetCustomAttributes(true).OfType<PipelineAttribute>().ToList();
@@ -170,7 +164,7 @@ namespace Zen.Base.Module
                     if (refBundle == null)
                     {
                         Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
-                            "No valid connection bundle found");
+                                                      "No valid connection bundle found");
                         return;
                     }
 
@@ -182,7 +176,7 @@ namespace Zen.Base.Module
                     if (refType.AdapterType == null)
                     {
                         Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
-                            "No AdapterType defined on bundle");
+                                                      "No AdapterType defined on bundle");
                         return;
                     }
 
@@ -205,7 +199,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.State.Step = "Determining CredentialSets to use";
                     Info<T>.Settings.CredentialSet =
                         Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle,
-                            Info<T>.Configuration?.CredentialSetType);
+                                                                    Info<T>.Configuration?.CredentialSetType);
 
                     if (Info<T>.Settings.CredentialSet != null)
                         Info<T>.Settings.Statistics["Settings.CredentialSet"] =
@@ -252,16 +246,20 @@ namespace Zen.Base.Module
 
         #endregion
 
+        #region Overrides of Object
+
+        public override string ToString() { return $"{GetDataKey()} : {GetDataDisplay() ?? this.ToJson()}"; }
+
+        #endregion
+
         #region State tools
 
         public static class Info<T> where T : Data<T>
         {
-            static Info() { _cacheKeyBase = typeof(T).FullName ; }
-
+            static Info() { _cacheKeyBase = typeof(T).FullName; }
             public static Settings Settings => ClassRegistration[typeof(T)].Item1;
             public static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
-
-            public static string CacheKey(string key = "") => _cacheKeyBase + ":" + key;
+            public static string CacheKey(string key = "") { return _cacheKeyBase + ":" + key; }
 
             public static void TryFlushCachedModel(T model)
             {
@@ -281,8 +279,7 @@ namespace Zen.Base.Module
         private static void ValidateState(EActionType? type = null)
         {
             if (Info<T>.Settings.State.Status != Settings.EStatus.Operational &&
-                Info<T>.Settings.State.Status != Settings.EStatus.Initializing)
-                throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+                Info<T>.Settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
 
             switch (type)
             {
@@ -298,7 +295,6 @@ namespace Zen.Base.Module
                 default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
-
 
         #endregion
 
@@ -318,12 +314,14 @@ namespace Zen.Base.Module
 
         public static string GetDataDisplay(Data<T> oRef)
         {
-            return oRef == null ? null
+            return oRef == null
+                ? null
                 : (oRef.GetType().GetProperty(Info<T>.Settings.DisplayMemberName)?.GetValue(oRef, null) ?? "").ToString();
         }
+
         #endregion
 
-        #region Instanced references
+        #region Instanced operations
 
         public void SetDataKey(object value)
         {
@@ -331,10 +329,7 @@ namespace Zen.Base.Module
             if (value.IsNumeric()) value = Convert.ToInt64(value);
 
             var refField = GetType().GetField(Info<T>.Settings.KeyMemberName);
-            if (refField != null)
-            {
-                refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
-            }
+            if (refField != null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
             {
                 var refProp = GetType().GetProperty(Info<T>.Settings.KeyMemberName);
                 refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
@@ -349,19 +344,13 @@ namespace Zen.Base.Module
             refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
         }
 
-        public string GetDataKey()
-        {
-            return GetDataKey(this);
-        }
+        public string GetDataKey() { return GetDataKey(this); }
 
-        public string GetDataDisplay()
-        {
-            return GetDataDisplay(this);
-        }
+        public string GetDataDisplay() { return GetDataDisplay(this); }
 
         #endregion
 
-        #region Events
+        #region Event handling
 
         private static void Environment_EnvironmentChanged(object sender, EventArgs e)
         {
@@ -370,32 +359,12 @@ namespace Zen.Base.Module
             HandleConfigurationChange();
         }
 
-        private static void HandleConfigurationChange()
-        {
-            try
-            {
-                Current.Log.Maintenance(typeof(T) + ": Configuration changed");
-                Info<T>.Settings.Adapter.SetConnectionString<T>();
-            }
-            catch (Exception e)
-            {
-                Current.Log.Add(e);
-            }
-        }
-
         private static T ProcBeforePipeline(EActionType action, EActionScope scope, T currentModel, T originalModel)
         {
             if (Info<T>.Settings?.Pipelines?.Before == null) return currentModel;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
-                try
-                {
-                    currentModel = beforeActionPipeline.Process(action, scope, currentModel, originalModel);
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add<T>(e);
-                }
+                try { currentModel = beforeActionPipeline.Process(action, scope, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
 
             return currentModel;
         }
@@ -405,46 +374,90 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
-                try
-                {
-                    afterActionPipeline.Process(action, scope, currentModel, originalModel);
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add<T>(e);
-                }
+                try { afterActionPipeline.Process(action, scope, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
+        }
+
+        private static void HandleConfigurationChange()
+        {
+            try
+            {
+                Current.Log.Maintenance(typeof(T) + ": Configuration changed");
+                Info<T>.Settings.Adapter.SetConnectionString<T>();
+            }
+            catch (Exception e) { Current.Log.Add(e); }
         }
 
         #endregion
 
         #region Static Data handlers
 
-        public static IEnumerable<T> All()
+        public static IEnumerable<T> All() { return All<T>(); }
+
+        public static IEnumerable<TU> All<TU>()
         {
-            ValidateState();
-            return Info<T>.Settings.Adapter.Query<T>();
+            ValidateState(EActionType.Read);
+            return Info<T>.Settings.Adapter.Query<T, TU>();
         }
 
-        public static IEnumerable<TU> All<TU>(string extraParms = null)
+        public static IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()); }
+
+        public static IEnumerable<T> Query(QueryModifier modifier = null) { return Query<T>(modifier); }
+
+        public static IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
+
+        public static IEnumerable<TU> Query<TU>(QueryModifier modifier = null)
         {
-            ValidateState();
-            return Info<T>.Settings.Adapter.Query<T, TU>(extraParms);
+            ValidateState(EActionType.Read);
+
+            var postModifier = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, modifier) ?? modifier;
+
+            return Info<T>.Settings.Adapter.Query<T, TU>(postModifier);
         }
 
-        public static T Get(string Key)
+
+        public static long Count(string statement) { return Count(statement.ToModifier()); }
+
+        public static long Count(QueryModifier modifier = null)
         {
-            if (Key == null) return null;
+            ValidateState(EActionType.Read);
+
+            modifier = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeCount(EActionType.Read, modifier) ?? modifier;
+
+            return Info<T>.Settings.Adapter.Count<T>(modifier);
+        }
+
+        public static T Get(string key)
+        {
+            ValidateState(EActionType.Read);
+
+            if (key == null) return null;
 
             if (Info<T>.Settings.KeyMemberName == null)
             {
-                Current.Log.Warn<T>("Key not set");
+                Current.Log.Warn<T>("Invalid operation; key not set");
                 throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
             }
 
             return Info<T>.Configuration?.UseCaching == true
-                ? CacheFactory.FetchSingleResultByKey(GetFromDatabase, Key)
-                : GetFromDatabase(Key);
+                ? CacheFactory.FetchModel(FetchModel, key)
+                : FetchModel(key);
         }
+
+        public static IEnumerable<T> Get(IEnumerable<string> keys)
+        {
+            ValidateState(EActionType.Read);
+
+            if (keys == null) return null;
+            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keys).Values;
+
+            Current.Log.Warn<T>("Invalid operation; key not set");
+            throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
+        }
+
+        private static readonly object _bulkSaveLock = new object();
+
+        public static BulkDataOperation<T> Save(IEnumerable<T> models) => BulkExecute(EActionType.Update, models);
+        public static BulkDataOperation<T> Remove(IEnumerable<T> models) => BulkExecute(EActionType.Remove, models);
 
         public static T Remove(string Key)
         {
@@ -465,16 +478,256 @@ namespace Zen.Base.Module
             ProcAfterPipeline(EActionType.Remove, EActionScope.Collection, null, null);
         }
 
-        internal static T GetFromDatabase(object Key)
+        #endregion
+
+        #region Internal Model/Storage exchange
+
+        private static BulkDataOperation<T> BulkExecute(EActionType type, IEnumerable<T> models)
         {
-            return Info<T>.Settings.Adapter.Get<T>(Key.ToString());
+            ValidateState(type);
+
+            var logStep = "";
+            object logObj = null;
+
+            var modelSet = models.ToList();
+
+            TimeLog _timed = new TimeLog();
+
+            if (modelSet.Count == 0) return null;
+
+            var resultPackage = new BulkDataOperation<T> { Type = type };
+
+            // First let's obtain any ServiceTokenGuid set by the user.
+
+            lock (_bulkSaveLock)
+            {
+                try
+                {
+                    var successSet = new List<T>();
+                    var failureSet = new List<T>();
+
+                    _timed.Start($"{type} bulk [Warm-up]");
+                    var logClicker = modelSet.GetClicker(_timed.CurrentMessage);
+
+                    resultPackage.Control = new ConcurrentDictionary<string, DataOperationControl<T>>();
+
+                    var paralelizableClicker = logClicker;
+
+                    Parallel.ForEach(modelSet, new ParallelOptions { MaxDegreeOfParallelism = 5 }, item =>
+
+                    //foreach (var i in objs)
+                    {
+                        paralelizableClicker.Click();
+
+                        if (item.IsNew())
+                        {
+                            var tempKey = item.ToJson().Sha512Hash();
+
+                            if (resultPackage.Control.ContainsKey(tempKey))
+                            {
+                                Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                failureSet.Add(item);
+                            }
+                            else
+                                resultPackage.Control[tempKey] = new DataOperationControl<T> { Current = item, IsNew = true, Original = null };
+                            return;
+                        }
+
+                        var modelKey = item.GetDataKey();
+
+                        if (resultPackage.Control.ContainsKey(modelKey))
+                        {
+                            Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                            return;
+                        }
+
+                        resultPackage.Control[modelKey] = new DataOperationControl<T> { Current = item };
+                    });
+
+                    logClicker.End();
+
+                    _timed.Log($"{type} bulk  [Before]");
+
+                    logClicker = modelSet.GetClicker(_timed.CurrentMessage);
+
+                    logStep = "obtaining original keys";
+                    var originalKeys = resultPackage.Control.Where(controlItem => !controlItem.Value.IsNew).Select(controlPair => controlPair.Key).ToList();
+
+                    logStep = "obtaining original models";
+                    var originalSet = Get(originalKeys).ToList();
+
+                    logStep = _timed.Log("Populating Control structure");
+                    var originalMap = originalSet.ToDictionary(i => i.GetDataKey(), i => i).ToList();
+
+                    foreach (var item in originalMap) resultPackage.Control[item.Key].Original = item.Value;
+
+                    logStep = "processing Control structure";
+
+                    foreach (var controlItem in resultPackage.Control)
+                    {
+
+                        logClicker.Click();
+
+                        var currentModel = controlItem.Value.Current;
+                        var originalModel = controlItem.Value.Original;
+
+                        var canProceed = true;
+
+                        logStep = "checking if model is new";
+
+                        if (!controlItem.Value.IsNew)
+                        {
+                            logObj = currentModel;
+
+                            originalModel = type == EActionType.Remove ?
+                                ProcBeforePipeline(EActionType.Remove, EActionScope.Model, currentModel, originalModel) :
+                                ProcBeforePipeline(controlItem.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, currentModel, originalModel);
+
+                            if (originalModel == null)
+                            {
+                                failureSet.Add(currentModel);
+                                controlItem.Value.Success = false;
+                                controlItem.Value.Message = "Failed ProcBeforePipeline";
+                                canProceed = false;
+                            }
+                        }
+                        else
+                        {
+                            if (type == EActionType.Remove) // So we're removing a New object. Just ignore.
+                            {
+                                failureSet.Add(currentModel);
+                                controlItem.Value.Success = false;
+                                controlItem.Value.Message = $"Invalid {type} operation: Record is New()";
+                                canProceed = false;
+                            }
+                            else { originalModel = currentModel; }
+                        }
+
+                        if (canProceed)
+                        {
+                            logStep = "Adding model to process list";
+                            logObj = currentModel;
+
+                            successSet.Add(originalModel);
+
+                            if (type == EActionType.Remove)
+                            {
+                                originalModel.BeforeRemove();
+                            }
+                            else
+                            {
+                                if (!originalModel.IsNew()) originalModel.BeforeSave();
+                                else originalModel.BeforeInsert();
+
+                                originalModel.BeforeUpsert();
+                            }
+
+                            controlItem.Value.Success = true;
+                        }
+                    }
+
+                    logClicker.End();
+
+                    logStep = _timed.Log($"{type} {successSet.Count} models");
+
+                    if (type == EActionType.Remove)
+                        Info<T>.Settings.Adapter.BulkRemove(successSet);
+                    else
+                        Info<T>.Settings.Adapter.BulkUpsert(successSet);
+
+                    logClicker = modelSet.GetClicker($"{type} bulk   [After]");
+
+                    logStep = _timed.Log("post-processing individual models");
+
+                    Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions { MaxDegreeOfParallelism = 5 }, controlModel =>
+                      {
+                          var key = controlModel.Key;
+                          logClicker.Click();
+
+                          if (type == EActionType.Remove)
+                          {
+                              controlModel.Value.Current.AfterRemove();
+                              ProcAfterPipeline(EActionType.Remove, EActionScope.Model, controlModel.Value.Current, controlModel.Value.Original);
+                          }
+                          else
+                          {
+                              if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
+                              else controlModel.Value.Current.AfterSave(key);
+
+                              controlModel.Value.Current.AfterUpsert(key);
+
+                              ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, controlModel.Value.Current, controlModel.Value.Original);
+                          }
+
+                          CacheFactory.FlushModel<T>(key);
+                      });
+
+
+
+                    resultPackage.Success = successSet;
+                    resultPackage.Failure = failureSet;
+
+                    logStep = _timed.Log($"{type} bulk operation complete. Success: {resultPackage.Success.Count} | Failure: {resultPackage.Failure.Count}");
+
+
+                    logClicker.End();
+                    _timed.End();
+
+
+                    return resultPackage;
+
+                }
+                catch (Exception e)
+                {
+
+                    Current.Log.Add<T>(e);
+                    var ex = new Exception($"{type} - Error while {logStep} {logObj?.ToJson()}: {e.Message}", e);
+
+                    _timed.End();
+                    throw ex;
+                }
+            }
+        }
+
+        internal static T FetchModel(string key) => Info<T>.Settings.Adapter.Get<T>(key);
+
+        internal static Dictionary<string, T> FetchSet(IEnumerable<string> keys, bool ignoreCache = false)
+        {
+            //This function mixes cached models with partial queries to the adapter.
+            var fetchKeys = keys.ToList();
+
+            // First we create a map to accomodate all the requested records.
+            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T)null);
+
+            //Then we proceed to probe the cache for individual model copies if the user didn't decided to ignore cache.
+            if (!ignoreCache) foreach (var key in fetchKeys) fetchMap[key] = CacheFactory.FetchModel<T>(key);
+
+            //At this point we may have a map that's only partially populated. Let's then identify the missing models.
+            var missedKeys = fetchMap.Where(i => i.Value == null).Select(i => i.Key).ToList();
+
+            //Do a hard query on the missing keys.
+            var cachedSet = Info<T>.Settings.Adapter.Get<T>(missedKeys);
+
+            // Now we fill the map with the missing models that we sucessfully fetched.
+            foreach (var model in cachedSet.Where(model => model != null))
+            {
+                var key = model.GetDataKey();
+                fetchMap[key] = model;
+
+                // And we take the time to populate the cache with the model.
+                CacheFactory.StoreModel(key, model);
+            }
+
+            //Let's return the map and give the developer the chance to handle unbound keys.
+
+            return fetchMap;
         }
 
         #endregion
 
         #region Instanced data handlers
 
-        public bool IsNew(ref T oProbe)
+        public bool IsNew(ref T originalModel)
         {
             if (_cachedIsNew.HasValue) return _cachedIsNew.Value;
 
@@ -486,12 +739,17 @@ namespace Zen.Base.Module
                 return _cachedIsNew.Value;
             }
 
-            oProbe = Get(probe);
+            originalModel = Get(probe);
 
-            _cachedIsNew = oProbe == null;
+            _cachedIsNew = originalModel == null;
             return _cachedIsNew.Value;
         }
 
+        public bool IsNew()
+        {
+            T storedModel = null;
+            return IsNew(ref storedModel);
+        }
 
         public T Save()
         {
@@ -505,30 +763,32 @@ namespace Zen.Base.Module
 
             var targetActionType = isNew ? EActionType.Insert : EActionType.Update;
 
-
             localModel = ProcBeforePipeline(targetActionType, EActionScope.Model, localModel, storedModel);
 
             if (localModel == null) return null;
 
-            BeforeSave();
+            if (isNew) BeforeInsert();
+            else BeforeSave();
+            BeforeUpsert();
 
-            var ret = Info<T>.Settings.Adapter.Save(localModel).GetDataKey();
+            var postKey = Info<T>.Settings.Adapter.Save(localModel).GetDataKey();
 
             Info<T>.TryFlushCachedModel(localModel);
 
-            if (isNew) AfterInsert(ret);
-
-            AfterSave(ret);
+            if (isNew) AfterInsert(postKey);
+            else AfterSave(postKey);
+            AfterUpsert(postKey);
 
             _cachedIsNew = null;
 
             if (Info<T>.Settings?.Pipelines?.After == null) return localModel;
 
-            localModel = Get(ret);
+            localModel = Get(postKey);
             ProcAfterPipeline(targetActionType, EActionScope.Model, localModel, storedModel);
 
             return localModel;
         }
+
         public T Remove()
         {
             ValidateState(EActionType.Remove);
@@ -541,7 +801,7 @@ namespace Zen.Base.Module
 
             var ret = "";
 
-            localModel = ProcBeforePipeline (EActionType.Remove, EActionScope.Model, localModel, storedModel);
+            localModel = ProcBeforePipeline(EActionType.Remove, EActionScope.Model, localModel, storedModel);
 
             if (localModel == null) return null;
 
@@ -564,40 +824,27 @@ namespace Zen.Base.Module
 
         #endregion
 
-        #region Event hooks
+        #region Event hooks and Behavior modifiers
 
-        public virtual void AfterInsert(string newKey)
-        {
-        }
+        public virtual void BeforeSave() { }
 
-        public virtual void AfterSave(string newKey)
-        {
-        }
+        public virtual void AfterSave(string newKey) { }
 
-        public virtual void BeforeSave()
-        {
-        }
+        public virtual void BeforeInsert() { }
 
-        public virtual void BeforeInsert()
-        {
-        }
+        public virtual void AfterInsert(string newKey) { }
 
-        public virtual void BeforeRemove()
-        {
-        }
+        public virtual void BeforeUpsert() { }
 
-        public virtual void AfterRemove()
-        {
-        }
+        public virtual void AfterUpsert(string newKey) { }
 
-        #endregion
+        public virtual void BeforeRemove() { }
 
-        #region Overrides of Object
+        public virtual void AfterRemove() { }
 
-        public override string ToString() { return $"{GetDataKey()} : {(GetDataDisplay() ?? this.ToJson())}"; }
+        public virtual QueryModifier BeforeQuery(EActionType read, QueryModifier modifier) { return null; }
+        public virtual QueryModifier BeforeCount(EActionType read, QueryModifier modifier) { return null; }
 
         #endregion
     }
-
-    
 }

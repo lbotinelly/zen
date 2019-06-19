@@ -8,7 +8,6 @@
         Post,
         Patch,
         Put,
-        Delete,
-        EntityReference
+        Delete
     }
 }

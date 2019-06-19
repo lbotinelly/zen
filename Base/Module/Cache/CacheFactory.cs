@@ -1,186 +1,131 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Xml.Schema;
 using Zen.Base.Extension;
 
-namespace Zen.Base.Module.Cache {
+namespace Zen.Base.Module.Cache
+{
     public static class CacheFactory
     {
-        #region Cache Management methods
-
-        public static List<T> FetchListResultByKey<T>(Func<string, List<T>> method, string key) { return FetchListResultByKey<T>(method, key, 600); }
-
-        public static List<T> FetchListResultByKey<T>(Func<string, List<T>> method, string key, int cacheTimeOutSeconds = 600)
+        public static T FetchModel<T>(string key)
         {
-            var cacheid = typeof(T).CacheKey(key);
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return default(T);
 
-            if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
+            var serializedModel = Current.Cache[typeof(T).CacheKey(key)];
+
+            return serializedModel == null ? default(T) : serializedModel.FromJson<T>();
+        }
+
+        public static List<T> FetchSet<T>(Func<string, List<T>> method, string key) => FetchSet(method, key, 600);
+        public static List<T> FetchSet<T>(Func<string, List<T>> method, string key, int cacheTimeOutSeconds)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return method(key);
+
+            var cacheKey = typeof(T).CacheKey(key);
+
+            var cacheModel = Current.Cache[cacheKey].FromJson<List<T>>();
+            if (cacheModel != null) return cacheModel;
+
+            cacheModel = method(key);
+
+            Current.Cache[cacheKey, null, cacheTimeOutSeconds] = cacheModel.ToJson();
+
+            return cacheModel;
+        }
+        public static void FlushSet<T>(string key)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return;
+            Current.Cache.Remove(typeof(T).CacheKey(key));
+        }
+        public static T FetchModel<T>(Func<string, T> method, string key, string baseType = null, int cacheTimeOutSeconds = 600)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return method(key);
+
+            var cacheKey = typeof(T).CacheKey(key, baseType);
+
+            var cacheModel = Current.Cache[cacheKey].FromJson<T>();
+
+            if (cacheModel != null) return cacheModel;
+
+            cacheModel = method(key);
+
+            Current.Cache[cacheKey, null, cacheTimeOutSeconds] = cacheModel.ToJson();
+
+            return cacheModel;
+        }
+        public static void StoreModel<T>(string key, T model) => Current.Cache[typeof(T).CacheKey(key)] = model.ToJson();
+        public static void FlushModel<T>() => FlushModel<T>("s");
+        public static void FlushModel<T>(string key, string fullNameAlias = null)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return;
+            Current.Cache.Remove(typeof(T).CacheKey(key, fullNameAlias));
+        }
+        public static void FlushSingleton(string nameSpace)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return;
+            if (nameSpace == null) throw new ArgumentOutOfRangeException($"Invalid cache namespace {nameSpace}.");
+            FlushSingleton<string>(nameSpace);
+        }
+        public static void FlushSingleton<T>(string nameSpace = null)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return;
+
+            string cacheKey;
+
+            if (nameSpace == null)
             {
-                var cache = Current.Cache[cacheid].FromJson<List<T>>();
-                if (cache != null) return cache;
-            }
-
-            var ret = method(key);
-
-            if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
-                Current.Cache[cacheid, null, cacheTimeOutSeconds] = ret.ToJson();
-
-            return ret;
-        }
-
-        public static void FlushListResultByKey<T>(string key)
-        {
-            var cacheid = typeof(T).CacheKey(key);
-
-            if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
-            {
-                Current.Cache.Remove(cacheid);
-            }
-
-        }
-
-        public static T FetchSingleResultByKey<T>(Func<string, T> method, string key, string baseType = null, int cacheTimeOutSeconds = 600)
-        {
-
-            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational)
-                return method(key);
-
-            var cacheid = typeof(T).CacheKey(key, baseType);
-
-            var cache = Current.Cache[cacheid].FromJson<T>();
-            if (cache != null)
-            {
-                //Current.Log.Add("CACHE HIT " + cacheid);
-                return cache;
-            }
-
-            //Current.Log.Add("CACHE MISS " + cacheid);
-
-            var ret = method(key);
-
-            Current.Cache[cacheid, null, cacheTimeOutSeconds] = ret.ToJson();
-
-            return ret;
-        }
-
-
-        public static void FlushSingleResultByKey<T>() { FlushSingleResultByKey<T>("s"); }
-        public static void FlushSingleResultByKey<T>(string key, string fullNameAlias = null)
-        {
-
-            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational)
-                return;
-
-            var cacheid = typeof(T).CacheKey(key, fullNameAlias);
-
-            Current.Cache.Remove(cacheid);
-        }
-
-        public static void FlushResultSingleton(string namespaceSpec)
-        {
-            if (namespaceSpec == null)
-                throw new ArgumentOutOfRangeException("Invalid cache source. Specify namespaceSpec.");
-
-            FlushResultSingleton<string>(namespaceSpec);
-        }
-
-
-        public static void FlushResultSingleton<T>(string namespaceSpec = null)
-        {
-            string cacheid;
-
-            T cache;
-
-            if (namespaceSpec == null)
-            {
-                cacheid = typeof(T).CacheKey("s");
+                cacheKey = typeof(T).CacheKey("s");
 
                 try
                 {
                     if (typeof(T).GetGenericTypeDefinition() == typeof(List<>))
                         if (typeof(T).GetGenericArguments()[0].IsPrimitiveType())
-                            throw new ArgumentOutOfRangeException("Invalid cache source - list contains primitive type. Specify namespaceSpec.");
+                            throw new ArgumentOutOfRangeException("Invalid cache source - list contains primitive type. Specify nameSpace.");
                         else
-                            cacheid = typeof(T).GetGenericArguments()[0].CacheKey("s");
+                            cacheKey = typeof(T).GetGenericArguments()[0].CacheKey("s");
                 }
                 catch { }
             }
-            else
-                cacheid = namespaceSpec + ":s";
+            else { cacheKey = nameSpace + ":s"; }
 
-            Current.Cache.Remove(cacheid);
+            Current.Cache.Remove(cacheKey);
         }
-
-        public static T FetchResultSingleton<T>(Func<T> method, object singletonLock, string namespaceSpec = null, int timeOutSeconds = 600)
+        public static T FetchSingleton<T>(Func<T> method, object singletonLock, string nameSpace = null, int timeOutSeconds = 600)
         {
-            string cacheid;
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return method();
 
-            T cache;
+            string cacheKey;
 
-            if (namespaceSpec == null)
+            if (nameSpace == null)
             {
-                cacheid = typeof(T).CacheKey("s");
+                cacheKey = typeof(T).CacheKey("s");
 
-                try
-                {
-                    if (typeof(T).GetGenericTypeDefinition() == typeof(List<>))
-                        if (typeof(T).GetGenericArguments()[0].IsPrimitiveType())
-                            throw new ArgumentOutOfRangeException("Invalid cache source - list contains primitive type. Specify namespaceSpec.");
-                        else
-                            cacheid = typeof(T).GetGenericArguments()[0].CacheKey("s");
-                }
-                catch { }
+                if (typeof(T).GetGenericTypeDefinition() == typeof(List<>))
+                    if (typeof(T).GetGenericArguments()[0].IsPrimitiveType())
+                        throw new ArgumentOutOfRangeException("Invalid cache source - list contains primitive type. Specify nameSpace.");
+                    else
+                        cacheKey = typeof(T).GetGenericArguments()[0].CacheKey("s");
             }
-            else
-                cacheid = namespaceSpec + ":s";
+            else { cacheKey = nameSpace + ":s"; }
 
-            if (singletonLock == null)
-                singletonLock = new object();
+            if (singletonLock == null) singletonLock = new object();
 
-            var sw = new Stopwatch();
-            sw.Start();
-
-            if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
-            {
-
-                cache = Current.Cache[cacheid].FromJson<T>();
-                if (cache != null)
-                {
-                    sw.Stop();
-                    //Current.Log.Add("GET " + "edu.bucknell.webapps.Projects.Models.ReportData" + " CACHE (" + sw.ElapsedMilliseconds + " ms)");
-
-                    return cache;
-                }
-            }
+            var cacheModel = Current.Cache[cacheKey].FromJson<T>();
+            if (cacheModel != null) return cacheModel;
 
             lock (singletonLock)
             {
-                if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
-                {
-                    cache = Current.Cache[cacheid].FromJson<T>();
-                    if (cache != null)
-                    {
-                        sw.Stop();
-                        //Current.Log.Add("GET " + "edu.bucknell.webapps.Projects.Models.ReportData" + " CACHE (" + sw.ElapsedMilliseconds + " ms)");
-                        return cache;
-                    }
-                }
+                cacheModel = Current.Cache[cacheKey].FromJson<T>();
+                if (cacheModel != null) return cacheModel;
 
                 var ret = method();
 
-                if (Current.Cache.OperationalStatus == EOperationalStatus.Operational)
-                    Current.Cache[cacheid, null, timeOutSeconds] = ret.ToJson();
+                Current.Cache[cacheKey, null, timeOutSeconds] = ret.ToJson();
 
-                cache = ret;
-
-                sw.Stop();
-                //Current.Log.Add("GET " + "edu.bucknell.webapps.Projects.Models.ReportData" + " OK (" + sw.ElapsedMilliseconds + " ms)");
-
+                cacheModel = ret;
             }
 
-            return cache;
+            return cacheModel;
         }
-
-        #endregion
     }
 }

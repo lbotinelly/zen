@@ -105,5 +105,9 @@ namespace Zen.Base.Module.Data
         public PropertyInfo KeyProperty { get; set; }
         public FieldInfo DisplayField { get; set; }
         public PropertyInfo DisplayProperty { get; set; }
+        public Lazy<T> GetInstancedModifier<T>() where T : Data<T>
+        {
+            return new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null));
+        }
     }
 }
