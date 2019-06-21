@@ -9,12 +9,16 @@ namespace Zen.Base.Module.Data.Adapter
         public IConnectionBundlePrimitive SourceBundle;
 
         #region Initialization
+
         public abstract void Setup<T>(Settings settings) where T : Data<T>;
         public abstract void Initialize<T>() where T : Data<T>;
+
         #endregion
 
         #region Common behavior
+
         public Func<string> GetNewKey = () => Guid.NewGuid().ToString();
+
         public virtual void SetConnectionString<T>() where T : Data<T>
         {
             var settings = Data<T>.Info<T>.Settings;
@@ -51,33 +55,34 @@ namespace Zen.Base.Module.Data.Adapter
             settings.ConnectionString =
                 settings.ConnectionString.Replace("{credentials}", settings.CredentialsString);
         } // ReSharper disable InconsistentNaming
+
         #endregion
 
         #region Interceptor calls
-        public abstract T Get<T>(string key) where T : Data<T>;
-        public abstract IEnumerable<T> Get<T>(IEnumerable<string> keys) where T : Data<T>;
+
+        public abstract T Get<T>(string key, Mutator mutator = null) where T : Data<T>;
+        public abstract IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
 
         public abstract IEnumerable<T> Query<T>(string statement) where T : Data<T>;
-        public abstract IEnumerable<T> Query<T>(QueryModifier modifier = null) where T : Data<T>;
+        public abstract IEnumerable<T> Query<T>(Mutator mutator = null) where T : Data<T>;
         public abstract IEnumerable<TU> Query<T, TU>(string statement) where T : Data<T>;
-        public abstract IEnumerable<TU> Query<T, TU>(QueryModifier modifier = null) where T : Data<T>;
+        public abstract IEnumerable<TU> Query<T, TU>(Mutator mutator = null) where T : Data<T>;
 
-        public abstract long Count<T>(string statement) where T : Data<T>;
-        public abstract long Count<T>(QueryModifier modifier = null) where T : Data<T>;
+        public abstract long Count<T>(Mutator mutator = null) where T : Data<T>;
 
-        public abstract T Insert<T>(T model) where T : Data<T>;
-        public abstract T Save<T>(T model) where T : Data<T>;
-        public abstract T Upsert<T>(T model) where T : Data<T>;
+        public abstract T Insert<T>(T model, Mutator mutator = null) where T : Data<T>;
+        public abstract T Save<T>(T model, Mutator mutator = null) where T : Data<T>;
+        public abstract T Upsert<T>(T model, Mutator mutator = null) where T : Data<T>;
 
-        public abstract void Remove<T>(string key) where T : Data<T>;
-        public abstract void Remove<T>(T model) where T : Data<T>;
-        public abstract void RemoveAll<T>() where T : Data<T>;
+        public abstract void Remove<T>(string key, Mutator mutator = null) where T : Data<T>;
+        public abstract void Remove<T>(T model, Mutator mutator = null) where T : Data<T>;
+        public abstract void RemoveAll<T>(Mutator mutator = null) where T : Data<T>;
 
-        public abstract IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) where T : Data<T>;
-        public abstract IEnumerable<T> BulkSave<T>(IEnumerable<T> models) where T : Data<T>;
-        public abstract IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models) where T : Data<T>;
-        public abstract void BulkRemove<T>(IEnumerable<string> keys) where T : Data<T>;
-        public abstract void BulkRemove<T>(IEnumerable<T> models) where T : Data<T>;
+        public abstract IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        public abstract IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        public abstract IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        public abstract void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
+        public abstract void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
 
         #endregion
     }

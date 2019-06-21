@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
@@ -26,15 +25,15 @@ namespace Zen.Module.Data.MongoDB
     {
         private static readonly List<Type> TypeCache = new List<Type>();
         private IMongoClient _client;
+        private object _instance;
 
         private string _keyMember;
-        private object _instance;
         private Type _refType;
         private Settings _statements;
         private DataConfigAttribute _tabledata;
-        public IMongoCollection<BsonDocument> Collection;
+        public IMongoCollection<BsonDocument> Collection { get; set; }
         public IMongoDatabase Database;
-        public string SourceCollection;
+        public string ReferenceCollectionName;
 
         private string Key
         {
@@ -49,12 +48,18 @@ namespace Zen.Module.Data.MongoDB
         public override void Initialize<T>()
         {
             // Check for the presence of text indexes '$**'
-            try { Collection.Indexes.CreateOne(Builders<BsonDocument>.IndexKeys.Text("$**")); } catch (Exception e)
+            try
+            {
+                var indexOptions = new CreateIndexOptions { Unique = false, Name = "fullTextSearch" };
+                var model = new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Text("$**"), indexOptions);
+                Collection.Indexes.CreateOne(model);
+            }
+            catch (Exception e)
             {
                 var server = Database.Client?.Settings?.Server?.Host;
                 try { server = Database?.Client?.Settings?.Servers.FirstOrDefault()?.Host; } catch (Exception) { }
 
-                Current.Log.Warn<T>($"{Database.Client?.Settings?.Credential?.Username}:{Database?.DatabaseNamespace}@{server} - {Collection?.CollectionNamespace} {e.Message} | ERR Creating index {SourceCollection}: {e.Message}");
+                Current.Log.Warn<T>($"{Database.Client?.Settings?.Credential?.Username}:{Database?.DatabaseNamespace}@{server} - {Collection?.CollectionNamespace} {e.Message} | ERR Creating index {ReferenceCollectionName}: {e.Message}");
             }
         }
 
@@ -84,18 +89,18 @@ namespace Zen.Module.Data.MongoDB
 
             var dbname = MongoUrl.Create(statementsConnectionString).DatabaseName;
 
-            if (SourceBundle is IStorageContainerResolver) dbname = ((IStorageContainerResolver) SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
+            if (SourceBundle is IStorageContainerResolver) dbname = ((IStorageContainerResolver)SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
 
             if (string.IsNullOrEmpty(dbname)) dbname = "storage";
 
             // https://jira.mongodb.org/browse/CSHARP-965
             // http://stackoverflow.com/questions/19521626/mongodb-convention-packs
 
-            var pack = new ConventionPack {new IgnoreExtraElementsConvention(true)};
+            var pack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
 
             ConventionRegistry.Register("ignore extra elements", pack, t => true);
-            ConventionRegistry.Register("DictionaryRepresentationConvention", new ConventionPack {new DictionaryRepresentationConvention(DictionaryRepresentation.ArrayOfArrays)}, _ => true);
-            ConventionRegistry.Register("EnumStringConvention", new ConventionPack {new EnumRepresentationConvention(BsonType.String)}, t => true);
+            ConventionRegistry.Register("DictionaryRepresentationConvention", new ConventionPack { new DictionaryRepresentationConvention(DictionaryRepresentation.ArrayOfArrays) }, _ => true);
+            ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
 
             Database = _client.GetDatabase(dbname);
 
@@ -106,34 +111,21 @@ namespace Zen.Module.Data.MongoDB
 
             RegisterGenericChain(typeof(T));
 
-            SetSourceCollection();
+            SetBaseCollectionName();
         }
 
         #region Adapter-specific
 
-        private void SetSourceCollection()
+        private void SetBaseCollectionName()
         {
-            string s;
 
-            if (typeof(IStorageCollectionResolver).IsAssignableFrom(_refType))
-            {
-                _instance = _refType.GetConstructor(new Type[] { }).Invoke(new object[] { });
-                s = ((IStorageCollectionResolver) _instance).GetStorageCollectionName();
-                Current.Log.Add("MongoDbinterceptor.SetSourceCollection: CUSTOM_INIT " + s, Message.EContentType.StartupSequence);
-            }
-            else
-            {
-                s = _refType.FullName;
+            var typeName = _refType.FullName;
 
-                if (!string.IsNullOrEmpty(_tabledata?.TablePrefix)) s = _tabledata.TablePrefix + "." + _refType.Name;
-                if (!string.IsNullOrEmpty(_tabledata?.TableName)) s = _tabledata.TableName;
-            }
+            if (!string.IsNullOrEmpty(_tabledata?.TablePrefix)) typeName = $"{_tabledata.TablePrefix}.{_refType.Name}";
+            if (!string.IsNullOrEmpty(_tabledata?.TableName)) typeName = _tabledata.TableName;
 
-            SourceCollection = _tabledata?.IgnoreEnvironmentPrefix == true ? s : _statements.EnvironmentCode + "." + s;
-            SetCollection();
+            ReferenceCollectionName = _tabledata?.IgnoreEnvironmentPrefix == true ? typeName : $"{_statements.EnvironmentCode}.{typeName}";
         }
-
-        private void SetCollection() { Collection = Database.GetCollection<BsonDocument>(SourceCollection); }
 
         private void RegisterGenericChain(Type type)
         {
@@ -154,7 +146,7 @@ namespace Zen.Module.Data.MongoDB
 
                                     var classMapDefinition = typeof(BsonClassMap<>);
                                     var classMapType = classMapDefinition.MakeGenericType(type);
-                                    var classMap = (BsonClassMap) Activator.CreateInstance(classMapType);
+                                    var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
 
                                     // Do custom initialization here, e.g. classMap.SetDiscriminator, AutoMap etc
 
@@ -172,7 +164,8 @@ namespace Zen.Module.Data.MongoDB
 
                     type = type.BaseType;
                 }
-            } catch (Exception e) { Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message); }
+            }
+            catch (Exception e) { Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message); }
         }
 
         private void ClassMapInitializer(BsonClassMap<MongoDbAdapter> cm)
@@ -185,83 +178,51 @@ namespace Zen.Module.Data.MongoDB
 
         #region Interceptor calls
 
-        public override T Get<T>(string key)
+        public override T Get<T>(string key, Mutator mutator = null)
         {
             try
             {
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", key);
-                var col = Collection.Find(filter).ToList();
-                var target = col.FirstOrDefault();
+                var collection = TargetCollection(mutator).Find(filter).ToList();
 
-                if (target == null)
+                var model = collection.FirstOrDefault();
+
+                if (model == null)
                 {
                     var isNumeric = long.TryParse(key, out var n);
 
                     if (isNumeric)
                     {
                         filter = Builders<BsonDocument>.Filter.Eq("_id", n);
-                        col = Collection.Find(filter).ToList();
-                        target = col.FirstOrDefault();
+                        collection = TargetCollection(mutator).Find(filter).ToList();
+                        model = collection.FirstOrDefault();
                     }
                 }
 
-                return target == null ? null : BsonSerializer.Deserialize<T>(target);
-            } catch (Exception e)
+                return model == null ? null : BsonSerializer.Deserialize<T>(model);
+            }
+            catch (Exception e)
             {
                 Current.Log.Add($"{Database.Client.Settings.Credential.Username}@{Database.DatabaseNamespace} - {Collection.CollectionNamespace}:{key} {e.Message}", Message.EContentType.Warning);
                 throw;
             }
         }
 
-        public override IEnumerable<T> Get<T>(IEnumerable<string> keys)
+        public override IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.In("_id", keys);
-            var col = Collection.Find(filter).ToList();
+            var col = TargetCollection(mutator).Find(filter).ToList();
             var res = col.Select(i => BsonSerializer.Deserialize<T>(i)).ToList();
             return res;
         }
 
-        public override IEnumerable<T> Query<T>(string statement) { return Query<T>(statement.ToModifier()); }
-        public override IEnumerable<T> Query<T>(QueryModifier modifier = null) { return Query<T, T>(modifier); }
-        public override IEnumerable<TU> Query<T, TU>(string statement) { return Query<T, TU>(statement.ToModifier()); }
+        public override IEnumerable<T> Query<T>(string statement) => Query<T>(statement.ToModifier());
+        public override IEnumerable<T> Query<T>(Mutator mutator = null) => Query<T, T>(mutator);
+        public override IEnumerable<TU> Query<T, TU>(string statement) => Query<T, TU>(statement.ToModifier());
 
-        public override IEnumerable<TU> Query<T, TU>(QueryModifier modifier = null)
+        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null)
         {
-            //var rawQuery = modifier?.Payload?.ToBsonQuery() ?? new BsonDocument();
-            //var col = Collection.Find(rawQuery).ToEnumerable();
-            //var transform = col.AsParallel().Select(a => BsonSerializer.Deserialize<TU>(a)).ToList();
-            //return transform;
-
-            var payload = modifier?.Payload;
-
-            var queryFilter = payload?.ToBsonQuery() ?? new BsonDocument();
-            var querySort = payload?.ToBsonFilter();
-
-            SortDefinition<BsonDocument> sortFilter = querySort;
-
-            if (_tabledata?.AutoGenerateMissingSchema == true)
-                if (payload?.OrderBy != null)
-                    Collection.Indexes.CreateOne(querySort?.ToJson(new JsonWriterSettings {OutputMode = JsonOutputMode.Strict}));
-
-            IFindFluent<BsonDocument, BsonDocument> fluentCollection;
-
-            try
-            {
-                fluentCollection = Collection.Find(queryFilter);
-                if (sortFilter != null) fluentCollection = fluentCollection.Sort(sortFilter);
-            } catch (Exception e)
-            {
-                Current.Log.Warn<T>($"{Database.Client?.Settings?.Credential?.Username}@{Database?.DatabaseNamespace} - {Collection?.CollectionNamespace} {e.Message}");
-                Current.Log.Warn<T>($"{payload?.ToJson()}");
-                Current.Log.Add<T>(e);
-                throw;
-            }
-
-            if (payload?.PageSize != null || payload?.PageIndex != null)
-                fluentCollection
-                    .Skip((int) ((payload?.PageIndex ?? 0) * (payload?.PageSize ?? 40)))
-                    .Limit((int) (payload?.PageSize ?? 40))
-                    ;
+            var fluentCollection = TargetCollection(mutator).ApplyTransform<T>(mutator?.Transform);
 
             var colRes = fluentCollection.ToListAsync();
             Task.WhenAll(colRes);
@@ -270,18 +231,18 @@ namespace Zen.Module.Data.MongoDB
             return res;
         }
 
-        public override long Count<T>(string statement) { return Count<T>(statement.ToModifier()); }
+        public override long Count<T>(Mutator mutator = null) => TargetCollection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument());
 
-        public override long Count<T>(QueryModifier modifier = null) { return Collection.CountDocuments(modifier?.Payload?.ToBsonQuery() ?? new BsonDocument()); }
+        public override T Insert<T>(T model, Mutator mutator = null) => Upsert(model, mutator);
 
-        public override T Insert<T>(T model) { return Upsert(model); }
+        public override T Save<T>(T model, Mutator mutator = null) => Upsert(model, mutator);
 
-        public override T Save<T>(T model) { return Upsert(model); }
-
-        public override T Upsert<T>(T obj)
+        public override T Upsert<T>(T obj, Mutator mutator = null)
         {
             string id = null;
             var isNew = false;
+
+            var targetCollection = TargetCollection(mutator);
 
             try
             {
@@ -297,20 +258,19 @@ namespace Zen.Module.Data.MongoDB
 
                 lock (StaticLock<T>.Lock)
                 {
-                    var probe = isNew ? null : Get<T>(id);
-
+                    var probe = isNew ? null : Get<T>(id, mutator);
                     var document = BsonSerializer.Deserialize<BsonDocument>(obj.ToJson());
-
-                    if (probe == null) { Collection.InsertOne(document); }
+                    if (probe == null) { targetCollection.InsertOne(document); }
                     else
                     {
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-                        Collection.ReplaceOne(filter, document);
+                        targetCollection.ReplaceOne(filter, document);
                     }
                 }
 
                 return obj;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Current.Log.Warn<T>($"{Database.Client.Settings?.Credential?.Username}@{Database?.DatabaseNamespace} - {Collection.CollectionNamespace}:{id} {e.Message}");
                 Current.Log.Warn<T>($"{obj.ToJson()}");
@@ -318,11 +278,30 @@ namespace Zen.Module.Data.MongoDB
             }
         }
 
-        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) => BulkUpsert(models);
+        private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collectionCache = new Dictionary<string, IMongoCollection<BsonDocument>>();
+        private readonly string _defaultCollectionKey = "$DefaultStaticCollection";
 
-        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models) => BulkUpsert(models);
+        private IMongoCollection<BsonDocument> TargetCollection(Mutator mutator = null)
+        {
+            var referenceCode = mutator?.SetCode ?? _defaultCollectionKey;
 
-        public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models)
+            if (_collectionCache.ContainsKey(referenceCode)) return _collectionCache[referenceCode];
+
+            lock (_collectionCache)
+            {
+                if (_collectionCache.ContainsKey(referenceCode)) return _collectionCache[referenceCode];
+
+                _collectionCache[referenceCode]
+                    = Database.GetCollection<BsonDocument>(ReferenceCollectionName + (referenceCode != _defaultCollectionKey ? $"#{referenceCode}" : ""));
+                return _collectionCache[referenceCode];
+            }
+        }
+
+        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
+
+        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
+
+        public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null)
         {
             var c = 0;
 
@@ -337,7 +316,7 @@ namespace Zen.Module.Data.MongoDB
             try
             {
                 var replacementBuffer = new List<ReplaceOneModel<BsonDocument>>();
-                var outBuffer = new List<T>();
+                var returnModelBuffer = new List<T>();
 
                 foreach (var i in enumerable)
                 {
@@ -351,37 +330,40 @@ namespace Zen.Module.Data.MongoDB
                         new ReplaceOneModel<BsonDocument>(
                                 Builders<BsonDocument>.Filter.Eq("_id", i.GetDataKey()),
                                 BsonSerializer.Deserialize<BsonDocument>(i.ToJson()))
-                            {IsUpsert = true});
-                    outBuffer.Add(i);
+                        { IsUpsert = true });
+                    returnModelBuffer.Add(i);
                 }
 
-                Collection.BulkWrite(replacementBuffer.ToArray());
-                return outBuffer;
-            } catch (Exception e)
+                TargetCollection(mutator).BulkWrite(replacementBuffer.ToArray());
+
+                return returnModelBuffer;
+            }
+            catch (Exception e)
             {
-                Current.Log.Warn<T>($"{Collection.CollectionNamespace}:BulkSave {c}/{enumerable.Count} items ERR {e.Message}");
+                Current.Log.Warn<T>($"{Collection.CollectionNamespace}:BulkSave {c}/{enumerable.Count} items: {e.Message}");
                 Current.Log.Warn<T>($"{current.ToJson()}");
                 Current.Log.Add<T>(e);
                 throw;
             }
         }
 
-        public override void BulkRemove<T>(IEnumerable<string> keys)
+        public override void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.In("_id", keys);
-            Collection.DeleteMany(filter);
+            TargetCollection(mutator).DeleteMany(filter);
         }
-        public override void BulkRemove<T>(IEnumerable<T> models) => BulkRemove<T>(models.Select(i => i.GetDataKey()));
 
-        public override void Remove<T>(string locator)
+        public override void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) { BulkRemove<T>(models.Select(i => i.GetDataKey()), mutator); }
+
+        public override void Remove<T>(string locator, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", locator);
-            Collection.DeleteOne(filter);
+            TargetCollection(mutator).DeleteOne(filter);
         }
 
-        public override void Remove<T>(T model) => Remove<T>(model.GetDataKey());
+        public override void Remove<T>(T model, Mutator mutator = null) => Remove<T>(model.GetDataKey(), mutator);
 
-        public override void RemoveAll<T>() { Collection.DeleteMany(FilterDefinition<BsonDocument>.Empty); }
+        public override void RemoveAll<T>(Mutator mutator = null) => TargetCollection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty);
 
         #endregion
     }

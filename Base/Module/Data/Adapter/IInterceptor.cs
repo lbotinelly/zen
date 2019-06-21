@@ -10,32 +10,30 @@ namespace Zen.Base.Module.Data.Adapter
         #endregion
 
         #region Read
-        T Get<T>(string key) where T : Data<T>;
-        IEnumerable<T> Get<T>(IEnumerable<string> keys) where T : Data<T>;
+        T Get<T>(string key, Mutator mutator = null) where T : Data<T>;
+        IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
 
         IEnumerable<T> Query<T>(string statement) where T : Data<T>;
-        IEnumerable<T> Query<T>(QueryModifier modifier = null) where T : Data<T>;
+        IEnumerable<T> Query<T>(Mutator mutator = null) where T : Data<T>;
         IEnumerable<TU> Query<T, TU>(string statement) where T : Data<T>;
-        IEnumerable<TU> Query<T, TU>(QueryModifier modifier = null) where T : Data<T>;
-
-        long Count<T>(string statement) where T : Data<T>;
-        long Count<T>(QueryModifier modifier = null) where T : Data<T>;
+        IEnumerable<TU> Query<T, TU>(Mutator mutator = null) where T : Data<T>;
+        long Count<T>(Mutator mutator = null) where T : Data<T>;
         #endregion
 
         #region Change 
-        T Insert<T>(T model) where T : Data<T>;
-        T Save<T>(T model) where T : Data<T>;
-        T Upsert<T>(T model) where T : Data<T>;
+        T Insert<T>(T model, Mutator mutator = null) where T : Data<T>;
+        T Save<T>(T model, Mutator mutator = null) where T : Data<T>;
+        T Upsert<T>(T model, Mutator mutator = null) where T : Data<T>;
 
-        void Remove<T>(string key) where T : Data<T>;
-        void Remove<T>(T model) where T : Data<T>;
-        void RemoveAll<T>() where T : Data<T>;
+        void Remove<T>(string key, Mutator mutator = null) where T : Data<T>;
+        void Remove<T>(T model, Mutator mutator = null) where T : Data<T>;
+        void RemoveAll<T>(Mutator mutator = null) where T : Data<T>;
 
-        IEnumerable<T> BulkInsert<T>(IEnumerable<T> models) where T : Data<T>;
-        IEnumerable<T> BulkSave<T>(IEnumerable<T> models) where T : Data<T>;
-        IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models) where T : Data<T>;
-        void BulkRemove<T>(IEnumerable<string> keys) where T : Data<T>;
-        void BulkRemove<T>(IEnumerable<T> models) where T : Data<T>;
+        IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
+        void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
 
         #endregion
 

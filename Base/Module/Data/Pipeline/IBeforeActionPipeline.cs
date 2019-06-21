@@ -2,6 +2,6 @@
 {
     public interface IBeforeActionPipeline : IPipelinePrimitive
     {
-        T Process<T>(EActionType type, EActionScope scope, T current, T source) where T : Data<T>;
+        T Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>;
     }
 }

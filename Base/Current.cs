@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base.Assembly;
-using Zen.Base.Common;
 using Zen.Base.Internal;
 using Zen.Base.Module.Cache;
-using Zen.Base.Module.Data.Connection;
-using Zen.Base.Module.Default;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
 using Zen.Base.Module.Identity;
@@ -22,7 +17,6 @@ namespace Zen.Base
             Events.Start();
         }
 
-
         public static ICacheProvider Cache => _cacheProvider.Value;
         public static IEnvironmentProvider Environment => _environmentProvider.Value;
         public static IEncryptionProvider Encryption => _IEncryptionProvider.Value;
@@ -32,19 +26,19 @@ namespace Zen.Base
 
         // ReSharper disable InconsistentNaming
         private static readonly Lazy<ICacheProvider> _cacheProvider =
-            new Lazy<ICacheProvider>(() => Instances.ServiceProvider.GetService<ICacheProvider>());
+            new Lazy<ICacheProvider>(() => Instances.ServiceProvider.GetService<ICacheProvider>(), true);
 
         private static readonly Lazy<IEnvironmentProvider> _environmentProvider =
-            new Lazy<IEnvironmentProvider>(() => Instances.ServiceProvider.GetService<IEnvironmentProvider>());
+            new Lazy<IEnvironmentProvider>(() => Instances.ServiceProvider.GetService<IEnvironmentProvider>(), true);
 
         private static readonly Lazy<IEncryptionProvider> _IEncryptionProvider =
-            new Lazy<IEncryptionProvider>(() => Instances.ServiceProvider.GetService<IEncryptionProvider>());
+            new Lazy<IEncryptionProvider>(() => Instances.ServiceProvider.GetService<IEncryptionProvider>(), true);
 
         private static readonly Lazy<IAuthorizationProvider> _IAuthorizationProvider =
-            new Lazy<IAuthorizationProvider>(() => Instances.ServiceProvider.GetService<IAuthorizationProvider>());
+            new Lazy<IAuthorizationProvider>(() => Instances.ServiceProvider.GetService<IAuthorizationProvider>(), true);
 
         private static readonly Lazy<ILogProvider> _ILogProvider =
-            new Lazy<ILogProvider>(() => Instances.ServiceProvider.GetService<ILogProvider>());
+            new Lazy<ILogProvider>(() => Instances.ServiceProvider.GetService<ILogProvider>(), true);
         // ReSharper restore InconsistentNaming
     }
 }

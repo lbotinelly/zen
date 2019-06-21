@@ -23,9 +23,14 @@ namespace Zen.Base.Module
 {
     public abstract class Data<T> where T : Data<T>
     {
+        private enum EMetadataScope
+        {
+            Collection
+        }
+
         private static string _cacheKeyBase;
         private static readonly object _InitializationLock = new object();
-        private bool? _cachedIsNew;
+        private bool? _isNew;
         private bool _isDeleted;
 
         #region Bootstrap
@@ -41,7 +46,7 @@ namespace Zen.Base.Module
                     // First we prepare a registry containing all necessary information for it to operate.
 
                     ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(),
-                                             (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute))?? new DataConfigAttribute())  );
+                                             (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -261,18 +266,20 @@ namespace Zen.Base.Module
             public static DataConfigAttribute Configuration => ClassRegistration[typeof(T)].Item2;
             public static string CacheKey(string key = "") { return _cacheKeyBase + ":" + key; }
 
-            public static void TryFlushCachedModel(T model)
+            public static void TryFlushCachedCollection(Mutator mutator = null)
             {
                 if (!(Configuration?.UseCaching == true && Current.Cache.OperationalStatus == EOperationalStatus.Operational)) return;
 
-                var key = model.GetDataKey();
-                Current.Cache.Remove(key);
+                var collectionKey = mutator?.KeyPrefix + _cacheKeyBase;
+                Current.Cache.RemoveAll(collectionKey);
             }
 
-            public static void TryFlushCachedCollection()
+            internal static void TryFlushCachedModel(T model, Mutator mutator = null)
             {
                 if (!(Configuration?.UseCaching == true && Current.Cache.OperationalStatus == EOperationalStatus.Operational)) return;
-                Current.Cache.RemoveAll(_cacheKeyBase);
+
+                var key = mutator?.KeyPrefix + model.GetDataKey();
+                Current.Cache.Remove(key);
             }
         }
 
@@ -359,22 +366,22 @@ namespace Zen.Base.Module
             HandleConfigurationChange();
         }
 
-        private static T ProcBeforePipeline(EActionType action, EActionScope scope, T currentModel, T originalModel)
+        private static T ProcBeforePipeline(EActionType action, EActionScope scope, Mutator mutator, T currentModel, T originalModel)
         {
             if (Info<T>.Settings?.Pipelines?.Before == null) return currentModel;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
-                try { currentModel = beforeActionPipeline.Process(action, scope, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
+                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
 
             return currentModel;
         }
 
-        private static void ProcAfterPipeline(EActionType action, EActionScope scope, T currentModel, T originalModel)
+        private static void ProcAfterPipeline(EActionType action, EActionScope scope, Mutator mutator, T currentModel, T originalModel)
         {
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
-                try { afterActionPipeline.Process(action, scope, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
+                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
         }
 
         private static void HandleConfigurationChange()
@@ -401,32 +408,32 @@ namespace Zen.Base.Module
 
         public static IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()); }
 
-        public static IEnumerable<T> Query(QueryModifier modifier = null) { return Query<T>(modifier); }
+        public static IEnumerable<T> Query(Mutator mutator = null) { return Query<T>(mutator); }
 
         public static IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
 
-        public static IEnumerable<TU> Query<TU>(QueryModifier modifier = null)
+        public static IEnumerable<TU> Query<TU>(Mutator mutator = null)
         {
             ValidateState(EActionType.Read);
 
-            var postModifier = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, modifier) ?? modifier;
+            mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
 
-            return Info<T>.Settings.Adapter.Query<T, TU>(postModifier);
+            return Info<T>.Settings.Adapter.Query<T, TU>(mutator);
         }
 
 
         public static long Count(string statement) { return Count(statement.ToModifier()); }
 
-        public static long Count(QueryModifier modifier = null)
+        public static long Count(Mutator mutator = null)
         {
             ValidateState(EActionType.Read);
 
-            modifier = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeCount(EActionType.Read, modifier) ?? modifier;
+            mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeCount(EActionType.Read, mutator) ?? mutator;
 
-            return Info<T>.Settings.Adapter.Count<T>(modifier);
+            return Info<T>.Settings.Adapter.Count<T>(mutator);
         }
 
-        public static T Get(string key)
+        public static T Get(string key, Mutator mutator)
         {
             ValidateState(EActionType.Read);
 
@@ -438,9 +445,11 @@ namespace Zen.Base.Module
                 throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
             }
 
-            return Info<T>.Configuration?.UseCaching == true
-                ? CacheFactory.FetchModel(FetchModel, key)
-                : FetchModel(key);
+            var fullKey = mutator?.KeyPrefix + key;
+
+            var model = Info<T>.Configuration?.UseCaching == true ? CacheFactory.FetchModel<T>(fullKey) : FetchModel(key, mutator);
+
+            return model;
         }
 
         public static IEnumerable<T> Get(IEnumerable<string> keys)
@@ -456,33 +465,33 @@ namespace Zen.Base.Module
 
         private static readonly object _bulkSaveLock = new object();
 
-        public static BulkDataOperation<T> Save(IEnumerable<T> models) => BulkExecute(EActionType.Update, models);
-        public static BulkDataOperation<T> Remove(IEnumerable<T> models) => BulkExecute(EActionType.Remove, models);
+        public static BulkDataOperation<T> Save(IEnumerable<T> models, Mutator mutator = null) => BulkExecute(EActionType.Update, models, mutator);
+        public static BulkDataOperation<T> Remove(IEnumerable<T> models, Mutator mutator = null) => BulkExecute(EActionType.Remove, models, mutator);
 
-        public static T Remove(string Key)
+        public static T Remove(string Key, Mutator mutator = null)
         {
-            var targetModel = Get(Key);
-            targetModel?.Remove();
+            var targetModel = Get(Key, mutator);
+            targetModel?.Remove(mutator);
             return targetModel;
         }
 
-        public static void RemoveAll()
+        public static void RemoveAll(Mutator mutator = null)
         {
             ValidateState(EActionType.Remove);
 
-            ProcBeforePipeline(EActionType.Remove, EActionScope.Collection, null, null);
+            ProcBeforePipeline(EActionType.Remove, EActionScope.Collection, mutator, null, null);
 
-            Info<T>.Settings.Adapter.RemoveAll<T>();
+            Info<T>.Settings.Adapter.RemoveAll<T>(mutator);
             Info<T>.TryFlushCachedCollection();
 
-            ProcAfterPipeline(EActionType.Remove, EActionScope.Collection, null, null);
+            ProcAfterPipeline(EActionType.Remove, EActionScope.Collection, mutator, null, null);
         }
 
         #endregion
 
         #region Internal Model/Storage exchange
 
-        private static BulkDataOperation<T> BulkExecute(EActionType type, IEnumerable<T> models)
+        private static BulkDataOperation<T> BulkExecute(EActionType type, IEnumerable<T> models, Mutator mutator = null)
         {
             ValidateState(type);
 
@@ -491,7 +500,7 @@ namespace Zen.Base.Module
 
             var modelSet = models.ToList();
 
-            TimeLog _timed = new TimeLog();
+            var _timed = new TimeLog();
 
             if (modelSet.Count == 0) return null;
 
@@ -514,14 +523,12 @@ namespace Zen.Base.Module
                     var paralelizableClicker = logClicker;
 
                     Parallel.ForEach(modelSet, new ParallelOptions { MaxDegreeOfParallelism = 5 }, item =>
-
-                    //foreach (var i in objs)
                     {
                         paralelizableClicker.Click();
 
                         if (item.IsNew())
                         {
-                            var tempKey = item.ToJson().Sha512Hash();
+                            var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
 
                             if (resultPackage.Control.ContainsKey(tempKey))
                             {
@@ -533,7 +540,7 @@ namespace Zen.Base.Module
                             return;
                         }
 
-                        var modelKey = item.GetDataKey();
+                        var modelKey = mutator?.KeyPrefix + item.GetDataKey();
 
                         if (resultPackage.Control.ContainsKey(modelKey))
                         {
@@ -580,8 +587,8 @@ namespace Zen.Base.Module
                             logObj = currentModel;
 
                             originalModel = type == EActionType.Remove ?
-                                ProcBeforePipeline(EActionType.Remove, EActionScope.Model, currentModel, originalModel) :
-                                ProcBeforePipeline(controlItem.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, currentModel, originalModel);
+                                ProcBeforePipeline(EActionType.Remove, EActionScope.Model, mutator, currentModel, originalModel) :
+                                ProcBeforePipeline(controlItem.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, currentModel, originalModel);
 
                             if (originalModel == null)
                             {
@@ -647,7 +654,7 @@ namespace Zen.Base.Module
                           if (type == EActionType.Remove)
                           {
                               controlModel.Value.Current.AfterRemove();
-                              ProcAfterPipeline(EActionType.Remove, EActionScope.Model, controlModel.Value.Current, controlModel.Value.Original);
+                              ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
                           }
                           else
                           {
@@ -656,7 +663,7 @@ namespace Zen.Base.Module
 
                               controlModel.Value.Current.AfterUpsert(key);
 
-                              ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, controlModel.Value.Current, controlModel.Value.Original);
+                              ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
                           }
 
                           CacheFactory.FlushModel<T>(key);
@@ -689,9 +696,9 @@ namespace Zen.Base.Module
             }
         }
 
-        internal static T FetchModel(string key) => Info<T>.Settings.Adapter.Get<T>(key);
+        internal static T FetchModel(string key, Mutator mutator = null) => Info<T>.Settings.Adapter.Get<T>(key, mutator);
 
-        internal static Dictionary<string, T> FetchSet(IEnumerable<string> keys, bool ignoreCache = false)
+        internal static Dictionary<string, T> FetchSet(IEnumerable<string> keys, bool ignoreCache = false, Mutator mutator = null)
         {
             //This function mixes cached models with partial queries to the adapter.
             var fetchKeys = keys.ToList();
@@ -700,18 +707,19 @@ namespace Zen.Base.Module
             var fetchMap = fetchKeys.ToDictionary(i => i, i => (T)null);
 
             //Then we proceed to probe the cache for individual model copies if the user didn't decided to ignore cache.
-            if (!ignoreCache) foreach (var key in fetchKeys) fetchMap[key] = CacheFactory.FetchModel<T>(key);
+            var cacheKeyPrefix = mutator?.KeyPrefix;
+            if (!ignoreCache) foreach (var key in fetchKeys) fetchMap[key] = CacheFactory.FetchModel<T>(cacheKeyPrefix + key);
 
             //At this point we may have a map that's only partially populated. Let's then identify the missing models.
             var missedKeys = fetchMap.Where(i => i.Value == null).Select(i => i.Key).ToList();
 
             //Do a hard query on the missing keys.
-            var cachedSet = Info<T>.Settings.Adapter.Get<T>(missedKeys);
+            var cachedSet = Info<T>.Settings.Adapter.Get<T>(missedKeys, mutator).ToList();
 
             // Now we fill the map with the missing models that we sucessfully fetched.
             foreach (var model in cachedSet.Where(model => model != null))
             {
-                var key = model.GetDataKey();
+                var key = cacheKeyPrefix + model.GetDataKey();
                 fetchMap[key] = model;
 
                 // And we take the time to populate the cache with the model.
@@ -727,31 +735,32 @@ namespace Zen.Base.Module
 
         #region Instanced data handlers
 
-        public bool IsNew(ref T originalModel)
+        public bool IsNew(ref T originalModel, Mutator mutator = null)
         {
-            if (_cachedIsNew.HasValue) return _cachedIsNew.Value;
+            if (_isNew.HasValue) return _isNew.Value;
 
-            var probe = GetDataKey(this);
+            var key = GetDataKey(this);
 
-            if (string.IsNullOrEmpty(probe))
+            if (string.IsNullOrEmpty(key))
             {
-                _cachedIsNew = true;
-                return _cachedIsNew.Value;
+                _isNew = true;
+                return _isNew.Value;
             }
 
-            originalModel = Get(probe);
+            originalModel = Get(key, mutator);
 
-            _cachedIsNew = originalModel == null;
-            return _cachedIsNew.Value;
+            _isNew = originalModel == null;
+
+            return _isNew.Value;
         }
 
-        public bool IsNew()
+        public bool IsNew(Mutator mutator = null)
         {
             T storedModel = null;
-            return IsNew(ref storedModel);
+            return IsNew(ref storedModel, mutator);
         }
 
-        public T Save()
+        public T Save(Mutator mutator = null)
         {
             if (_isDeleted) return null;
 
@@ -759,11 +768,11 @@ namespace Zen.Base.Module
 
             var localModel = (T)this;
             T storedModel = null;
-            var isNew = IsNew(ref storedModel);
+            var isNew = IsNew(ref storedModel, mutator);
 
             var targetActionType = isNew ? EActionType.Insert : EActionType.Update;
 
-            localModel = ProcBeforePipeline(targetActionType, EActionScope.Model, localModel, storedModel);
+            localModel = ProcBeforePipeline(targetActionType, EActionScope.Model, mutator, localModel, storedModel);
 
             if (localModel == null) return null;
 
@@ -779,17 +788,17 @@ namespace Zen.Base.Module
             else AfterSave(postKey);
             AfterUpsert(postKey);
 
-            _cachedIsNew = null;
+            _isNew = null;
 
             if (Info<T>.Settings?.Pipelines?.After == null) return localModel;
 
-            localModel = Get(postKey);
-            ProcAfterPipeline(targetActionType, EActionScope.Model, localModel, storedModel);
+            localModel = Get(postKey, mutator);
+            ProcAfterPipeline(targetActionType, EActionScope.Model, mutator, localModel, storedModel);
 
             return localModel;
         }
 
-        public T Remove()
+        public T Remove(Mutator mutator = null)
         {
             ValidateState(EActionType.Remove);
 
@@ -799,16 +808,14 @@ namespace Zen.Base.Module
             T storedModel = null;
             if (IsNew(ref storedModel)) return null;
 
-            var ret = "";
-
-            localModel = ProcBeforePipeline(EActionType.Remove, EActionScope.Model, localModel, storedModel);
+            localModel = ProcBeforePipeline(EActionType.Remove, EActionScope.Model, mutator, localModel, storedModel);
 
             if (localModel == null) return null;
 
             BeforeRemove();
 
-            Info<T>.Settings.Adapter.Remove(localModel);
-            Info<T>.TryFlushCachedModel(localModel);
+            Info<T>.Settings.Adapter.Remove(localModel, mutator);
+            Info<T>.TryFlushCachedModel(localModel, mutator);
 
             AfterRemove();
 
@@ -816,10 +823,9 @@ namespace Zen.Base.Module
 
             if (Info<T>.Settings?.Pipelines?.After == null) return localModel;
 
-            localModel = Get(ret);
-            ProcAfterPipeline(EActionType.Remove, EActionScope.Model, localModel, storedModel);
+            ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, localModel, storedModel);
 
-            return localModel;
+            return storedModel; // Return last 'incarnation' of the model.
         }
 
         #endregion
@@ -842,8 +848,8 @@ namespace Zen.Base.Module
 
         public virtual void AfterRemove() { }
 
-        public virtual QueryModifier BeforeQuery(EActionType read, QueryModifier modifier) { return null; }
-        public virtual QueryModifier BeforeCount(EActionType read, QueryModifier modifier) { return null; }
+        public virtual Mutator BeforeQuery(EActionType read, Mutator mutator) { return null; }
+        public virtual Mutator BeforeCount(EActionType read, Mutator mutator) { return null; }
 
         #endregion
     }

@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Base\Base.csproj" />
-    <ProjectReference Include="..\..\Module\Data\LiteDB\LiteDB.csproj" />
     <ProjectReference Include="..\..\Module\Encryption\AES\AES.csproj" />
   </ItemGroup>
 

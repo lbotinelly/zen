@@ -9,8 +9,9 @@ namespace Zen.Module.Data.MongoDB.Serialization {
     {
         public override JArray Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var myBSONDoc = BsonArraySerializer.Instance.Deserialize(context);
-            return JArray.Parse(myBSONDoc.ToString());
+            var myBsonDoc = BsonArraySerializer.Instance.Deserialize(context);
+            // ReSharper disable once SpecifyACultureInStringConversionExplicitly
+            return JArray.Parse(myBsonDoc.ToString());
         }
 
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, JArray value)

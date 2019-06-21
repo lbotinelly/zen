@@ -1,90 +1,114 @@
 ﻿using System;
 using System.Linq;
 using MongoDB.Bson;
-using Zen.Base.Extension;
+using MongoDB.Driver;
 using Zen.Base.Module;
+using Zen.Base.Module.Data;
+using Zen.Module.Data.MongoDB.Factories;
 
-namespace Zen.Module.Data.MongoDB {
+namespace Zen.Module.Data.MongoDB
+{
     public static class Extensions
     {
-        public static BsonDocument ToBsonQuery(this QueryPayload parm, string extraParms = null)
+        private static readonly char[] FilterFieldDelimiters = { ',', '.' };
+
+        public static IFindFluent<BsonDocument, BsonDocument> ApplyTransform<T>(this IMongoCollection<BsonDocument> source, QueryTransform transform) where T : Data<T>
         {
-            string query = null;
+            var queryDocument = transform?.ToBsonQuery() ?? new BsonDocument();
+            var sortDocument = transform?.ToBsonFilter() ?? new BsonDocument();
 
-            BsonDocument queryFilter;
+            SortDefinition<BsonDocument> sortFilter = sortDocument;
 
-            if (!string.IsNullOrEmpty(parm.PartialQuery)) query = $"$text:{{$search: \'{parm.PartialQuery.Replace("'", "\\'")}\',$caseSensitive: false,$diacriticSensitive: false}}";
+            if (Data<T>.Info<T>.Configuration?.AutoGenerateMissingSchema == true)
+                source.TryCreateIndex<T>(sortDocument);
+                
+            var fluentCollection = source.Find(queryDocument);
 
-            if (extraParms != null)
-            {
-                extraParms = extraParms.Trim();
+            if (sortFilter != null) fluentCollection.Sort(sortFilter);
 
-                if (extraParms[0] == '{') extraParms = extraParms.Substring(1, extraParms.Length - 2);
+            fluentCollection.Paginate(transform);
 
-                if (query != null) query += ",";
-                query += extraParms;
-            }
-
-            if (!string.IsNullOrEmpty(parm.Filter))
-            {
-                if (parm.Filter[0] == '{') parm.Filter = parm.Filter.Substring(1, parm.Filter.Length - 2);
-                if (query != null) query += ",";
-                query += parm.Filter;
-            }
-
-
-            if (query != null)
-            {
-                if (query[0] != '{') query = "{" + query + "}";
-
-                // Post-processing: Identify and format ISODates
-                var qParts = query.Split('\"').Where(i => i.Length == 24).ToList();
-
-                if (qParts.Count > 0)
-                    foreach (var qPart in qParts)
-                    {
-                        if (DateTime.TryParse(qPart, out var dateValue)) // Yay! It's a date
-                        {
-                            query = query.Replace("\"" + qPart + "\"", dateValue.ToISODateString());
-                        }
-                    }
-
-                queryFilter = BsonDocument.Parse(query);
-            }
-            else { queryFilter = new BsonDocument(); }
-
-            return queryFilter;
+            return fluentCollection;
         }
 
-        public static BsonDocument ToBsonFilter(this QueryPayload parm)
+        public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, int? index = 0, int? size = 50)
+        {
+            source
+                .Skip(index * size)
+                .Limit(size);
+
+            return source;
+        }
+
+        public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, QueryTransform payload)
+        {
+            if (payload?.PageSize != null || payload?.PageIndex != null) source.Paginate((int?)payload?.PageIndex, (int?)payload?.PageSize);
+
+            return source;
+        }
+
+        public static BsonDocument ToBsonQuery(this QueryTransform modifier)
+        {
+            var queryBuilder = new BsonQueryBuilder();
+
+            if (modifier == null) return null;
+
+            if (!string.IsNullOrEmpty(modifier.OmniQuery)) queryBuilder.Add($"$text:{{$search: \'{modifier.OmniQuery.Replace("'", "\\'")}\',$caseSensitive: false,$diacriticSensitive: false}}");
+
+            queryBuilder.Add(modifier?.PartialQuery);
+            queryBuilder.Add(modifier?.Filter);
+
+            return queryBuilder.Compile();
+        }
+
+        public static BsonDocument ToBsonFilter(this QueryTransform modifier)
         {
             var sortFilter = new BsonDocument();
 
-            if (parm.OrderBy == null) return sortFilter;
+            if (modifier.OrderBy == null) return sortFilter;
 
-            var sign = parm.OrderBy[0];
-            var deSignedValue = parm.OrderBy.Substring(1);
+            // Valid formats:
+            // "Field1,-Field2"
+            // "Field1;-Field2"
+            // "+ Field1;- Field2"
+            // "^Field1"
 
-            int dir;
-            string field;
+            var fieldSet = modifier.OrderBy.Split(FilterFieldDelimiters, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            switch (sign)
+            sortFilter = new BsonDocument();
+
+            foreach (var entry in fieldSet)
             {
-                case '+':
-                    field = deSignedValue;
-                    dir = +1;
-                    break;
-                case '-':
-                    field = deSignedValue;
-                    dir = -1;
-                    break;
-                default:
-                    field = parm.OrderBy;
-                    dir = +1;
-                    break;
-            }
+                var cleanEntry = entry.Trim();
 
-            sortFilter = new BsonDocument(field, dir);
+                var sign = cleanEntry[0]; // Obtain the first character
+                var deSignedValue = cleanEntry.Substring(1).Trim();
+
+                int direction;
+                string targetProperty;
+
+                switch (sign)
+                {
+                    // First scenario - user specified a Descending (A-Z, 0-9) direction sign.
+                    case '^':
+                    case '+':
+                        targetProperty = deSignedValue;
+                        direction = +1;
+                        break;
+                    // Second scenario - user specified an Ascending (Z-A, 9-0) direction sign.
+                    case '-':
+                        targetProperty = deSignedValue;
+                        direction = -1;
+                        break;
+                    // if no sort direction sign is used, assume Descending.
+                    default:
+                        targetProperty = cleanEntry;
+                        direction = +1;
+                        break;
+                }
+
+                sortFilter[targetProperty] = direction;
+            }
 
             return sortFilter;
         }

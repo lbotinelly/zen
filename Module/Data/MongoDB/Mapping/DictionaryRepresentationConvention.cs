@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization.Options;
 
 namespace Zen.Module.Data.MongoDB.Mapping
 {
+    // "BsonSerializationException when serializing a Dictionary<DateTime,T> to BSON"
     // https://stackoverflow.com/a/28111847/1845714
     internal class DictionaryRepresentationConvention : ConventionBase, IMemberMapConvention
     {

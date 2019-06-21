@@ -4,15 +4,18 @@ using Zen.Base.Module;
 
 namespace SimpleWebApp.Models
 {
-    public class SampleModel : Data<SampleModel>
+#pragma warning disable IDE1006 // Naming Styles: POCOs are allowed to use camelCase naming.
+    public class sampleModel : Data<sampleModel>
+    // ReSharper restore InconsistentNaming
     {
-        [Key]
-        public string Id { get; set; }
-        public Name.Gender Gender { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        [Display]
-        public string UserName { get; set; }
-        public string Email { get; set; }
+        [Key] public string id { get; set;}
+        [Display] public string userName;
+        public string name;
+        public Name.Gender gender;
+        public string firstName;
+        public string lastName;
+        public string email;
     }
+    // ReSharper restore InconsistentNaming
+#pragma warning restore IDE1006 // Naming Styles
 }

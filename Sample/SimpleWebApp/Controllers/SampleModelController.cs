@@ -1,0 +1,41 @@
+﻿using System.Collections.Generic;
+using Bogus;
+using Bogus.DataSets;
+using Microsoft.AspNetCore.Mvc;
+using SimpleWebApp.Models;
+using Zen.Base.Module.Data;
+using Zen.Module.Web.Controller;
+
+namespace SimpleWebApp.Controllers
+{
+    [Route("api/[controller]"), ApiController, EndpointConfiguration.SecurityAttribute]
+    public class SampleModelController : DataController<sampleModel>
+    {
+        [Route("addRandom")]
+        public IEnumerable<sampleModel> AddRandom()
+        {
+
+            var temp = sampleModel.All();
+
+            temp.Remove();
+
+            var newUser = new Faker<sampleModel>()
+                    .RuleFor(u => u.gender, (f, u) => f.PickRandom<Name.Gender>())
+                    .RuleFor(u => u.firstName, (f, u) => f.Name.FirstName(u.gender))
+                    .RuleFor(u => u.lastName, (f, u) => f.Name.LastName(u.gender))
+                    .RuleFor(u => u.userName, (f, u) => f.Internet.UserName(u.firstName, u.lastName))
+                    .RuleFor(u => u.email, (f, u) => f.Internet.Email(u.firstName, u.lastName))
+                    .RuleFor(u => u.name, (f, u) => f.Name.FullName(u.gender))
+                ;
+
+            var buffer = new List<sampleModel>();
+
+
+            for (var i = 0; i < 1000; i++) { buffer.Add(newUser.Generate()); }
+
+            buffer.Save();
+
+            return buffer;
+        }
+    }
+}

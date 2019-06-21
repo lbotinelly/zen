@@ -2,13 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
-using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Identity;
 
 // ReSharper disable InconsistentlySynchronizedField
@@ -17,73 +16,27 @@ using Zen.Base.Module.Identity;
 
 namespace Zen.Module.Web.Controller
 {
-    public static class Extentions
-    {
-        internal static void AddHeaders(this IHeaderDictionary header, Dictionary<string, object> payload)
-        {
-            if (payload == null) return;
-
-            foreach (var headerItem in payload)
-            {
-                if (header.ContainsKey(headerItem.Key)) header.Remove(headerItem.Key);
-                header.Add(headerItem.Key, headerItem.Value.ToJson());
-            }
-        }
-
-        internal static void AddModelHeaders<T>(this IHeaderDictionary header) where T : Data<T>
-        {
-            if (Data<T>.Info<T>.Settings?.Pipelines?.Before != null)
-                foreach (var pipelineMember in Data<T>.Info<T>.Settings.Pipelines.Before)
-                    AddHeaders(header, pipelineMember.Headers<T>());
-
-            if (Data<T>.Info<T>.Settings?.Pipelines?.After != null)
-                foreach (var pipelineMember in Data<T>.Info<T>.Settings.Pipelines.After)
-                    AddHeaders(header, pipelineMember.Headers<T>());
-        }
-
-        internal static QueryModifier ToQueryModifier(this IQueryCollection source)
-        {
-            var modifier = new QueryModifier { Payload = new QueryPayload() };
-
-            if (source.ContainsKey("sort")) modifier.Payload.OrderBy = source["sort"];
-
-            if (source.ContainsKey("page") || source.ContainsKey("limit"))
-            {
-                modifier.Payload.PageIndex = source.ContainsKey("page") ? Convert.ToInt32(source["page"]) : 0;
-                modifier.Payload.PageSize = source.ContainsKey("limit") ? Convert.ToInt32(source["limit"]) : 50;
-            }
-
-            if (source.ContainsKey("filter")) modifier.Payload.Filter = source["filter"];
-
-            if (source.ContainsKey("q")) modifier.Payload.OmniQuery = source["q"];
-
-            if (source.ContainsKey("set")) modifier.Collection = source["set"];
-
-            return modifier;
-        }
-    }
-
     [Route("api/[controller]"), ApiController]
     public class DataController<T> : Microsoft.AspNetCore.Mvc.Controller where T : Data<T>
     {
-        // ReSharper disable once StaticMemberInGenericType
-        // ReSharper disable once InconsistentNaming
-        private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
+        private Mutator QueryStringMutator => Request.Query.ToMutator();
 
+        private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
         private static readonly object _lockObject = new object();
 
         #region helpers
 
-        internal IActionResult PrepareResponse(object content = null, QueryModifier modifier = null, HttpStatusCode status = HttpStatusCode.OK)
+        internal IActionResult PrepareResponse(object content = null, Mutator mutator = null, HttpStatusCode status = HttpStatusCode.OK)
         {
             Response.Headers.AddModelHeaders<T>();
             Response.Headers.AddHeaders(GetAccessHeadersByPermission());
 
-      //if (modifier != null) Response.Headers.AddHeaders(modifier.ToHeaders());
+            //if (mutator != null) Response.Headers.AddHeaders(mutator.ToHeaders());
 
-            var result = new ObjectResult(content) { StatusCode = (int)status };
+            var result = new ObjectResult(content) {StatusCode = (int) status};
             return result;
         }
+
 
         #endregion
 
@@ -116,7 +69,7 @@ namespace Zen.Module.Web.Controller
             }
         }
 
-        private void EvaluateAuthorization(ERequestType requestType, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
+        private void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
         {
             var configuration = Configuration;
 
@@ -145,15 +98,14 @@ namespace Zen.Module.Web.Controller
 
             try
             {
-                if (AuthorizeAction(requestType, accessType, key, ref model, context)) return;
-            }
-            catch (Exception e) // User may throw a custom error, and that's fine: let's log it and re-thrown a custom exception.
+                if (AuthorizeAction(method, accessType, scope, key, ref model, context)) return;
+            } catch (Exception e) // User may throw a custom error, and that's fine: let's log it and re-thrown a custom exception.
             {
-                Current.Log.Warn<T>($"AUTH DENIED {requestType} ({accessType}) [{key}]. Reason: {e.Message}");
+                Current.Log.Warn<T>($"AUTH DENIED {method} ({accessType}) [{key}]. Reason: {e.Message}");
                 throw new UnauthorizedAccessException("Not authorized: " + e.Message);
             }
 
-            Current.Log.Warn<T>("Auth DENIED " + requestType + "(" + accessType + ") [" + (key ?? "(no key)") + "]");
+            Current.Log.Warn<T>($"Auth DENIED {method} ({accessType}) [{key ?? "(no key)"}]");
             throw new UnauthorizedAccessException("Not authorized.");
         }
 
@@ -165,60 +117,161 @@ namespace Zen.Module.Web.Controller
             if (Configuration.Security == null || IdentityHelper.HasAnyPermissions(Configuration.Security.Write)) payload.Add("write");
             if (Configuration.Security == null || IdentityHelper.HasAnyPermissions(Configuration.Security.Remove)) payload.Add("remove");
 
-            return new Dictionary<string, object> { { "x-zen-allowed", payload } };
+            return new Dictionary<string, object> {{"x-zen-allowed", payload}};
         }
 
         #endregion
 
         #region Event hooks and Behavior modifiers
 
-        public virtual void PostAction(ERequestType pRequestType, EActionType pAccessType, string key = null, T model = null, string context = null) { }
-        public virtual bool AuthorizeAction(ERequestType pRequestType, EActionType pAccessType, string key, ref T model, string context) { return true; }
+        public virtual bool AuthorizeAction(EHttpMethod method, EActionType pAccessType, EActionScope scope, string key, ref T model, string context) { return true; }
 
-        public virtual object InternalPostGet(T source) { return source; }
-
-        public virtual QueryModifier BeforeFetch(EActionType read, EActionScope scope, QueryModifier modifier) { return null; }
-
-        public virtual QueryModifier BeforeCount(EActionType read, EActionScope scope, QueryModifier modifier) { return null; }
-
-        private IEnumerable<T> AfterFetch(EActionType read, EActionScope collection, IEnumerable<T> tempCollection) { return null; }
+        public virtual void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<T> model, string key = null) { }
+        public virtual void AfterCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<T> model, string key = null) { }
+        public virtual void BeforeModelAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref T model, T originalModel = null, string key = null) { }
+        public virtual void AfterModelAction(EHttpMethod method, EActionType type, Mutator mutator, ref T model, T originalModel = null, string key = null) { }
 
         #endregion
 
         #region HTTP Methods
 
         [HttpGet("")]
-        public IActionResult WebAll()
-        {
-            var parsedModifier = Request.Query.ToQueryModifier();
-
-            EvaluateAuthorization(ERequestType.Get, EActionType.Read, EActionScope.Collection);
-
-            // A GetAll operation is just a query without filters, but sometimes we need something more.
-            // So let's give the user the possibility by adding a hook to a modifier pre-processor.
-
-            var modifier = BeforeFetch(EActionType.Read, EActionScope.Collection, parsedModifier) ?? parsedModifier;
-
-            var tempCollection = Data<T>.Query(modifier);
-
-            return PrepareResponse(tempCollection);
-        }
-
-        [HttpGet("{key}")]
-        public virtual ActionResult<T> WebApiGet(string key)
+        public IActionResult GetCollection()
         {
             try
             {
-                EvaluateAuthorization(ERequestType.Get, EActionType.Read, EActionScope.Model, key);
+                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Collection);
 
-                var preRet = Data<T>.Get(key);
-                if (preRet == null) return NotFound();
-                PostAction(ERequestType.Get, EActionType.Read, key, preRet);
-                return new ActionResult<T>(preRet);
+                // A GetAll operation is just a query without filters, but sometimes we need something more.
+                // So let's give the user the possibility by adding a hook to a modifier pre-processor.
+                var mutator = QueryStringMutator;
+
+                IEnumerable<T> collection = new List<T>();
+
+                BeforeCollectionAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref collection);
+
+                collection = Data<T>.Query(mutator);
+
+                AfterCollectionAction(EHttpMethod.Get, EActionType.Read, mutator, ref collection);
+
+                return PrepareResponse(collection);
+            } catch (Exception e)
+            {
+                Current.Log.Warn<T>($"GET: {e.Message}");
+                Current.Log.Add<T>(e);
+                throw;
             }
-            catch (Exception e)
+        }
+
+        [HttpGet("{key}")]
+        public virtual ActionResult<T> GetModel(string key)
+        {
+            try
+            {
+                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Model, key);
+
+                T model = null;
+
+                var mutator = QueryStringMutator;
+
+                BeforeModelAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref model, null, key);
+
+                model = Data<T>.Get(key, mutator);
+                if (model == null) return NotFound();
+
+                AfterModelAction(EHttpMethod.Get, EActionType.Read, mutator, ref model, null, key);
+                return new ActionResult<T>(model);
+            } catch (Exception e)
             {
                 Current.Log.Warn<T>($"GET {key}: {e.Message}");
+                Current.Log.Add<T>(e);
+                throw;
+            }
+        }
+
+
+        [HttpPost("")]
+        public virtual ActionResult<T> PostModel([FromBody] T model)
+        {
+            try
+            {
+                EvaluateAuthorization(EHttpMethod.Post, EActionType.Update, EActionScope.Model, model.GetDataKey());
+
+                var mutator = QueryStringMutator;
+
+                BeforeModelAction(EHttpMethod.Post, EActionType.Update, ref mutator, ref model);
+
+                model = model.Save(mutator);
+
+                AfterModelAction(EHttpMethod.Post, EActionType.Update, mutator, ref model);
+
+                return new ActionResult<T>(model);
+            } catch (Exception e)
+            {
+                Current.Log.Warn<T>($"POST {model.ToJson()}: {e.Message}");
+                Current.Log.Add<T>(e);
+                throw;
+            }
+        }
+
+        [HttpDelete("{key}")]
+        public virtual ActionResult<T> RemoveModel(string key)
+        {
+            try
+            {
+                EvaluateAuthorization(EHttpMethod.Delete, EActionType.Remove, EActionScope.Model, key);
+
+                var mutator = QueryStringMutator;
+
+                var model = Data<T>.Get(key, mutator);
+                if (model == null) return NotFound();
+
+                BeforeModelAction(EHttpMethod.Delete, EActionType.Read, ref mutator, ref model, model, key);
+
+                model.Remove(mutator);
+
+                AfterModelAction(EHttpMethod.Delete, EActionType.Read, mutator, ref model, model, key);
+
+                return new ActionResult<T>(model);
+
+            } catch (Exception e)
+            {
+                Current.Log.Warn<T>($"DELETE {key}: {e.Message}");
+                Current.Log.Add<T>(e);
+                throw;
+            }
+        }
+
+        [HttpPatch("{key}")]
+        public virtual ActionResult<T> PatchModel(string key, [FromBody] JsonPatchDocument<T> patchPayload)
+        {
+            try
+            {
+                EvaluateAuthorization(EHttpMethod.Patch, EActionType.Update, EActionScope.Model, key);
+
+                var mutator = QueryStringMutator;
+
+                var originalModel = Data<T>.Get(key, mutator);
+                if (originalModel == null) return NotFound();
+
+                var patchedModel = Data<T>.Get(key, mutator);
+
+                patchPayload.ApplyTo(patchedModel);
+
+                // Mismatched keys, so no go.
+                if (patchedModel.GetDataKey() != originalModel.GetDataKey()) return new ConflictResult();
+
+                BeforeModelAction(EHttpMethod.Patch, EActionType.Update, ref mutator, ref patchedModel, originalModel, key);
+
+                patchedModel.Save(mutator);
+
+                AfterModelAction(EHttpMethod.Delete, EActionType.Read, mutator, ref patchedModel, originalModel, key);
+
+                return new ActionResult<T>(patchedModel);
+
+            } catch (Exception e)
+            {
+                Current.Log.Warn<T>($"PATCH {key}: {e.Message}");
                 Current.Log.Add<T>(e);
                 throw;
             }
