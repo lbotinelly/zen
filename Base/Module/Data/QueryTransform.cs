@@ -5,7 +5,7 @@
         public string PartialQuery { get; set;}
         public string OrderBy;
         public string Filter;
-        public long? PageSize;
-        public long? PageIndex;
+
+        public Pagination Pagination = null;
     }
 }

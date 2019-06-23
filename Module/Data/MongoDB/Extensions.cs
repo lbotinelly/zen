@@ -31,18 +31,19 @@ namespace Zen.Module.Data.MongoDB
             return fluentCollection;
         }
 
-        public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, int? index = 0, int? size = 50)
+        public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, Pagination pagination)
         {
+
             source
-                .Skip(index * size)
-                .Limit(size);
+                .Skip((int)(pagination.Index * pagination.Size))
+                .Limit((int)pagination.Size);
 
             return source;
         }
 
         public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, QueryTransform payload)
         {
-            if (payload?.PageSize != null || payload?.PageIndex != null) source.Paginate((int?)payload?.PageIndex, (int?)payload?.PageSize);
+            if (payload?.Pagination != null) source.Paginate(payload.Pagination);
 
             return source;
         }

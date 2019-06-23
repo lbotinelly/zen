@@ -1,4 +1,4 @@
-﻿namespace Zen.Module.Web
+﻿namespace Zen.Module.Web.REST
 {
     public enum EHttpMethod
     {

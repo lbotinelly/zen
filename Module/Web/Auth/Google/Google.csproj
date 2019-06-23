@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>Zen.Module.Web.Auth.Google</AssemblyName>
+    <RootNamespace>Zen.Module.Web.Auth.Google</RootNamespace>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,217 @@
+2019-06-22 20:13:47.156 -04:00 [INF] Zen 1.0.0.0
+2019-06-22 20:13:47.271 -04:00 [DBG] ________________________________________________________________________________
+2019-06-22 20:13:47.342 -04:00 [DBG] 
+2019-06-22 20:13:47.346 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-22 20:13:47.350 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-22 20:13:47.353 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-22 20:13:47.358 -04:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-22 20:13:47.361 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-22 20:13:47.373 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-22 20:13:47.375 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-22 20:13:47.377 -04:00 [DBG]      App Location : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-22 20:13:47.379 -04:00 [DBG]          App Data : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-22 20:13:47.380 -04:00 [DBG] ________________________________________________________________________________
+2019-06-22 20:13:47.401 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-22 20:13:47.403 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-22 20:13:47.759 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-22 20:13:47.761 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-22 20:13:47.790 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-22 20:13:47.834 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-22 20:13:47.837 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-22 20:13:47.842 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-22 20:13:47.843 -04:00 [INF] sampleModel : Ready
+2019-06-22 20:13:54.161 -04:00 [INF] Stack shutdown initiated: Process Exit
+2019-06-22 20:13:54.178 -04:00 [DBG]     Session Start : 6/22/2019 8:13:47 PM
+2019-06-22 20:13:54.179 -04:00 [DBG]       Session End : 6/22/2019 8:13:54 PM
+2019-06-22 20:13:54.181 -04:00 [DBG]  Session lifetime : 00:00:07.1443842
+2019-06-22 20:13:54.182 -04:00 [INF]   _|\_/|  ZZZzzz
+2019-06-22 20:13:54.183 -04:00 [INF] c(_(-.-)
+2019-06-22 20:14:29.892 -04:00 [INF] Zen 1.0.0.0
+2019-06-22 20:14:29.971 -04:00 [DBG] ________________________________________________________________________________
+2019-06-22 20:14:29.985 -04:00 [DBG] 
+2019-06-22 20:14:29.990 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-22 20:14:29.999 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-22 20:14:30.009 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-22 20:14:30.017 -04:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-22 20:14:30.018 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-22 20:14:30.020 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-22 20:14:30.021 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-22 20:14:30.023 -04:00 [DBG]      App Location : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-22 20:14:30.027 -04:00 [DBG]          App Data : D:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-22 20:14:30.032 -04:00 [DBG] ________________________________________________________________________________
+2019-06-22 20:14:30.049 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-22 20:14:30.050 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-22 20:14:30.362 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-22 20:14:30.365 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-22 20:14:30.383 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-22 20:14:30.429 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-22 20:14:30.430 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-22 20:14:30.431 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-22 20:14:30.433 -04:00 [INF] sampleModel : Ready
+2019-06-22 20:14:57.412 -04:00 [INF] [sampleModel] Update bulk [Warm-up]: START (5000) items
+2019-06-22 20:14:57.422 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         138/5000 (  2.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.424 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         400/5000 (  8.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.426 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         600/5000 ( 12.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.422 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         200/5000 (  4.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.425 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         501/5000 ( 10.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.422 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         301/5000 (  6.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.428 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         700/5000 ( 14.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.430 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         800/5000 ( 16.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.432 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:         900/5000 ( 18.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.434 -04:00 [INF] [sampleModel] Update bulk [Warm-up]:        1001/5000 ( 20.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.435 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1100/5000 ( 22.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.436 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1200/5000 ( 24.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.439 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1300/5000 ( 26.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.444 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1400/5000 ( 28.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.445 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1500/5000 ( 30.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.446 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1600/5000 ( 32.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.448 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1700/5000 ( 34.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.450 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1800/5000 ( 36.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.451 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        1900/5000 ( 38.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.454 -04:00 [INF] [sampleModel] Update bulk [Warm-up]:        2000/5000 ( 40.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.455 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2101/5000 ( 42.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.457 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2200/5000 ( 44.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.479 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2301/5000 ( 46.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.480 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2400/5000 ( 48.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.481 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2500/5000 ( 50.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.482 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2600/5000 ( 52.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.483 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2700/5000 ( 54.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.484 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2800/5000 ( 56.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.487 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        2900/5000 ( 58.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.489 -04:00 [INF] [sampleModel] Update bulk [Warm-up]:        3000/5000 ( 60.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.491 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3100/5000 ( 62.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.492 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3200/5000 ( 64.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.493 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3300/5000 ( 66.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.494 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3400/5000 ( 68.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.496 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3500/5000 ( 70.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.497 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3600/5000 ( 72.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.499 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3700/5000 ( 74.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.500 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3800/5000 ( 76.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.501 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        3900/5000 ( 78.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.502 -04:00 [INF] [sampleModel] Update bulk [Warm-up]:        4000/5000 ( 80.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.503 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4100/5000 ( 82.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.504 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4201/5000 ( 84.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.505 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4300/5000 ( 86.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.506 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4401/5000 ( 88.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.507 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4501/5000 ( 90.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.508 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4600/5000 ( 92.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.509 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4700/5000 ( 94.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.510 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4800/5000 ( 96.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.511 -04:00 [DBG] [sampleModel] Update bulk [Warm-up]:        4900/5000 ( 98.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.517 -04:00 [INF] [sampleModel] Update bulk [Warm-up]: END   (00:00:00.1047700 elapsed, 48076.92 items/sec)
+2019-06-22 20:14:57.518 -04:00 [INF] [sampleModel] Update bulk  [Before]: START (5000) items
+2019-06-22 20:14:57.545 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         100/5000 (  2.00% | E:00:00:00 L:00:00:01 T:00:00:01)
+2019-06-22 20:14:57.546 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         200/5000 (  4.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.547 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         300/5000 (  6.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.549 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         400/5000 (  8.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.550 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         500/5000 ( 10.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.551 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         600/5000 ( 12.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.551 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         700/5000 ( 14.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.552 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         800/5000 ( 16.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.553 -04:00 [DBG] [sampleModel] Update bulk  [Before]:         900/5000 ( 18.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.554 -04:00 [INF] [sampleModel] Update bulk  [Before]:        1000/5000 ( 20.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.556 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1100/5000 ( 22.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.557 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1200/5000 ( 24.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.558 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1300/5000 ( 26.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.558 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1400/5000 ( 28.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.559 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1500/5000 ( 30.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.560 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1600/5000 ( 32.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.561 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1700/5000 ( 34.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.562 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1800/5000 ( 36.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.563 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        1900/5000 ( 38.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.564 -04:00 [INF] [sampleModel] Update bulk  [Before]:        2000/5000 ( 40.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.566 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2100/5000 ( 42.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.567 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2200/5000 ( 44.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.568 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2300/5000 ( 46.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.569 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2400/5000 ( 48.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.570 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2500/5000 ( 50.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.571 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2600/5000 ( 52.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.572 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2700/5000 ( 54.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.573 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2800/5000 ( 56.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.574 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        2900/5000 ( 58.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.576 -04:00 [INF] [sampleModel] Update bulk  [Before]:        3000/5000 ( 60.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.577 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3100/5000 ( 62.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.578 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3200/5000 ( 64.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.579 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3300/5000 ( 66.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.580 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3400/5000 ( 68.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.581 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3500/5000 ( 70.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.583 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3600/5000 ( 72.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.584 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3700/5000 ( 74.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.585 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3800/5000 ( 76.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.587 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        3900/5000 ( 78.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.587 -04:00 [INF] [sampleModel] Update bulk  [Before]:        4000/5000 ( 80.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.588 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4100/5000 ( 82.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.589 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4200/5000 ( 84.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.590 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4300/5000 ( 86.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.591 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4400/5000 ( 88.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.592 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4500/5000 ( 90.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.592 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4600/5000 ( 92.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.594 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4700/5000 ( 94.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.595 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4800/5000 ( 96.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.596 -04:00 [DBG] [sampleModel] Update bulk  [Before]:        4900/5000 ( 98.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.597 -04:00 [INF] [sampleModel] Update bulk  [Before]:        5000/5000 (100.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:14:57.599 -04:00 [INF] [sampleModel] Update bulk  [Before]: END   (00:00:00.0808561 elapsed, 62500.00 items/sec)
+2019-06-22 20:15:00.200 -04:00 [INF] [sampleModel] Update bulk   [After]: START (5000) items
+2019-06-22 20:15:00.219 -04:00 [DBG] [sampleModel] Update bulk   [After]:         109/5000 (  2.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.219 -04:00 [DBG] [sampleModel] Update bulk   [After]:         300/5000 (  6.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.219 -04:00 [DBG] [sampleModel] Update bulk   [After]:         200/5000 (  4.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.219 -04:00 [DBG] [sampleModel] Update bulk   [After]:         400/5000 (  8.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.219 -04:00 [DBG] [sampleModel] Update bulk   [After]:         500/5000 ( 10.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.221 -04:00 [DBG] [sampleModel] Update bulk   [After]:         600/5000 ( 12.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.222 -04:00 [DBG] [sampleModel] Update bulk   [After]:         700/5000 ( 14.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.224 -04:00 [DBG] [sampleModel] Update bulk   [After]:         800/5000 ( 16.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.225 -04:00 [DBG] [sampleModel] Update bulk   [After]:         900/5000 ( 18.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.225 -04:00 [INF] [sampleModel] Update bulk   [After]:        1000/5000 ( 20.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.226 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1100/5000 ( 22.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.227 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1200/5000 ( 24.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.228 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1300/5000 ( 26.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.230 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1400/5000 ( 28.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.231 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1500/5000 ( 30.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.232 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1600/5000 ( 32.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.233 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1700/5000 ( 34.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.234 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1800/5000 ( 36.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.235 -04:00 [DBG] [sampleModel] Update bulk   [After]:        1900/5000 ( 38.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.236 -04:00 [INF] [sampleModel] Update bulk   [After]:        2000/5000 ( 40.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.237 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2100/5000 ( 42.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.238 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2200/5000 ( 44.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.240 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2300/5000 ( 46.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.241 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2400/5000 ( 48.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.242 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2500/5000 ( 50.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.243 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2600/5000 ( 52.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.245 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2700/5000 ( 54.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.246 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2800/5000 ( 56.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.247 -04:00 [DBG] [sampleModel] Update bulk   [After]:        2900/5000 ( 58.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.248 -04:00 [INF] [sampleModel] Update bulk   [After]:        3000/5000 ( 60.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.250 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3100/5000 ( 62.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.253 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3200/5000 ( 64.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.253 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3300/5000 ( 66.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.254 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3400/5000 ( 68.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.255 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3500/5000 ( 70.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.256 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3600/5000 ( 72.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.257 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3700/5000 ( 74.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.259 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3800/5000 ( 76.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.261 -04:00 [DBG] [sampleModel] Update bulk   [After]:        3900/5000 ( 78.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.262 -04:00 [INF] [sampleModel] Update bulk   [After]:        4000/5000 ( 80.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.263 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4100/5000 ( 82.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.264 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4200/5000 ( 84.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.265 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4300/5000 ( 86.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.266 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4400/5000 ( 88.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.267 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4500/5000 ( 90.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.269 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4600/5000 ( 92.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.271 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4700/5000 ( 94.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.272 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4800/5000 ( 96.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.274 -04:00 [DBG] [sampleModel] Update bulk   [After]:        4900/5000 ( 98.00% | E:00:00:00 L:00:00:00 T:00:00:00)
+2019-06-22 20:15:00.278 -04:00 [INF] [sampleModel] Update bulk   [After]: END   (00:00:00.0773188 elapsed, 64935.06 items/sec)
+2019-06-22 20:15:00.281 -04:00 [INF] :00:00:00.000 Update bulk [Warm-up]
+2019-06-22 20:15:00.282 -04:00 [INF] :00:00:00.108 Update bulk  [Before]
+2019-06-22 20:15:00.283 -04:00 [INF] :00:00:00.135 Populating Control structure
+2019-06-22 20:15:00.284 -04:00 [INF] :00:00:00.190 Update 5000 models
+2019-06-22 20:15:00.285 -04:00 [INF] :00:00:02.792 post-processing individual models
+2019-06-22 20:15:00.286 -04:00 [INF] :00:00:02.868 Update bulk operation complete. Success: 5000 | Failure: 0
+2019-06-22 20:15:00.287 -04:00 [INF] :00:00:02.870 [Total elapsed time]
+2019-06-22 20:15:48.450 -04:00 [INF] Stack shutdown initiated: Process Exit
+2019-06-22 20:15:48.452 -04:00 [DBG]     Session Start : 6/22/2019 8:14:29 PM
+2019-06-22 20:15:48.452 -04:00 [DBG]       Session End : 6/22/2019 8:15:48 PM
+2019-06-22 20:15:48.453 -04:00 [DBG]  Session lifetime : 00:01:18.6168567
+2019-06-22 20:15:48.454 -04:00 [INF]   _|\_/|  ZZZzzz
+2019-06-22 20:15:48.455 -04:00 [INF] c(_(-.-)

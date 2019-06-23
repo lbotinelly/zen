@@ -4,21 +4,19 @@ using Bogus.DataSets;
 using Microsoft.AspNetCore.Mvc;
 using SimpleWebApp.Models;
 using Zen.Base.Module.Data;
-using Zen.Module.Web.Controller;
+using Zen.Module.Web.REST.Controller;
+using Zen.Module.Web.REST.Controller.Attributes;
 
 namespace SimpleWebApp.Controllers
 {
-    [Route("api/[controller]"), ApiController, EndpointConfiguration.SecurityAttribute]
+    [Route("api/[controller]")]
+    [ApiController]
+    [Behavior(MustPaginate = true)]
     public class SampleModelController : DataController<sampleModel>
     {
-        [Route("addRandom")]
-        public IEnumerable<sampleModel> AddRandom()
+        [Route("generate/{count}")]
+        public IEnumerable<sampleModel> Generate(int count)
         {
-
-            var temp = sampleModel.All();
-
-            temp.Remove();
-
             var newUser = new Faker<sampleModel>()
                     .RuleFor(u => u.gender, (f, u) => f.PickRandom<Name.Gender>())
                     .RuleFor(u => u.firstName, (f, u) => f.Name.FirstName(u.gender))
@@ -31,11 +29,18 @@ namespace SimpleWebApp.Controllers
             var buffer = new List<sampleModel>();
 
 
-            for (var i = 0; i < 1000; i++) { buffer.Add(newUser.Generate()); }
+            for (var i = 0; i < count; i++) buffer.Add(newUser.Generate());
 
             buffer.Save();
 
             return buffer;
+        }
+        [Route("clear")]
+        public IActionResult Clear()
+        {
+            sampleModel.RemoveAll();
+
+            return new OkResult();
         }
     }
 }
