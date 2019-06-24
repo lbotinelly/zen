@@ -1,0 +1,22 @@
+2019-06-24 13:35:59.685 -04:00 [INF] Zen 1.0.0.0
+2019-06-24 13:35:59.734 -04:00 [DBG] ________________________________________________________________________________
+2019-06-24 13:35:59.735 -04:00 [DBG] 
+2019-06-24 13:35:59.736 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-24 13:35:59.739 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-24 13:35:59.740 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-24 13:35:59.741 -04:00 [DBG]        Encryption : Zen.Base.Module.Default.NullEncryptionProvider
+2019-06-24 13:35:59.744 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-24 13:35:59.747 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-24 13:35:59.748 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-24 13:35:59.748 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-24 13:35:59.750 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-24 13:35:59.751 -04:00 [DBG] ________________________________________________________________________________
+2019-06-24 13:35:59.782 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-24 13:35:59.789 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-24 13:36:00.172 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-24 13:36:00.173 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-24 13:36:00.195 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-24 13:36:00.234 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-24 13:36:00.360 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-24 13:36:00.371 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-24 13:36:00.373 -04:00 [INF] sampleModel : Ready

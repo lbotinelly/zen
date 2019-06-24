@@ -1,17 +1,27 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace Zen.Base.Startup
 {
-    public class ZenBuilder
+    public class ZenBuilder : IZenBuilder
     {
-        public ZenBuilder(IServiceCollection services)
+        public ZenBuilder(IServiceCollection services) { Services = services; }
+
+        public ZenBuilder(IApplicationBuilder app, IServiceCollection services) { Services = services; }
+
+        public ZenBuilder(IApplicationBuilder app, ZenOptions options)
         {
-            Services = services;
+            ApplicationBuilder = app;
+            Options = options;
         }
 
         public virtual IServiceCollection Services { get; }
+
+        #region Implementation of IZenBuilder
+
+        public IApplicationBuilder ApplicationBuilder { get; }
+        public ZenOptions Options { get; }
+
+        #endregion
     }
 }

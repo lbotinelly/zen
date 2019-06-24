@@ -3,12 +3,12 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Assembly;
 using Zen.Base.Common;
+using Zen.Base.Identity;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Default;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
-using Zen.Base.Module.Identity;
 using Zen.Base.Module.Log;
 
 namespace Zen.Base.Internal

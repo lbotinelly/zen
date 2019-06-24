@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Principal;
-using System.Text;
 using Zen.Base.Common;
 
-namespace Zen.Base.Module.Identity
+namespace Zen.Base.Identity
 {
     public interface IAuthorizationProvider : IZenProvider
     {

@@ -433,7 +433,7 @@ namespace Zen.Base.Module
             return Info<T>.Settings.Adapter.Count<T>(mutator);
         }
 
-        public static T Get(string key, Mutator mutator)
+        public static T Get(string key, Mutator mutator = null)
         {
             ValidateState(EActionType.Read);
 

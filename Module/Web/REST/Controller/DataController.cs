@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Identity;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
-using Zen.Base.Module.Identity;
 using Zen.Module.Web.REST.Controller.Attributes;
 
 // ReSharper disable InconsistentlySynchronizedField

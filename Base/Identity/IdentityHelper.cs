@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Zen.Base.Module.Identity
+namespace Zen.Base.Identity
 {
     public static class IdentityHelper
     {

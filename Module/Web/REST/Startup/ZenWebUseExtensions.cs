@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Zen.Base.Startup;
 
 namespace Zen.Module.Web.REST.Startup
 {
@@ -17,6 +18,8 @@ namespace Zen.Module.Web.REST.Startup
             var options = new ZenWebOptions(optionsProvider.Value);
 
             var builder = new ZenWebBuilder(app, options);
+
+            app.UseZen();
 
             app.UseHttpsRedirection()
                 .UseMvc()
