@@ -5,11 +5,13 @@ namespace Zen.Base.Identity.Model
     public class IdentityUserClaim
     {
         public IdentityUserClaim() { }
+
         public IdentityUserClaim(Claim claim)
         {
             Type = claim.Type;
             Value = claim.Value;
         }
+
         public ClaimsIdentity Subject { get; set; }
         public string OriginalIssuer { get; set; }
         public string Issuer { get; set; }

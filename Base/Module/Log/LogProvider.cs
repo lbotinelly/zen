@@ -1,7 +1,7 @@
-﻿using Serilog;
+﻿using System;
+using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System;
 
 namespace Zen.Base.Module.Log
 {
@@ -11,25 +11,16 @@ namespace Zen.Base.Module.Log
 
         public virtual Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Debug;
 
-        public virtual void Add(bool content)
-        {
-            Add(content.ToString());
-        }
+        public virtual void Add(bool content) { Add(content.ToString()); }
 
-        public virtual void Add(string pattern, params object[] replacementStrings)
-        {
-            Add(string.Format(pattern, replacementStrings));
-        }
+        public virtual void Add(string pattern, params object[] replacementStrings) { Add(string.Format(pattern, replacementStrings)); }
 
         public virtual void Add(Exception[] es)
         {
             foreach (var exception in es) Add(exception, null);
         }
 
-        public virtual void Add(Exception e)
-        {
-            Add(e, null);
-        }
+        public virtual void Add(Exception e) { Add(e, null); }
 
         public virtual void Add(Exception e, string message, string token = null)
         {
@@ -43,50 +34,23 @@ namespace Zen.Base.Module.Log
             if (e.InnerException != null) Add(e.InnerException);
         }
 
-        public virtual void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic)
-        {
-            Add(t.FullName + " : " + message, type);
-        }
+        public virtual void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic) { Add(t.FullName + " : " + message, type); }
 
-        public virtual void Add(string pMessage, Exception e)
-        {
-            Add(e, pMessage);
-        }
+        public virtual void Add(string pMessage, Exception e) { Add(e, pMessage); }
 
-        public void Warn<T>(string v)
-        {
-            Warn(typeof(T).Name + ": " + v);
-        }
+        public void Warn<T>(string v) { Warn(typeof(T).Name + ": " + v); }
 
-        public virtual void Warn(string content)
-        {
-            Add(content, Message.EContentType.Warning);
-        }
+        public virtual void Warn(string content) { Add(content, Message.EContentType.Warning); }
 
-        public void Add<T>(Exception e)
-        {
-            Add<T>(e, null);
-        }
+        public void Add<T>(Exception e) { Add<T>(e, null); }
 
-        public virtual void Info(string content)
-        {
-            Add(content, Message.EContentType.Info);
-        }
+        public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
 
-        public virtual void Debug(string content)
-        {
-            Add(content, Message.EContentType.Debug);
-        }
+        public virtual void Debug(string content) { Add(content, Message.EContentType.Debug); }
 
-        public void Debug<T>(string content)
-        {
-            Debug(typeof(T).Name + ": " + content);
-        }
+        public void Debug<T>(string content) { Debug(typeof(T).Name + ": " + content); }
 
-        public virtual void Maintenance(string content)
-        {
-            Add(content, Message.EContentType.Maintenance);
-        }
+        public virtual void Maintenance(string content) { Add(content, Message.EContentType.Maintenance); }
 
         public virtual void Add(string content, Message.EContentType type = Message.EContentType.Generic)
         {
@@ -171,9 +135,6 @@ namespace Zen.Base.Module.Log
                 .CreateLogger();
         }
 
-        public virtual void Shutdown()
-        {
-            Serilog.Log.CloseAndFlush();
-        }
+        public virtual void Shutdown() { Serilog.Log.CloseAndFlush(); }
     }
 }

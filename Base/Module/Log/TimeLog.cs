@@ -12,7 +12,7 @@ namespace Zen.Base.Module.Log
 
         public string Log(string message)
         {
-            base.Add(_s.Elapsed, message);
+            Add(_s.Elapsed, message);
             CurrentMessage = message;
             return message;
         }

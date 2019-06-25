@@ -27,9 +27,6 @@ namespace Zen.Base
         public static System.Reflection.Assembly ApplicationAssembly { get; }
         public static string Host { get; }
 
-        private static System.Reflection.Assembly GetAppAssembly()
-        {
-            return System.Reflection.Assembly.GetEntryAssembly();
-        }
+        private static System.Reflection.Assembly GetAppAssembly() { return System.Reflection.Assembly.GetEntryAssembly(); }
     }
 }

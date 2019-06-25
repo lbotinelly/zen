@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Zen.Base.Identity.Collections;
 using Zen.Base.Identity.Model;
 
@@ -12,10 +12,7 @@ namespace Zen.Base.Identity.Store
     {
         private readonly IIdentityRoleCollection<TRole> _collection;
 
-        public RoleStore(IIdentityRoleCollection<TRole> collection)
-        {
-            _collection = collection;
-        }
+        public RoleStore(IIdentityRoleCollection<TRole> collection) { _collection = collection; }
 
         IQueryable<TRole> IQueryableRoleStore<TRole>.Roles => _collection.GetAllAsync().Result.AsQueryable();
 
@@ -38,15 +35,9 @@ namespace Zen.Base.Identity.Store
             return IdentityResult.Success;
         }
 
-        async Task<string> IRoleStore<TRole>.GetRoleIdAsync(TRole role, CancellationToken cancellationToken)
-        {
-            return await Task.FromResult(role.Id);
-        }
+        async Task<string> IRoleStore<TRole>.GetRoleIdAsync(TRole role, CancellationToken cancellationToken) { return await Task.FromResult(role.Id); }
 
-        async Task<string> IRoleStore<TRole>.GetRoleNameAsync(TRole role, CancellationToken cancellationToken)
-        {
-            return await Task.FromResult(role.Name);
-        }
+        async Task<string> IRoleStore<TRole>.GetRoleNameAsync(TRole role, CancellationToken cancellationToken) { return await Task.FromResult(role.Name); }
 
         async Task IRoleStore<TRole>.SetRoleNameAsync(TRole role, string roleName, CancellationToken cancellationToken)
         {
@@ -54,10 +45,7 @@ namespace Zen.Base.Identity.Store
             await _collection.UpdateAsync(role);
         }
 
-        async Task<string> IRoleStore<TRole>.GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken)
-        {
-            return await Task.FromResult(role.NormalizedName);
-        }
+        async Task<string> IRoleStore<TRole>.GetNormalizedRoleNameAsync(TRole role, CancellationToken cancellationToken) { return await Task.FromResult(role.NormalizedName); }
 
         async Task IRoleStore<TRole>.SetNormalizedRoleNameAsync(TRole role, string normalizedName, CancellationToken cancellationToken)
         {
@@ -65,18 +53,10 @@ namespace Zen.Base.Identity.Store
             await _collection.UpdateAsync(role);
         }
 
-        async Task<TRole> IRoleStore<TRole>.FindByIdAsync(string roleId, CancellationToken cancellationToken)
-        {
-            return await _collection.FindByIdAsync(roleId);
-        }
+        async Task<TRole> IRoleStore<TRole>.FindByIdAsync(string roleId, CancellationToken cancellationToken) { return await _collection.FindByIdAsync(roleId); }
 
-        async Task<TRole> IRoleStore<TRole>.FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            return await _collection.FindByNameAsync(normalizedRoleName);
-        }
+        async Task<TRole> IRoleStore<TRole>.FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken) { return await _collection.FindByNameAsync(normalizedRoleName); }
 
-        void IDisposable.Dispose()
-        {
-        }
+        void IDisposable.Dispose() { }
     }
 }

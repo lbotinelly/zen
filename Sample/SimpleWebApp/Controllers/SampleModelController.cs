@@ -36,11 +36,15 @@ namespace SimpleWebApp.Controllers
             return buffer;
         }
         [Route("clear")]
+
         public IActionResult Clear()
         {
             sampleModel.RemoveAll();
 
             return new OkResult();
         }
+        [Route("filter")]
+        public IEnumerable<sampleModel> Filter() { return sampleModel.Where(i => i.email.Contains("oui")); }
+
     }
 }

@@ -13,8 +13,7 @@ using Zen.Module.Web.REST.Services.Identity.AccountViewModels;
 
 namespace Zen.Module.Web.REST.Controllers
 {
-    [Authorize]
-    [Route("[controller]/[action]")]
+    [Authorize, Route("[controller]/[action]")]
     public class AccountController : Microsoft.AspNetCore.Mvc.Controller
     {
         private readonly IEmailSender _emailSender;
@@ -34,10 +33,10 @@ namespace Zen.Module.Web.REST.Controllers
             _logger = logger;
         }
 
-        [TempData] public string ErrorMessage { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public async Task<IActionResult> Login(string returnUrl = null)
         {
             // Clear the existing external cookie to ensure a clean login process
@@ -47,9 +46,7 @@ namespace Zen.Module.Web.REST.Controllers
             return View();
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -65,8 +62,7 @@ namespace Zen.Module.Web.REST.Controllers
                     return RedirectToLocal(returnUrl);
                 }
 
-                if (result.RequiresTwoFactor)
-                    return RedirectToAction(nameof(LoginWith2fa), new {returnUrl, model.RememberMe});
+                if (result.RequiresTwoFactor) return RedirectToAction(nameof(LoginWith2fa), new {returnUrl, model.RememberMe});
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
@@ -81,8 +77,7 @@ namespace Zen.Module.Web.REST.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public async Task<IActionResult> LoginWith2fa(bool rememberMe, string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
@@ -96,23 +91,20 @@ namespace Zen.Module.Web.REST.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> LoginWith2fa(LoginWith2FaViewModel model, bool rememberMe,
-            string returnUrl = null)
+                                                      string returnUrl = null)
         {
             if (!ModelState.IsValid) return View(model);
 
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user == null)
-                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null) throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
 
             var authenticatorCode = model.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
 
             var result =
                 await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe,
-                    model.RememberMachine);
+                                                                       model.RememberMachine);
 
             if (result.Succeeded)
             {
@@ -131,8 +123,7 @@ namespace Zen.Module.Web.REST.Controllers
             return View();
         }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public async Task<IActionResult> LoginWithRecoveryCode(string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
@@ -144,11 +135,9 @@ namespace Zen.Module.Web.REST.Controllers
             return View();
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> LoginWithRecoveryCode(LoginWithRecoveryCodeViewModel model,
-            string returnUrl = null)
+                                                               string returnUrl = null)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -176,24 +165,17 @@ namespace Zen.Module.Web.REST.Controllers
             return View();
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Lockout()
-        {
-            return View();
-        }
+        [HttpGet, AllowAnonymous]
+        public IActionResult Lockout() { return View(); }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -221,8 +203,7 @@ namespace Zen.Module.Web.REST.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
@@ -230,9 +211,7 @@ namespace Zen.Module.Web.REST.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
             // Request a redirect to the external login provider.
@@ -241,8 +220,7 @@ namespace Zen.Module.Web.REST.Controllers
             return Challenge(properties, provider);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
             if (remoteError != null)
@@ -272,18 +250,15 @@ namespace Zen.Module.Web.REST.Controllers
             return View("ExternalLogin", new ExternalLoginViewModel {Email = email});
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginViewModel model,
-            string returnUrl = null)
+                                                                   string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
                 // Get the information about the user from the external login provider
                 var info = await _signInManager.GetExternalLoginInfoAsync();
-                if (info == null)
-                    throw new ApplicationException("Error loading external login information during confirmation.");
+                if (info == null) throw new ApplicationException("Error loading external login information during confirmation.");
                 var user = new ZenUser {UserName = model.Email, Email = model.Email};
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
@@ -304,8 +279,7 @@ namespace Zen.Module.Web.REST.Controllers
             return View(nameof(ExternalLogin), model);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
             if (userId == null || code == null) return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -315,30 +289,23 @@ namespace Zen.Module.Web.REST.Controllers
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
+        [HttpGet, AllowAnonymous]
+        public IActionResult ForgotPassword() { return View(); }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
-                    return RedirectToAction(nameof(ForgotPasswordConfirmation));
+                if (user == null || !await _userManager.IsEmailConfirmedAsync(user)) return RedirectToAction(nameof(ForgotPasswordConfirmation));
 
                 // For more information on how to enable account confirmation and password reset please
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                                                  $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
 
@@ -346,15 +313,10 @@ namespace Zen.Module.Web.REST.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ForgotPasswordConfirmation()
-        {
-            return View();
-        }
+        [HttpGet, AllowAnonymous]
+        public IActionResult ForgotPasswordConfirmation() { return View(); }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public IActionResult ResetPassword(string code = null)
         {
             if (code == null) throw new ApplicationException("A code must be supplied for password reset.");
@@ -362,9 +324,7 @@ namespace Zen.Module.Web.REST.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -376,19 +336,11 @@ namespace Zen.Module.Web.REST.Controllers
             return View();
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ResetPasswordConfirmation()
-        {
-            return View();
-        }
-
+        [HttpGet, AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation() { return View(); }
 
         [HttpGet]
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
+        public IActionResult AccessDenied() { return View(); }
 
         #region Helpers
 
@@ -399,8 +351,7 @@ namespace Zen.Module.Web.REST.Controllers
 
         private IActionResult RedirectToLocal(string returnUrl)
         {
-            if (Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
+            if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 

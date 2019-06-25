@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Assembly;
 using Zen.Base.Common;
 using Zen.Base.Identity;
@@ -15,22 +15,13 @@ namespace Zen.Base.Internal
 {
     internal static class Instances
     {
-        internal class ServiceDataBag
-        {
-            public DateTime StartTimeStamp { get; set; }
-            public DateTime? EndTimeStamp { get; set; }
-            public TimeSpan UpTime => (EndTimeStamp ?? DateTime.Now) - StartTimeStamp;
-        }
-
         internal static ServiceDataBag ServiceData = new ServiceDataBag();
-
 
         static Instances()
         {
             Services = new ServiceCollection().ResolveSettingsPackage();
             ServiceProvider = Services.BuildServiceProvider();
         }
-
 
         internal static IServiceCollection Services { get; set; }
         internal static ServiceProvider ServiceProvider { get; set; }
@@ -46,39 +37,45 @@ namespace Zen.Base.Internal
                            typeof(DefaultSettingsPackage)).CreateInstance<IPackage>();
 
                 serviceCollection.AddSingleton(s =>
-                    package.Log ?? Management.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()
-                        ?.CreateInstance<ILogProvider>());
+                                                   package.Log ?? Management.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()
+                                                       ?.CreateInstance<ILogProvider>());
 
                 serviceCollection.AddSingleton(s =>
-                    package.Cache ?? Management.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()
-                        ?.CreateInstance<ICacheProvider>());
+                                                   package.Cache ?? Management.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()
+                                                       ?.CreateInstance<ICacheProvider>());
 
                 serviceCollection.AddSingleton(s =>
-                    package.Encryption ?? Management.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()
-                        ?.CreateInstance<IEncryptionProvider>());
+                                                   package.Encryption ?? Management.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()
+                                                       ?.CreateInstance<IEncryptionProvider>());
 
                 serviceCollection.AddSingleton(s =>
-                    package.Environment ?? Management.GetClassesByInterface<IEnvironmentProvider>(false)
-                        .FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
+                                                   package.Environment ?? Management.GetClassesByInterface<IEnvironmentProvider>(false)
+                                                       .FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
 
                 serviceCollection.AddSingleton(s =>
-                    package.Encryption ?? Management.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()
-                        ?.CreateInstance<IEncryptionProvider>());
+                                                   package.Encryption ?? Management.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()
+                                                       ?.CreateInstance<IEncryptionProvider>());
 
                 serviceCollection.AddSingleton(s =>
-                    package.Authorization ?? Management.GetClassesByInterface<IAuthorizationProvider>(false)
-                        .FirstOrDefault()?.CreateInstance<IAuthorizationProvider>());
+                                                   package.Authorization ?? Management.GetClassesByInterface<IAuthorizationProvider>(false)
+                                                       .FirstOrDefault()?.CreateInstance<IAuthorizationProvider>());
 
                 serviceCollection.AddSingleton(s =>
-                    package.GlobalConnectionBundleType ?? Management.GetClassesByInterface<ConnectionBundlePrimitive>()
-                        .FirstOrDefault());
-            }
-            catch (Exception e)
+                                                   package.GlobalConnectionBundleType ?? Management.GetClassesByInterface<ConnectionBundlePrimitive>()
+                                                       .FirstOrDefault());
+            } catch (Exception e)
             {
                 //It's OK to ignore errors here.
             }
 
             return serviceCollection;
+        }
+
+        internal class ServiceDataBag
+        {
+            public DateTime StartTimeStamp { get; set; }
+            public DateTime? EndTimeStamp { get; set; }
+            public TimeSpan UpTime => (EndTimeStamp ?? DateTime.Now) - StartTimeStamp;
         }
     }
 }

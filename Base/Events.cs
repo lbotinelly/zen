@@ -14,29 +14,17 @@ namespace Zen.Base
         public static ActionQueue StartupSequence = new ActionQueue();
         public static ActionQueue ShutdownSequence = new ActionQueue();
 
-
         private static bool _doShutdown = true;
         private static Thread _workerThread;
 
-
-        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
-        {
-            End("Process Exit");
-        }
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e) { End("Process Exit"); }
 
         public static void Start()
         {
             Instances.ServiceData.StartTimeStamp = DateTime.Now;
 
             foreach (var ba in StartupSequence.Actions)
-                try
-                {
-                    ba();
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add(e);
-                }
+                try { ba(); } catch (Exception e) { Current.Log.Add(e); }
 
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
@@ -63,14 +51,7 @@ namespace Zen.Base
         private static void ExecuteShutdownSequenceActions()
         {
             foreach (var sa in ShutdownSequence.Actions)
-                try
-                {
-                    sa();
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add(e);
-                }
+                try { sa(); } catch (Exception e) { Current.Log.Add(e); }
         }
 
         public static void End(string pReason = "(None)")
@@ -83,9 +64,9 @@ namespace Zen.Base
 
             Instances.ServiceData.EndTimeStamp = DateTime.Now;
 
-            Current.Log.Debug($"    Session Start : {(Instances.ServiceData.StartTimeStamp)}");
-            Current.Log.Debug($"      Session End : {(Instances.ServiceData.EndTimeStamp)}");
-            Current.Log.Debug($" Session lifetime : {(Instances.ServiceData.UpTime)}");
+            Current.Log.Debug($"    Session Start : {Instances.ServiceData.StartTimeStamp}");
+            Current.Log.Debug($"      Session End : {Instances.ServiceData.EndTimeStamp}");
+            Current.Log.Debug($" Session lifetime : {Instances.ServiceData.UpTime}");
             Current.Log.Add(@"  _|\_/|  ZZZzzz", Message.EContentType.Info);
             Current.Log.Add(@"c(_(-.-)", Message.EContentType.Info);
 
@@ -93,13 +74,7 @@ namespace Zen.Base
 
             //try { MediaTypeNames.Application.Exit(); }
             //catch { }
-            try
-            {
-                Environment.Exit(0);
-            }
-            catch
-            {
-            }
+            try { Environment.Exit(0); } catch { }
         }
 
         public static void ScheduleShutdown(int seconds = 30)
@@ -108,7 +83,7 @@ namespace Zen.Base
 
             if (_workerThread != null) return;
 
-            _workerThread = new Thread(() => Shutdown(seconds)) { IsBackground = false };
+            _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
             _workerThread.Start();
         }
 
@@ -144,10 +119,8 @@ namespace Zen.Base
         {
             var providers = Instances.Services.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
 
-            foreach (var zenService in providers)
-                ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
+            foreach (var zenService in providers) ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
         }
-
 
         public class ActionQueue
         {

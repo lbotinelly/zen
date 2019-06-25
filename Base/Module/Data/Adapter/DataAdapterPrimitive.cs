@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Zen.Base.Module.Data.Connection;
 
 namespace Zen.Base.Module.Data.Adapter
@@ -65,6 +66,7 @@ namespace Zen.Base.Module.Data.Adapter
 
         public abstract IEnumerable<T> Query<T>(string statement) where T : Data<T>;
         public abstract IEnumerable<T> Query<T>(Mutator mutator = null) where T : Data<T>;
+        public abstract IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null) where T : Data<T>;
         public abstract IEnumerable<TU> Query<T, TU>(string statement) where T : Data<T>;
         public abstract IEnumerable<TU> Query<T, TU>(Mutator mutator = null) where T : Data<T>;
 

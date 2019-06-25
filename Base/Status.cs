@@ -9,6 +9,7 @@
             Running,
             Shuttingdown
         }
+
         public static EState State { get; internal set; }
 
         internal static void ChangeState(EState newState) { State = newState; }

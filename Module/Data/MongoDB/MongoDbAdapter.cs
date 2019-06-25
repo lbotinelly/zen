@@ -8,8 +8,10 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using DnsClient;
 using Zen.Base;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
@@ -204,6 +206,9 @@ namespace Zen.Module.Data.MongoDB
 
         public override IEnumerable<T> Query<T>(string statement) => Query<T>(statement.ToModifier());
         public override IEnumerable<T> Query<T>(Mutator mutator = null) => Query<T, T>(mutator);
+
+        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null) => Collection<T>(mutator).AsQueryable().Where(predicate);
+
         public override IEnumerable<TU> Query<T, TU>(string statement) => Query<T, TU>(statement.ToModifier());
 
         public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null)
@@ -285,6 +290,14 @@ namespace Zen.Module.Data.MongoDB
 
                 return _collectionCache[referenceCode];
             }
+        }
+
+        private IMongoCollection<T> Collection<T>(Mutator mutator = null)
+        {
+            var referenceCode = mutator?.SetCode ?? _defaultCollectionKey;
+
+            var collection = Database.GetCollection<T>(ReferenceCollectionName + (referenceCode != _defaultCollectionKey ? $"#{referenceCode}" : ""));
+            return collection;
         }
 
         public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);

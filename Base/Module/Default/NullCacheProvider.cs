@@ -29,9 +29,9 @@ namespace Zen.Base.Module.Default
 
         public void Initialize() { }
 
-        public void Shutdown() { }
-
         public void RemoveAll(string oSet = null) { }
+
+        public void Shutdown() { }
 
         public object GetSingleton<T>(string fullName = null) { return default(T); }
         public Action OnStartup() { return null; }

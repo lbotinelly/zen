@@ -8,7 +8,7 @@ namespace Zen.Base.Module.Log
     {
         public static Message ToMessage(string content, Message.EContentType type = Message.EContentType.Generic)
         {
-            var payload = new Message { Content = content, Subject = type.ToString(), Type = type };
+            var payload = new Message {Content = content, Subject = type.ToString(), Type = type};
             return payload;
         }
 

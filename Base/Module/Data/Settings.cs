@@ -32,17 +32,26 @@ namespace Zen.Base.Module.Data
 
         public string CredentialsString;
 
+        public string DisplayMemberName;
+
         public string EnvironmentCode;
 
         public string KeyMemberName;
-
-        public string DisplayMemberName;
 
         public PipelineQueueHandler Pipelines = null;
 
         public MicroEntityState State = new MicroEntityState();
 
         public Dictionary<string, string> Statistics = new Dictionary<string, string>();
+
+        public string StorageName { get; set; }
+        public List<EnvironmentMappingAttribute> EnvironmentMapping { get; set; }
+        public FieldInfo KeyField { get; set; }
+        public PropertyInfo KeyProperty { get; set; }
+        public FieldInfo DisplayField { get; set; }
+        public PropertyInfo DisplayProperty { get; set; }
+
+        public Lazy<T> GetInstancedModifier<T>() where T : Data<T> { return new Lazy<T>(() => (T) Activator.CreateInstance(typeof(T), null)); }
 
         public class PipelineQueueHandler
         {
@@ -52,9 +61,9 @@ namespace Zen.Base.Module.Data
 
         public class MicroEntityState
         {
+            private EStatus _status;
             private string _step;
             public Dictionary<DateTime, string> Events = new Dictionary<DateTime, string>();
-            private EStatus _status;
             public MicroEntityState() { Status = EStatus.Undefined; }
             public EStatus Status
             {
@@ -86,28 +95,29 @@ namespace Zen.Base.Module.Data
 
                 switch (status)
                 {
-                    case EStatus.Undefined: targetType = Message.EContentType.Undefined; break;
-                    case EStatus.Initializing: targetType = Message.EContentType.StartupSequence; break;
-                    case EStatus.Operational: targetType = Message.EContentType.Info; break;
-                    case EStatus.RecoverableFailure: targetType = Message.EContentType.Warning; break;
-                    case EStatus.CriticalFailure: targetType = Message.EContentType.Critical; break;
-                    case EStatus.ShuttingDown: targetType = Message.EContentType.ShutdownSequence; break;
+                    case EStatus.Undefined:
+                        targetType = Message.EContentType.Undefined;
+                        break;
+                    case EStatus.Initializing:
+                        targetType = Message.EContentType.StartupSequence;
+                        break;
+                    case EStatus.Operational:
+                        targetType = Message.EContentType.Info;
+                        break;
+                    case EStatus.RecoverableFailure:
+                        targetType = Message.EContentType.Warning;
+                        break;
+                    case EStatus.CriticalFailure:
+                        targetType = Message.EContentType.Critical;
+                        break;
+                    case EStatus.ShuttingDown:
+                        targetType = Message.EContentType.ShutdownSequence;
+                        break;
                     default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
                 }
 
                 Current.Log.Add(typeof(T).Name + " : " + msg, targetType);
             }
-        }
-
-        public string StorageName { get; set; }
-        public List<EnvironmentMappingAttribute> EnvironmentMapping { get; set; }
-        public FieldInfo KeyField { get; set; }
-        public PropertyInfo KeyProperty { get; set; }
-        public FieldInfo DisplayField { get; set; }
-        public PropertyInfo DisplayProperty { get; set; }
-        public Lazy<T> GetInstancedModifier<T>() where T : Data<T>
-        {
-            return new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null));
         }
     }
 }

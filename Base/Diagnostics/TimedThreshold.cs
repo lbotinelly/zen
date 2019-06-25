@@ -43,8 +43,7 @@ namespace Zen.Base.Diagnostics
 
                         FlushCache();
                     }
-                }
-                catch (Exception e) { Current.Log.Add(e); }
+                } catch (Exception e) { Current.Log.Add(e); }
             }, null);
         }
 

@@ -8,9 +8,9 @@ namespace Zen.Base.Module.Log
 {
     public class Clicker
     {
-        private static readonly NumberFormatInfo Format = new NumberFormatInfo { PercentPositivePattern = 1, PercentNegativePattern = 1 };
-        private long _pIndex;
+        private static readonly NumberFormatInfo Format = new NumberFormatInfo {PercentPositivePattern = 1, PercentNegativePattern = 1};
         private string _message;
+        private long _pIndex;
         private int _pNotifySlice;
         private int _pNotifySliceMoreInfo;
 
@@ -51,7 +51,7 @@ namespace Zen.Base.Module.Log
             _pNotifySliceMoreInfo++;
             _pNotifySliceMoreInfo = _pNotifySliceMoreInfo % 10;
 
-            var part = (double)_pIndex / Count;
+            var part = (double) _pIndex / Count;
             var partStr = part.ToString("P2", Format).PadLeft(7);
 
             var invPart = TimeSpan.FromMilliseconds(_s.ElapsedMilliseconds * (1 / part));
@@ -72,7 +72,7 @@ namespace Zen.Base.Module.Log
         public void End()
         {
             _s.Stop();
-            var regPerSec = Count / ((double)_s.ElapsedMilliseconds / 1000);
+            var regPerSec = Count / ((double) _s.ElapsedMilliseconds / 1000);
             Current.Log.Add($"{_message}: END   ({_s.Elapsed} elapsed, {regPerSec:F2} items/sec)", Message.EContentType.Info);
         }
     }

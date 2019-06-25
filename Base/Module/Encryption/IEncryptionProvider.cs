@@ -9,8 +9,6 @@ namespace Zen.Base.Module.Encryption
         string Encrypt(string pContent);
         string TryDecrypt(string pContent);
         string TryEncrypt(string pContent);
-
-
     }
 
     public abstract class EncryptionProviderPrimitive : IEncryptionProvider
@@ -24,12 +22,14 @@ namespace Zen.Base.Module.Encryption
         {
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
             try { return Decrypt(pContent); } catch { }
+
             return pContent;
         }
 
         public string TryEncrypt(string pContent)
         {
             try { return Encrypt(pContent); } catch { }
+
             return pContent;
         }
     }

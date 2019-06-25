@@ -3,26 +3,24 @@
 namespace Zen.Base.Diagnostics
 {
     /// <summary>
-    /// Holds stack trace and environment information.
+    ///     Holds stack trace and environment information.
     /// </summary>
     [Serializable]
     public class TraceInfoContainer
     {
-        internal static bool PreCompiled = false;
+        internal static bool PreCompiled;
         internal static string PreCompInitializingAssembly = null;
-        internal static string PreCompCallingAssembly = null;
-        internal static string PreCompEntryAssembly = null;
-        internal static string PreCompExecutingAssembly = null;
+        internal static string PreCompCallingAssembly;
+        internal static string PreCompEntryAssembly;
+        internal static string PreCompExecutingAssembly;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TraceInfoContainer"/> class.
+        ///     Initializes a new instance of the <see cref="TraceInfoContainer" /> class.
         /// </summary>
-        public TraceInfoContainer()
-        {
-        }
+        public TraceInfoContainer() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TraceInfoContainer"/> class.
+        ///     Initializes a new instance of the <see cref="TraceInfoContainer" /> class.
         /// </summary>
         /// <param name="gather">if set to <c>true</c> automatically captures environment information.</param>
         public TraceInfoContainer(bool gather)
@@ -31,102 +29,102 @@ namespace Zen.Base.Diagnostics
         }
 
         /// <summary>
-        /// Gets the name of the user domain.
+        ///     Gets the name of the user domain.
         /// </summary>
         /// <value>
-        /// The name of the user domain.
+        ///     The name of the user domain.
         /// </value>
         public string UserDomainName { get; private set; }
         /// <summary>
-        /// Gets the name of the user.
+        ///     Gets the name of the user.
         /// </summary>
         /// <value>
-        /// The name of the user.
+        ///     The name of the user.
         /// </value>
         public string UserName { get; private set; }
         /// <summary>
-        /// Gets a value indicating whether the user is in interactive mode or not.
+        ///     Gets a value indicating whether the user is in interactive mode or not.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if user is interactive; otherwise, <c>false</c>.
+        ///     <c>true</c> if user is interactive; otherwise, <c>false</c>.
         /// </value>
         public bool UserInteractive { get; private set; }
         /// <summary>
-        /// Gets the operating system version.
+        ///     Gets the operating system version.
         /// </summary>
         /// <value>
-        /// The operating system version.
+        ///     The operating system version.
         /// </value>
         public string OsVersion { get; private set; }
         /// <summary>
-        /// Gets the current directory.
+        ///     Gets the current directory.
         /// </summary>
         /// <value>
-        /// The current directory.
+        ///     The current directory.
         /// </value>
         public string CurrentDirectory { get; private set; }
         /// <summary>
-        /// Gets the name of the machine.
+        ///     Gets the name of the machine.
         /// </summary>
         /// <value>
-        /// The name of the machine.
+        ///     The name of the machine.
         /// </value>
         public string MachineName { get; private set; }
         //public string ExecutingAssembly { get; private set; }
         /// <summary>
-        /// Gets the entry assembly.
+        ///     Gets the entry assembly.
         /// </summary>
         /// <value>
-        /// The entry assembly.
+        ///     The entry assembly.
         /// </value>
         public string EntryAssembly { get; private set; }
         /// <summary>
-        /// Gets the calling assembly.
+        ///     Gets the calling assembly.
         /// </summary>
         /// <value>
-        /// The calling assembly.
+        ///     The calling assembly.
         /// </value>
         public string CallingAssembly { get; private set; }
         /// <summary>
-        /// Gets the user agent.
+        ///     Gets the user agent.
         /// </summary>
         /// <value>
-        /// The user agent.
+        ///     The user agent.
         /// </value>
         public string UserAgent { get; private set; }
         /// <summary>
-        /// Gets the user host address.
+        ///     Gets the user host address.
         /// </summary>
         /// <value>
-        /// The user host address.
+        ///     The user host address.
         /// </value>
         public string UserHostAddress { get; private set; }
         /// <summary>
-        /// Gets the name of the user host.
+        ///     Gets the name of the user host.
         /// </summary>
         /// <value>
-        /// The name of the user host.
+        ///     The name of the user host.
         /// </value>
         public string UserHostName { get; private set; }
 
         /// <summary>
-        /// Gets or sets the base assembly.
+        ///     Gets or sets the base assembly.
         /// </summary>
         /// <value>
-        /// The base assembly.
+        ///     The base assembly.
         /// </value>
         public string BaseAssembly { get; set; }
 
         /// <summary>
-        /// Gets or sets the pre-compiled base assembly.
+        ///     Gets or sets the pre-compiled base assembly.
         /// </summary>
         /// <value>
-        /// The pre-compiled base assembly.
+        ///     The pre-compiled base assembly.
         /// </value>
         public static string PreCompBaseAssembly { get; set; }
 
         /// <summary>
-        /// Gathers Stack trace and environment information.
+        ///     Gathers Stack trace and environment information.
         /// </summary>
         public void Gather()
         {
@@ -166,7 +164,6 @@ namespace Zen.Base.Diagnostics
 
             if (PreCompInitializingAssembly == null)
             {
-
                 //todo: Properly translate handling of optional HTTP stuff
                 //try
                 //{

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using Zen.Base.Identity.Collections;
 using Zen.Base.Identity.Model;
 using Zen.Base.Identity.Store;
@@ -24,12 +24,11 @@ namespace Zen.Base.Identity.Extensions
         public static IdentityBuilder AddZenIdentityProvider<TUser, TRole>(this IServiceCollection services, Action<ZenIdentityOptions> setupDatabaseAction)
             where TUser : ZenUser
             where TRole : ZenRole
-        { return AddZenIdentityProvider<TUser, TRole>(services, x => { }, setupDatabaseAction); }
-
-        public static IdentityBuilder AddZenIdentityProvider(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction)
         {
-            return AddZenIdentityProvider<ZenUser, ZenRole>(services, setupIdentityAction, setupDatabaseAction);
+            return AddZenIdentityProvider<TUser, TRole>(services, x => { }, setupDatabaseAction);
         }
+
+        public static IdentityBuilder AddZenIdentityProvider(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction) { return AddZenIdentityProvider<ZenUser, ZenRole>(services, setupIdentityAction, setupDatabaseAction); }
 
         public static IdentityBuilder AddZenIdentityProvider<TUser>(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction)
             where TUser : ZenUser

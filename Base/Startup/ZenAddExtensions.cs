@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Identity.Extensions;
 using Zen.Base.Identity.Model;
 
@@ -11,9 +11,7 @@ namespace Zen.Base.Startup
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-
             services.AddZenIdentityProvider<ZenUser>();
-
 
             return new ZenBuilder(services);
         }

@@ -6,7 +6,4 @@
         Model,
         Collection
     }
-
-
-
 }

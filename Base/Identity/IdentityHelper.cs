@@ -4,7 +4,7 @@ namespace Zen.Base.Identity
 {
     public static class IdentityHelper
     {
-        private static readonly char[] _delimiters = { ',', ';', ':', '\n' };
+        private static readonly char[] _delimiters = {',', ';', ':', '\n'};
 
         public static bool HasAnyPermissions(string permissionList)
         {
@@ -12,7 +12,7 @@ namespace Zen.Base.Identity
             if (permissionList == "") return true;
 
             return Current.Authorization.CheckPermission(permissionList.Split(_delimiters,
-                StringSplitOptions.RemoveEmptyEntries));
+                                                                              StringSplitOptions.RemoveEmptyEntries));
         }
     }
 }

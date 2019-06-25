@@ -2,11 +2,11 @@
 {
     public class QueryTransform
     {
-        public string OmniQuery;
-        public string PartialQuery { get; set; }
-        public string OrderBy;
         public string Filter;
+        public string OmniQuery;
+        public string OrderBy;
 
         public Pagination Pagination = null;
+        public string PartialQuery { get; set; }
     }
 }

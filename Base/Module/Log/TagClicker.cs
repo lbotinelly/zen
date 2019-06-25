@@ -6,9 +6,8 @@ namespace Zen.Base.Module.Log
 {
     public class TagClicker : ConcurrentDictionary<string, long>
     {
-        private int _maxLength;
-
         private readonly string _suffix;
+        private int _maxLength;
 
         public TagClicker() { }
 
@@ -37,10 +36,7 @@ namespace Zen.Base.Module.Log
         }
         public void Click(string tag) { this[tag]++; }
 
-        public void Click<T>(string tag, IEnumerable<T> source)
-        {
-            Click(tag, source.Count());
-        }
+        public void Click<T>(string tag, IEnumerable<T> source) { Click(tag, source.Count()); }
 
         public void Click(string tag, long count)
         {
