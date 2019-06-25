@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using Zen.Base.Identity.Collections;
 using Zen.Base.Identity.Model;
 using Zen.Base.Identity.Store;
@@ -37,7 +37,8 @@ namespace Zen.Base.Identity.Extensions
             return AddZenIdentityProvider<TUser, ZenRole>(services, setupIdentityAction, setupDatabaseAction);
         }
 
-        public static IdentityBuilder AddZenIdentityProvider<TUser, TRole>(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction) where TUser : ZenUser
+        public static IdentityBuilder AddZenIdentityProvider<TUser, TRole>(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction)
+            where TUser : ZenUser
             where TRole : ZenRole
         {
             var dbOptions = new ZenIdentityOptions();
@@ -51,8 +52,8 @@ namespace Zen.Base.Identity.Extensions
                 .AddRoleManager<RoleManager<TRole>>()
                 .AddDefaultTokenProviders();
 
-            var userCollection = new IdentityUserCollection<TUser>(dbOptions.ConnectionString, dbOptions.UsersCollection);
-            var roleCollection = new IdentityRoleCollection<TRole>(dbOptions.ConnectionString, dbOptions.RolesCollection);
+            var userCollection = new IdentityUserCollection<TUser>();
+            var roleCollection = new IdentityRoleCollection<TRole>();
 
             services.AddTransient<IIdentityUserCollection<TUser>>(x => userCollection);
             services.AddTransient<IIdentityRoleCollection<TRole>>(x => roleCollection);

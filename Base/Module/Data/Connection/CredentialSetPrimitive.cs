@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using Zen.Base.Common;
 
-namespace Zen.Base.Module.Data.Connection {
+namespace Zen.Base.Module.Data.Connection
+{
     [Priority(Level = -99)]
     public class CredentialSetPrimitive
     {

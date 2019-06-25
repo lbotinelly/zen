@@ -2,7 +2,8 @@
 using Zen.Base.Common;
 using Zen.Base.Extension;
 
-namespace Zen.Base.Module.Log {
+namespace Zen.Base.Module.Log
+{
     public static class Converter
     {
         public static Message ToMessage(string content, Message.EContentType type = Message.EContentType.Generic)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Zen.Base.Module.Encryption
+﻿namespace Zen.Base.Module.Encryption
 {
     public static class Extensions
     {

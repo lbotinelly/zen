@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Bogus.DataSets;
+﻿using Bogus.DataSets;
+using System.ComponentModel.DataAnnotations;
 using Zen.Base.Module;
 
 namespace SimpleWebApp.Models
@@ -8,7 +8,7 @@ namespace SimpleWebApp.Models
     public class sampleModel : Data<sampleModel>
     // ReSharper restore InconsistentNaming
     {
-        [Key] public string id { get; set;}
+        [Key] public string id { get; set; }
         [Display] public string userName;
         public string name;
         public Name.Gender gender;

@@ -4,7 +4,8 @@ using MongoDB.Bson.Serialization.Serializers;
 using Newtonsoft.Json.Linq;
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
 
-namespace Zen.Module.Data.MongoDB.Serialization {
+namespace Zen.Module.Data.MongoDB.Serialization
+{
     public class JValueSerializer : SerializerBase<JValue>
     {
         public override JValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

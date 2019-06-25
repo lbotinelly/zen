@@ -1,4 +1,5 @@
-﻿namespace Zen.Base.Module.Cache {
+﻿namespace Zen.Base.Module.Cache
+{
     public enum EOperationalStatus
     {
         Undefined,

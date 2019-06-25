@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Zen.Base.Module.Log {
+namespace Zen.Base.Module.Log
+{
     public class TagClicker : ConcurrentDictionary<string, long>
     {
         private int _maxLength;

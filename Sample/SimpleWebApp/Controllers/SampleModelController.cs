@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Bogus;
+﻿using Bogus;
 using Bogus.DataSets;
 using Microsoft.AspNetCore.Mvc;
 using SimpleWebApp.Models;
+using System.Collections.Generic;
 using Zen.Base.Module.Data;
 using Zen.Module.Web.REST.Controller;
 using Zen.Module.Web.REST.Controller.Attributes;

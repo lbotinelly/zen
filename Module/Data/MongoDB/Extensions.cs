@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using System;
+using System.Linq;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Module.Data.MongoDB.Factories;
@@ -21,7 +21,7 @@ namespace Zen.Module.Data.MongoDB
 
             if (Data<T>.Info<T>.Configuration?.AutoGenerateMissingSchema == true)
                 source.TryCreateIndex<T>(sortDocument);
-                
+
             var fluentCollection = source.Find(queryDocument);
 
             if (sortFilter != null) fluentCollection.Sort(sortFilter);

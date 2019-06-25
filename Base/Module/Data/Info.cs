@@ -1,7 +1,4 @@
-﻿using Zen.Base.Assembly;
-using Zen.Base.Module.Cache;
-
-namespace Zen.Base.Module.Data
+﻿namespace Zen.Base.Module.Data
 {
     public class Info<T> : Data<T> where T : Data<T>
     {

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
@@ -42,7 +42,7 @@ namespace Zen.Module.Data.MongoDB.Factories
                         ? Builders<BsonDocument>.IndexKeys.Ascending(item.Name)
                         : Builders<BsonDocument>.IndexKeys.Descending(item.Name));
 
-                var indexOptions = new CreateIndexOptions {Unique = false, Name = indexName, Background = true};
+                var indexOptions = new CreateIndexOptions { Unique = false, Name = indexName, Background = true };
                 var model = new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Combine(keys),
                     indexOptions);
 

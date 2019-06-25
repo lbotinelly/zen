@@ -1,12 +1,13 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using MongoDB.Driver;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 
-namespace Zen.Module.Data.MongoDB {
+namespace Zen.Module.Data.MongoDB
+{
     public static class Instances
     {
         public static ConcurrentDictionary<string, MongoClient> Clients = new ConcurrentDictionary<string, MongoClient>();

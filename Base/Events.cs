@@ -108,7 +108,7 @@ namespace Zen.Base
 
             if (_workerThread != null) return;
 
-            _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
+            _workerThread = new Thread(() => Shutdown(seconds)) { IsBackground = false };
             _workerThread.Start();
         }
 
@@ -145,7 +145,7 @@ namespace Zen.Base
             var providers = Instances.Services.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
 
             foreach (var zenService in providers)
-                ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
+                ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
         }
 
 

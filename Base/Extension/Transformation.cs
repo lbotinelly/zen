@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,7 +11,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using Newtonsoft.Json.Linq;
 using Zen.Base.Common;
 using Zen.Base.Module;
 
@@ -145,8 +145,8 @@ namespace Zen.Base.Extension
 
         public static string StripHtml(this string input) { return input == null ? null : Regex.Replace(input, "<.*?>", string.Empty); }
 
-        public static IEnumerable<T> ToInstances<T>(this IEnumerable<Type> source) { return source.Select(i => (T) Activator.CreateInstance(i, new object[] { })).ToList(); }
-        public static T ToInstance<T>(this Type source) { return (T) Activator.CreateInstance(source, new object[] { }); }
+        public static IEnumerable<T> ToInstances<T>(this IEnumerable<Type> source) { return source.Select(i => (T)Activator.CreateInstance(i, new object[] { })).ToList(); }
+        public static T ToInstance<T>(this Type source) { return (T)Activator.CreateInstance(source, new object[] { }); }
 
         public static IEnumerable<List<T>> SplitList<T>(List<T> items, int nSize = 30)
         {
@@ -176,8 +176,8 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this Dictionary<string, string> obj)
         {
             var properties = from p in obj
-                where p.Value != null
-                select p.Key + "=" + HttpUtility.UrlEncode(p.Value);
+                             where p.Value != null
+                             select p.Key + "=" + HttpUtility.UrlEncode(p.Value);
 
             return string.Join("&", properties.ToArray());
         }
@@ -185,8 +185,8 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                where p.GetValue(obj, null) != null
-                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+                             where p.GetValue(obj, null) != null
+                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
         }
@@ -425,9 +425,10 @@ namespace Zen.Base.Extension
                 if (!string.IsNullOrEmpty(s) && s.Trim().Length > 0)
                 {
                     var conv = TypeDescriptor.GetConverter(typeof(T));
-                    result = (T) conv.ConvertFrom(s);
+                    result = (T)conv.ConvertFrom(s);
                 }
-            } catch { }
+            }
+            catch { }
 
             return result;
         }
@@ -438,8 +439,9 @@ namespace Zen.Base.Extension
             try
             {
                 var conv = TypeDescriptor.GetConverter(typeof(T));
-                result = (T) conv.ConvertFrom(s);
-            } catch { }
+                result = (T)conv.ConvertFrom(s);
+            }
+            catch { }
 
             return result;
         }
@@ -477,11 +479,11 @@ namespace Zen.Base.Extension
         {
             if (!(o is T)) return false;
 
-            t = (T) o;
+            t = (T)o;
             return true;
         }
 
-        public static T ConvertTo<T>(ref object input) { return (T) Convert.ChangeType(input, typeof(T)); }
+        public static T ConvertTo<T>(ref object input) { return (T)Convert.ChangeType(input, typeof(T)); }
 
         public static object ToConcrete<T>(this ExpandoObject dynObject)
         {
@@ -523,7 +525,8 @@ namespace Zen.Base.Extension
                 try
                 {
                     if (s1Words[i].SoundEx() != s2Words[i].SoundEx()) return false;
-                } catch { return false; }
+                }
+                catch { return false; }
 
             return true;
         }
@@ -593,7 +596,8 @@ namespace Zen.Base.Extension
                                      @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
                                      @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
                                      RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
-            } catch (RegexMatchTimeoutException) { return false; }
+            }
+            catch (RegexMatchTimeoutException) { return false; }
         }
 
         private static string DomainMapper(Match match)
@@ -622,7 +626,8 @@ namespace Zen.Base.Extension
                 if (numDec > 0) patt += "." + new string('#', numDec);
 
                 ret = string.Format("{" + patt + "}", num);
-            } catch (Exception e) { ret = source; }
+            }
+            catch (Exception e) { ret = source; }
 
             return ret;
         }

@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Zen.Base.Identity.Model;
 
-namespace Zen.Base.Identity.Collections {
+namespace Zen.Base.Identity.Collections
+{
     public interface IIdentityUserCollection<TUser> where TUser : ZenUser
     {
         Task<TUser> FindByEmailAsync(string normalizedEmail);

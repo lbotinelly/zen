@@ -1,14 +1,12 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 namespace Zen.Module.Web.Auth.Base
 {
@@ -24,11 +22,13 @@ namespace Zen.Module.Web.Auth.Base
                     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = "GitHub";
                 })
-                .AddCookie(options => {
+                .AddCookie(options =>
+                {
                     options.LoginPath = "/Account/Unauthorized/";
                     options.AccessDeniedPath = "/Account/Forbidden/";
                 })
-                .AddJwtBearer(options => {
+                .AddJwtBearer(options =>
+                {
                     options.Audience = "http://localhost:5001/";
                     options.Authority = "http://localhost:5000/";
                 })

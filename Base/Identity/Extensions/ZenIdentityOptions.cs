@@ -1,4 +1,5 @@
-﻿namespace Zen.Base.Identity.Extensions {
+﻿namespace Zen.Base.Identity.Extensions
+{
     public class ZenIdentityOptions
     {
         public string ConnectionString { get; set; } = "mongodb://localhost/default";

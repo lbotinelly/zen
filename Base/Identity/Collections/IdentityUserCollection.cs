@@ -1,67 +1,76 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Zen.Base.Identity.Extensions;
+using Zen.Base.Extension;
 using Zen.Base.Identity.Model;
 
-namespace Zen.Base.Identity.Collections {
+namespace Zen.Base.Identity.Collections
+{
     public class IdentityUserCollection<TUser> : IIdentityUserCollection<TUser> where TUser : ZenUser
     {
-        private readonly IMongoCollection<TUser> _users;
-
-        public IdentityUserCollection(string connectionString, string collectionName)
-        {
-            _users = MongoUtil.FromConnectionString<TUser>(connectionString, collectionName);
-        }
+        public IdentityUserCollection() { }
 
         public async Task<TUser> FindByEmailAsync(string normalizedEmail)
         {
-            return await _users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+            return await Task.Run(() => (TUser)ZenUser.Query(new { NormalizedEmail = normalizedEmail }.ToJson()).FirstOrDefault());
         }
 
         public async Task<TUser> FindByUserNameAsync(string username)
         {
-            return await _users.FirstOrDefaultAsync(u => u.UserName == username);
+            return await Task.Run(() => (TUser)ZenUser.Query(new { UserName = username }.ToJson()).FirstOrDefault());
         }
 
         public async Task<TUser> FindByNormalizedUserNameAsync(string normalizedUserName)
         {
-            return await _users.FirstOrDefaultAsync(u => u.NormalizedUserName == normalizedUserName);
+            return await Task.Run(() => (TUser)ZenUser.Query(new { NormalizedUserName = normalizedUserName }.ToJson()).FirstOrDefault());
         }
 
         public async Task<TUser> FindByLoginAsync(string loginProvider, string providerKey)
         {
-            return await _users.FirstOrDefaultAsync(u =>
-                                                        u.Logins.Any(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey));
+            return null;
+            //return await _users.FirstOrDefaultAsync(u => u.Logins.Any(l => l.LoginProvider == loginProvider && l.ProviderKey == providerKey));
         }
 
         public async Task<IEnumerable<TUser>> FindUsersByClaimAsync(string claimType, string claimValue)
         {
-            return await _users.WhereAsync(u => u.Claims.Any(c => c.ClaimType == claimType && c.ClaimValue == claimValue));
+            return null;
+
+            //return await _users.WhereAsync(u => u.Claims.Any(c => c.ClaimType == claimType && c.ClaimValue == claimValue));
         }
 
         public async Task<IEnumerable<TUser>> FindUsersInRoleAsync(string roleName)
         {
-            var filter = Builders<TUser>.Filter.AnyEq(x => x.Roles, roleName);
-            var res = await _users.FindAsync(filter);
-            return res.ToEnumerable();
+            return null;
+
+            //var filter = Builders<TUser>.Filter.AnyEq(x => x.Roles, roleName);
+            //var res = await _users.FindAsync(filter);
+            //return res.ToEnumerable();
         }
 
         public async Task<IEnumerable<TUser>> GetAllAsync()
         {
-            var res = await _users.FindAsync(x => true);
-            return await res.ToListAsync();
+            return await Task.Run(() => (IEnumerable<TUser>)ZenUser.All());
         }
 
         public async Task<TUser> CreateAsync(TUser obj)
         {
-            await _users.InsertOneAsync(obj);
-            return obj;
+            return await Task.Run(() => (TUser)obj.Save());
         }
 
-        public Task UpdateAsync(TUser obj) => _users.ReplaceOneAsync(x => x.Id == obj.Id, obj);
+        public Task UpdateAsync(TUser obj)
+        {
+            return Task.Run(() => (TUser)obj.Save());
+        }
 
-        public Task DeleteAsync(TUser obj) => _users.DeleteOneAsync(x => x.Id == obj.Id);
+        public Task DeleteAsync(TUser obj)
+        {
+            return Task.Run(() => (TUser)obj.Remove());
+        }
 
-        public Task<TUser> FindByIdAsync(string itemId) => _users.FirstOrDefaultAsync(x => x.Id == itemId);
+        public Task<TUser> FindByIdAsync(string itemId)
+        {
+            return Task.Run(() => (TUser)ZenUser.Get(itemId));
+        }
+
     }
 }

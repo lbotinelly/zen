@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
-namespace Zen.Module.Web.Auth.Zen {
-    public class ZenUserStore : IUserStore<ZenUser> {
+namespace Zen.Module.Web.Auth.Zen
+{
+    public class ZenUserStore : IUserStore<ZenUser>
+    {
         #region Implementation of IDisposable
 
         public void Dispose() { throw new NotImplementedException(); }

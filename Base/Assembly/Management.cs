@@ -351,22 +351,22 @@ namespace Zen.Base.Assembly
                 try
                 {
                     foreach (var asy in AssemblyCache.Values.ToList())
-                    foreach (var st in asy.GetTypes())
-                    {
-                        if (st.BaseType == null) continue;
-                        if (!st.BaseType.IsGenericType) continue;
-                        if (st == refType) continue;
+                        foreach (var st in asy.GetTypes())
+                        {
+                            if (st.BaseType == null) continue;
+                            if (!st.BaseType.IsGenericType) continue;
+                            if (st == refType) continue;
 
-                        try
-                        {
-                            foreach (var gta in st.BaseType.GenericTypeArguments)
-                                if (gta == refType)
-                                    classCol.Add(st);
+                            try
+                            {
+                                foreach (var gta in st.BaseType.GenericTypeArguments)
+                                    if (gta == refType)
+                                        classCol.Add(st);
+                            }
+                            catch
+                            {
+                            }
                         }
-                        catch
-                        {
-                        }
-                    }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
                 }
@@ -445,7 +445,7 @@ namespace Zen.Base.Assembly
 
                     var attrs = item.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault();
 
-                    if (attrs != null) level = ((PriorityAttribute) attrs).Level;
+                    if (attrs != null) level = ((PriorityAttribute)attrs).Level;
 
                     priorityList.Add(new KeyValuePair<int, Type>(level, item));
                 }
@@ -518,7 +518,7 @@ namespace Zen.Base.Assembly
                 {
                     var level = 0;
 
-                    var attrs = (PriorityAttribute) item.GetCustomAttributes(typeof(PriorityAttribute), true)
+                    var attrs = (PriorityAttribute)item.GetCustomAttributes(typeof(PriorityAttribute), true)
                         .FirstOrDefault();
 
                     if (attrs != null) level = attrs.Level;

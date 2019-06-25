@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GitHub
+﻿namespace GitHub
 {
     public class Class1
     {

@@ -1,4 +1,5 @@
-﻿namespace Zen.Base.Identity.Model {
+﻿namespace Zen.Base.Identity.Model
+{
     public class IdentityUserToken
     {
         /// <summary>

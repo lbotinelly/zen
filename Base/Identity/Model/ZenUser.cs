@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 using Zen.Base.Module;
 
-namespace Zen.Base.Identity.Model {
+namespace Zen.Base.Identity.Model
+{
     public class ZenUser : Data<ZenUser>
     {
         [Key]
@@ -25,8 +26,8 @@ namespace Zen.Base.Identity.Model {
         public List<IdentityUserLogin<string>> Logins { get; set; }
         public List<IdentityUserToken<string>> Tokens { get; set; }
         public List<TwoFactorRecoveryCode> RecoveryCodes { get; set; }
-        public string UserName { get; internal set; }
-        public string Email { get; internal set; }
+        public string UserName { get;  set; }
+        public string Email { get;  set; }
         public string NormalizedUserName { get; internal set; }
         public bool EmailConfirmed { get; internal set; }
         public string NormalizedEmail { get; internal set; }

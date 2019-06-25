@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
+using Zen.Base.Module;
 
 namespace Zen.Base.Identity.Model
 {
-    public class ZenRole : IdentityRole
+    public class ZenRole : Data<ZenRole>
     {
         [Key]
         public virtual string Id { get; set; }

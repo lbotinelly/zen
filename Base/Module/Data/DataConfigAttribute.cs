@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Zen.Base.Module.Data {
+namespace Zen.Base.Module.Data
+{
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class DataConfigAttribute : Attribute
     {

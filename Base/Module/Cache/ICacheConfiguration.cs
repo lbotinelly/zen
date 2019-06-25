@@ -1,3 +1,4 @@
-﻿namespace Zen.Base.Module.Cache {
+﻿namespace Zen.Base.Module.Cache
+{
     public interface ICacheConfiguration { }
 }

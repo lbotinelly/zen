@@ -1,44 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Zen.Base.Identity.Extensions;
+using Zen.Base.Extension;
 using Zen.Base.Identity.Model;
 
 namespace Zen.Base.Identity.Collections
 {
     public class IdentityRoleCollection<TRole> : IIdentityRoleCollection<TRole> where TRole : ZenRole
     {
-        private readonly IMongoCollection<TRole> _roles;
-
-        public IdentityRoleCollection(string connectionString, string collectionName)
-        {
-            _roles = MongoUtil.FromConnectionString<TRole>(connectionString, collectionName);
-        }
+        public IdentityRoleCollection() { }
 
         public async Task<TRole> FindByNameAsync(string normalizedName)
         {
-            return await _roles.FirstOrDefaultAsync(x => x.NormalizedName == normalizedName);
+            return await Task.Run(() => (TRole)ZenRole.Query(new { NormalizedName = normalizedName }.ToJson()).FirstOrDefault());
         }
 
         public async Task<TRole> FindByIdAsync(string roleId)
         {
-            return await _roles.FirstOrDefaultAsync(x => x.Id == roleId);
+            return await Task.Run(() => (TRole)ZenRole.Get(roleId));
         }
 
         public async Task<IEnumerable<TRole>> GetAllAsync()
         {
-            return (await _roles.FindAsync(x => true)).ToEnumerable();
+            return await Task.Run(() => (IEnumerable<TRole>)ZenRole.All());
         }
 
         public async Task<TRole> CreateAsync(TRole obj)
         {
-            await _roles.InsertOneAsync(obj);
-            return obj;
+            return await Task.Run(() => (TRole)obj.Save());
         }
 
-        public Task UpdateAsync(TRole obj) => _roles.ReplaceOneAsync(x => x.Id == obj.Id, obj);
+        public Task UpdateAsync(TRole obj)
+        {
+            return Task.Run(() => (TRole)obj.Save());
+        }
 
-        public Task DeleteAsync(TRole obj) => _roles.DeleteOneAsync(x => x.Id == obj.Id);
+        public Task DeleteAsync(TRole obj) => Task.Run(() => obj.Remove());
     }
 }

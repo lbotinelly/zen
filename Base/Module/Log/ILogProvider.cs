@@ -3,7 +3,7 @@ using Zen.Base.Common;
 
 namespace Zen.Base.Module.Log
 {
-    public interface ILogProvider: IZenProvider
+    public interface ILogProvider : IZenProvider
     {
         Message.EContentType MaximumLogLevel { get; set; }
         void Add(bool content);

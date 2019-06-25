@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Zen.Base.Extension;
-using Zen.Base.Module.Log;
+﻿using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Default
 {

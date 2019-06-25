@@ -1,7 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using SampleSite.Mailing;
+using System;
 using Zen.Base.Startup;
 
 namespace Zen.Module.Web.REST.Startup
@@ -38,6 +39,9 @@ namespace Zen.Module.Web.REST.Startup
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 
             services.AddZen();
+
+            services.AddTransient<IEmailSender, EmailSender>();
+
 
             return new ZenWebBuilder(services);
         }

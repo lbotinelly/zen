@@ -1,6 +1,7 @@
 ﻿using System;
 
-namespace Zen.Base.Common {
+namespace Zen.Base.Common
+{
     public struct ShortGuid
     {
         // Source: http://www.singular.co.nz/2007/12/shortguid-a-shorter-and-url-friendly-guid-in-c-sharp/

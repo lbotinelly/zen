@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Zen.Base.Identity.Model;
 
-namespace Zen.Base.Identity.Collections {
+namespace Zen.Base.Identity.Collections
+{
     public interface IIdentityRoleCollection<TRole> where TRole : ZenRole
     {
         Task<TRole> FindByNameAsync(string normalizedName);

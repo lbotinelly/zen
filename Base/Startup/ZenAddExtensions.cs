@@ -1,8 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Zen.Base.Identity;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using Zen.Base.Identity.Extensions;
 using Zen.Base.Identity.Model;
 
@@ -15,7 +12,7 @@ namespace Zen.Base.Startup
             if (services == null) throw new ArgumentNullException(nameof(services));
 
 
-            services.AddZenIdentityProvider<ZenUser>(mongo => { });
+            services.AddZenIdentityProvider<ZenUser>();
 
 
             return new ZenBuilder(services);

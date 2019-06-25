@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Google
+﻿namespace Google
 {
     public class Class1
     {

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Zen.Base.Identity.Collections;
 using Zen.Base.Identity.Model;
 
-namespace Zen.Base.Identity.Store {
+namespace Zen.Base.Identity.Store
+{
     public class RoleStore<TRole> : IQueryableRoleStore<TRole> where TRole : ZenRole
     {
         private readonly IIdentityRoleCollection<TRole> _collection;

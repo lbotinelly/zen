@@ -1,4 +1,5 @@
-﻿namespace Zen.Base.Module {
+﻿namespace Zen.Base.Module
+{
     public class DataOperationControl<T>
     {
         public T Current;

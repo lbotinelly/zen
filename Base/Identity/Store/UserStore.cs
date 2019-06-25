@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Zen.Base.Identity.Collections;
 using Zen.Base.Identity.Model;
 
@@ -23,7 +23,7 @@ namespace Zen.Base.Identity.Store
         IUserLockoutStore<TUser>,
         IUserAuthenticatorKeyStore<TUser>,
         IUserAuthenticationTokenStore<TUser>,
-        IUserTwoFactorRecoveryCodeStore<TUser> 
+        IUserTwoFactorRecoveryCodeStore<TUser>
         where TUser : ZenUser
         where TRole : ZenRole
     {
@@ -51,7 +51,7 @@ namespace Zen.Base.Identity.Store
 
             if (token == null)
             {
-                token = new IdentityUserToken<string> {LoginProvider = loginProvider, Name = name, Value = value};
+                token = new IdentityUserToken<string> { LoginProvider = loginProvider, Name = name, Value = value };
                 user.Tokens.Add(token);
             }
             else { token.Value = value; }
@@ -97,7 +97,7 @@ namespace Zen.Base.Identity.Store
             cancellationToken.ThrowIfCancellationRequested();
 
             var u = await _userCollection.FindByUserNameAsync(user.UserName);
-            if (u != null) return IdentityResult.Failed(new IdentityError {Code = "Username already in use"});
+            if (u != null) return IdentityResult.Failed(new IdentityError { Code = "Username already in use" });
 
             await _userCollection.CreateAsync(user);
 
@@ -490,7 +490,7 @@ namespace Zen.Base.Identity.Store
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            user.RecoveryCodes = recoveryCodes.Select(x => new TwoFactorRecoveryCode {Code = x, Redeemed = false})
+            user.RecoveryCodes = recoveryCodes.Select(x => new TwoFactorRecoveryCode { Code = x, Redeemed = false })
                 .ToList();
 
             return _userCollection.UpdateAsync(user);

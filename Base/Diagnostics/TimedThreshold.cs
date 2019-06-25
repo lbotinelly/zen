@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using Zen.Base.Module;
 
-namespace Zen.Base.Diagnostics {
+namespace Zen.Base.Diagnostics
+{
     public class TimedThreshold<T, TU> where TU : Data<TU>
     {
         private readonly object _cacheFlushlock = new object();

@@ -4,7 +4,8 @@ using MongoDB.Bson.Serialization.Serializers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Zen.Module.Data.MongoDB.Serialization {
+namespace Zen.Module.Data.MongoDB.Serialization
+{
     public class JArraySerializer : SerializerBase<JArray>
     {
         public override JArray Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

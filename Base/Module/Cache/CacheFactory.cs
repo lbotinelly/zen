@@ -88,7 +88,8 @@ namespace Zen.Base.Module.Cache
                             throw new ArgumentOutOfRangeException("Invalid cache source - list contains primitive type. Specify nameSpace.");
                         else
                             cacheKey = typeof(T).GetGenericArguments()[0].CacheKey("s");
-                } catch { }
+                }
+                catch { }
             }
             else { cacheKey = nameSpace + ":s"; }
 

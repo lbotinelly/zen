@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Zen.Base.Common;
 
-namespace Zen.Base.Module.Cache {
-    public interface ICacheProvider: IZenProvider
+namespace Zen.Base.Module.Cache
+{
+    public interface ICacheProvider : IZenProvider
     {
         // Standard cache timeout: 10m (600 secs)
         string this[string key, string oSet = null, int cacheTimeOutSeconds = 600] { get; set; }

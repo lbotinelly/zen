@@ -1,7 +1,7 @@
-﻿using System;
-using Serilog;
+﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using System;
 
 namespace Zen.Base.Module.Log
 {

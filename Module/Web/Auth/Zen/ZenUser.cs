@@ -6,7 +6,7 @@ namespace Zen.Module.Web.Auth.Zen
 {
     public class ZenUser : Data<ZenUser>
     {
-        public ZenUser(){}
+        public ZenUser() { }
         public ZenUser(string userName)
         {
             UserName = userName ?? throw new ArgumentNullException(nameof(userName));

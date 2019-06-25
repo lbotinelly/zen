@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Identity;
@@ -151,10 +151,10 @@ namespace Zen.Module.Web.REST.Controller
 
         #region Event hooks and Behavior modifiers
         public virtual bool AuthorizeAction(EHttpMethod method, EActionType pAccessType, EActionScope scope, string key, ref T model, string context) => true;
-        public virtual void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator,ref IEnumerable<T> model, string key = null){}
-        public virtual void AfterCollectionAction(EHttpMethod method, EActionType type, Mutator mutator,ref IEnumerable<T> model, string key = null){}
-        public virtual void BeforeModelAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref T model,T originalModel = null, string key = null){}
-        public virtual void AfterModelAction(EHttpMethod method, EActionType type, Mutator mutator, ref T model,T originalModel = null, string key = null){}
+        public virtual void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<T> model, string key = null) { }
+        public virtual void AfterCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<T> model, string key = null) { }
+        public virtual void BeforeModelAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref T model, T originalModel = null, string key = null) { }
+        public virtual void AfterModelAction(EHttpMethod method, EActionType type, Mutator mutator, ref T model, T originalModel = null, string key = null) { }
         #endregion
 
         #region HTTP Methods

@@ -20,7 +20,7 @@ namespace Zen.Module.Data.MongoDB.Mapping
                 serializer = dictionaryRepresentationConfigurable.WithDictionaryRepresentation(_dictionaryRepresentation);
 
             return !(serializer is IChildSerializerConfigurable childSerializerConfigurable)
-                ? serializer 
+                ? serializer
                 : childSerializerConfigurable.WithChildSerializer(ConfigureSerializer(childSerializerConfigurable.ChildSerializer));
         }
     }

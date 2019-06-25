@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Zen.Base
+﻿namespace Zen.Base
 {
     public static class Status
     {
