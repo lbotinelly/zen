@@ -46,6 +46,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Base\Base.csproj" />
     <ProjectReference Include="..\..\Module\Data\MongoDB\MongoDB.csproj" />
+    <ProjectReference Include="..\..\Module\Web\Auth.Base\Auth.Base.csproj" />
     <ProjectReference Include="..\..\Module\Web\REST\REST.csproj" />
   </ItemGroup>
 

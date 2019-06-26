@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitHub", "Module\Web\Auth\G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Google", "Module\Web\Auth\Google\Google.csproj", "{B0EE77F8-1639-4711-94B0-2785E6206061}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen", "Module\Web\Auth\Zen\Zen.csproj", "{B205B779-8310-46E2-BE83-84124F135DD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen", "Module\Web\Auth\Zen\Zen.csproj", "{B205B779-8310-46E2-BE83-84124F135DD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

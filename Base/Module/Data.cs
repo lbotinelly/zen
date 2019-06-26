@@ -415,6 +415,7 @@ namespace Zen.Base.Module
         {
             ValidateState(EActionType.Read);
             mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
+
             return Info<T>.Settings.Adapter.Where(predicate, mutator).ToList();
         }
 
@@ -454,7 +455,7 @@ namespace Zen.Base.Module
 
             var fullKey = mutator?.KeyPrefix + key;
 
-            var model = Info<T>.Configuration?.UseCaching == true ? CacheFactory.FetchModel<T>(fullKey) : FetchModel(key, mutator);
+            var model = CacheFactory.FetchModel<T>(fullKey) ?? FetchModel(key, mutator);
 
             return model;
         }
@@ -754,6 +755,15 @@ namespace Zen.Base.Module
         {
             T storedModel = null;
             return IsNew(ref storedModel, mutator);
+        }
+
+        public T Update(Mutator mutator = null)
+        {
+            if (_isDeleted) return null;
+
+            T storedModel = null;
+            var isNew = IsNew(ref storedModel, mutator);
+            return isNew ? null : Save(mutator);
         }
 
         public T Save(Mutator mutator = null)

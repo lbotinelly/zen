@@ -402,7 +402,7 @@ namespace Zen.Base.Extension
 
         public static IDictionary<string, object> AddProperty(this object obj, string name, object value)
         {
-            var dictionary = obj.ToDictionary();
+            var dictionary = obj.ToPropertyDictionary();
             dictionary.Add(name, value);
             return dictionary;
         }
@@ -441,7 +441,7 @@ namespace Zen.Base.Extension
             return result;
         }
 
-        public static IDictionary<string, object> ToDictionary(this object obj)
+        public static IDictionary<string, object> ToPropertyDictionary(this object obj)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
             var properties = TypeDescriptor.GetProperties(obj);

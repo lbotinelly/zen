@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 
 namespace Zen.Module.Web.Auth.Base
 {
@@ -14,8 +14,6 @@ namespace Zen.Module.Web.Auth.Base
     {
         public static void ConfigureServices(IServiceCollection services)
         {
-
-
             services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -93,7 +91,7 @@ namespace Zen.Module.Web.Auth.Base
                             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ctx.AccessToken);
 
                             var response = await ctx.Backchannel.SendAsync(request,
-                                HttpCompletionOption.ResponseHeadersRead, ctx.HttpContext.RequestAborted);
+                                                                           HttpCompletionOption.ResponseHeadersRead, ctx.HttpContext.RequestAborted);
                             response.EnsureSuccessStatusCode();
 
                             var userInfo = JObject.Parse(await response.Content.ReadAsStringAsync());
@@ -103,9 +101,6 @@ namespace Zen.Module.Web.Auth.Base
                     };
                 });
         }
-
-
-
 
         //public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         //{
@@ -117,6 +112,5 @@ namespace Zen.Module.Web.Auth.Base
         //    app.UseAuthentication();
         //    //app.UseMvc();
         //}
-
     }
 }

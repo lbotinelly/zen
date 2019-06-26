@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace Zen.Base.Startup
+namespace Zen.Module.Web.REST.Startup
 {
     internal class LifetimeEventsHostedService : IHostedService
     {

@@ -1,10 +1,11 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base.Identity;
 using Zen.Base.Internal;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
+using Zen.Base.Module.Identity;
+using Zen.Base.Module.Identity.Model;
 using Zen.Base.Module.Log;
 
 namespace Zen.Base
@@ -23,6 +24,7 @@ namespace Zen.Base
         public static IAuthorizationProvider Authorization => _IAuthorizationProvider.Value;
         public static ILogProvider Log => _ILogProvider.Value;
         public static Type GlobalConnectionBundleType => Instances.ServiceProvider.GetService<Type>();
+        public static ZenUser Person { get; set; }
 
         // ReSharper disable InconsistentNaming
         private static readonly Lazy<ICacheProvider> _cacheProvider =

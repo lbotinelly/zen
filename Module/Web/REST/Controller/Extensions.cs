@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
+using Zen.Base.Module.Data.Pipeline;
 
 namespace Zen.Module.Web.REST.Controller
 {
@@ -35,9 +37,18 @@ namespace Zen.Module.Web.REST.Controller
                     AddHeaders(header, pipelineMember.Headers<T>());
         }
 
-        internal static Mutator ToMutator(this IQueryCollection source)
+        internal static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>
         {
             var modifier = new Mutator { Transform = new QueryTransform() };
+
+            if (Data<T>.Info<T>.Settings?.Pipelines?.Before != null)
+            {
+                // Transform it only once per request.
+                var stringQueryCollection = source.ToDictionary(i => i.Key, i => i.Value.ToList());
+
+                foreach (var pipelineMember in Data<T>.Info<T>.Settings.Pipelines.Before)
+                    modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
+            }
 
             if (source.ContainsKey("sort")) modifier.Transform.OrderBy = source["sort"];
 
@@ -52,10 +63,15 @@ namespace Zen.Module.Web.REST.Controller
 
             if (source.ContainsKey("q")) modifier.Transform.OmniQuery = source["q"];
 
-            if (source.ContainsKey("set")) modifier.SetCode = source["set"];
-
             return modifier;
         }
+
+        private static void AddPipelineMetadata(this Mutator mutator, IBeforeActionPipeline pipelineMember, Dictionary<string, List<string>> headerData)
+        {
+            var postProcessContent = pipelineMember.ParseRequest(headerData);
+            if (postProcessContent.HasValue) mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
+        }
+
         internal static void AddMutatorHeaders<T>(this IHeaderDictionary header, Mutator mutator) where T : Data<T>
         {
             if (mutator.Transform.Pagination == null) return;

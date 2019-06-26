@@ -207,7 +207,11 @@ namespace Zen.Module.Data.MongoDB
         public override IEnumerable<T> Query<T>(string statement) => Query<T>(statement.ToModifier());
         public override IEnumerable<T> Query<T>(Mutator mutator = null) => Query<T, T>(mutator);
 
-        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null) => Collection<T>(mutator).AsQueryable().Where(predicate);
+        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null)
+        {
+            var t = Collection<T>(mutator).AsQueryable().Where(predicate);
+            return t;
+        }
 
         public override IEnumerable<TU> Query<T, TU>(string statement) => Query<T, TU>(statement.ToModifier());
 

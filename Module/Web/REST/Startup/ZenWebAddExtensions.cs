@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using SampleSite.Mailing;
-using System;
 using Zen.Base.Startup;
+using Zen.Module.Web.REST.Service;
 
 namespace Zen.Module.Web.REST.Startup
 {
@@ -36,12 +38,17 @@ namespace Zen.Module.Web.REST.Startup
                 .AddXmlSerializerFormatters()
                 ;
 
-            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
+            //services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }).AddCookie();
 
             services.AddZen();
 
             services.AddTransient<IEmailSender, EmailSender>();
-
 
             return new ZenWebBuilder(services);
         }
@@ -50,10 +57,11 @@ namespace Zen.Module.Web.REST.Startup
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
             var builder = services.AddZenWeb();
-            services.Configure(configureOptions);
+
+            if (configureOptions != null) services.Configure(configureOptions);
+
             return builder;
         }
     }

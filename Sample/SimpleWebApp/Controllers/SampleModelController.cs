@@ -1,17 +1,15 @@
-﻿using Bogus;
+﻿using System.Collections.Generic;
+using Bogus;
 using Bogus.DataSets;
 using Microsoft.AspNetCore.Mvc;
 using SimpleWebApp.Models;
-using System.Collections.Generic;
 using Zen.Base.Module.Data;
 using Zen.Module.Web.REST.Controller;
 using Zen.Module.Web.REST.Controller.Attributes;
 
 namespace SimpleWebApp.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Behavior(MustPaginate = true)]
+    [Route("api/[controller]"), ApiController, Behavior(MustPaginate = true)]
     public class SampleModelController : DataController<sampleModel>
     {
         [Route("generate/{count}")]
@@ -28,23 +26,22 @@ namespace SimpleWebApp.Controllers
 
             var buffer = new List<sampleModel>();
 
-
             for (var i = 0; i < count; i++) buffer.Add(newUser.Generate());
 
             buffer.Save();
 
             return buffer;
         }
-        [Route("clear")]
 
+        [Route("clear")]
         public IActionResult Clear()
         {
             sampleModel.RemoveAll();
 
             return new OkResult();
         }
+
         [Route("filter")]
         public IEnumerable<sampleModel> Filter() { return sampleModel.Where(i => i.email.Contains("oui")); }
-
     }
 }

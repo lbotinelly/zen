@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
 using Zen.Base.Startup;
 
 namespace Zen.Module.Web.REST.Startup
@@ -21,21 +21,23 @@ namespace Zen.Module.Web.REST.Startup
 
             app.UseZen();
 
+            app.UseAuthentication();
+
             app.UseHttpsRedirection()
                 .UseMvc()
-                .UseStaticFiles()
-                .UseSpaStaticFiles();
+                .UseStaticFiles();
 
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
+                //.UseSpaStaticFiles();
 
-                spa.Options.SourcePath = "ClientApp";
+            //app.UseSpa(spa =>
+            //{
+            //    // To learn more about options for serving an Angular SPA from ASP.NET Core,
+            //    // see https://go.microsoft.com/fwlink/?linkid=864501
 
-                if (env?.IsDevelopment() == true) spa.UseAngularCliServer("start");
-            });
+            //    spa.Options.SourcePath = "ClientApp";
 
+            //    if (env?.IsDevelopment() == true) spa.UseAngularCliServer("start");
+            //});
 
             configuration.Invoke(builder);
         }

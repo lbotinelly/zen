@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Principal;
-using Zen.Base.Identity;
+using Zen.Base.Module.Identity;
 
 namespace Zen.Base.Module.Default
 {
