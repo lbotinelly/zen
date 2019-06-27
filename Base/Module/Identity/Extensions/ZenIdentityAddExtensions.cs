@@ -10,35 +10,35 @@ namespace Zen.Base.Module.Identity.Extensions
     public static class ZenIdentityAddExtensions
     {
         public static IdentityBuilder AddZenIdentityProvider<TUser>(this IServiceCollection services)
-            where TUser : ZenUser
+            where TUser : User
         {
-            return AddZenIdentityProvider<TUser, ZenRole>(services, x => { });
+            return AddZenIdentityProvider<TUser, Role>(services, x => { });
         }
 
         public static IdentityBuilder AddZenIdentityProvider<TUser>(this IServiceCollection services, Action<ZenIdentityOptions> setupDatabaseAction)
-            where TUser : ZenUser
+            where TUser : User
         {
-            return AddZenIdentityProvider<TUser, ZenRole>(services, setupDatabaseAction);
+            return AddZenIdentityProvider<TUser, Role>(services, setupDatabaseAction);
         }
 
         public static IdentityBuilder AddZenIdentityProvider<TUser, TRole>(this IServiceCollection services, Action<ZenIdentityOptions> setupDatabaseAction)
-            where TUser : ZenUser
-            where TRole : ZenRole
+            where TUser : User
+            where TRole : Role
         {
             return AddZenIdentityProvider<TUser, TRole>(services, x => { }, setupDatabaseAction);
         }
 
-        public static IdentityBuilder AddZenIdentityProvider(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction) { return AddZenIdentityProvider<ZenUser, ZenRole>(services, setupIdentityAction, setupDatabaseAction); }
+        public static IdentityBuilder AddZenIdentityProvider(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction) { return AddZenIdentityProvider<User, Role>(services, setupIdentityAction, setupDatabaseAction); }
 
         public static IdentityBuilder AddZenIdentityProvider<TUser>(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction)
-            where TUser : ZenUser
+            where TUser : User
         {
-            return AddZenIdentityProvider<TUser, ZenRole>(services, setupIdentityAction, setupDatabaseAction);
+            return AddZenIdentityProvider<TUser, Role>(services, setupIdentityAction, setupDatabaseAction);
         }
 
         public static IdentityBuilder AddZenIdentityProvider<TUser, TRole>(this IServiceCollection services, Action<IdentityOptions> setupIdentityAction, Action<ZenIdentityOptions> setupDatabaseAction)
-            where TUser : ZenUser
-            where TRole : ZenRole
+            where TUser : User
+            where TRole : Role
         {
             var dbOptions = new ZenIdentityOptions();
             setupDatabaseAction(dbOptions);

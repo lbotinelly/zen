@@ -24,7 +24,7 @@ namespace Zen.Base
         public static IAuthorizationProvider Authorization => _IAuthorizationProvider.Value;
         public static ILogProvider Log => _ILogProvider.Value;
         public static Type GlobalConnectionBundleType => Instances.ServiceProvider.GetService<Type>();
-        public static ZenUser Person { get; set; }
+        public static User Person { get; set; }
 
         // ReSharper disable InconsistentNaming
         private static readonly Lazy<ICacheProvider> _cacheProvider =

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>Zen.Module.Encryption.AES</AssemblyName>
+    <RootNamespace>Zen.Module.Encryption.AES</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Zen.Base.csproj" />
+  </ItemGroup>
+
+</Project>

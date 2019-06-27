@@ -14,7 +14,7 @@ namespace Zen.Base.Startup
 
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddZenIdentityProvider<ZenUser>();
+            services.AddZenIdentityProvider<User>();
 
 
             var builder =  new ZenBuilder(services);

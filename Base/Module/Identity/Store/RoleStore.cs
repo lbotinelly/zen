@@ -8,7 +8,7 @@ using Zen.Base.Module.Identity.Model;
 
 namespace Zen.Base.Module.Identity.Store
 {
-    public class RoleStore<TRole> : IQueryableRoleStore<TRole> where TRole : ZenRole
+    public class RoleStore<TRole> : IQueryableRoleStore<TRole> where TRole : Role
     {
         private readonly IIdentityRoleCollection<TRole> _collection;
 

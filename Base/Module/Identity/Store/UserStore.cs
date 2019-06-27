@@ -24,8 +24,8 @@ namespace Zen.Base.Module.Identity.Store
         IUserAuthenticatorKeyStore<TUser>,
         IUserAuthenticationTokenStore<TUser>,
         IUserTwoFactorRecoveryCodeStore<TUser>
-        where TUser : ZenUser
-        where TRole : ZenRole
+        where TUser : User
+        where TRole : Role
     {
         private readonly ILookupNormalizer _normalizer;
         private readonly IIdentityRoleCollection<TRole> _roleCollection;
@@ -98,14 +98,14 @@ namespace Zen.Base.Module.Identity.Store
 
             var u = await _userCollection.FindByUserNameAsync(user.UserName);
 
-            if (u?.State != ZenUser.EState.None)
+            if (u?.State != User.EState.None)
                 return IdentityResult.Failed(new IdentityError { Code = "Username already in use" });
 
             await _userCollection.CreateAsync(user);
 
             if (user.Email != null) await SetEmailAsync(user, user.Email, cancellationToken);
 
-            user.State = ZenUser.EState.Initialized; 
+            user.State = User.EState.Initialized; 
 
             await _userCollection.UpdateAsync(user);
             return IdentityResult.Success;

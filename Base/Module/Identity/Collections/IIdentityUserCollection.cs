@@ -4,7 +4,7 @@ using Zen.Base.Module.Identity.Model;
 
 namespace Zen.Base.Module.Identity.Collections
 {
-    public interface IIdentityUserCollection<TUser> where TUser : ZenUser
+    public interface IIdentityUserCollection<TUser> where TUser : User
     {
         Task<TUser> FindByEmailAsync(string normalizedEmail);
         Task<TUser> FindByUserNameAsync(string username);

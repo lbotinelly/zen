@@ -4,8 +4,8 @@ using Bogus.DataSets;
 using Microsoft.AspNetCore.Mvc;
 using SimpleWebApp.Models;
 using Zen.Base.Module.Data;
-using Zen.Module.Web.REST.Controller;
-using Zen.Module.Web.REST.Controller.Attributes;
+using Zen.Web.Controller;
+using Zen.Web.Controller.Attributes;
 
 namespace SimpleWebApp.Controllers
 {

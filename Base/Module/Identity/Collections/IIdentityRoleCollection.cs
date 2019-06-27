@@ -4,7 +4,7 @@ using Zen.Base.Module.Identity.Model;
 
 namespace Zen.Base.Module.Identity.Collections
 {
-    public interface IIdentityRoleCollection<TRole> where TRole : ZenRole
+    public interface IIdentityRoleCollection<TRole> where TRole : Role
     {
         Task<TRole> FindByNameAsync(string normalizedName);
         Task<TRole> FindByIdAsync(string roleId);
