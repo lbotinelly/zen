@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using Zen.Base.Startup;
+using Zen.Base.Service;
 using Zen.Web.Service;
 
 namespace Zen.Web.Startup

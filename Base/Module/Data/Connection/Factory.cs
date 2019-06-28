@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Zen.Base.DependencyInjection;
-using Zen.Base.DependencyInjection;
+using Zen.Base.Extension;
 using Zen.Base.Internal;
 
 namespace Zen.Base.Module.Data.Connection
@@ -10,11 +9,11 @@ namespace Zen.Base.Module.Data.Connection
     public static class Factory
     {
         private static readonly Dictionary<ConnectionBundlePrimitive, CredentialSetPrimitive> Cache = new Dictionary<ConnectionBundlePrimitive, CredentialSetPrimitive>();
-        private static readonly object OLock = new object();
+        private static readonly object Lock = new object();
 
         public static CredentialSetPrimitive GetCredentialSetPerConnectionBundle(ConnectionBundlePrimitive pConn, Type pPrefCredSetType = null)
         {
-            lock (OLock)
+            lock (Lock)
             {
                 if (pPrefCredSetType == null)
                     if (Cache.ContainsKey(pConn))

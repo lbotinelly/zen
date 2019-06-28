@@ -21,6 +21,9 @@ namespace Zen.Base
 
         public static void Start()
         {
+
+            Status.SetState(Status.EState.Starting);
+
             Instances.ServiceData.StartTimeStamp = DateTime.Now;
 
             foreach (var ba in StartupSequence.Actions) try { ba(); } catch (Exception e) { Current.Log.Add(e); }
@@ -28,6 +31,9 @@ namespace Zen.Base
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             DumpStartInfo();
+
+            Status.SetState(Status.EState.Running);
+
         }
 
         private static void DumpStartInfo()
@@ -59,7 +65,7 @@ namespace Zen.Base
 
             if (Status.State == Status.EState.Shuttingdown) return;
 
-            Status.ChangeState(Status.EState.Shuttingdown);
+            Status.SetState(Status.EState.Shuttingdown);
 
             Instances.ServiceData.EndTimeStamp = DateTime.Now;
 
@@ -117,7 +123,8 @@ namespace Zen.Base
         public static void InitializeServices()
         {
             var providers = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
-            foreach (var zenService in providers) ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
+            foreach (var zenService in providers)
+                ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
         }
 
         public class ActionQueue

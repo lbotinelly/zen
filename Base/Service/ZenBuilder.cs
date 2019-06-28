@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Zen.Base.Startup
+namespace Zen.Base.Service
 {
     public class ZenBuilder : IZenBuilder
     {

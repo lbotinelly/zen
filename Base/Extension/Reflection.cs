@@ -273,15 +273,11 @@ namespace Zen.Base.Extension
         {
             try { return (T) Activator.CreateInstance(typeRef); } catch (Exception e)
             {
-                var refE = e;
+                var referenceException = e;
 
-                if (e.InnerException == null) throw refE;
+                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
 
-                refE = e.InnerException;
-
-                if (e.InnerException.InnerException != null) refE = e.InnerException.InnerException;
-
-                throw refE;
+                throw referenceException;
             }
         }
 

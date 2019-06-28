@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Module.Identity.Extensions;
 using Zen.Base.Module.Identity.Model;
 
-namespace Zen.Base.Startup
+namespace Zen.Base.Service
 {
     public static class ZenAddExtensions
     {

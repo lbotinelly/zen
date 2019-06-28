@@ -12,6 +12,6 @@
 
         public static EState State { get; internal set; }
 
-        internal static void ChangeState(EState newState) { State = newState; }
+        internal static void SetState(EState newState) { State = newState; }
     }
 }

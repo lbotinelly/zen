@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -8,6 +10,8 @@ namespace Zen.Base.Module.Log
     public abstract class LogProvider : ILogProvider
     {
         private Logger _logger;
+
+        protected LogProvider() { }
 
         public virtual Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Debug;
 
@@ -61,8 +65,33 @@ namespace Zen.Base.Module.Log
             Add(payload);
         }
 
-        public virtual void Add(Message m)
+        public static List<Message> _queue = new List<Message>();
+
+        public void FlushQueue()
         {
+            foreach (var message in _queue)
+            {
+                Pipeline(message);
+            }
+
+            _queue.Clear();
+        }
+
+        public virtual void Add(Message message)
+        {
+            if (_logger != null)
+            {
+                Pipeline(message);
+                return;
+            }
+
+            _queue.Add(message);
+        }
+
+        public virtual void Pipeline(Message m)
+        {
+
+
             var targetLevel = LogEventLevel.Debug;
 
             switch (m.Type)
@@ -105,6 +134,7 @@ namespace Zen.Base.Module.Log
             //_logger.Log(targetLevel, m.Content, m);
         }
 
+
         public void Initialize()
         {
             Events.StartupSequence.Actions.Add(Start);
@@ -133,6 +163,8 @@ namespace Zen.Base.Module.Log
                 .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
                 .MinimumLevel.Debug()
                 .CreateLogger();
+
+            FlushQueue();
         }
 
         public virtual void Shutdown() { Serilog.Log.CloseAndFlush(); }

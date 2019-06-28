@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Common;
-using Zen.Base.DependencyInjection;
+using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Default;
@@ -40,6 +40,9 @@ namespace Zen.Base.Internal
                 configurationPackage = (Management.GetClassesByInterface<IConfigurationPackage>(false).FirstOrDefault() ?? typeof(DefaultSettingsPackage)).CreateInstance<IConfigurationPackage>();
 
                 serviceCollection.AddSingleton<IConfigurationPackage>(configurationPackage);
+
+                var a = configurationPackage.Log ?? Management.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>();
+                var b = configurationPackage.Cache ?? Management.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()?.CreateInstance<ICacheProvider>();
 
                 serviceCollection.AddSingleton(s => configurationPackage.Log ?? Management.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>());
                 serviceCollection.AddSingleton(s => configurationPackage.Cache ?? Management.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()?.CreateInstance<ICacheProvider>());

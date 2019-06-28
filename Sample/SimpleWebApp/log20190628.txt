@@ -86,3 +86,47 @@
 2019-06-28 13:14:37.943 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
 2019-06-28 13:14:37.943 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
 2019-06-28 13:14:37.945 -04:00 [INF] sampleModel : Ready
+2019-06-28 13:16:00.457 -04:00 [INF] Zen 1.0.0.0
+2019-06-28 13:16:00.506 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 13:16:00.507 -04:00 [DBG] 
+2019-06-28 13:16:00.508 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-28 13:16:00.509 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-28 13:16:00.510 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-28 13:16:00.511 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-28 13:16:00.512 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-28 13:16:00.513 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-28 13:16:00.514 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-28 13:16:00.515 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-28 13:16:00.516 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-28 13:16:00.517 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 13:16:00.530 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-28 13:16:00.532 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-28 13:16:00.811 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-28 13:16:00.812 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-28 13:16:00.833 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-28 13:16:00.872 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-28 13:16:00.873 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-28 13:16:00.874 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-28 13:16:00.875 -04:00 [INF] sampleModel : Ready
+2019-06-28 13:16:46.273 -04:00 [INF] Zen 1.0.0.0
+2019-06-28 13:16:46.327 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 13:16:46.328 -04:00 [DBG] 
+2019-06-28 13:16:46.330 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-28 13:16:46.334 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-28 13:16:46.339 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-28 13:16:46.341 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-28 13:16:46.343 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-28 13:16:46.344 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-28 13:16:46.346 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-28 13:16:46.347 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-28 13:16:46.348 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-28 13:16:46.350 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 13:16:46.363 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-28 13:16:46.365 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-28 13:16:46.647 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-28 13:16:46.650 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-28 13:16:46.671 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-28 13:16:46.711 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-28 13:16:46.713 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-28 13:16:46.714 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-28 13:16:46.716 -04:00 [INF] sampleModel : Ready

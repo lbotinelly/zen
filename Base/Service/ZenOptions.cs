@@ -1,4 +1,4 @@
-﻿namespace Zen.Base.Startup
+﻿namespace Zen.Base.Service
 {
     public class ZenOptions
     {

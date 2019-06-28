@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Zen.Base.Startup;
+using Zen.Base.Service;
 
 namespace Zen.Web.Startup
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace Zen.Base.Startup
+namespace Zen.Base.Service
 {
     public interface IZenBuilder
     {
