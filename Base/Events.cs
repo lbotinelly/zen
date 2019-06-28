@@ -23,8 +23,7 @@ namespace Zen.Base
         {
             Instances.ServiceData.StartTimeStamp = DateTime.Now;
 
-            foreach (var ba in StartupSequence.Actions)
-                try { ba(); } catch (Exception e) { Current.Log.Add(e); }
+            foreach (var ba in StartupSequence.Actions) try { ba(); } catch (Exception e) { Current.Log.Add(e); }
 
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
@@ -83,7 +82,7 @@ namespace Zen.Base
 
             if (_workerThread != null) return;
 
-            _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
+            _workerThread = new Thread(() => Shutdown(seconds)) { IsBackground = false };
             _workerThread.Start();
         }
 
@@ -117,9 +116,8 @@ namespace Zen.Base
 
         public static void InitializeServices()
         {
-            var providers = Instances.Services.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
-
-            foreach (var zenService in providers) ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
+            var providers = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
+            foreach (var zenService in providers) ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
         }
 
         public class ActionQueue

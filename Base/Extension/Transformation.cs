@@ -26,6 +26,8 @@ namespace Zen.Base.Extension
 
         private static readonly Random Rnd = new Random();
 
+        public static string FileWildcardToRegex(string pattern) => "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$";
+
         public static List<string> BlackListedModules = new List<string>
         {
             "System.Linq.Enumerable",

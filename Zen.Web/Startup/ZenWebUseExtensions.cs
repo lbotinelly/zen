@@ -19,14 +19,12 @@ namespace Zen.Web.Startup
 
             var builder = new ZenWebBuilder(app, options);
 
-            app.UseZen();
+            app.UseZen()
+                .UseAuthentication()
+                .UseHttpsRedirection()
+                .UseMvc();
 
-            app.UseAuthentication();
-
-            app.UseHttpsRedirection()
-                .UseMvc()
-                .UseStaticFiles();
-
+                //.UseStaticFiles();
                 //.UseSpaStaticFiles();
 
             //app.UseSpa(spa =>

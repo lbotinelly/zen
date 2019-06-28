@@ -1,0 +1,88 @@
+2019-06-28 11:28:59.110 -04:00 [INF] Zen 1.0.0.0
+2019-06-28 11:28:59.163 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 11:28:59.164 -04:00 [DBG] 
+2019-06-28 11:28:59.166 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-28 11:28:59.167 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-28 11:28:59.168 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-28 11:28:59.169 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-28 11:28:59.171 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-28 11:28:59.173 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-28 11:28:59.175 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-28 11:28:59.176 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-28 11:28:59.177 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-28 11:28:59.178 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 11:28:59.194 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-28 11:28:59.196 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-28 11:28:59.492 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-28 11:28:59.494 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-28 11:28:59.519 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-28 11:28:59.565 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-28 11:28:59.572 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-28 11:28:59.573 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-28 11:28:59.575 -04:00 [INF] sampleModel : Ready
+2019-06-28 11:33:35.720 -04:00 [INF] Zen 1.0.0.0
+2019-06-28 11:33:35.768 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 11:33:35.769 -04:00 [DBG] 
+2019-06-28 11:33:35.770 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-28 11:33:35.772 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-28 11:33:35.773 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-28 11:33:35.774 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-28 11:33:35.775 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-28 11:33:35.777 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-28 11:33:35.778 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-28 11:33:35.780 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-28 11:33:35.780 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-28 11:33:35.781 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 11:33:35.795 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-28 11:33:35.797 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-28 11:33:36.075 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-28 11:33:36.077 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-28 11:33:36.099 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-28 11:33:36.142 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-28 11:33:36.144 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-28 11:33:36.145 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-28 11:33:36.146 -04:00 [INF] sampleModel : Ready
+2019-06-28 11:36:02.871 -04:00 [INF] Zen 1.0.0.0
+2019-06-28 11:36:02.927 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 11:36:02.928 -04:00 [DBG] 
+2019-06-28 11:36:02.929 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-28 11:36:02.930 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-28 11:36:02.931 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-28 11:36:02.932 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-28 11:36:02.933 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-28 11:36:02.934 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-28 11:36:02.935 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-28 11:36:02.935 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-28 11:36:02.936 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-28 11:36:02.938 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 11:36:02.953 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-28 11:36:02.955 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-28 11:36:03.247 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-28 11:36:03.249 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-28 11:36:03.270 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-28 11:36:03.314 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-28 11:36:03.315 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-28 11:36:03.316 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-28 11:36:03.317 -04:00 [INF] sampleModel : Ready
+2019-06-28 13:14:37.512 -04:00 [INF] Zen 1.0.0.0
+2019-06-28 13:14:37.565 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 13:14:37.566 -04:00 [DBG] 
+2019-06-28 13:14:37.568 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-06-28 13:14:37.570 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-06-28 13:14:37.572 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-06-28 13:14:37.574 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-06-28 13:14:37.575 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-06-28 13:14:37.576 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-06-28 13:14:37.578 -04:00 [DBG]       Application : SimpleWebApp
+2019-06-28 13:14:37.578 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-06-28 13:14:37.579 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-06-28 13:14:37.580 -04:00 [DBG] ________________________________________________________________________________
+2019-06-28 13:14:37.593 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-06-28 13:14:37.595 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-06-28 13:14:37.875 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-06-28 13:14:37.877 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-06-28 13:14:37.898 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-06-28 13:14:37.940 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-06-28 13:14:37.943 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-06-28 13:14:37.943 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-06-28 13:14:37.945 -04:00 [INF] sampleModel : Ready

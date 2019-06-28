@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Zen.Base.Common;
 
-namespace Zen.Base.Assembly
+namespace Zen.Base.Internal
 {
     public static class Management
     {
@@ -18,9 +18,6 @@ namespace Zen.Base.Assembly
 
         private static readonly ConcurrentDictionary<Type, List<Type>> InterfaceClassesCache =
             new ConcurrentDictionary<Type, List<Type>>();
-
-        private static readonly List<FileSystemWatcher> FsMonitors = new List<FileSystemWatcher>();
-        private static readonly List<string> WatchedSources = new List<string>();
 
         public static readonly ConcurrentDictionary<string, string> UniqueAssemblies =
             new ConcurrentDictionary<string, string>();
@@ -89,7 +86,8 @@ namespace Zen.Base.Assembly
                 {
                     errCount = 0;
 
-                    try { item.Value.GetTypes(); } catch (Exception e)
+                    try { item.Value.GetTypes(); }
+                    catch (Exception e)
                     {
                         if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
                         {
@@ -130,10 +128,6 @@ namespace Zen.Base.Assembly
             }
             else
             {
-                if (WatchedSources.Contains(path)) return;
-                WatchedSources.Add(path);
-
-                AppDomain.CurrentDomain.SetShadowCopyPath(path);
 
                 var attr = File.GetAttributes(path);
 
@@ -144,128 +138,38 @@ namespace Zen.Base.Assembly
 
                     var assylist = Directory.GetFiles(path, "*.dll");
 
-                    foreach (var dll in assylist) LoadAssemblyFromPath(dll);
-
-                    var watcher = new FileSystemWatcher
-                    {
-                        Path = path,
-                        IncludeSubdirectories = false,
-                        NotifyFilter = NotifyFilters.LastWrite,
-                        Filter = "*.*"
-                    };
-                    watcher.Changed += FileSystemWatcher_OnChanged;
-                    watcher.EnableRaisingEvents = true;
-
-                    FsMonitors.Add(watcher);
-
+                    foreach (var dll in assylist) LoadAssembly(dll);
                     //Modules.Log.System.Add($"    Watching {path}", Message.EContentType.Info);
                 }
                 else
                 {
                     //It's a file: Load it directly.
-                    LoadAssemblyFromPath(path);
+                    LoadAssembly(path);
                 }
             }
         }
 
-        public static void MonitorFile(string path)
+
+        private static void LoadAssembly(string physicalPath)
         {
-            var _path = path;
-            var filter = "*.*";
-
-            var attr = File.GetAttributes(path);
-
-            //detect whether its a directory or file
-            if ((attr & FileAttributes.Directory) != FileAttributes.Directory)
-            {
-                var fileinfo = new FileInfo(path);
-
-                _path = fileinfo.DirectoryName;
-                filter = fileinfo.Name;
-            }
-
-            var watcher = new FileSystemWatcher
-            {
-                Path = _path,
-                IncludeSubdirectories = false,
-                NotifyFilter = NotifyFilters.LastWrite,
-                Filter = filter
-            };
-
-            watcher.Changed += FileSystemWatcher_OnChanged;
-            watcher.EnableRaisingEvents = true;
-
-            FsMonitors.Add(watcher);
-
-            //Modules.Log.System.Add("Monitoring [" + path + "]", Message.EContentType.StartupSequence);
-        }
-
-        public static string WildcardToRegex(string pattern) { return "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$"; }
-
-        private static void FileSystemWatcher_OnChanged(object sender, FileSystemEventArgs e)
-        {
-            if (Status.State == Status.EState.Shuttingdown) return;
-
-            var name = Path.GetFileName(e.FullPath);
-
-            foreach (var i in MonitorWhiteList)
-                if (i.IndexOf("*", StringComparison.Ordinal) != -1)
-                {
-                    var match = i.Replace("*.", "");
-
-                    //TODO: Improve wildcard detection
-                    if (name.IndexOf(match) > -1) return;
-                }
-                else if (i.Equals(name)) { return; }
-
-            // No need for system monitors anymore, better to interrupt and dispose all of them.
-            foreach (var i in FsMonitors)
-            {
-                i.EnableRaisingEvents = false;
-                i.Changed -= FileSystemWatcher_OnChanged;
-                i.Dispose();
-            }
-
-            FsMonitors.Clear();
-
-            Status.ChangeState(Status.EState.Shuttingdown);
-
-            //Current.Log.UseScheduler = false;
-            //Current.Log.Add("[" + e.FullPath + "]: Change detected", Message.EContentType.ShutdownSequence);
-            //Modules.Log.System.Add("[" + e.FullPath + "]: Change detected", Message.EContentType.ShutdownSequence);
-
-            //For Web apps
-            try
-            {
-                //HttpRuntime.UnloadAppDomain();
-            } catch { }
-
-            //For WinForm apps
-            try
-            {
-                //Application.Restart(); Environment.Exit(0);
-            } catch { }
-        }
-
-        private static void LoadAssemblyFromPath(string path)
-        {
-            if (path == null) return;
+            if (physicalPath == null) return;
 
             try
             {
-                var p = Path.GetFileName(path);
+                var p = Path.GetFileName(physicalPath);
 
                 if (UniqueAssemblies.ContainsKey(p)) return;
 
-                UniqueAssemblies.TryAdd(p, path);
+                UniqueAssemblies.TryAdd(p, physicalPath);
 
-                var assy = System.Reflection.Assembly.LoadFrom(path);
+                var assy = System.Reflection.Assembly.LoadFrom(physicalPath);
 
                 lock (Lock)
                 {
                     if (!AssemblyCache.ContainsKey(assy.ToString())) AssemblyCache.TryAdd(assy.ToString(), assy);
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 if (e is ReflectionTypeLoadException exception)
                 {
@@ -300,7 +204,8 @@ namespace Zen.Base.Assembly
                                                   || type.BaseType == refType));
 
                 return classCol;
-            } catch (ReflectionTypeLoadException ex)
+            }
+            catch (ReflectionTypeLoadException ex)
             {
                 foreach (var item in ex.LoaderExceptions)
                 {
@@ -308,7 +213,8 @@ namespace Zen.Base.Assembly
                 }
 
                 throw ex;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 //Current.Log.Add($"GetClassesByBaseClass ERR for {refType.Name}: {ex.Message}", Message.EContentType.Warning);
                 throw ex;
@@ -326,22 +232,24 @@ namespace Zen.Base.Assembly
                 try
                 {
                     foreach (var asy in AssemblyCache.Values.ToList())
-                    foreach (var st in asy.GetTypes())
-                    {
-                        if (st.BaseType == null) continue;
-                        if (!st.BaseType.IsGenericType) continue;
-                        if (st == refType) continue;
-
-                        try
+                        foreach (var st in asy.GetTypes())
                         {
-                            foreach (var gta in st.BaseType.GenericTypeArguments)
-                                if (gta == refType)
-                                    classCol.Add(st);
-                        } catch { }
-                    }
+                            if (st.BaseType == null) continue;
+                            if (!st.BaseType.IsGenericType) continue;
+                            if (st == refType) continue;
+
+                            try
+                            {
+                                foreach (var gta in st.BaseType.GenericTypeArguments)
+                                    if (gta == refType)
+                                        classCol.Add(st);
+                            }
+                            catch { }
+                        }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     // Current.Log.Add(e);
                 }
@@ -376,7 +284,8 @@ namespace Zen.Base.Assembly
 
                     Type[] preTypes;
 
-                    try { preTypes = item.GetTypes(); } catch (Exception e)
+                    try { preTypes = item.GetTypes(); }
+                    catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException)
                         {
@@ -411,7 +320,7 @@ namespace Zen.Base.Assembly
 
                     var attrs = item.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault();
 
-                    if (attrs != null) level = ((PriorityAttribute) attrs).Level;
+                    if (attrs != null) level = ((PriorityAttribute)attrs).Level;
 
                     priorityList.Add(new KeyValuePair<int, Type>(level, item));
                 }
@@ -423,75 +332,6 @@ namespace Zen.Base.Assembly
                 var ret = priorityList.Select(item => item.Value).ToList();
 
                 InterfaceClassesCache.TryAdd(type, ret); // Caching results, so similar queries will return from cache
-
-                return ret;
-            }
-        }
-
-        public static List<Type> GetClassesByInterface<T, TU>(bool excludeCoreNullDefinitions = true)
-        {
-            lock (Lock)
-            {
-                var typeT = typeof(T);
-                var typeU = typeof(TU);
-                var preRet = new List<Type>();
-
-                //Modules.Log.System.Add("Scanning for " + typeT + "+" + typeU);
-
-                foreach (var item in AssemblyCache.Values)
-                {
-                    if (excludeCoreNullDefinitions && item == System.Reflection.Assembly.GetExecutingAssembly()) continue;
-
-                    Type[] preTypes;
-
-                    try { preTypes = item.GetTypes(); } catch (Exception e)
-                    {
-                        if (e is ReflectionTypeLoadException typeLoadException)
-                        {
-                            var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
-
-                            //if (loaderExceptions.Count > 0) Modules.Log.System.Add("    Fail " + item + ": " + loaderExceptions[0].Message);
-                            //else Modules.Log.System.Add("    Fail " + item + ": Undefined.");
-                        }
-
-                        // Well, this loading can fail by a (long) variety of reasons. 
-                        // It's not a real problem not to catch exceptions here. 
-                        continue;
-                    }
-
-                    foreach (var item3 in preTypes)
-                    {
-                        if (item3.IsInterface) continue;
-
-                        if (!typeT.IsAssignableFrom(item3)) continue;
-                        if (!typeU.IsAssignableFrom(item3)) continue;
-
-                        if (typeT == item3) continue;
-                        if (typeU != item3) preRet.Add(item3);
-                    }
-                }
-
-                var priorityList = new List<KeyValuePair<int, Type>>();
-
-                //Modules.Log.System.Add("    " + preRet.Count + " [" + typeT + "] items");
-
-                foreach (var item in preRet)
-                {
-                    var level = 0;
-
-                    var attrs = (PriorityAttribute) item.GetCustomAttributes(typeof(PriorityAttribute), true)
-                        .FirstOrDefault();
-
-                    if (attrs != null) level = attrs.Level;
-
-                    priorityList.Add(new KeyValuePair<int, Type>(level, item));
-                }
-
-                priorityList.Sort((firstPair, nextPair) => nextPair.Key - firstPair.Key);
-
-                //foreach (var item in priorityList) Modules.Log.System.Add("        " + item.Key + " " + item.Value.Name);
-
-                var ret = priorityList.Select(item => item.Value).ToList();
 
                 return ret;
             }

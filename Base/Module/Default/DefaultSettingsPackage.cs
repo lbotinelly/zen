@@ -10,7 +10,7 @@ using Zen.Base.Module.Log;
 namespace Zen.Base.Module.Default
 {
     [Priority(Level = -3)]
-    internal class DefaultSettingsPackage : IPackage
+    internal class DefaultSettingsPackage : IConfigurationPackage
     {
         public DefaultSettingsPackage()
         {

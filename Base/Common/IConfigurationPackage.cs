@@ -8,7 +8,7 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Common
 {
-    public interface IPackage
+    public interface IConfigurationPackage
     {
         ILogProvider Log { get; set; }
         ICacheProvider Cache { get; set; }

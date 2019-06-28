@@ -7,9 +7,13 @@ namespace Zen.Base.Startup
 {
     public static class ZenUseExtensions
     {
-        public static void UseZen(this IApplicationBuilder app) { app.UseZen(x => { }); }
+        public static IApplicationBuilder UseZen(this IApplicationBuilder app)
+        {
+            app.UseZen(x => { });
+            return app;
+        }
 
-        public static void UseZen(this IApplicationBuilder app, Action<IZenBuilder> configuration)
+        public static IApplicationBuilder UseZen(this IApplicationBuilder app, Action<IZenBuilder> configuration)
         {
             //if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
@@ -20,6 +24,8 @@ namespace Zen.Base.Startup
             var builder = new ZenBuilder(app, options);
 
             configuration.Invoke(builder);
+
+            return app;
         }
     }
 }

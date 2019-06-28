@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Zen.Base.Assembly
+namespace Zen.Base.DependencyInjection
 {
     public static class Extensions
     {
