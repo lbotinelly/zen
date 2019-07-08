@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Zen.Base.Extension;
-using Zen.Base.Internal;
+using Zen.Base.Module.Service;
 
 namespace Zen.Base.Module.Data.Connection
 {
@@ -29,7 +29,7 @@ namespace Zen.Base.Module.Data.Connection
 
                 if (pPrefCredSetType != null) probeTypes.Add(pPrefCredSetType);
 
-                var scanModules = Management.GetClassesByInterface<CredentialSetPrimitive>();
+                var scanModules = Resolution.GetClassesByInterface<CredentialSetPrimitive>();
 
                 probeTypes = probeTypes.Concat(scanModules).ToList();
 

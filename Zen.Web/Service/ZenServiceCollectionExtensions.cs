@@ -1,4 +1,4 @@
-﻿namespace Zen.Web.Startup
+﻿namespace Zen.Web.Service
 {
     public class ZenWebConfigureOptions
     {

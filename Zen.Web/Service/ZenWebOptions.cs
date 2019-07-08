@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 
-namespace Zen.Web.Startup
+namespace Zen.Web.Service
 {
     public class ZenWebOptions
     {
@@ -27,5 +27,6 @@ namespace Zen.Web.Startup
 
         public string SourcePath { get; set; }
         public bool UseHtml5 { get; set; }
+        public bool UseSpa { get; set; } = true;
     }
 }

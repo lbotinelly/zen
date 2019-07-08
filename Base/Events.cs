@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using Zen.Base.Common;
 using Zen.Base.Extension;
-using Zen.Base.Internal;
 using Zen.Base.Module.Log;
+using Zen.Base.Module.Service;
 
 namespace Zen.Base
 {

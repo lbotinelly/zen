@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Zen.Web.Startup
+namespace Zen.Web.Service
 {
     internal class LifetimeEventsHostedService : IHostedService
     {

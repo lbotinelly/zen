@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Zen.Web.Startup;
+using Zen.Web.Service;
 
-namespace Zen.Web.Startup
+namespace Zen.Web.Service
 {
     public interface IZenWebBuilder
     {

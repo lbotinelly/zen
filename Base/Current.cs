@@ -1,12 +1,12 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base.Internal;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
 using Zen.Base.Module.Identity;
 using Zen.Base.Module.Identity.Model;
 using Zen.Base.Module.Log;
+using Zen.Base.Module.Service;
 
 namespace Zen.Base
 {

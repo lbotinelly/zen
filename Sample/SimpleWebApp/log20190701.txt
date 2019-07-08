@@ -1,0 +1,44 @@
+2019-07-01 04:12:39.704 +00:00 [INF] Zen 1.0.0.0
+2019-07-01 04:12:39.773 +00:00 [DBG] ________________________________________________________________________________
+2019-07-01 04:12:39.773 +00:00 [DBG] 
+2019-07-01 04:12:39.774 +00:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-07-01 04:12:39.775 +00:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-07-01 04:12:39.776 +00:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-07-01 04:12:39.780 +00:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-07-01 04:12:39.784 +00:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-07-01 04:12:39.791 +00:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-07-01 04:12:39.793 +00:00 [DBG]       Application : SimpleWebApp
+2019-07-01 04:12:39.793 +00:00 [DBG]      App Location : /app/bin/Debug/netcoreapp2.2
+2019-07-01 04:12:39.793 +00:00 [DBG]          App Data : /app/bin/Debug/netcoreapp2.2/data
+2019-07-01 04:12:39.793 +00:00 [DBG] ________________________________________________________________________________
+2019-07-01 04:12:39.859 +00:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-07-01 04:12:39.861 +00:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-07-01 04:12:40.272 +00:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-07-01 04:12:40.274 +00:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-07-01 04:12:40.298 +00:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-07-01 04:12:40.358 +00:00 [DBG] Current.Environment.Current.Code : STA
+2019-07-01 04:12:40.358 +00:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-07-01 04:12:40.358 +00:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-07-01 04:12:40.359 +00:00 [INF] sampleModel : Ready
+2019-07-01 04:13:13.612 +00:00 [WRN] sampleModel: GET: A timeout occured after 30000ms selecting a server using CompositeServerSelector{ Selectors = MongoDB.Driver.MongoClient+AreSessionsSupportedServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } }. Client view of cluster state is { ClusterId : "1", ConnectionMode : "Automatic", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/localhost:27017" }", EndPoint: "Unspecified/localhost:27017", State: "Disconnected", Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. ---> System.Net.Sockets.SocketException: Cannot assign requested address
+   at System.Net.Sockets.Socket.BeginConnectEx(EndPoint remoteEP, Boolean flowContext, AsyncCallback callback, Object state)
+   at System.Net.Sockets.Socket.UnsafeBeginConnect(EndPoint remoteEP, AsyncCallback callback, Object state, Boolean flowContext)
+   at System.Net.Sockets.Socket.BeginConnect(EndPoint remoteEP, AsyncCallback callback, Object state)
+   at System.Net.Sockets.Socket.ConnectAsync(EndPoint remoteEP)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelperAsync(CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelperAsync(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.HeartbeatAsync(CancellationToken cancellationToken)", LastUpdateTimestamp: "2019-07-01T04:13:10.2154390Z" }] }.
+2019-07-01 04:13:13.707 +00:00 [ERR] sampleModel: UtfOiLsT : A timeout occured after 30000ms selecting a server using CompositeServerSelector{ Selectors = MongoDB.Driver.MongoClient+AreSessionsSupportedServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } }. Client view of cluster state is { ClusterId : "1", ConnectionMode : "Automatic", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/localhost:27017" }", EndPoint: "Unspecified/localhost:27017", State: "Disconnected", Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server. ---> System.Net.Sockets.SocketException: Cannot assign requested address
+   at System.Net.Sockets.Socket.BeginConnectEx(EndPoint remoteEP, Boolean flowContext, AsyncCallback callback, Object state)
+   at System.Net.Sockets.Socket.UnsafeBeginConnect(EndPoint remoteEP, AsyncCallback callback, Object state, Boolean flowContext)
+   at System.Net.Sockets.Socket.BeginConnect(EndPoint remoteEP, AsyncCallback callback, Object state)
+   at System.Net.Sockets.Socket.ConnectAsync(EndPoint remoteEP)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.ConnectAsync(Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelperAsync(CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelperAsync(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.HeartbeatAsync(CancellationToken cancellationToken)", LastUpdateTimestamp: "2019-07-01T04:13:10.2154390Z" }] }.Zen.Web.dll - Zen.Web.Controller.DataController`1:GetCollection[L170 C17] > Zen.Base.Module.Data`1:Query[L412 C70] > Query[L430 C13] > Zen.Module.Data.MongoDB.MongoDbAdapter:Query[L220 C13] > Collection[L293 C17] > MongoDB.Driver.MongoIndexManagerBase`1:CreateOne > MongoDB.Driver.MongoCollectionImpl`1+MongoIndexManager:CreateMany > MongoDB.Driver.MongoCollectionImpl`1:UsingImplicitSession > MongoDB.Driver.OperationExecutor:StartImplicitSession > MongoDB.Driver.MongoClient:AreSessionsSupported > AreSessionsSupportedAfterServerSelection > MongoDB.Driver.Core.Clusters.Cluster:SelectServer > WaitForDescriptionChanged > MongoDB.Driver.Core.Clusters.Cluster+WaitForDescriptionChangedHelper:HandleCompletedTask > MongoDB.Driver.Core.Clusters.Cluster:ThrowTimeoutException

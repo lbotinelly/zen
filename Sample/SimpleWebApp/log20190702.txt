@@ -1,0 +1,22 @@
+2019-07-02 18:54:44.902 -04:00 [INF] Zen 1.0.0.0
+2019-07-02 18:54:44.964 -04:00 [DBG] ________________________________________________________________________________
+2019-07-02 18:54:44.966 -04:00 [DBG] 
+2019-07-02 18:54:44.969 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-07-02 18:54:44.971 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-07-02 18:54:44.972 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-07-02 18:54:44.976 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-07-02 18:54:44.986 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-07-02 18:54:44.991 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-07-02 18:54:45.007 -04:00 [DBG]       Application : SimpleWebApp
+2019-07-02 18:54:45.009 -04:00 [DBG]      App Location : E:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-07-02 18:54:45.011 -04:00 [DBG]          App Data : E:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-07-02 18:54:45.013 -04:00 [DBG] ________________________________________________________________________________
+2019-07-02 18:54:45.092 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-07-02 18:54:45.102 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-07-02 18:54:45.665 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-07-02 18:54:45.766 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-07-02 18:54:45.781 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-07-02 18:54:45.838 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-07-02 18:54:45.851 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-07-02 18:54:45.856 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-07-02 18:54:45.858 -04:00 [INF] sampleModel : Ready

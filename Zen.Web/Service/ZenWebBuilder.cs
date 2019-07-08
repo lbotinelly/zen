@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Zen.Web.Startup
+namespace Zen.Web.Service
 {
     public class ZenWebBuilder : IZenWebBuilder
     {

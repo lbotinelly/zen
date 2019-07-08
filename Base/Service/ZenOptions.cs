@@ -9,5 +9,8 @@
         public ZenOptions(ZenOptions value) { this.value = value; }
 
         public string DefaultScheme { get; set; }
+        public int MaxParallelProcesses { get; set; }
     }
+
+    public interface IZenOption { }
 }

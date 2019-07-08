@@ -6,21 +6,22 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Zen.Base.Common;
+using Zen.Base.Extension;
 
-namespace Zen.Base.Internal
+namespace Zen.Base.Module.Service
 {
-    public static class Management
+    public static class Resolution
     {
+        public static List<T> GetInstances<T>() where T : class
+        {
+            return GetClassesByInterface<T>().Select(i => i.CreateInstance<T>()).ToList();
+        }
+
         private static readonly object Lock = new object();
 
-        public static readonly ConcurrentDictionary<string, System.Reflection.Assembly> AssemblyCache =
-            new ConcurrentDictionary<string, System.Reflection.Assembly>();
-
-        private static readonly ConcurrentDictionary<Type, List<Type>> InterfaceClassesCache =
-            new ConcurrentDictionary<Type, List<Type>>();
-
-        public static readonly ConcurrentDictionary<string, string> UniqueAssemblies =
-            new ConcurrentDictionary<string, string>();
+        public static readonly ConcurrentDictionary<string, Assembly> AssemblyCache = new ConcurrentDictionary<string, Assembly>();
+        public static readonly ConcurrentDictionary<string, string> UniqueAssemblies = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<Type, List<Type>> InterfaceClassesCache = new ConcurrentDictionary<Type, List<Type>>();
 
         private static readonly List<string> MonitorWhiteList = new List<string>
         {
@@ -34,24 +35,13 @@ namespace Zen.Base.Internal
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        static Management()
+        static Resolution()
         {
             //Modules.Log.System.Add("Warm-up START", Message.EContentType.StartupSequence);
 
-#pragma warning disable 618
-            AppDomain.CurrentDomain.SetShadowCopyFiles();
-
-            var targetScDir = $"{Configuration.DataDirectory}{Path.DirectorySeparatorChar}sc";
-
-            if (!Directory.Exists(targetScDir)) Directory.CreateDirectory(targetScDir);
-
-            AppDomain.CurrentDomain.SetCachePath(targetScDir);
-
-#pragma warning restore 618
-
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-            var self = System.Reflection.Assembly.GetEntryAssembly();
+            var self = Assembly.GetEntryAssembly();
 
             if (self != null) AssemblyCache.TryAdd(self.ToString(), self);
 
@@ -62,14 +52,11 @@ namespace Zen.Base.Internal
             //2nd cycle: Directories/assemblies referenced by system
 
             //    First by process-specific variables...
-            LoadAssembliesFromDirectory(
-                Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Process));
+            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Process));
             //    then by user-specific variables...
-            LoadAssembliesFromDirectory(
-                Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.User));
+            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.User));
             //    and finally system-wide variables.
-            LoadAssembliesFromDirectory(
-                Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Machine));
+            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Machine));
 
             //Now try to load:
 
@@ -91,7 +78,7 @@ namespace Zen.Base.Internal
                     {
                         if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
                         {
-                            //foreach (var exSub in ((ReflectionTypeLoadException) e).LoaderExceptions) Modules.Log.System.Add(exSub.Message, Message.EContentType.Warning);
+                            // foreach (var exSub in ((ReflectionTypeLoadException) e).LoaderExceptions) Modules.Log.System.Add(exSub.Message, Message.EContentType.Warning);
                         }
 
                         errCount++;
@@ -100,19 +87,12 @@ namespace Zen.Base.Internal
             }
         }
 
-        private static System.Reflection.Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }
+        private static Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }
 
-        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            //if (args.RequestingAssembly != null) Modules.Log.System.Add("        " + args.RequestingAssembly.FullName + ": Resolution request");
-
-            //Modules.Log.System.Add("            Resolving " + args.Name);
             var shortName = args.Name.Split(',')[0];
-
             var probe = GetAssemblyByName(shortName);
-
-            //if (probe == null) Modules.Log.System.Add("            [ERR] NOT FOUND");
-            //else Modules.Log.System.Add("            OK      : " + probe);
             return probe;
         }
 
@@ -162,7 +142,7 @@ namespace Zen.Base.Internal
 
                 UniqueAssemblies.TryAdd(p, physicalPath);
 
-                var assy = System.Reflection.Assembly.LoadFrom(physicalPath);
+                var assy = Assembly.LoadFrom(physicalPath);
 
                 lock (Lock)
                 {
@@ -188,7 +168,7 @@ namespace Zen.Base.Internal
             {
                 var classCol = new List<Type>();
 
-                var assySource = new List<System.Reflection.Assembly>();
+                var assySource = new List<Assembly>();
 
                 if (limitToMainAssembly) assySource.Add(Configuration.ApplicationAssembly);
                 else
@@ -280,7 +260,7 @@ namespace Zen.Base.Internal
 
                 foreach (var item in AssemblyCache.Values)
                 {
-                    if (excludeCoreNullDefinitions && item == System.Reflection.Assembly.GetExecutingAssembly()) continue;
+                    if (excludeCoreNullDefinitions && item == Assembly.GetExecutingAssembly()) continue;
 
                     Type[] preTypes;
 

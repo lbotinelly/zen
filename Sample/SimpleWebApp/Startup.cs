@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Web.Startup;
+using Zen.Base.Service;
 
 namespace SimpleWebApp
 {
@@ -15,13 +15,13 @@ namespace SimpleWebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddZenWeb();
+            services.AddZen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseZenWeb(options => { options.Options.UseHtml5 = true; }, env);
+            app.UseZen(cfg => { cfg.Options.MaxParallelProcesses = 5;});
         }
     }
 }

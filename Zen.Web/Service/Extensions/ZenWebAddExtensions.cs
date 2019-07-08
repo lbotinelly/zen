@@ -5,18 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Zen.Base.Service;
-using Zen.Web.Service;
 
-namespace Zen.Web.Startup
+namespace Zen.Web.Service.Extensions
 {
-    public static class ZenWebAddExtensions
+    public static class Add
     {
-        public static ZenWebBuilder AddZenWeb(this IServiceCollection services)
+        public static ZenWebBuilder AddZenWeb(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services
-                .AddZen();
+            configureOptions = configureOptions ?? new Action<ZenWebConfigureOptions>(x => { });
 
             services
                 .AddMvc()
@@ -41,7 +39,7 @@ namespace Zen.Web.Startup
                 .AddXmlSerializerFormatters()
                 ;
 
-            //services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
+            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 
             services.AddAuthentication(options =>
             {
@@ -49,18 +47,9 @@ namespace Zen.Web.Startup
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             }).AddCookie();
 
-
             services.AddTransient<IEmailSender, EmailSender>();
 
-            return new ZenWebBuilder(services);
-        }
-
-        public static ZenWebBuilder AddZenWeb(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions)
-        {
-            if (services == null) throw new ArgumentNullException(nameof(services));
-
-
-            var builder = services.AddZenWeb();
+            var builder = new ZenWebBuilder(services);
 
             if (configureOptions != null) services.Configure(configureOptions);
 

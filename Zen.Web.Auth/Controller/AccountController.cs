@@ -178,7 +178,6 @@ namespace Zen.Web.Auth.Controller
         [HttpGet, AllowAnonymous]
         public async Task<IActionResult> RegisterFake()
         {
-
             var refGuid = ShortGuid.NewGuid().ToString();
 
             var user = new User { UserName = refGuid, Email = $"{refGuid}@none.com" };
@@ -186,8 +185,6 @@ namespace Zen.Web.Auth.Controller
             var result = await _userManager.CreateAsync(user, "A1b2c3!");
 
             if (!result.Succeeded) return Response.FromObject(result);
-
-
 
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
 
@@ -208,8 +205,6 @@ namespace Zen.Web.Auth.Controller
 
             return Response.FromObject(user);
         }
-
-
 
         [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
