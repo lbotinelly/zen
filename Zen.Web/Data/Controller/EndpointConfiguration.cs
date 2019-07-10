@@ -1,6 +1,6 @@
-﻿using Zen.Web.Controller.Attributes;
+﻿using Zen.Web.Data.Controller.Attributes;
 
-namespace Zen.Web.Controller
+namespace Zen.Web.Data.Controller
 {
     public class EndpointConfiguration
     {

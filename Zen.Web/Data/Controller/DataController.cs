@@ -10,13 +10,13 @@ using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Identity;
 using Zen.Module.Web.Auth;
-using Zen.Web.Controller.Attributes;
+using Zen.Web.Data.Controller.Attributes;
 
 // ReSharper disable InconsistentlySynchronizedField
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable InconsistentNaming
 
-namespace Zen.Web.Controller
+namespace Zen.Web.Data.Controller
 {
     [Route("api/[controller]"), ApiController]
     public class DataController<T> : Microsoft.AspNetCore.Mvc.Controller where T : Data<T>

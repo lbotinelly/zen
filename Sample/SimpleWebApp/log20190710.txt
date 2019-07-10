@@ -1,0 +1,28 @@
+2019-07-10 10:41:31.487 -04:00 [INF] Zen 1.0.0.0
+2019-07-10 10:41:31.542 -04:00 [DBG] ________________________________________________________________________________
+2019-07-10 10:41:31.553 -04:00 [DBG] 
+2019-07-10 10:41:31.558 -04:00 [DBG]             Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-07-10 10:41:31.560 -04:00 [DBG]       Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-07-10 10:41:31.562 -04:00 [DBG]               Log : Zen.Base.Module.Default.NullLogProvider
+2019-07-10 10:41:31.563 -04:00 [DBG]        Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-07-10 10:41:31.564 -04:00 [DBG]     Authorization : Zen.Base.Module.Default.NullAuthorizationProvider
+2019-07-10 10:41:31.567 -04:00 [DBG] Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-07-10 10:41:31.568 -04:00 [DBG]       Application : SimpleWebApp
+2019-07-10 10:41:31.569 -04:00 [DBG]      App Location : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-07-10 10:41:31.570 -04:00 [DBG]          App Data : D:\repo\GitHub\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-07-10 10:41:31.574 -04:00 [DBG] ________________________________________________________________________________
+2019-07-10 10:41:31.592 -04:00 [WRN] sampleModel: No ConnectionCypherKeys for [STA] environment
+2019-07-10 10:41:31.594 -04:00 [WRN] sampleModel: Connection Cypher Key not set
+2019-07-10 10:41:31.929 -04:00 [INF] MONGODB_CLIENT_REGISTER (anonymous) @ localhost
+2019-07-10 10:41:31.931 -04:00 [DBG] sampleModel: Client for mongodb://localhost:27017/default: @localhost
+2019-07-10 10:41:31.966 -04:00 [INF] SimpleWebApp.Models.sampleModel :default@localhost - REGISTERING
+2019-07-10 10:41:32.077 -04:00 [DBG] Current.Environment.Current.Code : STA
+2019-07-10 10:41:32.135 -04:00 [DBG] Settings.Bundle : MongoDbDefaultBundle
+2019-07-10 10:41:32.136 -04:00 [DBG] Settings.CredentialSet : CredentialSetPrimitive
+2019-07-10 10:41:32.138 -04:00 [INF] sampleModel : Ready
+2019-07-10 10:42:12.394 -04:00 [INF] Stack shutdown initiated: Process Exit
+2019-07-10 10:42:12.396 -04:00 [DBG]     Session Start : 7/10/2019 10:41:31 AM
+2019-07-10 10:42:12.398 -04:00 [DBG]       Session End : 7/10/2019 10:42:12 AM
+2019-07-10 10:42:12.399 -04:00 [DBG]  Session lifetime : 00:00:40.9786638
+2019-07-10 10:42:12.401 -04:00 [INF]   _|\_/|  ZZZzzz
+2019-07-10 10:42:12.402 -04:00 [INF] c(_(-.-)

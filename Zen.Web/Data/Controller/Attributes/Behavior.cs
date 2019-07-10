@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Zen.Web.Controller.Attributes
+namespace Zen.Web.Data.Controller.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class Behavior : Attribute

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using Zen.Base.Service;
 
 namespace Zen.Web.Service.Extensions
 {
@@ -14,7 +13,7 @@ namespace Zen.Web.Service.Extensions
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            configureOptions = configureOptions ?? new Action<ZenWebConfigureOptions>(x => { });
+            configureOptions = configureOptions ?? (x => { });
 
             services
                 .AddMvc()

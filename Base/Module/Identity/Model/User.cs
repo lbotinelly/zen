@@ -24,6 +24,8 @@ namespace Zen.Base.Module.Identity.Model
 
         [Key]
         public string Id { get; internal set; }
+        [Display]
+        public string UserName { get; set; }
         public EState State { get; set; } = EState.None;
         public string AuthenticatorKey { get; set; }
         public List<string> Roles { get; set; }
@@ -31,8 +33,6 @@ namespace Zen.Base.Module.Identity.Model
         public List<IdentityUserLogin<string>> Logins { get; set; }
         public List<IdentityUserToken<string>> Tokens { get; set; }
         public List<TwoFactorRecoveryCode> RecoveryCodes { get; set; }
-        [Display]
-        public string UserName { get; set; }
         public string Email { get; set; }
         public string NormalizedUserName { get; internal set; }
         public bool EmailConfirmed { get; internal set; }

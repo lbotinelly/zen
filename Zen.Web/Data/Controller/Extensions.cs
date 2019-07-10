@@ -7,7 +7,7 @@ using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Pipeline;
 
-namespace Zen.Web.Controller
+namespace Zen.Web.Data.Controller
 {
     public static class Extensions
     {
