@@ -271,7 +271,8 @@ namespace Zen.Base.Extension
 
         public static T CreateInstance<T>(this Type typeRef)
         {
-            try { return (T) Activator.CreateInstance(typeRef); } catch (Exception e)
+            try { return (T)Activator.CreateInstance(typeRef); }
+            catch (Exception e)
             {
                 var referenceException = e;
 

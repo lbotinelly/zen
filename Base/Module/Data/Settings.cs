@@ -24,10 +24,10 @@ namespace Zen.Base.Module.Data
 
         public ConnectionBundlePrimitive Bundle;
 
-        public Dictionary<string, string> ConnectionCypherKeys = new Dictionary<string, string>();
+        public Dictionary<string, string> ConnectionCypherKeys = null;
         public string ConnectionString;
 
-        public Dictionary<string, string> CredentialCypherKeys = new Dictionary<string, string>();
+        public Dictionary<string, string> CredentialCypherKeys = null;
         protected internal CredentialSetPrimitive CredentialSet;
 
         public string CredentialsString;

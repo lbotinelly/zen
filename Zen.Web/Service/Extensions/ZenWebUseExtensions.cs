@@ -19,15 +19,16 @@ namespace Zen.Web.Service.Extensions
 
             var builder = new ZenWebBuilder(app, options);
 
-
             app
                 .UseAuthentication()
                 .UseHttpsRedirection()
                 .UseMvc();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             if (options.UseSpa)
             {
-                app.UseStaticFiles();
 
                 // app.UseSpaStaticFiles();
 

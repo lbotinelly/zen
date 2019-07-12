@@ -18,6 +18,8 @@ namespace Zen.Base
             Events.Start();
         }
 
+        public static Status.EState State => Status.State;
+
         public static ICacheProvider Cache => _cacheProvider.Value;
         public static IEnvironmentProvider Environment => _environmentProvider.Value;
         public static IEncryptionProvider Encryption => _IEncryptionProvider.Value;

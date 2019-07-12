@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DnsClient;
 using Zen.Base;
+using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
@@ -68,8 +69,6 @@ namespace Zen.Module.Data.MongoDB
             _client = Instances.GetClient(statementsConnectionString);
             var server = _client.Settings.Servers.FirstOrDefault()?.Host;
 
-            Current.Log.Debug<T>($"Client for {statementsConnectionString}: {_client?.Settings?.Credential?.Username}@{server}");
-
             var dbname = MongoUrl.Create(statementsConnectionString).DatabaseName;
 
             if (SourceBundle is IStorageContainerResolver) dbname = ((IStorageContainerResolver)SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
@@ -87,7 +86,7 @@ namespace Zen.Module.Data.MongoDB
 
             Database = _client.GetDatabase(dbname);
 
-            Current.Log.Add($"{typeof(T).FullName} {Database.Client?.Settings?.Credential?.Username}:{Database?.DatabaseNamespace}@{server} - REGISTERING", Message.EContentType.StartupSequence);
+            // Current.Log.Add($"{typeof(T).FullName} {Database.Client?.Settings?.Credential?.Username}:{Database?.DatabaseNamespace}@{server} - REGISTERING", Message.EContentType.StartupSequence);
 
             _statements = Data<T>.Info<T>.Settings;
             _tabledata = Data<T>.Info<T>.Configuration;
@@ -130,7 +129,7 @@ namespace Zen.Module.Data.MongoDB
                             {
                                 if (!BsonClassMap.IsClassMapRegistered(type))
                                 {
-                                    Current.Log.Add("MongoDbinterceptor: Registering " + type.FullName);
+                                    // Current.Log.Add("MongoDbinterceptor: Registering " + type.FullName);
 
                                     var classMapDefinition = typeof(BsonClassMap<>);
                                     var classMapType = classMapDefinition.MakeGenericType(type);

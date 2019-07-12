@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Zen.Base.Service
+namespace Zen.Base.Service.Extensions
 {
     public static class Use
     {
@@ -27,6 +27,8 @@ namespace Zen.Base.Service
             var builder = new ZenBuilder(app, options);
 
             configuration.Invoke(builder);
+
+            Current.Log.Add(Current.State.ToString());
 
             return app;
         }

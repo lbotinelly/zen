@@ -6,7 +6,7 @@ namespace Zen.Base.Module.Data
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class DataConfigAttribute : Attribute
     {
-        public Dictionary<string, string> CredentialCypherKeys = new Dictionary<string, string>();
+        public Dictionary<string, string> CredentialCypherKeys = null;
         public bool AutoGenerateMissingSchema { get; set; } = true;
         public Type ConnectionBundleType { get; set; } = null;
         public string KeyName { get; set; }

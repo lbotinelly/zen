@@ -19,7 +19,7 @@ namespace Zen.Base
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e) { End("Process Exit"); }
 
-        public static void Start()
+        internal static void Start()
         {
 
             Status.SetState(Status.EState.Starting);
@@ -39,18 +39,22 @@ namespace Zen.Base
         private static void DumpStartInfo()
         {
             Current.Log.Info(@"Zen " + System.Reflection.Assembly.GetCallingAssembly().GetName().Version);
-            Current.Log.Debug("________________________________________________________________________________");
+            Current.Log.Debug("___________________________________________________________________________________________________");
             Current.Log.Debug("");
-            Current.Log.Debug($"            Cache : {(Current.Cache == null ? "(none)" : Current.Cache.ToString())}");
-            Current.Log.Debug($"      Environment : {(Current.Environment == null ? "(none)" : Current.Environment.ToString())}");
-            Current.Log.Debug($"              Log : {(Current.Log == null ? "(none)" : Current.Log.ToString())}");
-            Current.Log.Debug($"       Encryption : {(Current.Encryption == null ? "(none)" : Current.Encryption.ToString())}");
-            Current.Log.Debug($"    Authorization : {(Current.Authorization == null ? "(none)" : Current.Authorization.ToString())}");
-            Current.Log.Debug($"Global BundleType : {(Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString())}");
-            Current.Log.Debug($"      Application : {Configuration.ApplicationAssemblyName}");
-            Current.Log.Debug($"     App Location : {Configuration.BaseDirectory}");
-            Current.Log.Debug($"         App Data : {Configuration.DataDirectory}");
-            Current.Log.Debug("________________________________________________________________________________");
+            Current.Log.Debug("Providers:");
+            Current.Log.Debug($"            Cache : {(Current.Cache == null ? "(none)" : Current.Cache.ToString().TruncateEnd(80))}");
+            Current.Log.Debug($"      Environment : {(Current.Environment == null ? "(none)" : Current.Environment.ToString().TruncateEnd(80))}");
+            Current.Log.Debug($"              Log : {(Current.Log == null ? "(none)" : Current.Log.ToString().TruncateEnd(80))}");
+            Current.Log.Debug($"       Encryption : {(Current.Encryption == null ? "(none)" : Current.Encryption.ToString().TruncateEnd(80))}");
+            Current.Log.Debug($"    Authorization : {(Current.Authorization == null ? "(none)" : Current.Authorization.ToString().TruncateEnd(80))}");
+            Current.Log.Debug($"Global BundleType : {(Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString().TruncateEnd(80))}");
+            Current.Log.Debug($"      Application : {Configuration.ApplicationAssemblyName.TruncateEnd(80)}");
+            Current.Log.Debug($"     App Location : {Configuration.BaseDirectory.TruncateEnd(80)}");
+            Current.Log.Debug($"         App Data : {Configuration.DataDirectory.TruncateEnd(80)}");
+            Current.Log.Debug("");
+            Current.Log.Debug("State:");
+            Current.Log.Debug($"      Environment : {Current.Environment?.Current.ToString().TruncateEnd(80)}");
+            Current.Log.Debug("___________________________________________________________________________________________________");
         }
 
         private static void ExecuteShutdownSequenceActions()
@@ -120,7 +124,7 @@ namespace Zen.Base
             Current.Log.Add("CancelTakeDown successful.", Message.EContentType.ShutdownSequence);
         }
 
-        public static void InitializeServices()
+        internal static void InitializeServices()
         {
             var providers = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
             foreach (var zenService in providers)

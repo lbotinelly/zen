@@ -26,12 +26,14 @@ namespace Zen.Module.Data.MongoDB
 
                 Clients[key] = client;
 
-                string server;
+                string serverSuffix;
 
-                try { server = client.Settings.Servers.FirstOrDefault()?.Host; } catch (Exception) { server = client.Settings.Server.Host; }
-                if (server != null) server = " @ " + server;
+                try { serverSuffix = client.Settings.Servers.FirstOrDefault()?.Host; } catch (Exception) { serverSuffix = client.Settings.Server.Host; }
+                if (serverSuffix != null) serverSuffix = "@" + serverSuffix;
 
-                Current.Log.Add($"MONGODB_CLIENT_REGISTER {client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{server}", Message.EContentType.StartupSequence);
+                var credentialInfo = $"{client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{serverSuffix}";
+
+                Current.Log.Add($"{"MONGODB_CLIENT_REG".TruncateEnd(18, true)} : {credentialInfo.TruncateEnd(80)}", Message.EContentType.StartupSequence);
 
                 return client;
             }

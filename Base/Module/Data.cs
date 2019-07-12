@@ -41,8 +41,7 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(),
-                                                                                                 (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(), (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -221,7 +220,8 @@ namespace Zen.Base.Module
 
                     Current.Environment.EnvironmentChanged += Environment_EnvironmentChanged;
 
-                    foreach (var (key, value) in Info<T>.Settings.Statistics) Current.Log.Debug(key + " : " + value);
+                    foreach (var (key, value) in Info<T>.Settings.Statistics)
+                        Current.Log.Add($"{key.TruncateEnd(18, true)} : {value.TruncateEnd(80)}", Message.EContentType.StartupSequence);
 
                     Info<T>.Settings.State.Set<T>(Settings.EStatus.Operational, "Ready");
                 }
