@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Zen.Base.Module.Service;
 
 namespace Zen.Base.Service.Extensions
 {
@@ -10,19 +11,15 @@ namespace Zen.Base.Service.Extensions
     {
         public static IApplicationBuilder UseZen(this IApplicationBuilder app, Action<IZenBuilder> configuration = null, IHostingEnvironment env = null)
         {
+            configuration = configuration ?? (x => { });
 
-            configuration = configuration ?? new Action<IZenBuilder>(x => { });
-
-            Module.Service.Instances.ApplicationBuilder = app;
+            Instances.ApplicationBuilder = app;
 
             var optionsProvider = app.ApplicationServices.GetService<IOptions<ZenOptions>>();
 
             var options = new ZenOptions(optionsProvider.Value);
 
-            foreach (var item in Module.Service.Instances.AutoZenServices)
-            {
-                item.Use(app, env);
-            }
+            AutoService.UseAll(app, env);
 
             var builder = new ZenBuilder(app, options);
 

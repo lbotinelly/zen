@@ -1,32 +1,26 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base.Module.Identity.Extensions;
-using Zen.Base.Module.Identity.Model;
+using Zen.Base.Module.Service;
 
 namespace Zen.Base.Service.Extensions
 {
     public static class ZenAddExtensions
     {
-        public static ZenBuilder AddZen(this IServiceCollection services, string defaultScheme)
-        {
-            Module.Service.Instances.ServiceCollection = services;
-
-            return services.AddZen(o => o.DefaultScheme = defaultScheme);
-        }
+        public static ZenBuilder AddZen(this IServiceCollection services, string defaultScheme) { return services.AddZen(o => o.DefaultScheme = defaultScheme); }
 
         public static ZenBuilder AddZen(this IServiceCollection services, Action<ZenOptions> configureOptions = null)
         {
+            Instances.ServiceCollection = services;
+
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddZenIdentityProvider<User>();
+            // services.AddZenIdentityProvider<User>();
 
-            foreach (var item in Module.Service.Instances.AutoZenServices)
-                item.Add(services);
+            Current.State = Status.EState.Starting;
 
             var builder = new ZenBuilder(services);
 
-            if (configureOptions != null)
-                services.Configure(configureOptions);
+            if (configureOptions != null) services.Configure(configureOptions);
 
             return builder;
         }

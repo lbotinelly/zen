@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Zen.Base.Common;
 using Zen.Base.Extension;
 
@@ -12,11 +11,6 @@ namespace Zen.Base.Module.Service
 {
     public static class Resolution
     {
-        public static List<T> GetInstances<T>() where T : class
-        {
-            return GetClassesByInterface<T>().Select(i => i.CreateInstance<T>()).ToList();
-        }
-
         private static readonly object Lock = new object();
 
         public static readonly ConcurrentDictionary<string, Assembly> AssemblyCache = new ConcurrentDictionary<string, Assembly>();
@@ -73,8 +67,7 @@ namespace Zen.Base.Module.Service
                 {
                     errCount = 0;
 
-                    try { item.Value.GetTypes(); }
-                    catch (Exception e)
+                    try { item.Value.GetTypes(); } catch (Exception e)
                     {
                         if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
                         {
@@ -86,6 +79,8 @@ namespace Zen.Base.Module.Service
                 }
             }
         }
+
+        public static List<T> GetInstances<T>() where T : class { return GetClassesByInterface<T>(false).Select(i => i.CreateInstance<T>()).ToList(); }
 
         private static Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }
 
@@ -108,7 +103,6 @@ namespace Zen.Base.Module.Service
             }
             else
             {
-
                 var attr = File.GetAttributes(path);
 
                 //detect whether its a directory or file
@@ -129,7 +123,6 @@ namespace Zen.Base.Module.Service
             }
         }
 
-
         private static void LoadAssembly(string physicalPath)
         {
             if (physicalPath == null) return;
@@ -148,8 +141,7 @@ namespace Zen.Base.Module.Service
                 {
                     if (!AssemblyCache.ContainsKey(assy.ToString())) AssemblyCache.TryAdd(assy.ToString(), assy);
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 if (e is ReflectionTypeLoadException exception)
                 {
@@ -184,8 +176,7 @@ namespace Zen.Base.Module.Service
                                                   || type.BaseType == refType));
 
                 return classCol;
-            }
-            catch (ReflectionTypeLoadException ex)
+            } catch (ReflectionTypeLoadException ex)
             {
                 foreach (var item in ex.LoaderExceptions)
                 {
@@ -193,8 +184,7 @@ namespace Zen.Base.Module.Service
                 }
 
                 throw ex;
-            }
-            catch (Exception ex)
+            } catch (Exception ex)
             {
                 //Current.Log.Add($"GetClassesByBaseClass ERR for {refType.Name}: {ex.Message}", Message.EContentType.Warning);
                 throw ex;
@@ -212,24 +202,22 @@ namespace Zen.Base.Module.Service
                 try
                 {
                     foreach (var asy in AssemblyCache.Values.ToList())
-                        foreach (var st in asy.GetTypes())
-                        {
-                            if (st.BaseType == null) continue;
-                            if (!st.BaseType.IsGenericType) continue;
-                            if (st == refType) continue;
+                    foreach (var st in asy.GetTypes())
+                    {
+                        if (st.BaseType == null) continue;
+                        if (!st.BaseType.IsGenericType) continue;
+                        if (st == refType) continue;
 
-                            try
-                            {
-                                foreach (var gta in st.BaseType.GenericTypeArguments)
-                                    if (gta == refType)
-                                        classCol.Add(st);
-                            }
-                            catch { }
-                        }
+                        try
+                        {
+                            foreach (var gta in st.BaseType.GenericTypeArguments)
+                                if (gta == refType)
+                                    classCol.Add(st);
+                        } catch { }
+                    }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     // Current.Log.Add(e);
                 }
@@ -264,8 +252,7 @@ namespace Zen.Base.Module.Service
 
                     Type[] preTypes;
 
-                    try { preTypes = item.GetTypes(); }
-                    catch (Exception e)
+                    try { preTypes = item.GetTypes(); } catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException)
                         {
@@ -300,7 +287,7 @@ namespace Zen.Base.Module.Service
 
                     var attrs = item.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault();
 
-                    if (attrs != null) level = ((PriorityAttribute)attrs).Level;
+                    if (attrs != null) level = ((PriorityAttribute) attrs).Level;
 
                     priorityList.Add(new KeyValuePair<int, Type>(level, item));
                 }
