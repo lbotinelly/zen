@@ -11,6 +11,7 @@ using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
+using Zen.Base.Module.Data.CommonAttributes;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
 using Zen.Base.Module.Log;
@@ -852,9 +853,24 @@ namespace Zen.Base.Module
 
         public virtual void AfterRemove() { }
 
-        public virtual Mutator BeforeQuery(EActionType read, Mutator mutator) { return null; }
-        public virtual Mutator BeforeCount(EActionType read, Mutator mutator) { return null; }
+        public virtual Mutator BeforeQuery(EActionType read, Mutator mutator) => null;
+        public virtual Mutator BeforeCount(EActionType read, Mutator mutator) => null;
 
+        #endregion
+
+        #region Common Attributes
+        public static T GetByLocator(string locator, Mutator mutator = null)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+
+            return Where(i => (i as IDataLocator).Locator == locator, mutator).FirstOrDefault();
+        }
+
+        public static T GetByCode(string code, Mutator mutator = null)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            return Where(i => (i as IDataCode).Code == code, mutator).FirstOrDefault();
+        }
         #endregion
     }
 }
