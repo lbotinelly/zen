@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
   </ItemGroup>
 

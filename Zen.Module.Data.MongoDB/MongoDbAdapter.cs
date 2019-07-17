@@ -108,7 +108,7 @@ namespace Zen.Module.Data.MongoDB
 
             var typeName = _refType.FullName;
 
-            if (!string.IsNullOrEmpty(_tabledata?.TablePrefix)) typeName = $"{_tabledata.TablePrefix}.{_refType.Name}";
+            if (!string.IsNullOrEmpty(_tabledata?.CollectionPrefix)) typeName = $"{_tabledata.CollectionPrefix}.{_refType.Name}";
             if (!string.IsNullOrEmpty(_tabledata?.TableName)) typeName = _tabledata.TableName;
 
             ReferenceCollectionName = _tabledata?.IgnoreEnvironmentPrefix == true ? typeName : $"{_statements.EnvironmentCode}.{typeName}";

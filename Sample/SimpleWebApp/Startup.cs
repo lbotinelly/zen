@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base.Service;
+using Zen.Base.Service.Extensions;
 
 namespace SimpleWebApp
 {

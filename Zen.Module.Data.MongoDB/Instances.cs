@@ -33,7 +33,7 @@ namespace Zen.Module.Data.MongoDB
 
                 var credentialInfo = $"{client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{serverSuffix}";
 
-                Current.Log.Add($"{"MONGODB_CLIENT_REG".TruncateEnd(18, true)} : {credentialInfo.TruncateEnd(80)}", Message.EContentType.StartupSequence);
+                Current.Log.KeyValuePair("MONGODB_CLIENT_REG", credentialInfo, Message.EContentType.StartupSequence);
 
                 return client;
             }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29020.237
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Base", "Base\Zen.Base.csproj", "{A0258044-AEFD-4E65-9782-9DD8E39A8A15}"
 EndProject
@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web", "Zen.Web\Zen.Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.Auth", "Zen.Web.Auth\Zen.Web.Auth.csproj", "{D3ADE5C6-B48C-4F6F-9EEA-1DD0233E0CEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Module.Web.IoT.Alexa", "Zen.Module.Web.IoT.Alexa\Zen.Module.Web.IoT.Alexa.csproj", "{ABA4D6A2-7531-4BA4-B907-20A108493450}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Web.IoT.Alexa", "Zen.Module.Web.IoT.Alexa\Zen.Module.Web.IoT.Alexa.csproj", "{ABA4D6A2-7531-4BA4-B907-20A108493450}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.App", "Zen.App\Zen.App.csproj", "{5B004B0A-3CBE-4305-9A71-DAD2C9813011}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,10 @@ Global
 		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
