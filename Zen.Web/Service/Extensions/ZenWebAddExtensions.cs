@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,8 @@ namespace Zen.Web.Service.Extensions
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             configureOptions = configureOptions ?? (x => { });
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services
                 .AddMvc()
