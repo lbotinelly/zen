@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
-using Zen.Base.Wrapper;
 
 namespace Zen.Base.Extension
 {
@@ -236,8 +235,6 @@ namespace Zen.Base.Extension
 
             return false;
         }
-
-        public static dynamic StaticMembersDynamicWrapper(this Type type) { return new StaticMembersDynamicWrapper(type); }
 
         public static bool IsNumericType(object obj)
         {

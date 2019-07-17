@@ -12,7 +12,7 @@ namespace Zen.Base
             DataDirectory = $"{BaseDirectory}{Path.DirectorySeparatorChar}data";
 
             Version = System.Reflection.Assembly.GetCallingAssembly().GetName().Version.ToString();
-            Host = Process.GetCurrentProcess().ProcessName;
+            Host = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
             ApplicationAssembly = GetAppAssembly();
             ApplicationAssemblyName = ApplicationAssembly.GetName().Name;

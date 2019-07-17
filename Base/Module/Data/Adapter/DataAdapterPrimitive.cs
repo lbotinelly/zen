@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Zen.Base.Module.Data.Connection;
+using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Data.Adapter
 {
@@ -26,14 +27,15 @@ namespace Zen.Base.Module.Data.Adapter
 
             var envCode = settings.EnvironmentCode;
 
-            if (!settings.ConnectionCypherKeys.ContainsKey(envCode))
+            if (!settings.ConnectionCypherKeys?.ContainsKey(envCode) == true)
             {
                 if (settings.ConnectionCypherKeys.ContainsKey("STA")) //There is a standard code available.
                     envCode = "STA";
-                else Current.Log.Warn<T>("No ConnectionCypherKeys for [STA] environment");
+                else
+                    Current.Log.KeyValuePair(typeof(T).FullName, "No ConnectionCypherKeys for [STA] environment", Message.EContentType.Warning);
             }
 
-            if (settings.ConnectionCypherKeys.ContainsKey(envCode)) settings.ConnectionString = settings.ConnectionCypherKeys[envCode];
+            if (settings.ConnectionCypherKeys?.ContainsKey(envCode) == true) settings.ConnectionString = settings.ConnectionCypherKeys[envCode];
 
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
             settings.ConnectionString = Current.Encryption.TryDecrypt(settings.ConnectionString);
@@ -41,7 +43,7 @@ namespace Zen.Base.Module.Data.Adapter
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
             settings.CredentialsString = Current.Encryption.TryDecrypt(settings.CredentialsString);
 
-            if (string.IsNullOrEmpty(settings.ConnectionString)) Current.Log.Warn<T>("Connection Cypher Key not set");
+            if (string.IsNullOrEmpty(settings.ConnectionString)) Current.Log.KeyValuePair(typeof(T).FullName, "Connection Cypher Key not set", Message.EContentType.Warning);
 
             if (!settings.CredentialCypherKeys.ContainsKey(envCode)) return;
 

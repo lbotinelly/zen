@@ -21,6 +21,7 @@ namespace Zen.Base
 
         internal static void Start()
         {
+            Zen.Base.Module.Service.AutoService.Add();
 
             Status.SetState(Status.EState.Starting);
 
@@ -42,18 +43,20 @@ namespace Zen.Base
             Current.Log.Debug("___________________________________________________________________________________________________");
             Current.Log.Debug("");
             Current.Log.Debug("Providers:");
-            Current.Log.Debug($"            Cache : {(Current.Cache == null ? "(none)" : Current.Cache.ToString().TruncateEnd(80))}");
-            Current.Log.Debug($"      Environment : {(Current.Environment == null ? "(none)" : Current.Environment.ToString().TruncateEnd(80))}");
-            Current.Log.Debug($"              Log : {(Current.Log == null ? "(none)" : Current.Log.ToString().TruncateEnd(80))}");
-            Current.Log.Debug($"       Encryption : {(Current.Encryption == null ? "(none)" : Current.Encryption.ToString().TruncateEnd(80))}");
-            Current.Log.Debug($"    Authorization : {(Current.Authorization == null ? "(none)" : Current.Authorization.ToString().TruncateEnd(80))}");
-            Current.Log.Debug($"Global BundleType : {(Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString().TruncateEnd(80))}");
-            Current.Log.Debug($"      Application : {Configuration.ApplicationAssemblyName.TruncateEnd(80)}");
-            Current.Log.Debug($"     App Location : {Configuration.BaseDirectory.TruncateEnd(80)}");
-            Current.Log.Debug($"         App Data : {Configuration.DataDirectory.TruncateEnd(80)}");
-            Current.Log.Debug("");
+
+            Current.Log.KeyValuePair("Cache", Current.Cache == null ? "(none)" : Current.Cache.ToString(), Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Environment", Current.Environment == null ? "(none)" : Current.Environment.ToString(), Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Log", Current.Log == null ? "(none)" : Current.Log.ToString(), Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Encryption", Current.Encryption == null ? "(none)" : Current.Encryption.ToString(), Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Global BundleType", Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString(), Message.EContentType.Debug);
+
+            Current.Log.KeyValuePair("Application", Configuration.ApplicationAssemblyName, Message.EContentType.Debug);
+            Current.Log.KeyValuePair("App Location", Configuration.BaseDirectory, Message.EContentType.Debug);
+            Current.Log.KeyValuePair("App Data", Configuration.DataDirectory, Message.EContentType.Debug);
+
             Current.Log.Debug("State:");
-            Current.Log.Debug($"      Environment : {Current.Environment?.Current.ToString().TruncateEnd(80)}");
+            Current.Log.KeyValuePair("Environment", Current.Environment?.Current.ToString(), Message.EContentType.Debug);
+
             Current.Log.Debug("___________________________________________________________________________________________________");
         }
 
@@ -122,13 +125,6 @@ namespace Zen.Base
             _workerThread.Abort();
 
             Current.Log.Add("CancelTakeDown successful.", Message.EContentType.ShutdownSequence);
-        }
-
-        internal static void InitializeServices()
-        {
-            var providers = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType));
-            foreach (var zenService in providers)
-                ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
         }
 
         public class ActionQueue

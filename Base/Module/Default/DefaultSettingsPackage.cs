@@ -4,7 +4,6 @@ using Zen.Base.Common;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
-using Zen.Base.Module.Identity;
 using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Default
@@ -17,7 +16,6 @@ namespace Zen.Base.Module.Default
             Log = new NullLogProvider();
             Cache = new NullCacheProvider();
             Environment = new DefaultEnvironmentProvider();
-            Authorization = new NullAuthorizationProvider();
             GlobalConnectionBundleType = null;
             WebApiCORSDomains = null;
         }
@@ -26,7 +24,6 @@ namespace Zen.Base.Module.Default
         public ICacheProvider Cache { get; set; }
         public IEnvironmentProvider Environment { get; set; }
         public IEncryptionProvider Encryption { get; set; }
-        public IAuthorizationProvider Authorization { get; set; }
         public Type GlobalConnectionBundleType { get; set; }
         public string WebApiCORSDomains { get; set; }
         public List<string> WebApiCORSDomainMasks { get; set; }

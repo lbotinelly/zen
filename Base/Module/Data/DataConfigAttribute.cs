@@ -13,7 +13,7 @@ namespace Zen.Base.Module.Data
         public string Label { get; set; }
         public bool IsReadOnly { get; set; } = false;
         public string TableName { get; set; }
-        public string TablePrefix { get; set; }
+        public string CollectionPrefix { get; set; }
         public bool UseCaching { get; set; } = true;
         public Type CredentialSetType { get; set; } = null;
         public string PersistentEnvironmentCode { get; set; }

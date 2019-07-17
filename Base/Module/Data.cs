@@ -222,16 +222,15 @@ namespace Zen.Base.Module
                     Current.Environment.EnvironmentChanged += Environment_EnvironmentChanged;
 
                     foreach (var (key, value) in Info<T>.Settings.Statistics)
-                        Current.Log.Add($"{key.TruncateEnd(18, true)} : {value.TruncateEnd(80)}", Message.EContentType.StartupSequence);
+                        Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
 
-                    Info<T>.Settings.State.Set<T>(Settings.EStatus.Operational, "Ready");
+                    Current.Log.KeyValuePair(typeof(T).FullName, "Ready", Message.EContentType.StartupSequence);
                 }
                 catch (Exception e)
                 {
                     Info<T>.Settings.State.Status = Settings.EStatus.CriticalFailure;
 
-                    Info<T>.Settings.State.Description =
-                        typeof(T).FullName + " ERR " + Info<T>.Settings.State.Step + " : " + e.Message;
+                    Info<T>.Settings.State.Description = $"{typeof(T).FullName} ERR {Info<T>.Settings.State.Step} : {e.Message}";
                     Info<T>.Settings.State.Stack = new StackTrace(e, true).FancyString();
 
                     var refEx = e;

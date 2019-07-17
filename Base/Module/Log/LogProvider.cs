@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Zen.Base.Extension;
 
 namespace Zen.Base.Module.Log
 {
     public abstract class LogProvider : ILogProvider
     {
+        public static List<Message> Queue = new List<Message>();
         private Logger _logger;
-
-        protected LogProvider() { }
 
         public virtual Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Debug;
 
@@ -48,6 +47,11 @@ namespace Zen.Base.Module.Log
 
         public void Add<T>(Exception e) { Add<T>(e, null); }
 
+        public void KeyValuePair(string key, string value, Message.EContentType type)
+        {
+            Current.Log.Add($"{key.TruncateEnd(25, true)} : {value.TruncateEnd(73)}", type);
+        }
+
         public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
 
         public virtual void Debug(string content) { Add(content, Message.EContentType.Debug); }
@@ -65,16 +69,11 @@ namespace Zen.Base.Module.Log
             Add(payload);
         }
 
-        public static List<Message> _queue = new List<Message>();
-
         public void FlushQueue()
         {
-            foreach (var message in _queue)
-            {
-                Pipeline(message);
-            }
+            foreach (var message in Queue) Pipeline(message);
 
-            _queue.Clear();
+            Queue.Clear();
         }
 
         public virtual void Add(Message message)
@@ -85,13 +84,11 @@ namespace Zen.Base.Module.Log
                 return;
             }
 
-            _queue.Add(message);
+            Queue.Add(message);
         }
 
         public virtual void Pipeline(Message m)
         {
-
-
             var targetLevel = LogEventLevel.Debug;
 
             switch (m.Type)
@@ -133,7 +130,6 @@ namespace Zen.Base.Module.Log
 
             //_logger.Log(targetLevel, m.Content, m);
         }
-
 
         public void Initialize()
         {

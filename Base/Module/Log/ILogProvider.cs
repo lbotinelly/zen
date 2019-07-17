@@ -22,5 +22,6 @@ namespace Zen.Base.Module.Log
         void Warn<T>(string content);
         void Warn(string content);
         void Add<T>(Exception e);
+        void KeyValuePair(string key, string value, Message.EContentType startupSequence);
     }
 }
