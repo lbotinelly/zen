@@ -16,9 +16,8 @@ namespace Zen.Web.Service.Extensions
 
             configureOptions = configureOptions ?? (x => { });
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
             services
+                .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 // Disable inference rules
@@ -42,12 +41,6 @@ namespace Zen.Web.Service.Extensions
                 ;
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            }).AddCookie();
 
             services.AddTransient<IEmailSender, EmailSender>();
 

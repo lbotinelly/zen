@@ -196,8 +196,7 @@ namespace Zen.Module.Cache.Redis
                 }
                 catch { }
 
-                Current.Log.Add("Redis server      : Connecting to " + _currentServer.SafeArray("password"),
-                                Message.EContentType.MoreInfo);
+                Current.Log.KeyValuePair("Redis server", _currentServer.SafeArray("password"), Message.EContentType.MoreInfo);
 
                 _redis = ConnectionMultiplexer.Connect(_currentServer);
                 OperationalStatus = EOperationalStatus.Operational;
@@ -205,8 +204,7 @@ namespace Zen.Module.Cache.Redis
             catch (Exception e)
             {
                 OperationalStatus = EOperationalStatus.NonOperational;
-                Current.Log.Add("REDIS unavailable: Application running on direct database mode.",
-                                Message.EContentType.Maintenance);
+                Current.Log.KeyValuePair("REDIS server", "Unavailable - running on direct database mode", Message.EContentType.Warning);
                 Current.Log.Add(e);
             }
         }

@@ -18,6 +18,9 @@ namespace Zen.Base.Service
         {
             IConfigurationPackage configurationPackage;
 
+            serviceCollection
+                .AddOptions();
+
             // If a definition package is available use it; otherwise offer an empty package.
 
             configurationPackage = (Resolution.GetClassesByInterface<IConfigurationPackage>(false).FirstOrDefault() ?? typeof(DefaultSettingsPackage)).CreateInstance<IConfigurationPackage>();
@@ -33,6 +36,8 @@ namespace Zen.Base.Service
             serviceCollection.AddSingleton(s => configurationPackage.Environment ?? Resolution.GetClassesByInterface<IEnvironmentProvider>(false).FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.Encryption ?? Resolution.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.GlobalConnectionBundleType ?? Resolution.GetClassesByInterface<ConnectionBundlePrimitive>().FirstOrDefault());
+
+
 
             return serviceCollection;
         }

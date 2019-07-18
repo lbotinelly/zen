@@ -41,7 +41,7 @@ namespace Zen.Base.Module.Service
 
             // 1st cycle: Local (base directory) assemblies
 
-            LoadAssembliesFromDirectory(Configuration.BaseDirectory);
+            LoadAssembliesFromDirectory(Host.BaseDirectory);
 
             //2nd cycle: Directories/assemblies referenced by system
 
@@ -162,7 +162,7 @@ namespace Zen.Base.Module.Service
 
                 var assySource = new List<Assembly>();
 
-                if (limitToMainAssembly) assySource.Add(Configuration.ApplicationAssembly);
+                if (limitToMainAssembly) assySource.Add(Host.ApplicationAssembly);
                 else
                     lock (Lock) { assySource = AssemblyCache.Values.ToList(); }
 

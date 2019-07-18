@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Zen.Base.Common;
 using Zen.Base.Module.Service;
 
 namespace Zen.Base.Service {
+    [Priority(Level = 99)]
     public class ZenBaseAutoService : IZenAutoAddService, IZenAutoUseService
     {
         #region Implementation of IZenAutoAddService

@@ -50,9 +50,9 @@ namespace Zen.Base
             Current.Log.KeyValuePair("Encryption", Current.Encryption == null ? "(none)" : Current.Encryption.ToString(), Message.EContentType.Debug);
             Current.Log.KeyValuePair("Global BundleType", Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString(), Message.EContentType.Debug);
 
-            Current.Log.KeyValuePair("Application", Configuration.ApplicationAssemblyName, Message.EContentType.Debug);
-            Current.Log.KeyValuePair("App Location", Configuration.BaseDirectory, Message.EContentType.Debug);
-            Current.Log.KeyValuePair("App Data", Configuration.DataDirectory, Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Application", Host.ApplicationAssemblyName, Message.EContentType.Debug);
+            Current.Log.KeyValuePair("App Location", Host.BaseDirectory, Message.EContentType.Debug);
+            Current.Log.KeyValuePair("App Data", Host.DataDirectory, Message.EContentType.Debug);
 
             Current.Log.Debug("State:");
             Current.Log.KeyValuePair("Environment", Current.Environment?.Current.ToString(), Message.EContentType.Debug);

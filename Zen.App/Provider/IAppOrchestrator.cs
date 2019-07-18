@@ -1,7 +1,12 @@
-﻿namespace Zen.App.Provider {
-    public interface IAppOrchestrator {
+﻿using Zen.Base.Common;
+
+namespace Zen.App.Provider
+{
+    public interface IAppOrchestrator : IZenProvider
+    {
+        IZenPerson Person { get; }
+        IZenApplication Application { get; }
+        object Settings { get; }
         IZenPerson GetPersonByLocator(string locator);
-        IZenPerson Person { get; set; }
-        IZenApplication Application { get; set; }
     }
 }
