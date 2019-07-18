@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Base", "Base\Zen.Base.csproj", "{A0258044-AEFD-4E65-9782-9DD8E39A8A15}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{6B8C2E4E-0506-49B6-8F1B-F767D04C9794}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleConsole", "Sample\SimpleConsole\SimpleConsole.csproj", "{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1}"
@@ -27,16 +25,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Web.IoT.Alexa", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.App", "Zen.App\Zen.App.csproj", "{5B004B0A-3CBE-4305-9A71-DAD2C9813011}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Base", "Zen.Base\Zen.Base.csproj", "{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A0258044-AEFD-4E65-9782-9DD8E39A8A15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0258044-AEFD-4E65-9782-9DD8E39A8A15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0258044-AEFD-4E65-9782-9DD8E39A8A15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0258044-AEFD-4E65-9782-9DD8E39A8A15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -77,6 +73,10 @@ Global
 		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

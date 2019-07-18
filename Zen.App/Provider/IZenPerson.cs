@@ -7,6 +7,6 @@ namespace Zen.App.Provider
     {
         List<IZenGroup> GetGroups();
         bool HasAnyPermissions(string expression);
-        bool HasAnyPermissions(string[] terms);
+        bool HasAnyPermissions(IEnumerable<string> terms);
     }
 }

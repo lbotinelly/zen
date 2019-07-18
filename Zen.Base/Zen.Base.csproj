@@ -4,6 +4,19 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssemblyName>Zen.Base</AssemblyName>
     <RootNamespace>Zen.Base</RootNamespace>
+    <Deterministic>False</Deterministic>
+    <AssemblyVersion>0.0.1.*</AssemblyVersion>
+    <FileVersion>0.0.1.*</FileVersion>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1.0</Version>
+    <Description>A fluid, seamless middleware.</Description>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright />    
   </PropertyGroup>
 
   <ItemGroup>

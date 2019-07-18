@@ -217,7 +217,7 @@ namespace Zen.Base.Module.Service
                     }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
-                } catch (Exception e)
+                } catch (Exception)
                 {
                     // Current.Log.Add(e);
                 }

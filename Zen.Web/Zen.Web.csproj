@@ -4,6 +4,13 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssemblyName>Zen.Web</AssemblyName>
     <RootNamespace>Zen.Web</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1.0</Version>
+    <Description>Web-related abstration layer for Zen</Description>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,8 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Base\Zen.Base.csproj" />
     <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
   </ItemGroup>
 
   <ItemGroup>

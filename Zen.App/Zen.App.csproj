@@ -1,11 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Deterministic>False</Deterministic>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1.0</Version>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <Description>Application abstration layer for Zen</Description>
+    <PackageTags>middleware orm dotnet core app webapp</PackageTags>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
   </ItemGroup>
 
   <ItemGroup>

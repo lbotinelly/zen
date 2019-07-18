@@ -88,26 +88,22 @@ namespace Zen.Base.Extension
                 var kt = k.PropertyType;
 
                 if (k.PropertyType.IsPrimitiveType())
-                    try
-                    {
-                        if (val is decimal) val = Convert.ToInt64(val);
-                        if (val is short && kt == typeof(bool)) val = Convert.ToInt16(val) == 1;
-                        if (val is long && kt == typeof(string)) val = val.ToString();
-                        if (kt == typeof(decimal)) val = Convert.ToDecimal(val);
-                        if (kt == typeof(short)) val = Convert.ToInt16(val);
-                        if (kt == typeof(int)) val = Convert.ToInt32(val);
-                        if (kt == typeof(long)) val = Convert.ToInt64(val);
-                        if (kt == typeof(Guid))
-                            if (val != null)
-                                val = new Guid(val.ToString());
-                        if (kt.IsEnum) val = Enum.Parse(k.PropertyType, val.ToString());
+                {
+                    if (val is decimal) val = Convert.ToInt64(val);
+                    if (val is short && kt == typeof(bool)) val = Convert.ToInt16(val) == 1;
+                    if (val is long && kt == typeof(string)) val = val.ToString();
+                    if (kt == typeof(decimal)) val = Convert.ToDecimal(val);
+                    if (kt == typeof(short)) val = Convert.ToInt16(val);
+                    if (kt == typeof(int)) val = Convert.ToInt32(val);
+                    if (kt == typeof(long)) val = Convert.ToInt64(val);
+                    if (kt == typeof(Guid))
+                        if (val != null)
+                            val = new Guid(val.ToString());
+                    if (kt.IsEnum) val = Enum.Parse(k.PropertyType, val.ToString());
 
-                        k.SetValue(obj, val);
-                    } catch (Exception e)
-                    {
-                        //Current.Log.Add(e);
-                        throw;
-                    }
+                    k.SetValue(obj, val);
+                }
+
                 else k.SetValue(obj, kv.Value != null ? JsonConvert.DeserializeObject(kv.Value.ToString(), kt) : null);
             }
 
@@ -321,7 +317,7 @@ namespace Zen.Base.Extension
                     {
                         p.SetValue(dest, val.ToString(), null);
                         set = true;
-                    } catch (Exception e) { }
+                    } catch (Exception) { }
             }
         }
 

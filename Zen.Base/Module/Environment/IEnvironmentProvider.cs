@@ -9,6 +9,5 @@ namespace Zen.Base.Module.Environment
         string CurrentCode { get; }
         ProbeItem Probe { get; set; }
         IEnvironmentDescriptor Get(string serverName);
-        event EventHandler EnvironmentChanged;
     }
 }
