@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base;
@@ -19,8 +21,33 @@ namespace Zen.Web.Auth.Service.Extensions
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services
-                .AddDistributedMemoryCache()
+                .AddIdentity<IdentityUser, IdentityRole>();
 
+            services
+                .AddAuthentication(options =>
+                {
+                    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                })
+                //.AddCookie(options =>
+                //{
+                //    options.LoginPath = "/api/auth/signin";
+                //    options.LogoutPath = "/api/auth/signout";
+                //})
+                .AddGoogle(options =>
+                {
+                    var googleAuthNSection = Configuration.Options.GetSection("Authentication:Google");
+                    options.CallbackPath = "/api/auth/signin/google";
+
+                    options.ClientId = googleAuthNSection["ClientId"];
+                    options.ClientSecret = googleAuthNSection["ClientSecret"];
+                });
+
+
+            services
+                .AddDistributedMemoryCache()
                 .AddSession(options =>
                 {
                     // Set a short timeout for easy testing.
@@ -28,24 +55,6 @@ namespace Zen.Web.Auth.Service.Extensions
                     options.Cookie.HttpOnly = true;
                     // Make the session cookie essential
                     options.Cookie.IsEssential = true;
-                })
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                })
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/api/auth/signin";
-                    options.LogoutPath = "/api/auth/signout";
-                })
-                .AddGoogle(options =>
-                {
-                    var googleAuthNSection = Configuration.Options.GetSection("Authentication:Google");
-
-                    options.CallbackPath = "/api/auth/signin/google";
-                    options.ClientId = googleAuthNSection["ClientId"];
-                    options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
 
             services.AddTransient<IEmailSender, EmailSender>();

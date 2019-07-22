@@ -1,4 +1,5 @@
-﻿using Zen.App.Orchestrator.Model;
+﻿using Microsoft.Extensions.Configuration;
+using Zen.App.Orchestrator.Model;
 using Zen.Base;
 using Zen.Base.Module;
 
@@ -18,7 +19,6 @@ namespace Zen.App.Provider
         {
             DetectEnvironment();
             _settings = new Settings().GetSettings();
-
         }
 
         #endregion
@@ -27,28 +27,27 @@ namespace Zen.App.Provider
 
         public virtual object Settings => _settings;
         public virtual IZenPerson GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
+        public IZenGroup GetGroupByCode(string code) { return Data<TG>.GetByLocator(code); }
         public virtual IZenApplication GetApplicationByLocator(string locator) { return Data<TA>.GetByLocator(locator); }
+        public IZenApplication GetNewApplication() { return Data<TA>.New(); }
+
+        public IZenApplication UpsertApplication(IZenApplication application)
+        {
+            var temp = (Data<TA>) application;
+            temp.Save();
+
+            return (IZenApplication) temp;
+        }
         public virtual IZenPerson Person { get; set; }
         public virtual IZenApplication Application => _application;
+
         public void DetectEnvironment()
         {
             // Let's determine the current app.
 
-            var currentAppLocator = Host.ApplicationAssemblyName + ".dll";
-            _application = Data<TA>.GetByLocator(currentAppLocator);
-
             if (_application != null) return;
 
-            var newApp = new Application
-            {
-                Locator = currentAppLocator,
-                Code = Host.ApplicationAssemblyName,
-                Name = Host.ApplicationAssemblyName
-            };
-
-            newApp.Save();
-
-            _application = newApp;
+            _application = App.Settings.GetCurrentApplication();
         }
 
         #endregion

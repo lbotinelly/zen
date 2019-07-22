@@ -2,5 +2,8 @@
 
 namespace Zen.App.Provider
 {
-    public interface IZenGroup : IDataId, IDataCode { }
+    public interface IZenGroup : IDataId, IDataCode, IDataActive
+    {
+         bool FromSettings { get; set; }
+    }
 }

@@ -55,5 +55,23 @@ namespace Zen.App.Orchestrator.Model
             public string FullCode { get; internal set; }
             public string Name { get; set; }
         }
+
+        public class Settings
+        {
+            public class Group
+            {
+                public string Code { get; set; }
+                public string Name { get; set; }
+                public List<string> Permissions { get; set; }
+                public List<string> Members { get; set; }
+                public bool IsHost { get; set; } = false;
+                public bool Auto { get; set; } = false;
+            }
+
+            public string Code { get; set; }
+            public string Name { get; set; }
+            public string Locator { get; set; }
+            public List<Group> Groups { get; set; }
+        }
     }
 }

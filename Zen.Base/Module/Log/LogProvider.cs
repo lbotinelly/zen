@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -156,7 +157,7 @@ namespace Zen.Base.Module.Log
             _logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.File($"{Host.DataDirectory}{Path.DirectorySeparatorChar}log{Path.DirectorySeparatorChar}log.txt", rollingInterval: RollingInterval.Day)
                 .MinimumLevel.Debug()
                 .CreateLogger();
 

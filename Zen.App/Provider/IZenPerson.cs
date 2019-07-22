@@ -3,7 +3,7 @@ using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.App.Provider
 {
-    public interface IZenPerson : IDataId, IDataLocator
+    public interface IZenPerson : IDataId, IDataLocator, IDataActive
     {
         List<IZenGroup> GetGroups();
         bool HasAnyPermissions(string expression);

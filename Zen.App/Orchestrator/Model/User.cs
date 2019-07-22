@@ -45,5 +45,9 @@ namespace Zen.App.Orchestrator.Model
         public List<IZenGroup> GetGroups() { throw new NotImplementedException(); }
         public virtual bool HasAnyPermissions(string perm) { return true; }
         public bool HasAnyPermissions(IEnumerable<string> terms) { throw new NotImplementedException(); }
+
+        #region Implementation of IDataActive
+        public bool Active { get; set; } = true;
+        #endregion
     }
 }

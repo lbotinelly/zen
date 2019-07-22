@@ -55,9 +55,9 @@ namespace Zen.Web.OpSec
 
         public static IpType Current()
         {
-            if (State.Context?.HttpContext == null) throw new ArgumentNullException("No available HTTP context.");
-            var remAddr = State.Context.HttpContext.Request.Host.Host;
-            if (State.Context.HttpContext.Request.Headers.Keys.Contains("HTTP_X_FORWARDED_FOR")) remAddr = State.Context.HttpContext.Request.Headers["HTTP_X_FORWARDED_FOR"];
+            if (Web.Current.Context == null) throw new ArgumentNullException("No available HTTP context.");
+            var remAddr = Web.Current.Context.Request.Host.Host;
+            if (Web.Current.Context.Request.Headers.Keys.Contains("HTTP_X_FORWARDED_FOR")) remAddr = Web.Current.Context.Request.Headers["HTTP_X_FORWARDED_FOR"];
 
             return Check(remAddr);
         }

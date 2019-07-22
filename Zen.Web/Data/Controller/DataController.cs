@@ -10,7 +10,6 @@ using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.CommonAttributes;
-using Zen.Module.Web.Auth;
 using Zen.Web.Data.Controller.Attributes;
 
 // ReSharper disable InconsistentlySynchronizedField
@@ -26,13 +25,6 @@ namespace Zen.Web.Data.Controller
 
         private static readonly object _lockObject = new object();
         private Mutator _mutator;
-
-        #region  Injectors
-
-        public DataController() { }
-        public DataController(IHttpContextAccessor accessor) { State.Context = accessor; }
-
-        #endregion
 
         private Mutator RequestMutator
         {
@@ -121,7 +113,7 @@ namespace Zen.Web.Data.Controller
                 default: throw new ArgumentOutOfRangeException(nameof(accessType), accessType, null);
             }
 
-            if (!Current.Orchestrator.Person?.HasAnyPermissions(targetPermissionSet) == true) throw new UnauthorizedAccessException("Not authorized.");
+            if (!App.Current.Orchestrator.Person?.HasAnyPermissions(targetPermissionSet) == true) throw new UnauthorizedAccessException("Not authorized.");
 
             try
             {
@@ -142,9 +134,9 @@ namespace Zen.Web.Data.Controller
         {
             var payload = new List<string>();
 
-            if (Configuration.Security == null || Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.Read) == true) payload.Add("read");
-            if (Configuration.Security == null || Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.Write) == true) payload.Add("write");
-            if (Configuration.Security == null || Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.Remove) == true) payload.Add("remove");
+            if (Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.Read) == true) payload.Add("read");
+            if (Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.Write) == true) payload.Add("write");
+            if (Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.Remove) == true) payload.Add("remove");
 
             return new Dictionary<string, object> { { "x-zen-allowed", payload } };
         }

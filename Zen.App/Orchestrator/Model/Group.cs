@@ -34,5 +34,13 @@ namespace Zen.App.Orchestrator.Model
             public string Code { get; set; }
             public string Name { get; set; }
         }
+
+        #region Implementation of IDataActive
+        public bool IsActive { get; set; } = true;
+        #endregion
+
+        #region Implementation of IZenGroup
+        public bool FromSettings { get; set; }
+        #endregion
     }
 }
