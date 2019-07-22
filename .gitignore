@@ -346,3 +346,8 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+
+## stuff for the mac users
+.idea/
+Sample/SimpleConsole/log*.txt
+Sample/SimpleWebApp/log*.txt
