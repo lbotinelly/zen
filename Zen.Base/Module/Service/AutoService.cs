@@ -10,12 +10,15 @@ namespace Zen.Base.Module.Service
 {
     public static class AutoService
     {
-        public static List<IZenAutoAddService> AddQueue { get; internal set; } = Resolution.GetInstances<IZenAutoAddService>();
-        public static List<IZenAutoUseService> UseQueue { get; internal set; } = Resolution.GetInstances<IZenAutoUseService>();
+        public static List<IZenAutoAddService> AddQueue { get; internal set; } = Resolution.GetInstances<IZenAutoAddService>(false);
+        public static List<IZenAutoUseService> UseQueue { get; internal set; } = Resolution.GetInstances<IZenAutoUseService>(false);
 
         public static void Add()
         {
-            foreach (var item in AddQueue) item.Add(Instances.ServiceCollection);
+            foreach (var item in AddQueue)
+            {
+                item.Add(Instances.ServiceCollection);
+            }
 
             var zenServices = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType)).ToList();
 

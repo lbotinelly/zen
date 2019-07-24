@@ -6,7 +6,7 @@ namespace Zen.App
 {
     public static class Current
     {
-        public static IAppOrchestrator<IZenPermission> Orchestrator => AppOrchestrator.Value;
-        private static readonly Lazy<IAppOrchestrator<IZenPermission>> AppOrchestrator = new Lazy<IAppOrchestrator<IZenPermission>>(() => Base.Module.Service.Instances.ServiceProvider.GetService<IAppOrchestrator<IZenPermission>>(), true);
+        public static IAppOrchestrator Orchestrator => AppOrchestrator.Value;
+        private static readonly Lazy<IAppOrchestrator> AppOrchestrator = new Lazy<IAppOrchestrator>(() => Base.Module.Service.Instances.ServiceProvider.GetService<IAppOrchestrator>(), true);
     }
 }

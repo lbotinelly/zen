@@ -6,7 +6,7 @@ using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class Group : Data<Group>, IZenGroup<Application.Permission>
+    public class Group : Data<Group>, IZenGroup
     {
         public string OwnerAssetId { get; set; }
         public string Name { get; set; }
@@ -40,12 +40,5 @@ namespace Zen.App.Orchestrator.Model
         public bool FromSettings { get; set; }
 
         #endregion
-
-        public class Permission
-        {
-            public string Id { get; set; } = Guid.NewGuid().ToString();
-            public string Code { get; set; }
-            public string Name { get; set; }
-        }
     }
 }

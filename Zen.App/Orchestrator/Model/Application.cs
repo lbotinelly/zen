@@ -6,7 +6,7 @@ using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class Application : Data<Application>, IZenApplication<Application.Permission>
+    public class Application : Data<Application>, IZenApplication
     {
         public bool Locked { get; set; }
         public string Description { get; set; }

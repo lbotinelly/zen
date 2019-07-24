@@ -332,3 +332,24 @@
 2019-07-17 14:56:52.009 -04:00 [INF]          Settings.Bundle : MongoDbDefaultBundle
 2019-07-17 14:56:52.010 -04:00 [INF]   Settings.CredentialSet : CredentialSetPrimitive
 2019-07-17 14:56:52.011 -04:00 [INF] ...pp.Models.sampleModel : Ready
+2019-07-17 18:07:15.052 -04:00 [INF] Zen 1.0.0.0
+2019-07-17 18:07:15.123 -04:00 [DBG] ___________________________________________________________________________________________________
+2019-07-17 18:07:15.125 -04:00 [DBG] 
+2019-07-17 18:07:15.128 -04:00 [DBG] Providers:
+2019-07-17 18:07:15.130 -04:00 [DBG]                    Cache : Zen.Base.Module.Default.NullCacheProvider
+2019-07-17 18:07:15.131 -04:00 [DBG]              Environment : Zen.Base.Module.Environment.DefaultEnvironmentProvider
+2019-07-17 18:07:15.135 -04:00 [DBG]                      Log : Zen.Base.Module.Default.NullLogProvider
+2019-07-17 18:07:15.136 -04:00 [DBG]               Encryption : Zen.Module.Encryption.AES.AesEncryptionProvider
+2019-07-17 18:07:15.138 -04:00 [DBG]        Global BundleType : Zen.Module.Data.MongoDB.MongoDbDefaultBundle
+2019-07-17 18:07:15.139 -04:00 [DBG]              Application : SimpleWebApp
+2019-07-17 18:07:15.142 -04:00 [DBG]             App Location : E:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2
+2019-07-17 18:07:15.145 -04:00 [DBG]                 App Data : E:\repo\github\zen\Sample\SimpleWebApp\bin\Debug\netcoreapp2.2\data
+2019-07-17 18:07:15.156 -04:00 [DBG] State:
+2019-07-17 18:07:15.165 -04:00 [DBG]              Environment : Standard
+2019-07-17 18:07:15.168 -04:00 [DBG] ___________________________________________________________________________________________________
+2019-07-17 18:07:17.339 -04:00 [WRN] ...pp.Models.sampleModel : Connection Cypher Key not set
+2019-07-17 18:07:17.709 -04:00 [INF]       MONGODB_CLIENT_REG : (anonymous)@localhost
+2019-07-17 18:07:17.798 -04:00 [INF] ...ironment.Current.Code : STA
+2019-07-17 18:07:17.799 -04:00 [INF]          Settings.Bundle : MongoDbDefaultBundle
+2019-07-17 18:07:17.801 -04:00 [INF]   Settings.CredentialSet : CredentialSetPrimitive
+2019-07-17 18:07:17.803 -04:00 [INF] ...pp.Models.sampleModel : Ready

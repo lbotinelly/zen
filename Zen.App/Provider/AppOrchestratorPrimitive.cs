@@ -6,15 +6,16 @@ using Microsoft.Extensions.Configuration;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
+using static Zen.App.Orchestrator.Model.Application;
 
 namespace Zen.App.Provider
 {
-    public abstract class AppOrchestratorPrimitive<TA, TG, TP, T> : IAppOrchestrator<T> where T : IZenPermission
-        where TA : Data<TA>, IZenApplication<T>
-        where TG : Data<TG>, IZenGroup<T>
-        where TP : Data<TP>, IZenPerson<T>
+    public abstract class AppOrchestratorPrimitive<TA, TG, TP> : IAppOrchestrator
+        where TA : Data<TA>, IZenApplication
+        where TG : Data<TG>, IZenGroup
+        where TP : Data<TP>, IZenPerson
     {
-        private IZenApplication<T> _application;
+        private IZenApplication _application;
         private object _settings;
 
         #region Implementation of IZenProvider
@@ -30,52 +31,51 @@ namespace Zen.App.Provider
         #region Implementation of IAppOrchestrator
 
         public virtual object Settings => _settings;
-        public virtual IZenPerson<T> GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
-        public virtual IZenGroup<T> GetGroupByCode(string code) { return Data<TG>.GetByLocator(code); }
-        public List<IZenGroup<T>> GetFullHierarchicalChain<T>(IZenGroup<T> referenceGroup) where T : IZenPermission { throw new NotImplementedException(); }
-        public virtual IZenApplication<T> GetApplicationByLocator(string locator) { return Data<TA>.GetByLocator(locator); }
-        public IZenApplication<T> GetNewApplication() { return Data<TA>.New(); }
+        public virtual IZenPerson GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
+        public virtual IZenGroup GetGroupByCode(string code) { return Data<TG>.GetByLocator(code); }
+        public virtual IZenApplication GetApplicationByLocator(string locator) { return Data<TA>.GetByLocator(locator); }
+        public IZenApplication GetNewApplication() { return Data<TA>.New(); }
 
-        public IZenApplication<T> UpsertApplication(IZenApplication<T> application)
+        public IZenApplication UpsertApplication(IZenApplication application)
         {
             var temp = (Data<TA>)application;
             temp.Save();
 
-            return (IZenApplication<T>)temp;
+            return (IZenApplication)temp;
         }
 
-        public List<IZenGroup<T>> GetFullHierarchicalChain(IZenGroup<T> referenceGroup)
+        public List<IZenGroup> GetFullHierarchicalChain(IZenGroup referenceGroup)
         {
-            List<IZenGroup<T>> chain;
+            List<IZenGroup> chain;
 
             if (referenceGroup.ParentId != null)
             {
                 var parent = Data<TG>.Get(referenceGroup.ParentId);
                 chain = GetFullHierarchicalChain(parent);
             }
-            else { chain = new List<IZenGroup<T>>(); }
+            else { chain = new List<IZenGroup>(); }
 
             chain.Add(referenceGroup);
 
             return chain;
         }
 
-        public virtual List<T> GetPermissionsByPerson(IZenPerson<T> person)
+        public virtual List<Permission> GetPermissionsByPerson(IZenPerson person)
         {
-            var ret = new List<T>();
+            var ret = new List<Permission>();
 
-            IEnumerable<IZenGroup<T>> groups = person.Groups().WithParents().ToList();
+            IEnumerable<IZenGroup> groups = person.Groups().WithParents().ToList();
 
             foreach (var zenGroup in groups) ret.AddRange(zenGroup.Permissions);
 
             return ret.DistinctBy(i => i.Id).ToList();
         }
 
-        public virtual IZenPerson<T> SigninPersonByIdentity(IIdentity userIdentity) { throw new NotImplementedException(); }
-        public virtual void SignInPerson(IZenPerson<T> person) { throw new NotImplementedException(); }
+        public virtual IZenPerson SigninPersonByIdentity(IIdentity userIdentity) { throw new NotImplementedException(); }
+        public virtual void SignInPerson(IZenPerson person) { throw new NotImplementedException(); }
 
-        public virtual IZenPerson<T> Person { get; }
-        public virtual IZenApplication<T> Application => _application;
+        public virtual IZenPerson Person { get; }
+        public virtual IZenApplication Application => _application;
 
         public void DetectEnvironment()
         {
@@ -86,7 +86,7 @@ namespace Zen.App.Provider
             _application = GetCurrentApplication();
         }
 
-        private static IZenApplication<T> GetCurrentApplication()
+        private static IZenApplication GetCurrentApplication()
         {
 
             var initialSettings = Configuration.Options.GetSection("Application").Get<Zen.App.Orchestrator.Model.Application.Settings>();
@@ -95,7 +95,7 @@ namespace Zen.App.Provider
 
             var application = Current.Orchestrator.GetApplicationByLocator(appLocator);
 
-            if (application != null) return (IZenApplication<T>)application;
+            if (application != null) return (IZenApplication)application;
 
             // No app detected. 
 
@@ -122,7 +122,7 @@ namespace Zen.App.Provider
 
             application = Current.Orchestrator.UpsertApplication(application);
 
-            return (IZenApplication<T>)application;
+            return (IZenApplication)application;
         }
 
         #endregion

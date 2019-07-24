@@ -6,7 +6,7 @@ using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class User : Data<User>, IZenPerson<Application.Permission>
+    public class User : Data<User>, IZenPerson
     {
         public enum EState
         {
@@ -45,7 +45,10 @@ namespace Zen.App.Orchestrator.Model
         public virtual bool HasAnyPermissions(string perm) { return true; }
         public bool HasAnyPermissions(IEnumerable<string> terms) { throw new NotImplementedException(); }
         public List<Application.Permission> Permissions { get; set; }
-        public List<IZenGroup<Application.Permission>> Groups() { throw new NotImplementedException(); }
+        List<IZenGroup> IZenPerson.Groups()
+        {
+            throw new NotImplementedException();
+        }
 
         #region Implementation of IDataActive
         public bool Active { get; set; } = true;

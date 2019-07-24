@@ -139,7 +139,7 @@ namespace Zen.Base.Module
 
                     // Next step: Record Environment Mapping data, if any.
 
-                    Info<T>.Settings.Statistics["Current.Environment.Current.Code"] = Current.Environment.Current.Code;
+                    Info<T>.Settings.Statistics["Current.Environment.Current.Code"] = Current.Environment?.Current?.Code ?? "STA";
 
                     Info<T>.Settings.EnvironmentMapping = Attribute
                         .GetCustomAttributes(typeof(T), typeof(EnvironmentMappingAttribute))
@@ -154,10 +154,9 @@ namespace Zen.Base.Module
                         // If a PersistentEnvironmentCode is defined, use it.
                         Info<T>.Configuration?.PersistentEnvironmentCode ??
                         // Otherwise let's check if there's a mapping defined for the current 'real' environment.
-                        Info<T>.Settings.EnvironmentMapping
-                            ?.FirstOrDefault(i => i.Origin == Current.Environment.CurrentCode)?.Target ??
+                        Info<T>.Settings.EnvironmentMapping?.FirstOrDefault(i => i.Origin == Current.Environment?.CurrentCode)?.Target ??
                         // Nothing? Let's just use the current environment then.
-                        Current.Environment.CurrentCode;
+                        Info<T>.Settings.Statistics["Current.Environment.Current.Code"];
 
                     Info<T>.Settings.State.Step = "Setting up Reference Bundle";
                     var refBundle = Info<T>.Configuration?.ConnectionBundleType ?? Current.GlobalConnectionBundleType;

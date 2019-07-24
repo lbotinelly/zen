@@ -10,7 +10,7 @@ using Zen.Web.Service.Extensions;
 
 namespace Zen.Web.Auth.Service
 {
-    [Priority(Level = -98)]
+    [Priority(Level = -99)]
     public class ZenWebAuthAutoService : IZenAutoAddService, IZenAutoUseService
     {
         public void Add(IServiceCollection services) { services.AddZenWebAuth(); }

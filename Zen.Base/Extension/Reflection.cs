@@ -107,7 +107,7 @@ namespace Zen.Base.Extension
                 else k.SetValue(obj, kv.Value != null ? JsonConvert.DeserializeObject(kv.Value.ToString(), kt) : null);
             }
 
-            return (T) obj;
+            return (T)obj;
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Zen.Base.Extension
                                                       MemberTypes.Method,
                                                       bindingFlags))
             {
-                var methodInfo = (MethodInfo) memberInfo;
+                var methodInfo = (MethodInfo)memberInfo;
                 // Check that the parameter counts and types match, 
                 // with 'loose' matching on generic parameters
                 var parameterInfos = methodInfo.GetParameters();
@@ -195,7 +195,8 @@ namespace Zen.Base.Extension
 
                 propertyInfo.SetValue(o, value, null);
                 return true;
-            } catch { return false; }
+            }
+            catch { return false; }
         }
 
         public static object GetPropertyValue(this object o, string property)
@@ -204,7 +205,8 @@ namespace Zen.Base.Extension
             {
                 var propertyInfo = o.GetType().GetProperty(property);
                 return propertyInfo?.GetValue(o);
-            } catch { return null; }
+            }
+            catch { return null; }
         }
 
         public static bool IsSimilarType(this Type thisType, Type type)
@@ -274,6 +276,18 @@ namespace Zen.Base.Extension
                 throw referenceException;
             }
         }
+        public static object CreateInstance(this Type typeRef)
+        {
+            try { return Activator.CreateInstance(typeRef); }
+            catch (Exception e)
+            {
+                var referenceException = e;
+
+                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
+
+                throw referenceException;
+            }
+        }
 
         public static void CopyListPropertiesTo<T, TU>(this IEnumerable<T> source, List<TU> dest)
         {
@@ -281,7 +295,7 @@ namespace Zen.Base.Extension
 
             foreach (var i in source)
             {
-                var uo = (TU) Activator.CreateInstance(typeof(TU), null);
+                var uo = (TU)Activator.CreateInstance(typeof(TU), null);
 
                 i.CopyPropertiesTo(uo);
                 dest.Add(uo);
@@ -310,14 +324,16 @@ namespace Zen.Base.Extension
                 {
                     p.SetValue(dest, val, null);
                     set = true;
-                } catch { }
+                }
+                catch { }
 
                 if (!set)
                     try
                     {
                         p.SetValue(dest, val.ToString(), null);
                         set = true;
-                    } catch (Exception) { }
+                    }
+                    catch (Exception) { }
             }
         }
 
