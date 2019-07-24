@@ -268,13 +268,39 @@ namespace Zen.Base.Module.Service
                         continue;
                     }
 
-                    preRet.AddRange(
-                        from target in preTypes
-                        where !target.IsInterface
-                        where !target.IsAbstract
-                        where type.IsAssignableFrom(target)
-                        where type != target
-                        select target);
+                    var Step1 = preTypes.Where(i => !i.IsInterface).ToList();
+                    var Step2 = Step1.Where(i => !i.IsAbstract).ToList();
+                    var Step3 = Step2.Where(i => type != i).ToList();
+
+                    List<Type> step3a = new List<Type>();
+
+                    if (type.IsConstructedGenericType)
+                    {
+                        foreach (var type1 in Step2)
+                        {
+                            if (type1.GetInterfaces() != null)
+                            {
+                                foreach (var refInterface in type1.GetInterfaces())
+                                {
+                                    if (refInterface.GetGenericTypeDefinition() == type.GetGenericTypeDefinition())
+                                        step3a.Add(type1);
+                                }
+                            }
+                        }
+                    }
+
+                    var Step4 = Step3.Where(i => type.IsAssignableFrom(i)).ToList();
+
+                    preRet.AddRange(Step4);
+
+
+                    //preRet.AddRange(
+                    //    from target in preTypes
+                    //    where !target.IsInterface
+                    //    where !target.IsAbstract
+                    //    where type.IsAssignableFrom(target)
+                    //    where type != target
+                    //    select target);
                 }
 
                 var priorityList = new List<KeyValuePair<int, Type>>();

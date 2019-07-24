@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Threading;
-using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
@@ -21,25 +20,25 @@ namespace Zen.Base
 
         internal static void Start()
         {
-            Zen.Base.Module.Service.AutoService.Add();
+            AutoService.Add();
 
             Status.SetState(Status.EState.Starting);
 
             Instances.ServiceData.StartTimeStamp = DateTime.Now;
 
-            foreach (var ba in StartupSequence.Actions) try { ba(); } catch (Exception e) { Current.Log.Add(e); }
+            foreach (var ba in StartupSequence.Actions)
+                try { ba(); } catch (Exception e) { Current.Log.Add(e); }
 
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             DumpStartInfo();
 
             Status.SetState(Status.EState.Running);
-
         }
 
         private static void DumpStartInfo()
         {
-            Current.Log.Info(@"Zen " + System.Reflection.Assembly.GetCallingAssembly().GetName().Version);
+            Current.Log.Info(@"Zen " + Assembly.GetCallingAssembly().GetName().Version);
             Current.Log.Debug("___________________________________________________________________________________________________");
             Current.Log.Debug("");
             Current.Log.Debug("Providers:");
@@ -95,7 +94,7 @@ namespace Zen.Base
 
             if (_workerThread != null) return;
 
-            _workerThread = new Thread(() => Shutdown(seconds)) { IsBackground = false };
+            _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
             _workerThread.Start();
         }
 

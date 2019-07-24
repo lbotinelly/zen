@@ -1,9 +1,12 @@
-﻿using Zen.Base.Module.Data.CommonAttributes;
+﻿using System.Collections.Generic;
+using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.App.Provider
 {
-    public interface IZenGroup : IDataId, IDataCode, IDataActive
+    public interface IZenGroup<T> : IDataId, IDataCode, IDataActive where T: IZenPermission
     {
-         bool FromSettings { get; set; }
+        List<T> Permissions { get; set; }
+        bool FromSettings { get; set; }
+        string ParentId { get; set; }
     }
 }

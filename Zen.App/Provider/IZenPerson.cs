@@ -3,10 +3,11 @@ using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.App.Provider
 {
-    public interface IZenPerson : IDataId, IDataLocator, IDataActive
+    public interface IZenPerson<T> : IDataId, IDataLocator, IDataActive where T : IZenPermission
     {
-        List<IZenGroup> GetGroups();
         bool HasAnyPermissions(string expression);
         bool HasAnyPermissions(IEnumerable<string> terms);
+        List<T> Permissions { get; set; }
+        List<IZenGroup<T>> Groups();
     }
 }

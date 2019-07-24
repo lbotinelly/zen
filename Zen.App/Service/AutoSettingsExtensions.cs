@@ -10,9 +10,10 @@ namespace Zen.App.Service
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
-            var probe = Resolution.GetClassesByInterface<IAppOrchestrator>(false);
+            var probe = Resolution.GetClassesByInterface<IAppOrchestrator<IZenPermission>>(false);
+            var instance = probe.FirstOrDefault()?.CreateInstance<IAppOrchestrator<IZenPermission>>();
 
-            serviceCollection.AddSingleton(s => probe.FirstOrDefault()?.CreateInstance<IAppOrchestrator>());
+            serviceCollection.AddSingleton(s => instance);
 
             return serviceCollection;
         }

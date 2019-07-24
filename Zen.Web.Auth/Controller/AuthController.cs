@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Zen.Base.Extension;
 
 // ReSharper disable InconsistentlySynchronizedField
@@ -12,13 +11,14 @@ namespace Zen.Web.Auth.Controller
     [Route("framework/auth"), ApiController]
     public class AuthController : Microsoft.AspNetCore.Mvc.Controller
     {
-        [Authorize]
-        [HttpGet("signin")]
+        [Authorize, HttpGet("signin")]
         public object SignIn()
         {
-            Base.Current.Log.Add(this.User.ToString());
+            var person = App.Current.Orchestrator.SigninPersonByIdentity(User.Identity);
 
-            return this.User;
+            Base.Current.Log.Add(person.ToJson());
+
+            return person;
         }
     }
 }

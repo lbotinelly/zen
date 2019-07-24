@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +21,17 @@ namespace Zen.Base.Module.Service
 
             Instances.ServiceProvider = Instances.ServiceCollection.BuildServiceProvider();
 
-            foreach (var zenService in zenServices) ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
-
+            foreach (var zenService in zenServices)
+            {
+                try
+                {
+                    ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
+                }
+                catch (Exception e)
+                {
+                    Base.Current.Log.Add(e, zenService.ServiceType.FullName);
+                }
+            }
         }
 
         public static void UseAll(IApplicationBuilder app, IHostingEnvironment env)

@@ -45,47 +45,6 @@ namespace Zen.App
             return settings;
         }
 
-        public static IZenApplication GetCurrentApplication()
-        {
-
-            var initialSettings = Configuration.Options.GetSection("Application").Get<Application.Settings>();
-
-            var appLocator = initialSettings.Locator ?? Host.ApplicationAssemblyName + ".dll";
-
-            var application = Current.Orchestrator.GetApplicationByLocator(appLocator);
-
-            if (application != null) return application;
-
-            // No app detected. 
-
-            application = Current.Orchestrator.GetNewApplication();
-
-
-            var settingsNonHostGroups = initialSettings?.Groups?.Where(i => !i.IsHost).ToList() ?? new List<Application.Settings.Group>();
-
-            if (settingsNonHostGroups.Any())
-            {
-                // Host group is mandatory, so let's probe for it.
-
-                var settingsHostGroup = initialSettings?.Groups?.FirstOrDefault(i => i.IsHost);
-                if (settingsHostGroup == null) throw new ArgumentException("No Host group defined");
-
-                var hostGroup = Current.Orchestrator.GetGroupByCode(settingsHostGroup.Code);
-                if (hostGroup == null) throw new ArgumentException($"Invalid Host group code: {settingsHostGroup.Code}");
-            }
-
-            // Host group defined, so now we can start.
-
-            application.Name = initialSettings.Name;
-            application.Code = initialSettings.Code;
-            application.Locator = initialSettings.Locator;
-
-            application = Current.Orchestrator.UpsertApplication(application);
-
-            return application;
-
-        }
-
         public class ApplicationSection
         {
             public bool Active;

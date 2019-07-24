@@ -6,9 +6,8 @@ using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class Application : Data<Application>, IZenApplication
+    public class Application : Data<Application>, IZenApplication<Application.Permission>
     {
-        public List<Permission> Permissions { get; set; }
         public bool Locked { get; set; }
         public string Description { get; set; }
         public ConfigurationBlock Configuration { get; set; }
@@ -35,6 +34,7 @@ namespace Zen.App.Orchestrator.Model
 
         public bool Active { get; set; } = true;
         public string Name { get; set; }
+        public List<Permission> Permissions { get; set; }
 
         public override void BeforeSave()
         {
@@ -48,11 +48,11 @@ namespace Zen.App.Orchestrator.Model
             public bool IsLegacy { get; set; }
         }
 
-        public class Permission
+        public class Permission : IZenPermission
         {
             public string Id { get; set; } = Guid.NewGuid().ToString();
             public string Code { get; set; }
-            public string FullCode { get; internal set; }
+            public string FullCode { get; set; }
             public string Name { get; set; }
         }
 

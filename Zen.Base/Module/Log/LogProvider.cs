@@ -34,7 +34,12 @@ namespace Zen.Base.Module.Log
                 return;
             }
 
-            Add(Converter.ToMessage(e));
+            var msg = Converter.ToMessage(e);
+
+            if (message != null) msg.Content = message + " : " + msg.Content;
+
+            Add(msg);
+
             if (e.InnerException != null) Add(e.InnerException);
         }
 

@@ -6,8 +6,18 @@ using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class Group : Data<Group>, IZenGroup
+    public class Group : Data<Group>, IZenGroup<Application.Permission>
     {
+        public string OwnerAssetId { get; set; }
+        public string Name { get; set; }
+        public string ParentId { get; set; }
+
+        #region Implementation of IDataActive
+
+        public bool IsActive { get; set; } = true;
+
+        #endregion
+
         #region Implementation of IDataId
 
         [Key]
@@ -21,12 +31,15 @@ namespace Zen.App.Orchestrator.Model
         public string Code { get; set; }
 
         #endregion
-        public string OwnerAssetId { get; set; }
-        public string Name { get; set; }
-        public bool Active { get; set; }
-        public string ParentId { get; set; }
-        public List<Permission> Permissions { get; set; }
 
+        public bool Active { get; set; }
+
+        #region Implementation of IZenGroup
+
+        public List<Application.Permission> Permissions { get; set; }
+        public bool FromSettings { get; set; }
+
+        #endregion
 
         public class Permission
         {
@@ -34,13 +47,5 @@ namespace Zen.App.Orchestrator.Model
             public string Code { get; set; }
             public string Name { get; set; }
         }
-
-        #region Implementation of IDataActive
-        public bool IsActive { get; set; } = true;
-        #endregion
-
-        #region Implementation of IZenGroup
-        public bool FromSettings { get; set; }
-        #endregion
     }
 }

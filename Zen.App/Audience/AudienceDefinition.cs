@@ -18,7 +18,10 @@ namespace Zen.App.Audience
 
             if (Groups.Count == 0 && (People.Count == 0) & (Permissions.Count == 0)) return true;
 
-            var grps = Current.Orchestrator.GetPersonByLocator(locator).GetGroups().Select(i => i.Code);
+            var grps = Current.Orchestrator
+                .GetPersonByLocator(locator)
+
+                .Groups().Select(i => i.Code);
 
             if (Groups.Count > 0)
                 if (grps.Any(i => Groups.Contains(i)))
