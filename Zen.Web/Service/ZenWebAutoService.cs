@@ -7,7 +7,7 @@ using Zen.Web.Service.Extensions;
 
 namespace Zen.Web.Service
 {
-    [Priority(Level = -98)]
+    [Priority(Level = -99)]
     public class ZenWebAutoService : IZenAutoAddService, IZenAutoUseService
     {
         public void Add(IServiceCollection services) { services.AddZenWeb(); }

@@ -1,4 +1,5 @@
-﻿namespace Zen.Base.Module.Data.CommonAttributes {
+﻿namespace Zen.Base.Module.Data.CommonAttributes
+{
     public interface IDataId
     {
         string Id { get; set; }

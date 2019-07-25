@@ -15,31 +15,18 @@ namespace Zen.Base.Module.Service
 
         public static void Add()
         {
-            foreach (var item in AddQueue)
-            {
-                item.Add(Instances.ServiceCollection);
-            }
+            foreach (var item in AddQueue) item.Add(Instances.ServiceCollection);
 
             var zenServices = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType)).ToList();
 
             Instances.ServiceProvider = Instances.ServiceCollection.BuildServiceProvider();
 
             foreach (var zenService in zenServices)
-            {
-                try
-                {
-                    ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize();
-                }
-                catch (Exception e)
-                {
-                    Base.Current.Log.Add(e, zenService.ServiceType.FullName);
-                }
-            }
+                try { ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize(); } catch (Exception e) { Current.Log.Add(e, zenService.ServiceType.FullName); }
         }
 
         public static void UseAll(IApplicationBuilder app, IHostingEnvironment env)
         {
-
             foreach (var item in UseQueue) item.Use(app, env);
         }
     }

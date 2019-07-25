@@ -53,6 +53,22 @@ namespace Zen.Base.Module.Cache
 
             return cacheModel;
         }
+        public static T FetchModel<T, TU>(Func<TU, T> method, TU parameter, string key, string baseType = null, int cacheTimeOutSeconds = 600)
+        {
+            if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return method(parameter);
+
+            var cacheKey = typeof(T).CacheKey(key, baseType);
+
+            var cacheModel = Current.Cache[cacheKey].FromJson<T>();
+
+            if (cacheModel != null) return cacheModel;
+
+            cacheModel = method(parameter);
+
+            Current.Cache[cacheKey, null, cacheTimeOutSeconds] = cacheModel.ToJson();
+
+            return cacheModel;
+        }
 
         public static void StoreModel<T>(string key, T model) { Current.Cache[typeof(T).CacheKey(key)] = model.ToJson(); }
 

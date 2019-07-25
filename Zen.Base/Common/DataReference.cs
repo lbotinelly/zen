@@ -1,7 +1,8 @@
-﻿namespace Zen.Base.Common {
+﻿namespace Zen.Base.Common
+{
     public class DataReference
     {
-        public string Key;
         public string Display;
+        public string Key;
     }
 }

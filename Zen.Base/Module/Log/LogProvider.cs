@@ -53,12 +53,11 @@ namespace Zen.Base.Module.Log
 
         public void Add<T>(Exception e) { Add<T>(e, null); }
 
-        public void KeyValuePair(string key, string value, Message.EContentType type)
-        {
-            Current.Log.Add($"{key.TruncateEnd(25, true)} : {value.TruncateEnd(73)}", type);
-        }
+        public void KeyValuePair(string key, string value, Message.EContentType type) { Current.Log.Add($"{key.TruncateEnd(25, true)} : {value.TruncateEnd(73)}", type); }
 
         public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
+
+        public void Info<T>(string content) { Info(typeof(T).Name + ": " + content); }
 
         public virtual void Debug(string content) { Add(content, Message.EContentType.Debug); }
 
@@ -75,13 +74,6 @@ namespace Zen.Base.Module.Log
             Add(payload);
         }
 
-        public void FlushQueue()
-        {
-            foreach (var message in Queue) Pipeline(message);
-
-            Queue.Clear();
-        }
-
         public virtual void Add(Message message)
         {
             if (_logger != null)
@@ -91,6 +83,19 @@ namespace Zen.Base.Module.Log
             }
 
             Queue.Add(message);
+        }
+
+        public void Initialize()
+        {
+            Events.StartupSequence.Actions.Add(Start);
+            Events.ShutdownSequence.Actions.Add(Shutdown);
+        }
+
+        public void FlushQueue()
+        {
+            foreach (var message in Queue) Pipeline(message);
+
+            Queue.Clear();
         }
 
         public virtual void Pipeline(Message m)
@@ -135,12 +140,6 @@ namespace Zen.Base.Module.Log
             _logger.Write(targetLevel, m.Content, m);
 
             //_logger.Log(targetLevel, m.Content, m);
-        }
-
-        public void Initialize()
-        {
-            Events.StartupSequence.Actions.Add(Start);
-            Events.ShutdownSequence.Actions.Add(Shutdown);
         }
 
         public virtual void Add<T>(Exception e, string message, string token = null)

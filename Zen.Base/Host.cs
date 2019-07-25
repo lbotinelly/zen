@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
+using System.Reflection;
 
 namespace Zen.Base
 {
@@ -8,10 +8,10 @@ namespace Zen.Base
         //todo: Move Base and Data to proper container class
         static Host()
         {
-            BaseDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            BaseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             DataDirectory = $"{BaseDirectory}{Path.DirectorySeparatorChar}data";
 
-            Version = System.Reflection.Assembly.GetCallingAssembly().GetName().Version.ToString();
+            Version = Assembly.GetCallingAssembly().GetName().Version.ToString();
             Process = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
             ApplicationAssembly = GetAppAssembly();
@@ -26,9 +26,9 @@ namespace Zen.Base
         public static string DataDirectory { get; }
         public static string Version { get; }
         public static string ApplicationAssemblyName { get; }
-        public static System.Reflection.Assembly ApplicationAssembly { get; }
+        public static Assembly ApplicationAssembly { get; }
         public static string Process { get; }
 
-        private static System.Reflection.Assembly GetAppAssembly() { return System.Reflection.Assembly.GetEntryAssembly(); }
+        private static Assembly GetAppAssembly() { return Assembly.GetEntryAssembly(); }
     }
 }

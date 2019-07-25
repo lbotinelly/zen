@@ -8,7 +8,7 @@ namespace Zen.App.Orchestrator.Model
 {
     public class Group : Data<Group>, IZenGroup
     {
-        public string OwnerAssetId { get; set; }
+        public string ApplicationId { get; set; }
         public string Name { get; set; }
         public string ParentId { get; set; }
 
@@ -36,7 +36,7 @@ namespace Zen.App.Orchestrator.Model
 
         #region Implementation of IZenGroup
 
-        public List<Application.Permission> Permissions { get; set; }
+        public List<string> Permissions { get; set; }
         public bool FromSettings { get; set; }
 
         #endregion

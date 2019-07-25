@@ -4,24 +4,21 @@ using Microsoft.Extensions.Hosting;
 using Zen.Base.Common;
 using Zen.Base.Module.Service;
 
-namespace Zen.Base.Service {
+namespace Zen.Base.Service
+{
     [Priority(Level = 1)]
     public class ZenBaseAutoService : IZenAutoAddService, IZenAutoUseService
     {
         #region Implementation of IZenAutoAddService
 
-        public void Add(IServiceCollection services)
-        {
-            services.ResolveSettingsPackage();
-        }
+        public void Add(IServiceCollection services) { services.ResolveSettingsPackage(); }
 
         #endregion
 
         #region Implementation of IZenAutoUseService
-        public void Use(IApplicationBuilder app, IHostingEnvironment env = null)
-        {
 
-        }
+        public void Use(IApplicationBuilder app, IHostingEnvironment env = null) { }
+
         #endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +43,6 @@ namespace Zen.Web.Auth.Service.Extensions
                     options.ClientId = googleAuthNSection["ClientId"];
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
-
 
             services
                 .AddDistributedMemoryCache()

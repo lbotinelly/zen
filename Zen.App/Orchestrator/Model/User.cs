@@ -44,7 +44,8 @@ namespace Zen.App.Orchestrator.Model
         public bool TwoFactorEnabled { get; internal set; }
         public virtual bool HasAnyPermissions(string perm) { return true; }
         public bool HasAnyPermissions(IEnumerable<string> terms) { throw new NotImplementedException(); }
-        public List<Application.Permission> Permissions { get; set; }
+        public List<string> Permissions { get; set; }
+
         List<IZenGroup> IZenPerson.Groups()
         {
             throw new NotImplementedException();

@@ -5,16 +5,12 @@ using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
-using Zen.Base.Service;
 
 namespace Zen.Base
 {
     public static class Current
     {
-        static Current()
-        {
-            Events.Start();
-        }
+        static Current() { Events.Start(); }
 
         public static Status.EState State { get; internal set; } = Status.State;
 

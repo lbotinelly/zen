@@ -16,6 +16,7 @@ namespace Zen.Base.Module.Log
         void Add(string pattern, params object[] replacementStrings);
         void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic);
         void Info(string content);
+        void Info<T>(string content);
         void Debug(string content);
         void Debug<T>(string content);
         void Maintenance(string content);

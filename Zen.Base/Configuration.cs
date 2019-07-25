@@ -9,9 +9,9 @@ namespace Zen.Base
         {
             var configurationBuilder =
                     new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("zen.json", true, true)
-                    .AddEnvironmentVariables()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("zen.json", true, true)
+                        .AddEnvironmentVariables()
                 ;
 
             Options = configurationBuilder.Build();

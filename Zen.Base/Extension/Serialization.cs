@@ -31,7 +31,7 @@ namespace Zen.Base.Extension
 
             using (var writer = new Utf8StringWriter())
             {
-                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = false }))
+                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings {Indent = false}))
                 {
                     var ns = new XmlSerializerNamespaces();
 
@@ -68,8 +68,8 @@ namespace Zen.Base.Extension
         {
             var jo = JObject.Parse(obj);
             var myTest = jo.Descendants()
-                .Where(t => t.Type == JTokenType.Property && ((JProperty)t).Name == nodeName)
-                .Select(p => ((JProperty)p).Value)
+                .Where(t => t.Type == JTokenType.Property && ((JProperty) t).Name == nodeName)
+                .Select(p => ((JProperty) p).Value)
                 .FirstOrDefault();
             return myTest.ToString();
         }
@@ -91,7 +91,7 @@ namespace Zen.Base.Extension
                     if (colpos > 0) sb.Append(", ");
                     sb.Append("\"" + column + "\":");
 
-                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime)obj[colpos]).ToString("o") + "\"");
+                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime) obj[colpos]).ToString("o") + "\"");
                     else sb.Append(CleanupJsonData(obj[colpos]));
                 }
 
@@ -160,8 +160,8 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null) != null
-                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+                where p.GetValue(obj, null) != null
+                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
         }
@@ -187,7 +187,7 @@ namespace Zen.Base.Extension
                 else if (c >= 'A' && c <= 'Z')
                 {
                     // tricky way to convert to lowercase
-                    sb.Append((char)(c | 32));
+                    sb.Append((char) (c | 32));
                     prevdash = false;
                 }
                 else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
@@ -270,11 +270,12 @@ namespace Zen.Base.Extension
             return
                 type.IsValueType ||
                 type.IsPrimitive ||
-                new Type[] {
+                new[]
+                {
                     typeof(string),
                     typeof(decimal),
-                    typeof(String),
-                    typeof(Decimal),
+                    typeof(string),
+                    typeof(decimal),
                     typeof(DateTime),
                     typeof(DateTimeOffset),
                     typeof(TimeSpan),
@@ -287,9 +288,9 @@ namespace Zen.Base.Extension
         {
             if (string.IsNullOrEmpty(text)) return string.Empty;
 
-            if (text.Length < length) return !padLeft ? text : text.PadLeft(length-1);
+            if (text.Length < length) return !padLeft ? text : text.PadLeft(length - 1);
 
-            var rendered = "..." + text.Substring(Math.Max(0, (text.Length - length) + 4));
+            var rendered = "..." + text.Substring(Math.Max(0, text.Length - length + 4));
 
             return rendered;
         }
@@ -307,7 +308,6 @@ namespace Zen.Base.Extension
                 settings.NullValueHandling = NullValueHandling.Ignore;
                 settings.DefaultValueHandling = DefaultValueHandling.Ignore;
             }
-
 
             try { return JsonConvert.SerializeObject(obj, Formatting.None, settings); } catch { return null; }
         }
@@ -327,14 +327,14 @@ namespace Zen.Base.Extension
         {
             var ret = new Dictionary<string, string>();
 
-            foreach (var jToken in (JToken)source)
+            foreach (var jToken in (JToken) source)
             {
-                var t = (JProperty)jToken;
+                var t = (JProperty) jToken;
 
                 var k = t.Name;
                 var v = t.Value;
 
-                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject)v)).ToDictionary(x => x.Key, x => x.Value);
+                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject) v)).ToDictionary(x => x.Key, x => x.Value);
                 else ret.Add(t.Path, v.ToString());
             }
 
@@ -352,7 +352,7 @@ namespace Zen.Base.Extension
                 var genericListType = typeof(List<>);
 
                 var specificListType = genericListType.MakeGenericType(destinyFormat);
-                type = ((IEnumerable<object>)Activator.CreateInstance(specificListType)).GetType();
+                type = ((IEnumerable<object>) Activator.CreateInstance(specificListType)).GetType();
             }
 
             if (obj == null) return null;
@@ -377,7 +377,7 @@ namespace Zen.Base.Extension
             using (var stream = new MemoryStream(obj))
             {
                 var ser = new BinaryFormatter();
-                return (T)ser.Deserialize(stream);
+                return (T) ser.Deserialize(stream);
             }
         }
 

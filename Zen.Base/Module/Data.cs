@@ -42,7 +42,7 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(), (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(), (DataConfigAttribute) Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -112,16 +112,16 @@ namespace Zen.Base.Module
                         Info<T>.Settings.Pipelines = new Settings.PipelineQueueHandler
                         {
                             Before = (from pipelineAttribute in ps
-                                      from type in pipelineAttribute.Types
-                                      where typeof(IBeforeActionPipeline).IsAssignableFrom(type)
-                                      select (IBeforeActionPipeline)type.GetConstructor(new Type[] { })
-                                          .Invoke(new object[] { }))
+                                    from type in pipelineAttribute.Types
+                                    where typeof(IBeforeActionPipeline).IsAssignableFrom(type)
+                                    select (IBeforeActionPipeline) type.GetConstructor(new Type[] { })
+                                        .Invoke(new object[] { }))
                                 .ToList(),
                             After = (from pipelineAttribute in ps
-                                     from type in pipelineAttribute.Types
-                                     where typeof(IAfterActionPipeline).IsAssignableFrom(type)
-                                     select (IAfterActionPipeline)type.GetConstructor(new Type[] { })
-                                         .Invoke(new object[] { }))
+                                    from type in pipelineAttribute.Types
+                                    where typeof(IAfterActionPipeline).IsAssignableFrom(type)
+                                    select (IAfterActionPipeline) type.GetConstructor(new Type[] { })
+                                        .Invoke(new object[] { }))
                                 .ToList()
                         };
 
@@ -139,16 +139,10 @@ namespace Zen.Base.Module
 
                     // Next step: Record Environment Mapping data, if any.
 
-                    Info<T>.Settings.Statistics["Current.Environment.Current.Code"] = Current.Environment?.Current?.Code ?? "STA";
-
                     Info<T>.Settings.EnvironmentMapping = Attribute
                         .GetCustomAttributes(typeof(T), typeof(EnvironmentMappingAttribute))
-                        .Select(i => (EnvironmentMappingAttribute)i)
+                        .Select(i => (EnvironmentMappingAttribute) i)
                         .ToList();
-
-                    if (Info<T>.Settings.EnvironmentMapping.Any())
-                        Info<T>.Settings.Statistics["Settings.EnvironmentMapping"] =
-                            Info<T>.Settings.EnvironmentMapping.ToJson();
 
                     Info<T>.Settings.EnvironmentCode =
                         // If a PersistentEnvironmentCode is defined, use it.
@@ -156,7 +150,7 @@ namespace Zen.Base.Module
                         // Otherwise let's check if there's a mapping defined for the current 'real' environment.
                         Info<T>.Settings.EnvironmentMapping?.FirstOrDefault(i => i.Origin == Current.Environment?.CurrentCode)?.Target ??
                         // Nothing? Let's just use the current environment then.
-                        Info<T>.Settings.Statistics["Current.Environment.Current.Code"];
+                        Current.Environment?.Current?.Code;
 
                     Info<T>.Settings.State.Step = "Setting up Reference Bundle";
                     var refBundle = Info<T>.Configuration?.ConnectionBundleType ?? Current.GlobalConnectionBundleType;
@@ -168,7 +162,7 @@ namespace Zen.Base.Module
                         return;
                     }
 
-                    var refType = (ConnectionBundlePrimitive)Activator.CreateInstance(refBundle);
+                    var refType = (ConnectionBundlePrimitive) Activator.CreateInstance(refBundle);
 
                     Info<T>.Settings.Bundle = refType;
                     Info<T>.Settings.Bundle.Validate(ConnectionBundlePrimitive.EValidationScope.Database);
@@ -180,7 +174,7 @@ namespace Zen.Base.Module
                         return;
                     }
 
-                    Info<T>.Settings.Adapter = (DataAdapterPrimitive)Activator.CreateInstance(refType.AdapterType);
+                    Info<T>.Settings.Adapter = (DataAdapterPrimitive) Activator.CreateInstance(refType.AdapterType);
 
                     Info<T>.Settings.Adapter.SourceBundle = refType;
 
@@ -189,8 +183,6 @@ namespace Zen.Base.Module
                         Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "Null AdapterType");
                         return;
                     }
-
-                    Info<T>.Settings.Statistics["Settings.Bundle"] = refType.GetType().Name;
 
                     Info<T>.Settings.State.Step = "Setting up CypherKeys";
                     Info<T>.Settings.ConnectionCypherKeys =
@@ -201,9 +193,9 @@ namespace Zen.Base.Module
                         Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle,
                                                                     Info<T>.Configuration?.CredentialSetType);
 
-                    if (Info<T>.Settings.CredentialSet != null)
-                        Info<T>.Settings.Statistics["Settings.CredentialSet"] =
-                            Info<T>.Settings.CredentialSet?.GetType().Name;
+                    //if (Info<T>.Settings.CredentialSet != null)
+                    //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
+                    //        Info<T>.Settings.CredentialSet?.GetType().Name;
 
                     Info<T>.Settings.CredentialCypherKeys =
                         Info<T>.Configuration?.CredentialCypherKeys ??
@@ -220,9 +212,8 @@ namespace Zen.Base.Module
 
                     foreach (var (key, value) in Info<T>.Settings.Statistics) Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
 
-                    Current.Log.KeyValuePair(typeof(T).FullName, "Ready", Message.EContentType.StartupSequence);
-                }
-                catch (Exception e)
+                    Current.Log.KeyValuePair(typeof(T).FullName, $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name}", Message.EContentType.StartupSequence);
+                } catch (Exception e)
                 {
                     Info<T>.Settings.State.Status = Settings.EStatus.CriticalFailure;
 
@@ -248,6 +239,8 @@ namespace Zen.Base.Module
         public override string ToString() { return $"{GetDataKey()} : {GetDataDisplay() ?? this.ToJson()}"; }
 
         #endregion
+
+        public static T New() { return (T) Activator.CreateInstance(typeof(T)); }
 
         private enum EMetadataScope
         {
@@ -492,7 +485,7 @@ namespace Zen.Base.Module
 
             if (modelSet.Count == 0) return null;
 
-            var resultPackage = new BulkDataOperation<T> { Type = type };
+            var resultPackage = new BulkDataOperation<T> {Type = type};
 
             // First let's obtain any ServiceTokenGuid set by the user.
 
@@ -510,34 +503,34 @@ namespace Zen.Base.Module
 
                     var paralelizableClicker = logClicker;
 
-                    Parallel.ForEach(modelSet, new ParallelOptions { MaxDegreeOfParallelism = 5 }, item =>
-                      {
-                          paralelizableClicker.Click();
+                    Parallel.ForEach(modelSet, new ParallelOptions {MaxDegreeOfParallelism = 5}, item =>
+                    {
+                        paralelizableClicker.Click();
 
-                          if (item.IsNew())
-                          {
-                              var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
+                        if (item.IsNew())
+                        {
+                            var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
 
-                              if (resultPackage.Control.ContainsKey(tempKey))
-                              {
-                                  Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
-                                  failureSet.Add(item);
-                              }
-                              else { resultPackage.Control[tempKey] = new DataOperationControl<T> { Current = item, IsNew = true, Original = null }; }
+                            if (resultPackage.Control.ContainsKey(tempKey))
+                            {
+                                Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                failureSet.Add(item);
+                            }
+                            else { resultPackage.Control[tempKey] = new DataOperationControl<T> {Current = item, IsNew = true, Original = null}; }
 
-                              return;
-                          }
+                            return;
+                        }
 
-                          var modelKey = mutator?.KeyPrefix + item.GetDataKey();
+                        var modelKey = mutator?.KeyPrefix + item.GetDataKey();
 
-                          if (resultPackage.Control.ContainsKey(modelKey))
-                          {
-                              Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
-                              return;
-                          }
+                        if (resultPackage.Control.ContainsKey(modelKey))
+                        {
+                            Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                            return;
+                        }
 
-                          resultPackage.Control[modelKey] = new DataOperationControl<T> { Current = item };
-                      });
+                        resultPackage.Control[modelKey] = new DataOperationControl<T> {Current = item};
+                    });
 
                     logClicker.End();
 
@@ -605,10 +598,10 @@ namespace Zen.Base.Module
                             if (type == EActionType.Remove) { originalModel.BeforeRemove(); }
                             else
                             {
-                                if (!originalModel.IsNew()) originalModel.BeforeSave();
+                                if (!originalModel.IsNew()) originalModel.BeforeUpdate();
                                 else originalModel.BeforeInsert();
 
-                                originalModel.BeforeUpsert();
+                                originalModel.BeforeSave();
                             }
 
                             controlItem.Value.Success = true;
@@ -626,28 +619,28 @@ namespace Zen.Base.Module
 
                     logStep = _timed.Log("post-processing individual models");
 
-                    Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions { MaxDegreeOfParallelism = 5 }, controlModel =>
-                      {
-                          var key = controlModel.Key;
-                          logClicker.Click();
+                    Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions {MaxDegreeOfParallelism = 5}, controlModel =>
+                    {
+                        var key = controlModel.Key;
+                        logClicker.Click();
 
-                          if (type == EActionType.Remove)
-                          {
-                              controlModel.Value.Current.AfterRemove();
-                              ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                          }
-                          else
-                          {
-                              if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
-                              else controlModel.Value.Current.AfterSave(key);
+                        if (type == EActionType.Remove)
+                        {
+                            controlModel.Value.Current.AfterRemove();
+                            ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                        }
+                        else
+                        {
+                            if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
+                            else controlModel.Value.Current.AfterUpdate(key);
 
-                              controlModel.Value.Current.AfterUpsert(key);
+                            controlModel.Value.Current.AfterSave(key);
 
-                              ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                          }
+                            ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                        }
 
-                          CacheFactory.FlushModel<T>(key);
-                      });
+                        CacheFactory.FlushModel<T>(key);
+                    });
 
                     resultPackage.Success = successSet;
                     resultPackage.Failure = failureSet;
@@ -658,8 +651,7 @@ namespace Zen.Base.Module
                     _timed.End();
 
                     return resultPackage;
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     Current.Log.Add<T>(e);
                     var ex = new Exception($"{type} - Error while {logStep} {logObj?.ToJson()}: {e.Message}", e);
@@ -678,7 +670,7 @@ namespace Zen.Base.Module
             var fetchKeys = keys.ToList();
 
             // First we create a map to accomodate all the requested records.
-            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T)null);
+            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T) null);
 
             //Then we proceed to probe the cache for individual model copies if the user didn't decided to ignore cache.
             var cacheKeyPrefix = mutator?.KeyPrefix;
@@ -751,7 +743,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Update);
 
-            var localModel = (T)this;
+            var localModel = (T) this;
             T storedModel = null;
             var isNew = IsNew(ref storedModel, mutator);
 
@@ -762,16 +754,16 @@ namespace Zen.Base.Module
             if (localModel == null) return null;
 
             if (isNew) BeforeInsert();
-            else BeforeSave();
-            BeforeUpsert();
+            else BeforeUpdate();
+            BeforeSave();
 
             var postKey = Info<T>.Settings.Adapter.Save(localModel).GetDataKey();
 
             Info<T>.TryFlushCachedModel(localModel);
 
             if (isNew) AfterInsert(postKey);
-            else AfterSave(postKey);
-            AfterUpsert(postKey);
+            else AfterUpdate(postKey);
+            AfterSave(postKey);
 
             _isNew = null;
 
@@ -787,7 +779,7 @@ namespace Zen.Base.Module
         {
             ValidateState(EActionType.Remove);
 
-            var localModel = (T)this;
+            var localModel = (T) this;
             if (_isDeleted) return null;
 
             T storedModel = null;
@@ -817,17 +809,17 @@ namespace Zen.Base.Module
 
         #region Event hooks and Behavior modifiers
 
-        public virtual void BeforeSave() { }
+        public virtual void BeforeUpdate() { }
 
-        public virtual void AfterSave(string newKey) { }
+        public virtual void AfterUpdate(string newKey) { }
 
         public virtual void BeforeInsert() { }
 
         public virtual void AfterInsert(string newKey) { }
 
-        public virtual void BeforeUpsert() { }
+        public virtual void BeforeSave() { }
 
-        public virtual void AfterUpsert(string newKey) { }
+        public virtual void AfterSave(string newKey) { }
 
         public virtual void BeforeRemove() { }
 
@@ -855,10 +847,5 @@ namespace Zen.Base.Module
         }
 
         #endregion
-
-        public static T New()
-        {
-            return (T)Activator.CreateInstance(typeof(T));
-        }
     }
 }

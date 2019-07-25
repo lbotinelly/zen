@@ -67,8 +67,7 @@ namespace Zen.Base.Module.Service
                 {
                     errCount = 0;
 
-                    try { item.Value.GetTypes(); }
-                    catch (Exception e)
+                    try { item.Value.GetTypes(); } catch (Exception e)
                     {
                         if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
                         {
@@ -81,10 +80,7 @@ namespace Zen.Base.Module.Service
             }
         }
 
-        public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class
-        {
-            return GetClassesByInterface<T>(excludeCoreNullDefinitions).Select(i => i.CreateInstance<T>()).ToList();
-        }
+        public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class { return GetClassesByInterface<T>(excludeCoreNullDefinitions).Select(i => i.CreateInstance<T>()).ToList(); }
 
         private static Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }
 
@@ -145,8 +141,7 @@ namespace Zen.Base.Module.Service
                 {
                     if (!AssemblyCache.ContainsKey(assy.ToString())) AssemblyCache.TryAdd(assy.ToString(), assy);
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 if (e is ReflectionTypeLoadException exception)
                 {
@@ -181,8 +176,7 @@ namespace Zen.Base.Module.Service
                                                   || type.BaseType == refType));
 
                 return classCol;
-            }
-            catch (ReflectionTypeLoadException ex)
+            } catch (ReflectionTypeLoadException ex)
             {
                 foreach (var item in ex.LoaderExceptions)
                 {
@@ -190,8 +184,7 @@ namespace Zen.Base.Module.Service
                 }
 
                 throw ex;
-            }
-            catch (Exception ex)
+            } catch (Exception ex)
             {
                 //Current.Log.Add($"GetClassesByBaseClass ERR for {refType.Name}: {ex.Message}", Message.EContentType.Warning);
                 throw ex;
@@ -209,24 +202,22 @@ namespace Zen.Base.Module.Service
                 try
                 {
                     foreach (var asy in AssemblyCache.Values.ToList())
-                        foreach (var st in asy.GetTypes())
-                        {
-                            if (st.BaseType == null) continue;
-                            if (!st.BaseType.IsGenericType) continue;
-                            if (st == refType) continue;
+                    foreach (var st in asy.GetTypes())
+                    {
+                        if (st.BaseType == null) continue;
+                        if (!st.BaseType.IsGenericType) continue;
+                        if (st == refType) continue;
 
-                            try
-                            {
-                                foreach (var gta in st.BaseType.GenericTypeArguments)
-                                    if (gta == refType)
-                                        classCol.Add(st);
-                            }
-                            catch { }
-                        }
+                        try
+                        {
+                            foreach (var gta in st.BaseType.GenericTypeArguments)
+                                if (gta == refType)
+                                    classCol.Add(st);
+                        } catch { }
+                    }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
-                }
-                catch (Exception)
+                } catch (Exception)
                 {
                     // Current.Log.Add(e);
                 }
@@ -244,10 +235,7 @@ namespace Zen.Base.Module.Service
         ///     external providers.
         /// </param>
         /// <returns>The list of classes.</returns>
-        public static List<Type> GetClassesByInterface<T>(bool excludeCoreNullDefinitions = true)
-        {
-            return GetClassesByInterface(typeof(T), excludeCoreNullDefinitions);
-        }
+        public static List<Type> GetClassesByInterface<T>(bool excludeCoreNullDefinitions = true) { return GetClassesByInterface(typeof(T), excludeCoreNullDefinitions); }
 
         public static List<Type> GetClassesByInterface(Type type, bool excludeCoreNullDefinitions = true)
         {
@@ -265,8 +253,7 @@ namespace Zen.Base.Module.Service
 
                     Type[] preTypes;
 
-                    try { preTypes = item.GetTypes(); }
-                    catch (Exception e)
+                    try { preTypes = item.GetTypes(); } catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException)
                         {
@@ -281,8 +268,6 @@ namespace Zen.Base.Module.Service
                         // It's not a real problem not to catch exceptions here. 
                         continue;
                     }
-
-
 
                     preRet.AddRange(
                         from target in preTypes
@@ -303,7 +288,7 @@ namespace Zen.Base.Module.Service
 
                     var attrs = item.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault();
 
-                    if (attrs != null) level = ((PriorityAttribute)attrs).Level;
+                    if (attrs != null) level = ((PriorityAttribute) attrs).Level;
 
                     priorityList.Add(new KeyValuePair<int, Type>(level, item));
                 }

@@ -37,8 +37,6 @@ namespace Zen.Base.Service
             serviceCollection.AddSingleton(s => configurationPackage.Encryption ?? Resolution.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.GlobalConnectionBundleType ?? Resolution.GetClassesByInterface<ConnectionBundlePrimitive>().FirstOrDefault());
 
-
-
             return serviceCollection;
         }
     }

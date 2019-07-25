@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Zen.Base.Diagnostics
 {
@@ -174,9 +175,9 @@ namespace Zen.Base.Diagnostics
                 //}
             }
 
-            PreCompEntryAssembly = System.Reflection.Assembly.GetEntryAssembly() != null ? System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name : "N/A";
-            PreCompCallingAssembly = System.Reflection.Assembly.GetCallingAssembly() != null ? System.Reflection.Assembly.GetCallingAssembly().GetName().Name : "N/A";
-            PreCompExecutingAssembly = System.Reflection.Assembly.GetExecutingAssembly() != null ? System.Reflection.Assembly.GetExecutingAssembly().GetName().Name : "N/A";
+            PreCompEntryAssembly = Assembly.GetEntryAssembly() != null ? Assembly.GetEntryAssembly()?.GetName().Name : "N/A";
+            PreCompCallingAssembly = Assembly.GetCallingAssembly() != null ? Assembly.GetCallingAssembly().GetName().Name : "N/A";
+            PreCompExecutingAssembly = Assembly.GetExecutingAssembly() != null ? Assembly.GetExecutingAssembly().GetName().Name : "N/A";
 
             PreCompBaseAssembly = PreCompInitializingAssembly ?? PreCompEntryAssembly;
 

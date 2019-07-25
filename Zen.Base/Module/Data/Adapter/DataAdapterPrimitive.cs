@@ -31,8 +31,7 @@ namespace Zen.Base.Module.Data.Adapter
             {
                 if (settings.ConnectionCypherKeys.ContainsKey("STA")) //There is a standard code available.
                     envCode = "STA";
-                else
-                    Current.Log.KeyValuePair(typeof(T).FullName, "No ConnectionCypherKeys for [STA] environment", Message.EContentType.Warning);
+                else Current.Log.KeyValuePair(typeof(T).FullName, "No ConnectionCypherKeys for [STA] environment", Message.EContentType.Warning);
             }
 
             if (settings.ConnectionCypherKeys?.ContainsKey(envCode) == true) settings.ConnectionString = settings.ConnectionCypherKeys[envCode];

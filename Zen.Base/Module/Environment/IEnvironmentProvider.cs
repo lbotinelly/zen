@@ -1,5 +1,4 @@
-﻿using System;
-using Zen.Base.Common;
+﻿using Zen.Base.Common;
 
 namespace Zen.Base.Module.Environment
 {

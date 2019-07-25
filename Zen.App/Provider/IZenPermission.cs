@@ -6,5 +6,7 @@
         string Name { get; set; }
         string Code { get; set; }
         string FullCode { get; set; }
+        string ApplicationId { get; set; }
+
     }
 }

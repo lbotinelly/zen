@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Zen.App.Provider;
 using Zen.Base.Extension;
 
 // ReSharper disable InconsistentlySynchronizedField
@@ -19,6 +20,14 @@ namespace Zen.Web.Auth.Controller
             Base.Current.Log.Add(person.ToJson());
 
             return person;
+        }
+
+        [HttpGet("maintenance/start")]
+        public object DoMaintenance()
+        {
+            App.Current.Orchestrator.CompileAllPeoplePermissions();
+
+            return true;
         }
     }
 }

@@ -36,24 +36,27 @@ namespace Zen.App.Orchestrator.Model
         public string Name { get; set; }
         public List<Permission> Permissions { get; set; }
 
-        public override void BeforeSave()
+        public override void BeforeUpdate()
         {
             foreach (var p in Permissions) p.FullCode = $"[{Code}].[{p.Code}]";
         }
 
         public class ConfigurationBlock
         {
-            public string Url { get; set; }
+            public string Url { get; set; }  
             public string VersionTag { get; set; }
             public bool IsLegacy { get; set; }
         }
 
-        public class Permission : IZenPermission
+        public class Permission : Data<Permission>, IZenPermission
         {
+            [Key]
             public string Id { get; set; } = Guid.NewGuid().ToString();
             public string Code { get; set; }
+            [Display]
             public string FullCode { get; set; }
             public string Name { get; set; }
+            public string ApplicationId { get; set; }
         }
 
         public class Settings

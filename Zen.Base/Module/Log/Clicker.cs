@@ -46,7 +46,7 @@ namespace Zen.Base.Module.Log
         public void Click()
         {
             _pIndex++;
-            if (_pIndex % _pNotifySlice != 0) return;
+            if( (_pIndex % _pNotifySlice != 0 ) && _pIndex != 0)return;
 
             _pNotifySliceMoreInfo++;
             _pNotifySliceMoreInfo = _pNotifySliceMoreInfo % 10;

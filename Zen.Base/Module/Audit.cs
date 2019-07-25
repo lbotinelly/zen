@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Zen.Base.Common;
+using Zen.Base.Extension;
 
-namespace Zen.Base.Module {
+namespace Zen.Base.Module
+{
     public class Audit : Data<Audit>
     {
         [Key]
@@ -15,5 +17,14 @@ namespace Zen.Base.Module {
         public string Description { get; set; }
         public DateTime TimeStamp { get; set; } = DateTime.Now;
         public object Payload { get; set; }
+
+        #region Overrides of Data<Audit>
+
+        public override void AfterInsert(string newKey)
+        {
+            Current.Log.Info<Audit>(this.ToJson());
+        }
+
+        #endregion
     }
 }
