@@ -1,45 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
 using Zen.App.Orchestrator.Model;
-using Zen.App.Provider;
 using Zen.Base;
 
 namespace Zen.App
 {
     public class Settings
     {
-        public object GetSettings()
+        public Dictionary<string, object> GetSettings()
         {
             //if (_settings != null) return;
             if (Current.Orchestrator.Application == null) return null;
 
-            var settings = new
+            var settings = new Dictionary<string, object>
             {
-                Assembly = Host.ApplicationAssemblyName,
-                Application = new ApplicationSection(),
-                Server = new
-                {
-                    Environment.MachineName,
-                    Environment.Version
-                },
-                Environment = new
-                {
-                    Base.Current.Environment.Current.Code,
-                    Base.Current.Environment.Current.Name
-                },
-                ResourceUri = "",
-                ApiUri = "",
-                vTag = "?v=" + Host.ApplicationAssemblyVersion,
-                Session = new
-                {
-                    Static = false,
-                    CanSignIn = true,
-                    IsExternalSession = false,
-                    IsSecureConnection = true,
-                    IsImpersonated = false
-                },
+                {"Assembly", Host.ApplicationAssemblyName},
+                {"Application", new ApplicationSection()},
+                {"Server", new {Environment.MachineName, Environment.Version}},
+                {"Environment", new {Base.Current.Environment.Current.Code, Base.Current.Environment.Current.Name}},
+                {"ResourceUri", ""},
+                {"ApiUri", ""},
+                {"vTag", "?v=" + Host.ApplicationAssemblyVersion},
+                {"Session", new {Static = false, CanSignIn = true, IsExternalSession = false, IsSecureConnection = true, IsImpersonated = false}}
             };
 
             return settings;
