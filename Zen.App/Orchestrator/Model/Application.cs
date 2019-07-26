@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Zen.App.Provider;
 using Zen.Base.Module;
 
@@ -34,11 +35,21 @@ namespace Zen.App.Orchestrator.Model
 
         public bool Active { get; set; } = true;
         public string Name { get; set; }
-        public List<Permission> Permissions { get; set; }
+        public List<IZenPermission> GetPermissions() { return Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission)i).ToList(); }
 
         public override void BeforeUpdate()
         {
-            foreach (var p in Permissions) p.FullCode = $"[{Code}].[{p.Code}]";
+            var permissions = GetPermissions();
+
+            foreach (var p in permissions)
+            {
+                var targetCode = $"[{Code}].[{p.Code}]";
+
+                if (p.FullCode == targetCode) continue;
+
+                p.FullCode = targetCode;
+                ((Permission)p).Save();
+            }
         }
 
         public class ConfigurationBlock
@@ -59,22 +70,21 @@ namespace Zen.App.Orchestrator.Model
             public string ApplicationId { get; set; }
         }
 
-        public class Settings
+        public class SettingsDescriptor
         {
-            public class Group
+            public class GroupDescriptor
             {
                 public string Code { get; set; }
                 public string Name { get; set; }
                 public List<string> Permissions { get; set; }
                 public List<string> Members { get; set; }
                 public bool IsHost { get; set; } = false;
-                public bool Auto { get; set; } = false;
             }
 
             public string Code { get; set; }
             public string Name { get; set; }
             public string Locator { get; set; }
-            public List<Group> Groups { get; set; }
+            public List<GroupDescriptor> Groups { get; set; }
         }
     }
 }
