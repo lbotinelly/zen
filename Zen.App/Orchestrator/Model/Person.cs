@@ -6,7 +6,7 @@ using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class User : Data<User>, IZenPerson
+    public class Person : Data<Person>, IZenPerson
     {
         public enum EState
         {
@@ -14,7 +14,7 @@ namespace Zen.App.Orchestrator.Model
             Initialized
         }
 
-        public User()
+        public Person()
         {
             Roles = new List<string>();
         }
