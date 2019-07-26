@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Zen.App.Provider;
 using Zen.Base.Extension;
@@ -29,5 +30,17 @@ namespace Zen.Web.Auth.Controller
 
             return true;
         }
+
+        [HttpGet("identity")]
+        public object GetIdentity()
+        {
+            var tmp = App.Current.Orchestrator.Person?.ToPropertyDictionary()?? new ConcurrentDictionary<string, object>();
+
+            tmp["IsAuthenticated"] = App.Current.Orchestrator.Person != null;
+
+            return tmp;
+        }
+
+
     }
 }
