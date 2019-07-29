@@ -23,6 +23,17 @@ namespace Zen.Web.Auth.Controller
             return person;
         }
 
+        [HttpGet("signout")]
+        public IActionResult SignOut()
+        {
+            // Call the SignOut endpoint from the API, if in clientmode, or its own.
+
+            Current.Context.Session.Clear();
+
+            var url = App.Current.Orchestrator.GetApiUri() + "/framework/auth/signout";
+            return new RedirectResult(url);
+        }
+
         [HttpGet("maintenance/start")]
         public object DoMaintenance()
         {
@@ -34,13 +45,11 @@ namespace Zen.Web.Auth.Controller
         [HttpGet("identity")]
         public object GetIdentity()
         {
-            var tmp = App.Current.Orchestrator.Person?.ToPropertyDictionary()?? new ConcurrentDictionary<string, object>();
+            var tmp = App.Current.Orchestrator.Person?.ToPropertyDictionary() ?? new ConcurrentDictionary<string, object>();
 
             tmp["IsAuthenticated"] = App.Current.Orchestrator.Person != null;
 
             return tmp;
         }
-
-
     }
 }

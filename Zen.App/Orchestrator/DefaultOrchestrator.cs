@@ -5,5 +5,5 @@ using Zen.Base.Common;
 namespace Zen.App.Orchestrator
 {
     [Priority(Level = -99)]
-    public class DefaultAppOrchestrator : AppOrchestratorPrimitive<Application, Group, Person, Application.Permission> { }
+    public class DefaultOrchestrator : ZenOrchestratorPrimitive<Application, Group, Person, Application.Permission> { }
 }

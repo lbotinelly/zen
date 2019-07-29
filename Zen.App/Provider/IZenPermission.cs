@@ -9,4 +9,6 @@
         string ApplicationId { get; set; }
 
     }
+
+    public interface IZenPermissionAction : IZenPermission, IZenAction { }
 }

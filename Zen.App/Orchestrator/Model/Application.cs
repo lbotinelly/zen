@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Zen.App.Provider;
+using Zen.App.Provider.Application;
 using Zen.Base.Module;
 
 namespace Zen.App.Orchestrator.Model
 {
-    public class Application : Data<Application>, IZenApplication
+    public partial class Application : Data<Application>, IZenApplication
     {
         public bool Locked { get; set; }
         public string Description { get; set; }
@@ -35,7 +36,7 @@ namespace Zen.App.Orchestrator.Model
 
         public bool Active { get; set; } = true;
         public string Name { get; set; }
-        public List<IZenPermission> GetPermissions() { return Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission)i).ToList(); }
+        public virtual List<IZenPermission> GetPermissions() { return Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission)i).ToList(); }
 
         public override void BeforeUpdate()
         {
@@ -50,41 +51,6 @@ namespace Zen.App.Orchestrator.Model
                 p.FullCode = targetCode;
                 ((Permission)p).Save();
             }
-        }
-
-        public class ConfigurationBlock
-        {
-            public string Url { get; set; }  
-            public string VersionTag { get; set; }
-            public bool IsLegacy { get; set; }
-        }
-
-        public class Permission : Data<Permission>, IZenPermission
-        {
-            [Key]
-            public string Id { get; set; } = Guid.NewGuid().ToString();
-            public string Code { get; set; }
-            [Display]
-            public string FullCode { get; set; }
-            public string Name { get; set; }
-            public string ApplicationId { get; set; }
-        }
-
-        public class SettingsDescriptor
-        {
-            public class GroupDescriptor
-            {
-                public string Code { get; set; }
-                public string Name { get; set; }
-                public List<string> Permissions { get; set; }
-                public List<string> Members { get; set; }
-                public bool IsHost { get; set; } = false;
-            }
-
-            public string Code { get; set; }
-            public string Name { get; set; }
-            public string Locator { get; set; }
-            public List<GroupDescriptor> Groups { get; set; }
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Zen.App.Provider
             return Permission.Get(rawKeyCollection).ToList();
         }
 
-        public static void CompileAllPeoplePermissions(this IAppOrchestrator source)
+        public static void CompileAllPeoplePermissions(this IZenOrchestrator source)
         {
             var people = source.GetAllPeople();
 

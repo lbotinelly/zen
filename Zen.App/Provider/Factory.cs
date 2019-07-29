@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
-using Zen.App.Orchestrator.Model;
+using Zen.App.Provider.Application;
 using Zen.Base;
 using Zen.Base.Extension;
 
@@ -12,7 +12,7 @@ namespace Zen.App.Provider
     {
         public static IZenApplication GetCurrentApplication(bool forceSettingsParsing = false)
         {
-            var initialSettings = Configuration.Options.GetSection("Application").Get<Application.SettingsDescriptor>();
+            var initialSettings = Configuration.Options.GetSection("Application").Get<Orchestrator.Model.Application.SettingsDescriptor>();
 
             var appLocator = initialSettings?.Locator ?? Host.ApplicationAssemblyName + ".dll";
 
@@ -26,8 +26,7 @@ namespace Zen.App.Provider
 
             var newAppDescription = application.ToJson();
 
-            if ((currentAppDescription == newAppDescription) && !forceSettingsParsing)
-                return application;
+            if (currentAppDescription == newAppDescription && !forceSettingsParsing) return application;
 
             application = Current.Orchestrator.UpsertApplication(application);
 
@@ -36,7 +35,7 @@ namespace Zen.App.Provider
             var settingsHostGroup = initialSettings?.Groups?.FirstOrDefault(i => i.IsHost);
             var hostGroup = Current.Orchestrator.GetGroupByCode(settingsHostGroup?.Code);
 
-            var settingsNonHostGroups = initialSettings?.Groups?.Where(i => !i.IsHost).ToList() ?? new List<Application.SettingsDescriptor.GroupDescriptor>();
+            var settingsNonHostGroups = initialSettings?.Groups?.Where(i => !i.IsHost).ToList() ?? new List<Orchestrator.Model.Application.SettingsDescriptor.GroupDescriptor>();
 
             if (settingsNonHostGroups.Any())
             {
@@ -50,7 +49,6 @@ namespace Zen.App.Provider
 
             if (settingsHostGroup != null)
             {
-
                 if (settingsHostGroup.Permissions != null)
                     foreach (var permissionCode in settingsHostGroup.Permissions)
                     {
@@ -67,7 +65,6 @@ namespace Zen.App.Provider
             }
 
             if (settingsNonHostGroups.Any())
-            {
                 foreach (var groupDescriptor in settingsNonHostGroups)
                 {
                     var code = $"APP_{application.Code}_{groupDescriptor.Code}";
@@ -88,7 +85,6 @@ namespace Zen.App.Provider
                             targetGroup.AddPerson(targetPermission, true, true);
                         }
                 }
-            }
 
             return application;
         }

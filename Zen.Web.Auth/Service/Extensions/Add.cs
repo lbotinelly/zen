@@ -30,6 +30,9 @@ namespace Zen.Web.Auth.Service.Extensions
             var googleClientSecret = googleAuthNSection["ClientSecret"];
 
             if (googleClientId != null)
+            {
+                Settings.IsAuthProvider = true;
+
                 services
                     .AddAuthentication(options =>
                     {
@@ -42,7 +45,9 @@ namespace Zen.Web.Auth.Service.Extensions
                         options.ClientId = googleClientId;
                         options.ClientSecret = googleClientSecret;
                     });
+            }
             else
+            {
                 services
                     .AddAuthentication(options =>
                     {
@@ -54,15 +59,14 @@ namespace Zen.Web.Auth.Service.Extensions
                         options.LoginPath = "/api/auth/signin";
                         options.LogoutPath = "/api/auth/signout";
                     });
+            }
 
             services
                 .AddDistributedMemoryCache()
                 .AddSession(options =>
                 {
-                    // Set a short timeout for easy testing.
-                    options.IdleTimeout = TimeSpan.FromSeconds(10);
+                    options.IdleTimeout = TimeSpan.FromHours(6);
                     options.Cookie.HttpOnly = true;
-                    // Make the session cookie essential
                     options.Cookie.IsEssential = true;
                 });
 
