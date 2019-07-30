@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using Zen.App.Provider.Application;
+using Zen.App.Provider.Person;
 using Zen.Base.Extension;
 using Zen.Base.Module;
+using Zen.Base.Module.Service;
 
 namespace Zen.App.Provider
 {
@@ -30,6 +32,8 @@ namespace Zen.App.Provider
 
         public virtual Dictionary<string, object> Settings { get; private set; }
         public virtual IZenPerson GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
+        public virtual IEnumerable<IZenPerson> GetPeopleByLocators(IEnumerable<string> locators) { return Data<TP>.GetByLocator(locators); }
+
         public virtual IZenGroup GetGroupByCode(string code, string name = null, IZenApplication application = null, IZenGroup parent = null, bool createIfNotFound = false)
         {
             var probe = Data<TG>.GetByCode(code);
@@ -63,10 +67,10 @@ namespace Zen.App.Provider
 
         public IZenApplication UpsertApplication(IZenApplication application)
         {
-            var temp = (Data<TA>) application;
+            var temp = (Data<TA>)application;
             temp.Save();
 
-            return (IZenApplication) temp;
+            return (IZenApplication)temp;
         }
 
         public List<IZenGroup> GetFullHierarchicalChain(IZenGroup referenceGroup, bool ignoreParentWhenAppOwned = true)
@@ -76,7 +80,7 @@ namespace Zen.App.Provider
 
             var cached = Base.Current.Cache[key];
 
-            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IZenGroup) i).ToList();
+            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IZenGroup)i).ToList();
 
             var chain = new List<IZenGroup>();
 
@@ -94,10 +98,10 @@ namespace Zen.App.Provider
             return chain;
         }
 
-        public List<IZenGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IZenGroup) i).ToList(); }
+        public List<IZenGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IZenGroup)i).ToList(); }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
+        private static readonly char[] PermissionExpressionDelimiters = { ',', ';', '\n' };
 
         public bool HasAnyPermissions(string expression)
         {
@@ -138,12 +142,46 @@ namespace Zen.App.Provider
             return probe;
         }
 
-        public List<IZenPerson> GetAllPeople() { return Data<TP>.All().Select(i => (IZenPerson) i).ToList(); }
-        public void SavePerson(List<IZenPerson> people) { Data<TP>.Save(people.Select(i => (TP) i)); }
+        public List<IZenPerson> GetPeople(IEnumerable<string> keySet = null)
+        {
+            var set = keySet != null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
+
+            return set.Select(i => (IZenPerson)i).ToList();
+        }
+        public void SavePerson(List<IZenPerson> people) { Data<TP>.Save(people.Select(i => (TP)i)); }
         public virtual string GetApiUri() { throw new NotImplementedException(); }
         public virtual string GetResourceUri() { throw new NotImplementedException(); }
 
         public virtual List<IZenPerson> PeopleByGroup(string key) { return Person.ByGroup(key); }
+
+
+        private readonly Type _defaultProfileType = Resolution.GetClassesByInterface<IZenPersonProfile>(false).FirstOrDefault();
+
+
+        public virtual List<IZenPersonProfile> GetProfiles(string keys)
+        {
+            var buffer = new List<IZenPersonProfile>();
+
+            var keySet = keys?.Split(',').ToList();
+
+            var people = GetPeople(keySet);
+
+            foreach (var zenPerson in people)
+                buffer.Add(GetProfile(zenPerson));
+
+            var orderedOutput = new Dictionary<string, IZenPersonProfile>();
+            foreach (var key in keySet) { orderedOutput[key] = buffer.FirstOrDefault(i => i.Locator == key); }
+
+            return orderedOutput.Values.ToList();
+        }
+
+        public virtual IZenPersonProfile GetProfile(IZenPerson person)
+        {
+            var profile = _defaultProfileType.CreateInstance<IZenPersonProfile>();
+            profile.FromPerson(person);
+
+            return profile;
+        }
 
         public virtual List<IZenPermission> GetPermissionsByPerson(IZenPerson person)
         {
@@ -155,7 +193,7 @@ namespace Zen.App.Provider
 
             keys = keys.Distinct().ToList();
 
-            var permissions = Data<TPerm>.Get(keys).Select(i => (IZenPermission) i).ToList();
+            var permissions = Data<TPerm>.Get(keys).Select(i => (IZenPermission)i).ToList();
 
             return permissions;
         }

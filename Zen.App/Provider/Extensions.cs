@@ -35,7 +35,7 @@ namespace Zen.App.Provider
 
         public static void CompileAllPeoplePermissions(this IZenOrchestrator source)
         {
-            var people = source.GetAllPeople();
+            var people = source.GetPeople();
 
             var c = new Clicker("Compiling Person permissions", people);
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Security.Principal;
 using Zen.App.Provider.Application;
+using Zen.App.Provider.Person;
 using Zen.Base.Common;
 
 namespace Zen.App.Provider
@@ -11,6 +12,7 @@ namespace Zen.App.Provider
         IZenApplication Application { get; }
         Dictionary<string, object> Settings { get; }
         IZenPerson GetPersonByLocator(string locator);
+        IEnumerable<IZenPerson> GetPeopleByLocators(IEnumerable<string> locators);
         List<IZenPermission> GetPermissionsByPerson(IZenPerson person);
         IZenApplication GetApplicationByLocator(string appLocator);
         IZenApplication GetNewApplication();
@@ -23,10 +25,12 @@ namespace Zen.App.Provider
         bool HasAnyPermissions(string expression);
         bool HasAnyPermissions(IEnumerable<string> terms);
         IZenPermission GetPermissionByCode(string code, string name = null, IZenApplication application = null, bool createIfNotFound = false);
-        List<IZenPerson> GetAllPeople();
+        List<IZenPerson> GetPeople(IEnumerable<string> keys = null);
         void SavePerson(List<IZenPerson> people);
         string GetApiUri();
         string GetResourceUri();
         List<IZenPerson> PeopleByGroup(string key);
+        List<IZenPersonProfile> GetProfiles(string keys);
+        IZenPersonProfile GetProfile(IZenPerson person);
     }
 }

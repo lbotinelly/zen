@@ -6,7 +6,9 @@ using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Web;
@@ -33,7 +35,7 @@ namespace Zen.Base.Extension
 
             using (var writer = new Utf8StringWriter())
             {
-                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings {Indent = false}))
+                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = false }))
                 {
                     var ns = new XmlSerializerNamespaces();
 
@@ -70,8 +72,8 @@ namespace Zen.Base.Extension
         {
             var jo = JObject.Parse(obj);
             var myTest = jo.Descendants()
-                .Where(t => t.Type == JTokenType.Property && ((JProperty) t).Name == nodeName)
-                .Select(p => ((JProperty) p).Value)
+                .Where(t => t.Type == JTokenType.Property && ((JProperty)t).Name == nodeName)
+                .Select(p => ((JProperty)p).Value)
                 .FirstOrDefault();
             return myTest.ToString();
         }
@@ -93,7 +95,7 @@ namespace Zen.Base.Extension
                     if (colpos > 0) sb.Append(", ");
                     sb.Append("\"" + column + "\":");
 
-                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime) obj[colpos]).ToString("o") + "\"");
+                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime)obj[colpos]).ToString("o") + "\"");
                     else sb.Append(CleanupJsonData(obj[colpos]));
                 }
 
@@ -162,8 +164,8 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                where p.GetValue(obj, null) != null
-                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+                             where p.GetValue(obj, null) != null
+                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
         }
@@ -189,7 +191,7 @@ namespace Zen.Base.Extension
                 else if (c >= 'A' && c <= 'Z')
                 {
                     // tricky way to convert to lowercase
-                    sb.Append((char) (c | 32));
+                    sb.Append((char)(c | 32));
                     prevdash = false;
                 }
                 else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
@@ -374,14 +376,14 @@ namespace Zen.Base.Extension
         {
             var ret = new Dictionary<string, string>();
 
-            foreach (var jToken in (JToken) source)
+            foreach (var jToken in (JToken)source)
             {
-                var t = (JProperty) jToken;
+                var t = (JProperty)jToken;
 
                 var k = t.Name;
                 var v = t.Value;
 
-                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject) v)).ToDictionary(x => x.Key, x => x.Value);
+                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject)v)).ToDictionary(x => x.Key, x => x.Value);
                 else ret.Add(t.Path, v.ToString());
             }
 
@@ -399,7 +401,7 @@ namespace Zen.Base.Extension
                 var genericListType = typeof(List<>);
 
                 var specificListType = genericListType.MakeGenericType(destinyFormat);
-                type = ((IEnumerable<object>) Activator.CreateInstance(specificListType)).GetType();
+                type = ((IEnumerable<object>)Activator.CreateInstance(specificListType)).GetType();
             }
 
             if (obj == null) return null;
@@ -424,7 +426,7 @@ namespace Zen.Base.Extension
             using (var stream = new MemoryStream(obj))
             {
                 var ser = new BinaryFormatter();
-                return (T) ser.Deserialize(stream);
+                return (T)ser.Deserialize(stream);
             }
         }
 
@@ -481,6 +483,156 @@ namespace Zen.Base.Extension
             public override Encoding Encoding => Encoding.UTF8;
 
             public override string NewLine => "";
+        }
+
+        // https://stackoverflow.com/a/930599/1845714
+        /// <summary>
+        /// Non-generic class allowing properties to be copied from one instance
+        /// to another existing instance of a potentially different type.
+        /// </summary>
+
+
+        /// <summary>
+        /// Copies all public, readable properties from the source object to the
+        /// target. The target type does not have to have a parameterless constructor,
+        /// as no new instance needs to be created.
+        /// </summary>
+        /// <remarks>Only the properties of the source and target types themselves
+        /// are taken into account, regardless of the actual types of the arguments.</remarks>
+        /// <typeparam name="TSource">Type of the source</typeparam>
+        /// <typeparam name="TTarget">Type of the target</typeparam>
+        /// <param name="source">Source to copy properties from</param>
+        /// <param name="target">Target to copy properties to</param>
+        public static void Copy<TSource, TTarget>(TSource source, TTarget target)
+            where TSource : class
+            where TTarget : class
+        {
+            PropertyCopier<TSource, TTarget>.Copy(source, target);
+        }
+    }
+
+    /// <summary>
+    /// Generic class which copies to its target type from a source
+    /// type specified in the Copy method. The types are specified
+    /// separately to take advantage of type inference on generic
+    /// method arguments.
+    /// </summary>
+    public static class PropertyCopy<TTarget> where TTarget : class, new()
+    {
+        /// <summary>
+        /// Copies all readable properties from the source to a new instance
+        /// of TTarget.
+        /// </summary>
+        public static TTarget CopyFrom<TSource>(TSource source) where TSource : class
+        {
+            return PropertyCopier<TSource, TTarget>.Copy(source);
+        }
+    }
+
+    /// <summary>
+    /// Static class to efficiently store the compiled delegate which can
+    /// do the copying. We need a bit of work to ensure that exceptions are
+    /// appropriately propagated, as the exception is generated at type initialization
+    /// time, but we wish it to be thrown as an ArgumentException.
+    /// Note that this type we do not have a constructor constraint on TTarget, because
+    /// we only use the constructor when we use the form which creates a new instance.
+    /// </summary>
+    internal static class PropertyCopier<TSource, TTarget>
+    {
+        /// <summary>
+        /// Delegate to create a new instance of the target type given an instance of the
+        /// source type. This is a single delegate from an expression tree.
+        /// </summary>
+        private static readonly Func<TSource, TTarget> creator;
+
+        /// <summary>
+        /// List of properties to grab values from. The corresponding targetProperties 
+        /// list contains the same properties in the target type. Unfortunately we can't
+        /// use expression trees to do this, because we basically need a sequence of statements.
+        /// We could build a DynamicMethod, but that's significantly more work :) Please mail
+        /// me if you really need this...
+        /// </summary>
+        private static readonly List<PropertyInfo> sourceProperties = new List<PropertyInfo>();
+        private static readonly List<PropertyInfo> targetProperties = new List<PropertyInfo>();
+        private static readonly Exception initializationException;
+
+        internal static TTarget Copy(TSource source)
+        {
+            if (initializationException != null)
+            {
+                throw initializationException;
+            }
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            return creator(source);
+        }
+
+        internal static void Copy(TSource source, TTarget target)
+        {
+            if (initializationException != null)
+            {
+                throw initializationException;
+            }
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            for (int i = 0; i < sourceProperties.Count; i++)
+            {
+                targetProperties[i].SetValue(target, sourceProperties[i].GetValue(source, null), null);
+            }
+
+        }
+
+        static PropertyCopier()
+        {
+            try
+            {
+                creator = BuildCreator();
+                initializationException = null;
+            }
+            catch (Exception e)
+            {
+                creator = null;
+                initializationException = e;
+            }
+        }
+
+        private static Func<TSource, TTarget> BuildCreator()
+        {
+            ParameterExpression sourceParameter = Expression.Parameter(typeof(TSource), "source");
+            var bindings = new List<MemberBinding>();
+            foreach (PropertyInfo sourceProperty in typeof(TSource).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!sourceProperty.CanRead)
+                {
+                    continue;
+                }
+                PropertyInfo targetProperty = typeof(TTarget).GetProperty(sourceProperty.Name);
+                if (targetProperty == null)
+                {
+                    throw new ArgumentException("Property " + sourceProperty.Name + " is not present and accessible in " + typeof(TTarget).FullName);
+                }
+                if (!targetProperty.CanWrite)
+                {
+                    throw new ArgumentException("Property " + sourceProperty.Name + " is not writable in " + typeof(TTarget).FullName);
+                }
+                if ((targetProperty.GetSetMethod().Attributes & MethodAttributes.Static) != 0)
+                {
+                    throw new ArgumentException("Property " + sourceProperty.Name + " is static in " + typeof(TTarget).FullName);
+                }
+                if (!targetProperty.PropertyType.IsAssignableFrom(sourceProperty.PropertyType))
+                {
+                    throw new ArgumentException("Property " + sourceProperty.Name + " has an incompatible type in " + typeof(TTarget).FullName);
+                }
+                bindings.Add(Expression.Bind(targetProperty, Expression.Property(sourceParameter, sourceProperty)));
+                sourceProperties.Add(sourceProperty);
+                targetProperties.Add(targetProperty);
+            }
+            Expression initializer = Expression.MemberInit(Expression.New(typeof(TTarget)), bindings);
+            return Expression.Lambda<Func<TSource, TTarget>>(initializer, sourceParameter).Compile();
         }
     }
 }

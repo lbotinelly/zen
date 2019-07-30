@@ -35,7 +35,6 @@ namespace Zen.Module.Data.MongoDB
         private Settings _statements;
         private DataConfigAttribute _tabledata;
         public IMongoDatabase Database;
-        public string ReferenceCollectionName;
 
         private string Key
         {
@@ -78,9 +77,8 @@ namespace Zen.Module.Data.MongoDB
             // https://jira.mongodb.org/browse/CSHARP-965
             // http://stackoverflow.com/questions/19521626/mongodb-convention-packs
 
-            var pack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
-
-            ConventionRegistry.Register("ignore extra elements", pack, t => true);
+            ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
+            ConventionRegistry.Register("ignore extra elements", new ConventionPack { new IgnoreExtraElementsConvention(true) }, t => true);
             ConventionRegistry.Register("DictionaryRepresentationConvention", new ConventionPack { new DictionaryRepresentationConvention(DictionaryRepresentation.ArrayOfArrays) }, _ => true);
             ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
 
