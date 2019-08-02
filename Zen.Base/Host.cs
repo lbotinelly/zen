@@ -20,7 +20,6 @@ namespace Zen.Base
 
             if (!Directory.Exists(DataDirectory)) Directory.CreateDirectory(DataDirectory);
         }
-
         public static string ApplicationAssemblyVersion { get; set; }
         public static string BaseDirectory { get; }
         public static string DataDirectory { get; }
