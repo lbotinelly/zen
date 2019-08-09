@@ -372,7 +372,7 @@ namespace Zen.Base.Module
 
         #region Static Data handlers
 
-        public static IEnumerable<T> All() { return All<T>(); }
+        public static IEnumerable<T> All() { return All<T>().AfterGet(); }
 
         public static IEnumerable<TU> All<TU>()
         {
@@ -380,16 +380,16 @@ namespace Zen.Base.Module
             return Info<T>.Settings.Adapter.Query<T, TU>();
         }
 
-        public static IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()); }
+        public static IEnumerable<T> Query(string statement) => Query<T>(statement.ToModifier()).ToList().AfterGet();
 
-        public static IEnumerable<T> Query(Mutator mutator = null) { return Query<T>(mutator); }
+        public static IEnumerable<T> Query(Mutator mutator = null) => Query<T>(mutator).AfterGet();
 
         public static IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
             ValidateState(EActionType.Read);
             mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
 
-            return Info<T>.Settings.Adapter.Where(predicate, mutator).ToList();
+            return Info<T>.Settings.Adapter.Where(predicate, mutator).AfterGet();
         }
 
         public static IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
@@ -664,7 +664,17 @@ namespace Zen.Base.Module
             }
         }
 
-        internal static T FetchModel(string key, Mutator mutator = null) { return Info<T>.Settings.Adapter.Get<T>(key, mutator); }
+        internal static T FetchModel(string key, Mutator mutator = null)
+        {
+            var model = Info<T>.Settings.Adapter.Get<T>(key, mutator);
+            model?.AfterGet();
+
+            var fullKey = mutator?.KeyPrefix + model?.GetDataKey();
+
+            CacheFactory.StoreModel(fullKey, model);
+
+            return model;
+        }
 
         internal static Dictionary<string, T> FetchSet(IEnumerable<string> keys, bool ignoreCache = false, Mutator mutator = null)
         {
@@ -685,6 +695,9 @@ namespace Zen.Base.Module
 
             //Do a hard query on the missing keys.
             var cachedSet = Info<T>.Settings.Adapter.Get<T>(missedKeys, mutator).ToList();
+
+            // Post-fetch hook
+            foreach (var model in cachedSet) model.AfterGet();
 
             // Now we fill the map with the missing models that we sucessfully fetched.
             foreach (var model in cachedSet.Where(model => model != null))
@@ -827,6 +840,8 @@ namespace Zen.Base.Module
 
         public virtual void AfterRemove() { }
 
+        public virtual void AfterGet() { }
+
         public virtual Mutator BeforeQuery(EActionType read, Mutator mutator) { return null; }
 
         public virtual Mutator BeforeCount(EActionType read, Mutator mutator) { return null; }
@@ -839,20 +854,29 @@ namespace Zen.Base.Module
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
 
-            return Where(i => (i as IDataLocator).Locator == locator, mutator).FirstOrDefault();
+            var model = Where(i => (i as IDataLocator).Locator == locator, mutator).FirstOrDefault();
+            model?.AfterGet();
+
+            return model;
         }
 
         public static T GetByCode(string code, Mutator mutator = null)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
-            return Where(i => (i as IDataCode).Code == code, mutator).FirstOrDefault();
+            var model = Where(i => (i as IDataCode).Code == code, mutator).FirstOrDefault();
+            model?.AfterGet();
+
+            return model;
         }
 
         #endregion
 
         public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
         {
-            return Where(i => locators.Contains((i as IDataLocator).Locator), mutator);
+            var model = Where(i => locators.Contains((i as IDataLocator).Locator), mutator).ToList();
+            model.AfterGet();
+
+            return model;
         }
     }
 }
