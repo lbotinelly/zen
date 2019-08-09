@@ -77,7 +77,10 @@ namespace Zen.Base.Module.Cache
         public static void FlushModel<T>(string key, string fullNameAlias = null)
         {
             if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return;
-            Current.Cache.Remove(typeof(T).CacheKey(key, fullNameAlias));
+
+            var fullKey = typeof(T).CacheKey(key, fullNameAlias);
+
+            Current.Cache.Remove(fullKey);
         }
 
         public static void FlushSingleton(string nameSpace)
