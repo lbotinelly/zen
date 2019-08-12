@@ -23,8 +23,7 @@ namespace Zen.Web.Service.Extensions
 
             app.UseDefaultFiles();
 
-            app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")), RequestPath = "" });
-
+            app.UseStaticFiles();
 
             app
                 .UseHttpsRedirection()
