@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AssemblyName>Zen.Web.Auth</AssemblyName>
     <RootNamespace>Zen.Web.Auth</RootNamespace>
   </PropertyGroup>
@@ -20,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\GitLab\poc-monolyth\zen\Zen.Base\Zen.Base.csproj" />
-    <ProjectReference Include="..\..\..\GitLab\poc-monolyth\zen\Zen.Web\Zen.Web.csproj" />
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

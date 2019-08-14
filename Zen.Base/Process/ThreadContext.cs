@@ -11,9 +11,24 @@ namespace Zen.Base.Process
         {
             try
             {
-                var ret = (T) Thread.GetData(Thread.GetNamedDataSlot(field));
+                var ret = (T)Thread.GetData(Thread.GetNamedDataSlot(field));
                 return ret;
-            } catch (Exception) { return default(T); }
+            }
+            catch (Exception) { return default(T); }
+        }
+    }
+
+    public static class EnvironmentVariables
+    {
+        public static string Get(string key)
+        {
+            var content =
+
+                System.Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process) ??
+                System.Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User) ??
+                System.Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Machine);
+
+            return content;
         }
     }
 }
