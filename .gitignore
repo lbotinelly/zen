@@ -348,6 +348,12 @@ healthchecksdb
 MigrationBackup/
 
 ## stuff for the mac users
+.swp
+.DS_Store
 .idea/
 Sample/SimpleConsole/log*.txt
 Sample/SimpleWebApp/log*.txt
+
+## exclude stuff that is part of the ci-pipeline
+global.json
+autoIncrement.sh

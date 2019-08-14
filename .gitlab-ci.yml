@@ -1,0 +1,5 @@
+include:
+  - project: 'int/Pipelines'
+    ref: master
+    file: '/gitlab-ci-fwZenTemplate.yml'
+
