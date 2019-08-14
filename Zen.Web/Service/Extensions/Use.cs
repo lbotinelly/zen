@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -26,13 +23,11 @@ namespace Zen.Web.Service.Extensions
             app.UseStaticFiles();
 
             app
-                .UseHttpsRedirection()
+                //.UseHttpsRedirection()
                 .UseMvc();
-
 
             if (options.UseSpa)
             {
-
                 // app.UseSpaStaticFiles();
 
                 //app.UseSpa(spa =>
