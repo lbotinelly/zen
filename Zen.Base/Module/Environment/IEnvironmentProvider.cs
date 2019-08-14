@@ -7,6 +7,7 @@ namespace Zen.Base.Module.Environment
         IEnvironmentDescriptor Current { get; set; }
         string CurrentCode { get; }
         ProbeItem Probe { get; set; }
-        IEnvironmentDescriptor Get(string serverName);
+        IEnvironmentDescriptor GetByEnvironment();
+        IEnvironmentDescriptor GetByMachine(string serverName);
     }
 }
