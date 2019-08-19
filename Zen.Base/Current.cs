@@ -22,7 +22,12 @@ namespace Zen.Base
 
         // ReSharper disable InconsistentNaming
         private static readonly Lazy<ICacheProvider> _cacheProvider = new Lazy<ICacheProvider>(() => Instances.ServiceProvider.GetService<ICacheProvider>(), true);
-        private static readonly Lazy<IEnvironmentProvider> _environmentProvider = new Lazy<IEnvironmentProvider>(() => Instances.ServiceProvider.GetService<IEnvironmentProvider>(), true);
+        private static readonly Lazy<IEnvironmentProvider> _environmentProvider = new Lazy<IEnvironmentProvider>(() =>
+        {
+            var probe = Instances.ServiceProvider.GetService<IEnvironmentProvider>();
+            Events.AddLog("Environment", probe.Current?.ToString());
+            return probe;
+        }, true);
         private static readonly Lazy<IEncryptionProvider> _IEncryptionProvider = new Lazy<IEncryptionProvider>(() => Instances.ServiceProvider.GetService<IEncryptionProvider>(), true);
         private static readonly Lazy<ILogProvider> _ILogProvider = new Lazy<ILogProvider>(() => Instances.ServiceProvider.GetService<ILogProvider>(), true);
         // ReSharper restore InconsistentNaming

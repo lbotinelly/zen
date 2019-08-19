@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
 using Zen.App.Provider.Application;
 using Zen.Base;
 using Zen.Base.Extension;
@@ -12,17 +11,15 @@ namespace Zen.App.Provider
     {
         public static IZenApplication GetCurrentApplication(bool forceSettingsParsing = false)
         {
-            var initialSettings = Configuration.Options.GetSection("Application").Get<Orchestrator.Model.Application.SettingsDescriptor>();
-
-            var appLocator = initialSettings?.Locator ?? Host.ApplicationAssemblyName + ".dll";
+            var appLocator = Current.Configuration?.Locator ?? Host.ApplicationAssemblyName + ".dll";
 
             var application = Current.Orchestrator.GetApplicationByLocator(appLocator) ?? Current.Orchestrator.GetNewApplication();
 
             var currentAppDescription = application.ToJson();
 
-            application.Name = initialSettings?.Name ?? Host.ApplicationAssemblyName;
-            application.Code = initialSettings?.Code ?? Host.ApplicationAssemblyName;
-            application.Locator = initialSettings?.Locator ?? appLocator;
+            application.Name = Current.Configuration?.Name ?? Host.ApplicationAssemblyName;
+            application.Code = Current.Configuration?.Code ?? Host.ApplicationAssemblyName;
+            application.Locator = Current.Configuration?.Locator ?? appLocator;
 
             var newAppDescription = application.ToJson();
 
@@ -32,10 +29,10 @@ namespace Zen.App.Provider
 
             // Now let's handle groups and permissions.
 
-            var settingsHostGroup = initialSettings?.Groups?.FirstOrDefault(i => i.IsHost);
+            var settingsHostGroup = Current.Configuration?.Groups?.FirstOrDefault(i => i.IsHost);
             var hostGroup = Current.Orchestrator.GetGroupByCode(settingsHostGroup?.Code);
 
-            var settingsNonHostGroups = initialSettings?.Groups?.Where(i => !i.IsHost).ToList() ?? new List<Orchestrator.Model.Application.SettingsDescriptor.GroupDescriptor>();
+            var settingsNonHostGroups = Current.Configuration?.Groups?.Where(i => !i.IsHost).ToList() ?? new List<Model.Configuration.ApplicationConfiguration.GroupDescriptor>();
 
             if (settingsNonHostGroups.Any())
             {

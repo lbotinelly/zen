@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Zen.App.Orchestrator.Model;
+using Zen.App.Model.Orchestration;
 using Zen.Base;
 
 namespace Zen.App

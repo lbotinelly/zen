@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Zen.App.Provider;
 using Zen.Base.Module;
 
-namespace Zen.App.Orchestrator.Model
+namespace Zen.App.Model.Orchestration
 {
     public class Person : Data<Person>, IZenPerson
     {
@@ -14,24 +14,11 @@ namespace Zen.App.Orchestrator.Model
             Initialized
         }
 
-        public Person()
-        {
-            Roles = new List<string>();
-        }
+        public Person() { Roles = new List<string>(); }
 
-        #region Implementation of IDataId
-        [Key]
-        public string Id { get; set; }
-        #endregion
-        #region Implementation of IDataLocator
-        [Display]
-        public string Locator { get; set; }
-        #endregion
         public EState State { get; set; } = EState.None;
         public string AuthenticatorKey { get; set; }
         public List<string> Roles { get; set; }
-        public string Email { get; set; }
-        public string Name { get; set; }
         public string NormalizedUserName { get; internal set; }
         public bool EmailConfirmed { get; internal set; }
         public string NormalizedEmail { get; internal set; }
@@ -43,16 +30,34 @@ namespace Zen.App.Orchestrator.Model
         public bool PhoneNumberConfirmed { get; internal set; }
         public string SecurityStamp { get; internal set; }
         public bool TwoFactorEnabled { get; internal set; }
+
+        #region Implementation of IDataId
+
+        [Key]
+        public string Id { get; set; }
+
+        #endregion
+
+        #region Implementation of IDataLocator
+
+        [Display]
+        public string Locator { get; set; }
+
+        #endregion
+
+        public string Email { get; set; }
+        public string Name { get; set; }
         public virtual bool HasAnyPermissions(string perm) { return true; }
         public bool HasAnyPermissions(IEnumerable<string> terms) { throw new NotImplementedException(); }
         public List<IZenPerson> ByGroup(string key) { throw new NotImplementedException(); }
         public List<string> Permissions { get; set; }
-        List<IZenGroup> IZenPerson.Groups()
-        {
-            throw new NotImplementedException();
-        }
+
+        List<IZenGroup> IZenPerson.Groups() { throw new NotImplementedException(); }
+
         #region Implementation of IDataActive
+
         public bool Active { get; set; } = true;
+
         #endregion
     }
 }

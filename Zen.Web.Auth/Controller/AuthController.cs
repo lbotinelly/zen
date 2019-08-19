@@ -18,6 +18,9 @@ namespace Zen.Web.Auth.Controller
         {
             var person = App.Current.Orchestrator.SigninPersonByIdentity(User.Identity);
 
+            if (Request.Query.ContainsKey("sourceUrl"))
+                return Redirect(Request.Query["sourceUrl"]);
+
             Base.Current.Log.Add(person.ToJson());
 
             return person;

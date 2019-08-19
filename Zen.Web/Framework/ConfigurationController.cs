@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Zen.App.Orchestrator.Model;
+using Zen.App.Model.Orchestration;
 
 namespace Zen.Web.Framework
 {

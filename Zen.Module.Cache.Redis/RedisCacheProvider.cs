@@ -29,8 +29,7 @@ namespace Zen.Module.Cache.Redis
                     var db = _redis.GetDatabase(DatabaseIndex);
                     var res = db.StringGet(key);
                     return res;
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     Current.Log.Add(e);
                     return null;
@@ -47,15 +46,12 @@ namespace Zen.Module.Cache.Redis
                 {
                     var db = _redis.GetDatabase(DatabaseIndex);
 
-                    if (cacheTimeOutSeconds == 0)
-                        db.StringSet(key, value);
-                    else
-                        db.StringSet(key, value, TimeSpan.FromSeconds(cacheTimeOutSeconds));
+                    if (cacheTimeOutSeconds == 0) db.StringSet(key, value);
+                    else db.StringSet(key, value, TimeSpan.FromSeconds(cacheTimeOutSeconds));
 
                     //if (oSet != null)
                     //    db.SetAdd(oSet, value);
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     Current.Log.Add(e);
 
@@ -78,8 +74,7 @@ namespace Zen.Module.Cache.Redis
                 var db = _redis.GetDatabase(DatabaseIndex);
                 var res = db.KeyExists(key);
                 return res;
-            }
-            catch (Exception)
+            } catch (Exception)
             {
                 OperationalStatus = EOperationalStatus.Error;
                 throw;
@@ -101,8 +96,7 @@ namespace Zen.Module.Cache.Redis
                 return ret;
 
                 //return db.SetMembers(oNamespace).Select(i => i.ToString()).ToList();
-            }
-            catch (Exception)
+            } catch (Exception)
             {
                 OperationalStatus = EOperationalStatus.Error;
                 throw;
@@ -128,8 +122,7 @@ namespace Zen.Module.Cache.Redis
                 //db.SetRemove(oSet, this[key]);
 
                 db.KeyDelete(key);
-            }
-            catch { }
+            } catch { }
         }
 
         public void RemoveAll(string oSet = null)
@@ -161,6 +154,7 @@ namespace Zen.Module.Cache.Redis
         }
 
         #region driver-specific implementation
+
         private static int DatabaseIndex { get; set; } = -1;
 
         public void Initialize()
@@ -172,11 +166,9 @@ namespace Zen.Module.Cache.Redis
                     {"STA", new RedisCacheConfiguration {DatabaseIndex = 5, ConnectionString = "localhost"}}
                 };
 
-            var probe = (RedisCacheConfiguration)EnvironmentConfiguration[Current.Environment.CurrentCode];
+            var probe = (RedisCacheConfiguration) EnvironmentConfiguration[Current.Environment.CurrentCode];
             DatabaseIndex = probe.DatabaseIndex;
             _currentServer = probe.ConnectionString;
-
-
 
             Connect();
         }
@@ -190,20 +182,16 @@ namespace Zen.Module.Cache.Redis
                 ServerName = _currentServer.Split(',')[0];
 
                 //The connection string may be encrypted. Try to decrypt it, but ignore if it fails.
-                try
-                {
-                    _currentServer = Current.Encryption.Decrypt(_currentServer);
-                }
-                catch { }
+                try { _currentServer = Current.Encryption.Decrypt(_currentServer); } catch { }
 
-                Current.Log.KeyValuePair("Redis server", _currentServer.SafeArray("password"), Message.EContentType.MoreInfo);
+                Events.AddLog("Redis server", _currentServer.SafeArray("password"));
 
                 _redis = ConnectionMultiplexer.Connect(_currentServer);
                 OperationalStatus = EOperationalStatus.Operational;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 OperationalStatus = EOperationalStatus.NonOperational;
+                Events.AddLog("REDIS server", "Unavailable - running on direct database mode");
                 Current.Log.KeyValuePair("REDIS server", "Unavailable - running on direct database mode", Message.EContentType.Warning);
                 Current.Log.Add(e);
             }

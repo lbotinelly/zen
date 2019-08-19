@@ -61,6 +61,15 @@ namespace Zen.Base {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Argument cannot be null or empty.
+        /// </summary>
+        public static string ArgumentCannotBeNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ArgumentCannotBeNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 2314x# n07h1n9 15 und32 c0n7201#.
         /// </summary>
         public static string default_aes_key {

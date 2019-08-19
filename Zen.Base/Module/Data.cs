@@ -190,8 +190,7 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.State.Step = "Determining CredentialSets to use";
                     Info<T>.Settings.CredentialSet =
-                        Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle,
-                                                                    Info<T>.Configuration?.CredentialSetType);
+                        Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
 
                     //if (Info<T>.Settings.CredentialSet != null)
                     //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
@@ -212,7 +211,7 @@ namespace Zen.Base.Module
 
                     foreach (var (key, value) in Info<T>.Settings.Statistics) Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
 
-                    Current.Log.KeyValuePair(typeof(T).FullName, $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}", Message.EContentType.StartupSequence);
+                    Events.AddLog($"Data<{typeof(T).Name}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
                 }
                 catch (Exception e)
                 {
@@ -243,12 +242,7 @@ namespace Zen.Base.Module
 
         public static T New() { return (T)Activator.CreateInstance(typeof(T)); }
 
-        private enum EMetadataScope
-        {
-            Collection
-        }
-
-#region State tools
+        #region State tools
 
         private static void ValidateState(EActionType? type = null)
         {
@@ -271,6 +265,19 @@ namespace Zen.Base.Module
         }
 
         #endregion
+
+        public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
+        {
+            var model = Where(i => locators.Contains((i as IDataLocator).Locator), mutator).ToList();
+            model.AfterGet();
+
+            return model;
+        }
+
+        private enum EMetadataScope
+        {
+            Collection
+        }
 
         #region Static references
 
@@ -306,7 +313,7 @@ namespace Zen.Base.Module
             if (refField != null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
             {
                 var refProp = GetType().GetProperty(Info<T>.Settings.KeyMemberName);
-                refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
+                refProp?.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
             }
         }
 
@@ -315,7 +322,7 @@ namespace Zen.Base.Module
             var oRef = this;
             if (value.IsNumeric()) value = Convert.ToInt64(value);
             var refProp = GetType().GetProperty(Info<T>.Settings.DisplayMemberName);
-            refProp.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
+            refProp?.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
         }
 
         public string GetDataKey() { return GetDataKey(this); }
@@ -356,9 +363,9 @@ namespace Zen.Base.Module
             return Info<T>.Settings.Adapter.Query<T, TU>();
         }
 
-        public static IEnumerable<T> Query(string statement) => Query<T>(statement.ToModifier()).ToList().AfterGet();
+        public static IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()).ToList().AfterGet(); }
 
-        public static IEnumerable<T> Query(Mutator mutator = null) => Query<T>(mutator).AfterGet();
+        public static IEnumerable<T> Query(Mutator mutator = null) { return Query<T>(mutator).AfterGet(); }
 
         public static IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
@@ -751,7 +758,7 @@ namespace Zen.Base.Module
             var postKey = Info<T>.Settings.Adapter.Save(localModel).GetDataKey();
 
             Info<T>.TryFlushCachedModel(localModel);
-            
+
             if (isNew) AfterInsert(postKey);
             else AfterUpdate(postKey);
             AfterSave(postKey);
@@ -846,13 +853,5 @@ namespace Zen.Base.Module
         }
 
         #endregion
-
-        public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
-        {
-            var model = Where(i => locators.Contains((i as IDataLocator).Locator), mutator).ToList();
-            model.AfterGet();
-
-            return model;
-        }
     }
 }

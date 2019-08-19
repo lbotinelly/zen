@@ -10,6 +10,8 @@ namespace Zen.Base
 {
     public static class Events
     {
+        internal static List<KeyValuePair<string, string>> BootLog = new List<KeyValuePair<string, string>>();
+
         public static ActionQueue StartupSequence = new ActionQueue();
         public static ActionQueue ShutdownSequence = new ActionQueue();
 
@@ -17,6 +19,12 @@ namespace Zen.Base
         private static Thread _workerThread;
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e) { End("Process Exit"); }
+
+        public static void AddLog(string key, string value)
+        {
+            if (Status.State != Status.EState.Running) BootLog.Add(new KeyValuePair<string, string>(key, value));
+            else Current.Log.KeyValuePair(key, value);
+        }
 
         internal static void Start()
         {
@@ -38,25 +46,27 @@ namespace Zen.Base
 
         private static void DumpStartInfo()
         {
+            var divider = new string('_', 130);
+
             Current.Log.Info(@"Zen " + Assembly.GetCallingAssembly().GetName().Version);
-            Current.Log.Debug("___________________________________________________________________________________________________");
+            Current.Log.Debug(divider);
             Current.Log.Debug("");
             Current.Log.Debug("Providers:");
 
-            Current.Log.KeyValuePair("Cache", Current.Cache == null ? "(none)" : Current.Cache.ToString(), Message.EContentType.Debug);
-            Current.Log.KeyValuePair("Environment", Current.Environment == null ? "(none)" : Current.Environment.ToString(), Message.EContentType.Debug);
-            Current.Log.KeyValuePair("Log", Current.Log == null ? "(none)" : Current.Log.ToString(), Message.EContentType.Debug);
-            Current.Log.KeyValuePair("Encryption", Current.Encryption == null ? "(none)" : Current.Encryption.ToString(), Message.EContentType.Debug);
-            Current.Log.KeyValuePair("Global BundleType", Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString(), Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Cache", Current.Cache == null ? "(none)" : Current.Cache.ToString());
+            Current.Log.KeyValuePair("Environment", Current.Environment == null ? "(none)" : Current.Environment.ToString());
+            Current.Log.KeyValuePair("Log", Current.Log == null ? "(none)" : Current.Log.ToString());
+            Current.Log.KeyValuePair("Encryption", Current.Encryption == null ? "(none)" : Current.Encryption.ToString());
+            Current.Log.KeyValuePair("Global BundleType", Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString());
 
-            Current.Log.KeyValuePair("Application", Host.ApplicationAssemblyName, Message.EContentType.Debug);
-            Current.Log.KeyValuePair("App Location", Host.BaseDirectory, Message.EContentType.Debug);
-            Current.Log.KeyValuePair("App Data", Host.DataDirectory, Message.EContentType.Debug);
+            Current.Log.KeyValuePair("Base Directory", Host.BaseDirectory);
+            Current.Log.KeyValuePair("Data Directory", Host.DataDirectory);
 
             Current.Log.Debug("State:");
-            Current.Log.KeyValuePair("Environment", Current.Environment?.Current.ToString(), Message.EContentType.Debug);
 
-            Current.Log.Debug("___________________________________________________________________________________________________");
+            foreach (var kvp in BootLog) Current.Log.KeyValuePair(kvp.Key, kvp.Value);
+
+            Current.Log.Debug(divider);
         }
 
         private static void ExecuteShutdownSequenceActions()

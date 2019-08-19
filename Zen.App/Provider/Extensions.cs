@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
-using static Zen.App.Orchestrator.Model.Application;
+using static Zen.App.Model.Orchestration.Application;
 
 namespace Zen.App.Provider
 {
@@ -39,9 +39,8 @@ namespace Zen.App.Provider
 
             var c = new Clicker("Compiling Person permissions", people);
 
-
-            Parallel.ForEach(people, new ParallelOptions { MaxDegreeOfParallelism = 10 }, zenPerson =>
-            { 
+            Parallel.ForEach(people, new ParallelOptions {MaxDegreeOfParallelism = 10}, zenPerson =>
+            {
                 c.Click();
                 zenPerson.Permissions = source.GetPermissionsByPerson(zenPerson).Select(i => i.FullCode).ToList();
             });
@@ -49,8 +48,6 @@ namespace Zen.App.Provider
             c.End();
 
             source.SavePerson(people);
-
-
         }
     }
 }
