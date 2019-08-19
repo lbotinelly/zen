@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Zen.App.Audience
+namespace Zen.App.Model.Audience
 {
     public class AudienceDefinition
     {

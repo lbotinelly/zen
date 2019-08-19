@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Principal;
 using Zen.App.Provider.Application;
 using Zen.App.Provider.Person;
+using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Service;
@@ -211,6 +212,8 @@ namespace Zen.App.Provider
             if (_application != null) return;
 
             _application = GetCurrentApplication();
+
+            Events.AddLog("Application", _application.ToString());
         }
 
         private static IZenApplication GetCurrentApplication() { return Factory.GetCurrentApplication(); }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Zen.App.Provider;
 using Zen.Base.Module;
 
-namespace Zen.App.Orchestrator.Model
+namespace Zen.App.Model.Orchestration
 {
     public partial class Application
     {

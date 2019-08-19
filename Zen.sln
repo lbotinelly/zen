@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{6B8C2E4E-0506-49B6-8F1B-F767D04C9794}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleConsole", "Sample\SimpleConsole\SimpleConsole.csproj", "{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleWebApp", "Sample\SimpleWebApp\SimpleWebApp.csproj", "{6C3B9F2B-865E-4915-8A5F-9340609861F0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.MongoDB", "Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj", "{954AC04B-08F1-4804-A7B4-F0B225793CAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Encryption.AES", "Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj", "{88BC5B4E-8B54-4D77-807D-E5426D0EFE15}"
@@ -80,10 +74,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{34ADCF81-A6C7-45AD-B428-0DF8EBD39CE1} = {6B8C2E4E-0506-49B6-8F1B-F767D04C9794}
-		{6C3B9F2B-865E-4915-8A5F-9340609861F0} = {6B8C2E4E-0506-49B6-8F1B-F767D04C9794}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F7669975-FD73-4B57-A032-98D614C3BBC5}

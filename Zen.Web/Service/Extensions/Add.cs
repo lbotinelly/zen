@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json.Serialization;
 using Zen.Base;
 using Zen.Web.Convention;
+using Zen.Web.Model.State;
 
 namespace Zen.Web.Service.Extensions
 {
@@ -17,7 +20,7 @@ namespace Zen.Web.Service.Extensions
 
             configureOptions = configureOptions ?? (x => { });
 
-            var useAppCodeAsRoutePrefix = Configuration.Options.GetSection("Host:Behavior")["UseAppCodeAsRoutePrefix"].ToLower() == "true";
+            var useAppCodeAsRoutePrefix = Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
@@ -25,7 +28,7 @@ namespace Zen.Web.Service.Extensions
                 {
                     if (useAppCodeAsRoutePrefix)
                     {
-                        var appCode = Configuration.Options.GetSection("Application")["Code"].ToLower();
+                        var appCode = App.Current.Configuration.Code.ToLower();
                         options.UseCentralRoutePrefix(new RouteAttribute(appCode + "/"));
                     }
                 })
@@ -53,6 +56,8 @@ namespace Zen.Web.Service.Extensions
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 
             services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddTransient<ISessionStore, ZenDistributedSessionStore>();
 
             var builder = new ZenWebBuilder(services);
 

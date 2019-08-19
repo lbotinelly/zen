@@ -6,7 +6,7 @@ using Zen.App.Provider;
 using Zen.App.Provider.Application;
 using Zen.Base.Module;
 
-namespace Zen.App.Orchestrator.Model
+namespace Zen.App.Model.Orchestration
 {
     public partial class Application : Data<Application>, IZenApplication
     {
@@ -36,7 +36,7 @@ namespace Zen.App.Orchestrator.Model
 
         public bool Active { get; set; } = true;
         public string Name { get; set; }
-        public virtual List<IZenPermission> GetPermissions() { return Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission)i).ToList(); }
+        public virtual List<IZenPermission> GetPermissions() { return Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission) i).ToList(); }
 
         public override void BeforeUpdate()
         {
@@ -49,7 +49,7 @@ namespace Zen.App.Orchestrator.Model
                 if (p.FullCode == targetCode) continue;
 
                 p.FullCode = targetCode;
-                ((Permission)p).Save();
+                ((Permission) p).Save();
             }
         }
     }

@@ -6,17 +6,17 @@ using Zen.App.Provider;
 using Zen.Base.Module;
 using Zen.Base.Module.Log;
 
-namespace Zen.App.Orchestrator.Model
+namespace Zen.App.Model.Orchestration
 {
     public class Group : Data<Group>, IZenGroup
     {
-        public string Name { get; set; }
-
         #region Implementation of IDataActive
 
         public bool IsActive { get; set; } = true;
 
         #endregion
+
+        public string Name { get; set; }
 
         public string ApplicationId { get; set; }
 

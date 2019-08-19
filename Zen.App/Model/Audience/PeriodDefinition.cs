@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Zen.App.Audience {
+namespace Zen.App.Model.Audience {
     public class PeriodDefinition
     {
         public DateTime? StartTime { get; set; } = DateTime.Now;

@@ -1,4 +1,4 @@
-﻿using Zen.App.Orchestrator.Model;
+﻿using Zen.App.Model.Orchestration;
 using Zen.App.Provider;
 using Zen.Base.Common;
 

@@ -1,10 +1,9 @@
-﻿using MongoDB.Driver;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using MongoDB.Driver;
 using Zen.Base;
 using Zen.Base.Extension;
-using Zen.Base.Module.Log;
 
 namespace Zen.Module.Data.MongoDB
 {
@@ -29,11 +28,12 @@ namespace Zen.Module.Data.MongoDB
                 string serverSuffix;
 
                 try { serverSuffix = client.Settings.Servers.FirstOrDefault()?.Host; } catch (Exception) { serverSuffix = client.Settings.Server.Host; }
+
                 if (serverSuffix != null) serverSuffix = "@" + serverSuffix;
 
                 var credentialInfo = $"{client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{serverSuffix}";
 
-                Current.Log.KeyValuePair("MONGODB_CLIENT_REG", credentialInfo, Message.EContentType.StartupSequence);
+                Events.AddLog("MongoDB Client", credentialInfo);
 
                 return client;
             }

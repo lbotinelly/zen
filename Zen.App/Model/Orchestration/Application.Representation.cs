@@ -1,11 +1,10 @@
 ﻿using System.Linq;
-using Zen.App.Provider;
 using Zen.App.Provider.Application;
 using Zen.App.Provider.Group;
 using Zen.App.Provider.Person;
 using Zen.Base.Extension;
 
-namespace Zen.App.Orchestrator.Model
+namespace Zen.App.Model.Orchestration
 {
     public static class Extensions
     {
