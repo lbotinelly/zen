@@ -68,11 +68,12 @@ namespace Zen.Module.Data.MongoDB
             _client = Instances.GetClient(statementsConnectionString);
             var server = _client.Settings.Servers.FirstOrDefault()?.Host;
 
-            var dbname = MongoUrl.Create(statementsConnectionString).DatabaseName;
+            var storageName = MongoUrl.Create(statementsConnectionString).DatabaseName;
 
-            if (SourceBundle is IStorageContainerResolver) dbname = ((IStorageContainerResolver)SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
+            if (SourceBundle is IStorageContainerResolver)
+                storageName = ((IStorageContainerResolver)SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
 
-            if (string.IsNullOrEmpty(dbname)) dbname = "storage";
+            if (string.IsNullOrEmpty(storageName)) storageName = "storage";
 
             // https://jira.mongodb.org/browse/CSHARP-965
             // http://stackoverflow.com/questions/19521626/mongodb-convention-packs
@@ -82,7 +83,7 @@ namespace Zen.Module.Data.MongoDB
             ConventionRegistry.Register("DictionaryRepresentationConvention", new ConventionPack { new DictionaryRepresentationConvention(DictionaryRepresentation.ArrayOfArrays) }, _ => true);
             ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
 
-            Database = _client.GetDatabase(dbname);
+            Database = _client.GetDatabase(storageName);
 
             // Current.Log.Add($"{typeof(T).FullName} {Database.Client?.Settings?.Credential?.Username}:{Database?.DatabaseNamespace}@{server} - REGISTERING", Message.EContentType.StartupSequence);
 
@@ -103,11 +104,14 @@ namespace Zen.Module.Data.MongoDB
 
         private void SetBaseCollectionName()
         {
-
             var typeName = _refType.FullName;
 
-            if (!string.IsNullOrEmpty(_tabledata?.CollectionPrefix)) typeName = $"{_tabledata.CollectionPrefix}.{_refType.Name}";
-            if (!string.IsNullOrEmpty(_tabledata?.TableName)) typeName = _tabledata.TableName;
+            if (!string.IsNullOrEmpty(_tabledata?.SetName)) typeName = _tabledata.SetName;
+
+            if (typeof(IStorageCollectionResolver).GetTypeInfo().IsAssignableFrom(_refType.GetTypeInfo()))
+                typeName = ((IStorageCollectionResolver)_refType.CreateInstance()).GetStorageCollectionName();
+
+            if (!string.IsNullOrEmpty(_tabledata?.SetPrefix)) typeName = $"{_tabledata.SetPrefix}.{typeName}";
 
             ReferenceCollectionName = _tabledata?.IgnoreEnvironmentPrefix == true ? typeName : $"{_statements.EnvironmentCode}.{typeName}";
         }
