@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -52,13 +53,27 @@ namespace Zen.Web.Service.Extensions
 
                 app.UseDefaultFiles(fOptions); // This will allow default (index.html, etc.) requests on the new mapping
 
-                app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
+                app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
 
                 app.UseRouter(r =>
                 {
                     r.MapGet("", context =>
                     {
-                        context.Response.Redirect("." + rootPrefix, false);
+                        var destination = "." + rootPrefix;
+
+                        if (Current.Configuration?.Development?.QualifiedServerName != null)
+                        {
+                            if (context.Request.Host.Host != Current.Configuration?.Development?.QualifiedServerName)
+                            {
+                                var destinationHost = context.Request.Host.Port.HasValue ? 
+                                    new HostString(Current.Configuration.Development.QualifiedServerName, context.Request.Host.Port.Value) : 
+                                    new HostString(Current.Configuration.DevelopmentQualifiedServerName);
+
+                                destination = "//" + destinationHost.ToString() + rootPrefix;
+                            }
+                        }
+
+                        context.Response.Redirect(destination, false);
                         return Task.FromResult(0);
                     });
                 });
