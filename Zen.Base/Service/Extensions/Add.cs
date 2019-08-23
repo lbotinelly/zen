@@ -1,10 +1,11 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Zen.Base.Maintenance;
 using Zen.Base.Module.Service;
 
 namespace Zen.Base.Service.Extensions
 {
-    public static class ZenAddExtensions
+    public static class Add
     {
         public static ZenBuilder AddZen(this IServiceCollection services, string defaultScheme) { return services.AddZen(o => o.DefaultScheme = defaultScheme); }
 
@@ -21,6 +22,8 @@ namespace Zen.Base.Service.Extensions
             var builder = new ZenBuilder(services);
 
             if (configureOptions != null) services.Configure(configureOptions);
+
+            services.AddHostedService<Maintenance.MaintenanceService>();
 
             return builder;
         }
