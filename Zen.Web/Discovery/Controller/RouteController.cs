@@ -8,7 +8,7 @@ using Zen.Base.Extension;
 
 namespace Zen.Web.Discovery.Controller
 {
-    [Route("api/discovery/[controller]"), ApiController]
+    [Route("api/discovery/endpoint"), ApiController]
     public class RouteController : Microsoft.AspNetCore.Mvc.Controller
     {
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;

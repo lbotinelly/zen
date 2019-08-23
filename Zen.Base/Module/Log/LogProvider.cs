@@ -101,8 +101,15 @@ namespace Zen.Base.Module.Log
             Queue.Clear();
         }
 
+        public virtual void BeforePush(Message m) { }
+
         public virtual void Pipeline(Message m)
         {
+            try { BeforePush(m); } catch (Exception e)
+            {
+
+            }
+
             var targetLevel = LogEventLevel.Debug;
 
             switch (m.Type)

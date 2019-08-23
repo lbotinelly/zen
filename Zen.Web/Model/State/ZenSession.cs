@@ -1,15 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 using Zen.Base.Common;
 using Zen.Base.Extension;
+using Zen.Base.Maintenance;
 using Zen.Base.Module;
 
 namespace Zen.Web.Model.State
 {
     [Priority(Level = -99)]
-    public class ZenSession : Data<ZenSession>, IZenSession
+    public class ZenSession : Data<ZenSession>, IZenSession, IMaintenanceTask
     {
+        #region Implementation of IMaintenanceTask
+
+        [MaintenanceTaskSetup(Name = "Session cleanup", Schedule = "1:00:00")]
+        public Task<Result> MaintenanceTask()
+        {
+            var result = new Result();
+
+            // Return all sessions at least six hours old.
+
+            var sessions = Where(i => i.LastUpdate <= DateTime.Now.AddHours(-6)).ToList();
+
+            result.Counters.Click("Invalid sessions", sessions);
+
+            Remove(sessions);
+
+            result.Status = Result.EResultStatus.Success;
+            result.Message = $"{sessions.Count} stale sessions removed";
+
+            return Task.FromResult(result);
+        }
+
+        #endregion
+
         [Key]
         public string Id { get; set; }
         public IDictionary<string, byte[]> Store { get; set; }
@@ -28,9 +54,6 @@ namespace Zen.Web.Model.State
             Store[key] = data.ToByteArray();
         }
 
-        public T Get<T>(string key)
-        {
-            return !Store.ContainsKey(key) ? default : Store[key].FromByteArray<T>();
-        }
+        public T Get<T>(string key) { return !Store.ContainsKey(key) ? default : Store[key].FromByteArray<T>(); }
     }
 }

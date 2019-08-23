@@ -25,7 +25,11 @@ namespace Zen.Base.Service.Extensions
 
             configuration.Invoke(builder);
 
+            Current.State = Status.EState.Running;
+
             Current.Log.Add(Current.State.ToString());
+
+
 
             return app;
         }

@@ -113,7 +113,9 @@ namespace Zen.Web.Data.Controller
                 default: throw new ArgumentOutOfRangeException(nameof(accessType), accessType, null);
             }
 
-            if (!App.Current.Orchestrator.Person?.HasAnyPermissions(targetPermissionSet) == true) throw new UnauthorizedAccessException("Not authorized.");
+            if (targetPermissionSet != null)
+                if (!App.Current.Orchestrator.Person?.HasAnyPermissions(targetPermissionSet) == true)
+                    throw new UnauthorizedAccessException("Not authorized.");
 
             try
             {

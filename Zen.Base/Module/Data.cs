@@ -50,7 +50,7 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.State.Step = "Starting TableData/Statements setup";
 
-                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.TableName ?? typeof(T).Name;
+                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? typeof(T).Name;
 
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
@@ -73,6 +73,8 @@ namespace Zen.Base.Module
                         Info<T>.Settings.KeyProperty?.Name ??
                         // Otherwise pick from Config
                         Info<T>.Configuration?.KeyName;
+
+                    Info<T>.Settings.Silent = Info<T>.Configuration?.Silent == true;
 
                     if (Info<T>.Settings.KeyMemberName == null)
                     {
@@ -102,7 +104,9 @@ namespace Zen.Base.Module
                         // If there's a [Key] attribute on a Property, use its name;
                         Info<T>.Settings.DisplayProperty?.Name;
 
-                    if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null) Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
+                    if (!Info<T>.Settings.Silent)
+                        if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
+                            Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
 
                     // Do we have any pipelines defined?
                     var ps = typeof(T).GetCustomAttributes(true).OfType<PipelineAttribute>().ToList();
@@ -209,9 +213,12 @@ namespace Zen.Base.Module
                     Info<T>.Settings.Adapter.Setup<T>(Info<T>.Settings);
                     Info<T>.Settings.Adapter.Initialize<T>();
 
-                    foreach (var (key, value) in Info<T>.Settings.Statistics) Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
+                    if (!Info<T>.Settings.Silent)
+                        foreach (var (key, value) in Info<T>.Settings.Statistics)
+                            Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
 
-                    Events.AddLog($"Data<{typeof(T).Name}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
+                    if (!Info<T>.Settings.Silent)
+                        Events.AddLog($"Data<{typeof(T).Name}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
                 }
                 catch (Exception e)
                 {
@@ -226,8 +233,8 @@ namespace Zen.Base.Module
                         refEx = e.InnerException;
                         Info<T>.Settings.State.Description += " / " + refEx.Message;
                     }
-
-                    Current.Log.Warn(Info<T>.Settings.State.Description);
+                    if (!Info<T>.Settings.Silent)
+                        Current.Log.Warn(Info<T>.Settings.State.Description);
                 }
             }
         }
@@ -338,7 +345,7 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.Before == null) return currentModel;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
-                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
+                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e); }
 
             return currentModel;
         }
@@ -348,7 +355,7 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
-                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { Current.Log.Add<T>(e); }
+                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e); }
         }
 
         #endregion
@@ -405,15 +412,16 @@ namespace Zen.Base.Module
 
             if (Info<T>.Settings.KeyMemberName == null)
             {
-                Current.Log.Warn<T>("Invalid operation; key not set");
+                if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
                 throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
             }
 
             var fullKey = mutator?.KeyPrefix + key;
 
-            var model = CacheFactory.FetchModel<T>(fullKey) ?? FetchModel(key, mutator);
+            if (!Info<T>.Configuration.UseCaching) return FetchModel(key, mutator);
 
-            return model;
+            return CacheFactory.FetchModel<T>(fullKey) ?? FetchModel(key, mutator);
+
         }
 
         public static IEnumerable<T> Get(IEnumerable<string> keys)
@@ -423,7 +431,7 @@ namespace Zen.Base.Module
             if (keys == null) return null;
             if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keys).Values;
 
-            Current.Log.Warn<T>("Invalid operation; key not set");
+            if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
             throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
         }
 
@@ -497,7 +505,7 @@ namespace Zen.Base.Module
 
                               if (resultPackage.Control.ContainsKey(tempKey))
                               {
-                                  Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                  if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
                                   failureSet.Add(item);
                               }
                               else { resultPackage.Control[tempKey] = new DataOperationControl<T> { Current = item, IsNew = true, Original = null }; }
@@ -509,7 +517,7 @@ namespace Zen.Base.Module
 
                           if (resultPackage.Control.ContainsKey(modelKey))
                           {
-                              Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                              if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
                               return;
                           }
 
@@ -638,7 +646,7 @@ namespace Zen.Base.Module
                 }
                 catch (Exception e)
                 {
-                    Current.Log.Add<T>(e);
+                    if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
                     var ex = new Exception($"{type} - Error while {logStep} {logObj?.ToJson()}: {e.Message}", e);
 
                     _timed.End();
@@ -769,6 +777,40 @@ namespace Zen.Base.Module
 
             localModel = Get(postKey, mutator);
             ProcAfterPipeline(targetActionType, EActionScope.Model, mutator, localModel, storedModel);
+
+            return localModel;
+        }
+
+        public T Insert(Mutator mutator = null)
+        {
+            if (_isDeleted) return null;
+
+            ValidateState(EActionType.Insert);
+
+            var localModel = (T)this;
+
+            var targetActionType = EActionType.Insert;
+
+            localModel = ProcBeforePipeline(targetActionType, EActionScope.Model, mutator, localModel, null);
+
+            if (localModel == null) return null;
+
+            BeforeInsert();
+            BeforeSave();
+
+            var postKey = Info<T>.Settings.Adapter.Insert(localModel).GetDataKey();
+
+            Info<T>.TryFlushCachedModel(localModel);
+
+            AfterInsert(postKey);
+            AfterSave(postKey);
+
+            _isNew = null;
+
+            if (Info<T>.Settings?.Pipelines?.After == null) return localModel;
+
+            localModel = Get(postKey, mutator);
+            ProcAfterPipeline(targetActionType, EActionScope.Model, mutator, localModel, null);
 
             return localModel;
         }

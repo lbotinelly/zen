@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,8 @@ namespace Zen.Web.Model.State
         private readonly Func<bool> _tryEstablishSession;
         private bool _isAvailable;
         private bool _isModified;
-        private bool _loaded;
+
+        private ZenSession sourceModel = null;
 
         private IDictionary<string, byte[]> _store;
 
@@ -70,30 +72,31 @@ namespace Zen.Web.Model.State
             {
                 if (!_tryEstablishSession()) throw new InvalidOperationException("Invalid Session Establishment");
 
-                _isModified = true;
                 var copy = new byte[value.Length];
                 Buffer.BlockCopy(value, 0, copy, 0, value.Length);
                 _store[key] = copy;
+                _isModified = true;
             }
         }
 
         public void Remove(string key)
         {
             Load();
-            _isModified |= _store.Remove(key);
+            _store.Remove(key);
+            _isModified = true;
         }
 
         public void Clear()
         {
             Load();
-            _isModified |= _store.Count > 0;
             _store.Clear();
+            _isModified = true;
         }
 
         // This will throw if called directly and a failure occurs. The user is expected to handle the failures.
         public async Task LoadAsync(CancellationToken cancellationToken = default)
         {
-            if (!_loaded)
+            if (sourceModel != null)
             {
                 using (var timeout = new CancellationTokenSource(_ioTimeout))
                 {
@@ -113,7 +116,6 @@ namespace Zen.Web.Model.State
                 }
 
                 _isAvailable = true;
-                _loaded = true;
             }
         }
 
@@ -128,7 +130,6 @@ namespace Zen.Web.Model.State
                         cts.Token.ThrowIfCancellationRequested();
 
                         await Task.Run(() => { Save(); }, cts.Token);
-                        _isModified = false;
                     }
                     catch (OperationCanceledException oex)
                     {
@@ -141,14 +142,16 @@ namespace Zen.Web.Model.State
 
         private void Load()
         {
-            if (_loaded) return;
+            if (sourceModel != null) return;
 
             try
             {
-                var data = ZenSession.Get(Id);
-                if (data != null) FetchFromStorage(data);
-                else if (!_isNewSessionKey) Base.Current.Log.Warn<ZenDistributedSession>($"Accessing expired session: {Id}");
+                sourceModel = ZenSession.Get(Id) ?? new ZenSession() { Id = Id };
+
+                if (sourceModel != null) FetchFromSourceModel();
+
                 _isAvailable = true;
+                _isModified = false;
             }
             catch (Exception exception)
             {
@@ -159,7 +162,6 @@ namespace Zen.Web.Model.State
                 Id = null;
                 _store = null;
             }
-            finally { _loaded = true; }
         }
 
         private void Save()
@@ -168,9 +170,7 @@ namespace Zen.Web.Model.State
             {
                 var session = ZenSession.Get(Id) ?? new ZenSession { Id = Id };
 
-                var mustSave = 
-                    session.Store.ToJson().Sha512Hash() != _store.ToJson().Sha512Hash() || 
-                    session.LastUpdate?.AddSeconds(60) < DateTime.Now;
+                var mustSave = _isModified || session.LastUpdate?.AddSeconds(60) < DateTime.Now;
 
                 if (!mustSave) return;
 
@@ -185,13 +185,12 @@ namespace Zen.Web.Model.State
             }
         }
 
-        private void FetchFromStorage(ZenSession content)
+        private void FetchFromSourceModel()
         {
-            if (content == null || content.Store.ToJson().Sha512Hash() != _store.ToJson().Sha512Hash()) _isModified = true;
+            _store = sourceModel?.Store ?? new ConcurrentDictionary<string, byte[]>();
 
-            _store = content?.Store;
-
-            Base.Current.Log.Info<ZenDistributedSession>("Session Loaded");
+            // Want a nice stackOverflowException? Allow the next line to run. (loop on Log generation, because of attempted User resolution)
+            // Base.Current.Log.Info<ZenDistributedSession>("Session Loaded"); 
         }
     }
 }
