@@ -22,15 +22,16 @@ namespace Zen.Base.Service
 
             var configurationPackage = (Resolution.GetClassesByInterface<IConfigurationPackage>(false).FirstOrDefault() ?? typeof(DefaultSettingsPackage)).CreateInstance<IConfigurationPackage>();
 
+
             serviceCollection.AddSingleton(configurationPackage);
 
             //var a = configurationPackage.Log ?? Resolution.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>();
             //var b = configurationPackage.Cache ?? Resolution.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()?.CreateInstance<ICacheProvider>();
 
+            serviceCollection.AddSingleton(s => configurationPackage.Environment ?? Resolution.GetClassesByInterface<IEnvironmentProvider>(false).FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.Log ?? Resolution.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.Cache ?? Resolution.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()?.CreateInstance<ICacheProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.Encryption ?? Resolution.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
-            serviceCollection.AddSingleton(s => configurationPackage.Environment ?? Resolution.GetClassesByInterface<IEnvironmentProvider>(false).FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.GlobalConnectionBundleType ?? Resolution.GetClassesByInterface<ConnectionBundlePrimitive>().FirstOrDefault());
 
             return serviceCollection;
