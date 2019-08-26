@@ -11,7 +11,17 @@ namespace Zen.Base.Module.Default
     [Priority(Level = -3)]
     internal class DefaultSettingsPackage : IConfigurationPackage
     {
-        public DefaultSettingsPackage()
+        public ILogProvider Log { get; set; }
+        public ICacheProvider Cache { get; set; }
+        public IEnvironmentProvider Environment { get; set; }
+        public IEncryptionProvider Encryption { get; set; }
+        public Type GlobalConnectionBundleType { get; set; }
+        public string WebApiCORSDomains { get; set; }
+        public List<string> WebApiCORSDomainMasks { get; set; }
+
+        #region Implementation of IZenProvider
+
+        public void Initialize()
         {
             Log = new NullLogProvider();
             Cache = new NullCacheProvider();
@@ -20,12 +30,6 @@ namespace Zen.Base.Module.Default
             WebApiCORSDomains = null;
         }
 
-        public ILogProvider Log { get; set; }
-        public ICacheProvider Cache { get; set; }
-        public IEnvironmentProvider Environment { get; set; }
-        public IEncryptionProvider Encryption { get; set; }
-        public Type GlobalConnectionBundleType { get; set; }
-        public string WebApiCORSDomains { get; set; }
-        public List<string> WebApiCORSDomainMasks { get; set; }
+        #endregion
     }
 }

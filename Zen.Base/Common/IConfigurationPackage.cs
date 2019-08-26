@@ -7,7 +7,7 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Common
 {
-    public interface IConfigurationPackage
+    public interface IConfigurationPackage: IZenProvider
     {
         ILogProvider Log { get; set; }
         ICacheProvider Cache { get; set; }
@@ -17,4 +17,5 @@ namespace Zen.Base.Common
         string WebApiCORSDomains { get; set; }
         List<string> WebApiCORSDomainMasks { get; set; }
     }
+
 }

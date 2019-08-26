@@ -12,6 +12,7 @@ namespace Zen.Base.Module.Environment
 
         public IEnvironmentDescriptor GetByEnvironment() { throw new NotImplementedException(); }
         public IEnvironmentDescriptor GetByMachine(string serverName) { throw new NotImplementedException(); }
+
         public void Initialize() { Events.ShutdownSequence.Actions.Add(Shutdown); }
 
         public void Shutdown() { }

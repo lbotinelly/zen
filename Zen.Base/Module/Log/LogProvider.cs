@@ -53,10 +53,7 @@ namespace Zen.Base.Module.Log
 
         public void Add<T>(Exception e) { Add<T>(e, null); }
 
-        public void KeyValuePair(string key, string value, Message.EContentType type)
-        {
-            Current.Log.Add($"{key.TruncateEnd(35, true)} : {value.TruncateEnd(93)}", type);
-        }
+        public void KeyValuePair(string key, string value, Message.EContentType type) { Current.Log.Add($"{key.TruncateEnd(35, true)} : {value.TruncateEnd(93)}", type); }
 
         public virtual void Info(string content) { Add(content, Message.EContentType.Info); }
 
@@ -105,10 +102,7 @@ namespace Zen.Base.Module.Log
 
         public virtual void Pipeline(Message m)
         {
-            try { BeforePush(m); } catch (Exception e)
-            {
-
-            }
+            try { BeforePush(m); } catch (Exception e) { }
 
             var targetLevel = LogEventLevel.Debug;
 

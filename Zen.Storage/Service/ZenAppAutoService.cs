@@ -2,10 +2,10 @@
 using Zen.Base.Common;
 using Zen.Base.Module.Service;
 
-namespace Zen.App.Service
+namespace Zen.Storage.Service
 {
-    [Priority(Level = -99)]
-    public class ZenAppAutoService : IZenAutoAddService
+    [Priority(Level = -97)]
+    public class ZenStorageAutoService : IZenAutoAddService
     {
         public void Add(IServiceCollection services)
         {

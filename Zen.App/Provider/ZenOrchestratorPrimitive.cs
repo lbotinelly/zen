@@ -68,10 +68,10 @@ namespace Zen.App.Provider
 
         public IZenApplication UpsertApplication(IZenApplication application)
         {
-            var temp = (Data<TA>)application;
+            var temp = (Data<TA>) application;
             temp.Save();
 
-            return (IZenApplication)temp;
+            return (IZenApplication) temp;
         }
 
         public List<IZenGroup> GetFullHierarchicalChain(IZenGroup referenceGroup, bool ignoreParentWhenAppOwned = true)
@@ -81,7 +81,7 @@ namespace Zen.App.Provider
 
             var cached = Base.Current.Cache[key];
 
-            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IZenGroup)i).ToList();
+            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IZenGroup) i).ToList();
 
             var chain = new List<IZenGroup>();
 
@@ -99,10 +99,10 @@ namespace Zen.App.Provider
             return chain;
         }
 
-        public List<IZenGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IZenGroup)i).ToList(); }
+        public List<IZenGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IZenGroup) i).ToList(); }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly char[] PermissionExpressionDelimiters = { ',', ';', '\n' };
+        private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
 
         public bool HasAnyPermissions(string expression)
         {
@@ -147,17 +147,16 @@ namespace Zen.App.Provider
         {
             var set = keySet != null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
 
-            return set.Select(i => (IZenPerson)i).ToList();
+            return set.Select(i => (IZenPerson) i).ToList();
         }
-        public void SavePerson(List<IZenPerson> people) { Data<TP>.Save(people.Select(i => (TP)i)); }
+
+        public void SavePerson(List<IZenPerson> people) { Data<TP>.Save(people.Select(i => (TP) i)); }
         public virtual string GetApiUri() { throw new NotImplementedException(); }
         public virtual string GetResourceUri() { throw new NotImplementedException(); }
 
         public virtual List<IZenPerson> PeopleByGroup(string key) { return Person.ByGroup(key); }
 
-
         private readonly Type _defaultProfileType = Resolution.GetClassesByInterface<IZenPersonProfile>(false).FirstOrDefault();
-
 
         public virtual List<IZenPersonProfile> GetProfiles(string keys)
         {
@@ -167,11 +166,10 @@ namespace Zen.App.Provider
 
             var people = GetPeople(keySet);
 
-            foreach (var zenPerson in people)
-                buffer.Add(GetProfile(zenPerson));
+            foreach (var zenPerson in people) buffer.Add(GetProfile(zenPerson));
 
             var orderedOutput = new Dictionary<string, IZenPersonProfile>();
-            foreach (var key in keySet) { orderedOutput[key] = buffer.FirstOrDefault(i => i.Locator == key); }
+            foreach (var key in keySet) orderedOutput[key] = buffer.FirstOrDefault(i => i.Locator == key);
 
             return orderedOutput.Values.ToList();
         }
@@ -194,7 +192,7 @@ namespace Zen.App.Provider
 
             keys = keys.Distinct().ToList();
 
-            var permissions = Data<TPerm>.Get(keys).Select(i => (IZenPermission)i).ToList();
+            var permissions = Data<TPerm>.Get(keys).Select(i => (IZenPermission) i).ToList();
 
             return permissions;
         }

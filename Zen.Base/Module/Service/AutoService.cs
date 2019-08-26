@@ -22,7 +22,7 @@ namespace Zen.Base.Module.Service
             Instances.ServiceProvider = Instances.ServiceCollection.BuildServiceProvider();
 
             foreach (var zenService in zenServices)
-                try { ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize(); } catch (Exception e) { Current.Log.Add(e, zenService.ServiceType.FullName); }
+                try { ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize(); } catch (Exception e) { Current.Log.Add(e, zenService.ServiceType.FullName); }
         }
 
         public static void UseAll(IApplicationBuilder app, IHostingEnvironment env)
