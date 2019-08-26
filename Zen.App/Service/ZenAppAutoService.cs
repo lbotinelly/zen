@@ -4,7 +4,7 @@ using Zen.Base.Module.Service;
 
 namespace Zen.App.Service
 {
-    [Priority(Level = -97)]
+    [Priority(Level = -99)]
     public class ZenAppAutoService : IZenAutoAddService
     {
         public void Add(IServiceCollection services)
