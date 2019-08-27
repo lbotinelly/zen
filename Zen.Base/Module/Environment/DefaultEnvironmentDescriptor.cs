@@ -7,14 +7,14 @@
 
         private DefaultEnvironmentDescriptor(int value, string code, string name)
         {
-            Value = value;
+            CacheDatabaseIndex = value;
             Name = name;
             Code = code;
         }
 
         public string Name { get; }
         public string Code { get; }
-        public int Value { get; }
+        public int CacheDatabaseIndex { get; }
 
         public override string ToString() { return Name; }
     }
