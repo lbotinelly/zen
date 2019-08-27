@@ -1,7 +1,11 @@
-﻿namespace Zen.Storage.Provider {
+﻿using Zen.Storage.Provider.Configuration;
+
+namespace Zen.Storage.Provider {
     public interface IConfigurationStorageProvider
     {
-        void Load();
-        void Save();
+        void Initialize(ConfigurationStorageAttribute config);
+        bool IsValid(object sourceModel);
+        object Load();
+        void Save(object sourceModel);
     }
 }

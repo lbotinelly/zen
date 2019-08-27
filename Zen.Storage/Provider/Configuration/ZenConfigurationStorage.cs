@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
+using Zen.Base;
 using Zen.Base.Common;
+using Zen.Base.Extension;
 
 namespace Zen.Storage.Provider.Configuration
 {
@@ -9,25 +10,50 @@ namespace Zen.Storage.Provider.Configuration
     public abstract class ZenConfigurationStorage : IZenConfigurationStorage, IZenProvider
     {
         internal List<ConfigurationStorageAttribute> attributes;
+
         protected ZenConfigurationStorage()
         {
             // At the end of this evaluation only one provider will be made available for the session lifetime.
 
-            attributes = GetType().GetCustomAttributes(typeof(ConfigurationStorageAttribute), false).Select(i=> (ConfigurationStorageAttribute)i).ToList();
-
+            attributes = GetType().GetCustomAttributes(typeof(ConfigurationStorageAttribute), false).Select(i => (ConfigurationStorageAttribute) i).ToList();
         }
 
-        #region Implementation of IZenProvider
-
-
-        #endregion
+        internal IConfigurationStorageProvider Provider { get; private set; }
 
         #region Implementation of IZenProvider
 
         public void Initialize()
         {
-            var targetEnvironment = Zen.Base.Current.Environment.CurrentCode;
+            // var targetEnvironment = Base.Current.Environment.CurrentCode;
+
+            // Now we have the code. Let's resolve who can get us some sweet, sweet config data.
+
+            var viableProviders = attributes;
+
+            if (!viableProviders.Any()) return;
+
+            var instances = viableProviders.Select(i =>
+            {
+                var instance = (IConfigurationStorageProvider) i.Provider.CreateInstance();
+                instance.Initialize(i);
+
+                return instance;
+            });
+
+            var validInstance = instances.FirstOrDefault(i => i.IsValid(this));
+
+            if (validInstance == null) return;
+
+            Provider = validInstance;
+
+            Events.AddLog("Configuration Storage Provider", validInstance.GetType().Name);
+
+            Provider.Load().CopyPropertiesTo(this);
         }
+
+        #endregion
+
+        #region Implementation of IZenProvider
 
         #endregion
     }
