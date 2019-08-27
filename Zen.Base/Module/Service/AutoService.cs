@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,14 +16,16 @@ namespace Zen.Base.Module.Service
 
         public static void Add()
         {
-            foreach (var item in AddQueue) item.Add(Instances.ServiceCollection);
+            foreach (var item in AddQueue)
+
+                try { item.Add(Instances.ServiceCollection); } catch (Exception e) { throw new InvalidDataException("Error initializing " + item.GetType().FullName, e); }
 
             var zenServices = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType)).ToList();
 
             Instances.ServiceProvider = Instances.ServiceCollection.BuildServiceProvider();
 
             foreach (var zenService in zenServices)
-                try { ((IZenProvider)Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize(); } catch (Exception e) { Current.Log.Add(e, zenService.ServiceType.FullName); }
+                try { ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize(); } catch (Exception e) { Current.Log.Add(e, zenService.ServiceType.FullName); }
         }
 
         public static void UseAll(IApplicationBuilder app, IHostingEnvironment env)

@@ -157,6 +157,8 @@ namespace Zen.Module.Cache.Redis
 
         private static int DatabaseIndex { get; set; } = -1;
 
+        
+
         public void Initialize()
         {
             //In the case nothing is defined, a standard environment setup is provided.
