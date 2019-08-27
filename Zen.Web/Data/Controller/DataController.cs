@@ -87,8 +87,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        private void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope,
-                                           string key = null, T model = null, string context = null)
+        private void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
         {
             var configuration = Configuration;
 
@@ -113,16 +112,15 @@ namespace Zen.Web.Data.Controller
                 default: throw new ArgumentOutOfRangeException(nameof(accessType), accessType, null);
             }
 
-            if (targetPermissionSet != null)
-                if (!App.Current.Orchestrator.Person?.HasAnyPermissions(targetPermissionSet) == true)
+            if (!string.IsNullOrEmpty(targetPermissionSet))
+                if (!App.Current.Orchestrator?.Person?.HasAnyPermissions(targetPermissionSet) == true)
                     throw new UnauthorizedAccessException("Not authorized.");
 
             try
             {
                 if (AuthorizeAction(method, accessType, scope, key, ref model, context)) return;
             }
-            catch (Exception e
-          ) // User may throw a custom error, and that's fine: let's log it and re-thrown a custom exception.
+            catch (Exception e) // User may throw a custom error, and that's fine: let's log it and re-thrown a custom exception.
             {
                 Base.Current.Log.Warn<T>($"AUTH DENIED {method} ({accessType}) [{key}]. Reason: {e.Message}");
                 throw new UnauthorizedAccessException("Not authorized: " + e.Message);
@@ -148,7 +146,6 @@ namespace Zen.Web.Data.Controller
         #region Event hooks and Behavior modifiers
 
         public virtual bool AuthorizeAction(EHttpMethod method, EActionType pAccessType, EActionScope scope, string key, ref T model, string context) { return true; }
-
         public virtual void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<T> model, string key = null) { }
         public virtual void AfterCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<T> model, string key = null) { }
         public virtual void BeforeModelAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref T model, T originalModel = null, string key = null) { }
@@ -188,16 +185,16 @@ namespace Zen.Web.Data.Controller
         {
             try
             {
-                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Model, null);
+                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Model);
 
                 T model = null;
                 var mutator = RequestMutator;
 
-                BeforeModelAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref model, null, null);
+                BeforeModelAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref model);
 
                 model = typeof(T).CreateInstance<T>();
 
-                AfterModelAction(EHttpMethod.Get, EActionType.Read, mutator, ref model, null, null);
+                AfterModelAction(EHttpMethod.Get, EActionType.Read, mutator, ref model);
                 return new ActionResult<T>(model);
             }
             catch (Exception e)
@@ -308,8 +305,7 @@ namespace Zen.Web.Data.Controller
                 // Mismatched keys, so no go.
                 if (patchedModel.GetDataKey() != originalModel.GetDataKey()) return new ConflictResult();
 
-                BeforeModelAction(EHttpMethod.Patch, EActionType.Update, ref mutator, ref patchedModel, originalModel,
-                                  key);
+                BeforeModelAction(EHttpMethod.Patch, EActionType.Update, ref mutator, ref patchedModel, originalModel, key);
 
                 patchedModel.Save(mutator);
 
