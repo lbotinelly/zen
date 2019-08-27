@@ -4,7 +4,7 @@
     {
         string Name { get; }
         string Code { get; }
-        int Value { get; }
+        int CacheDatabaseIndex { get; }
         string ToString();
     }
 }

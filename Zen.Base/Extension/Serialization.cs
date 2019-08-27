@@ -334,7 +334,7 @@ namespace Zen.Base.Extension
             return expando;
         }
 
-        public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false)
+        public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
             //if (pLevels != 0) s.RecursionLimit = pLevels;
@@ -348,7 +348,7 @@ namespace Zen.Base.Extension
                 settings.DefaultValueHandling = DefaultValueHandling.Ignore;
             }
 
-            try { return JsonConvert.SerializeObject(obj, Formatting.None, settings); } catch { return null; }
+            try { return JsonConvert.SerializeObject(obj, format, settings); } catch { return null; }
         }
 
         public static object ToJObject(this object src) { return JObject.Parse(src.ToJson()); }

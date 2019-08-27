@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
@@ -25,7 +24,8 @@ namespace Zen.Web.Host
         /// <param name="args">Pass-through of start-up parameters.</param>
         public static void Start<T>(string[] args) where T : class
         {
-            var isDevEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+            var isDevEnv = Base.Host.IsDevelopment;
+            var isContainer = Base.Host.IsContainer;
 
             if (isDevEnv)
             {
@@ -56,14 +56,14 @@ namespace Zen.Web.Host
 
                         options.Listen(
                             localAddress,
-                            Current.Configuration?.Development?.HttpPort ?? 5000
+                            Current.Configuration?.Development?.HttpPort ?? (isContainer ? 80 : 5000)
                         );
 
                         // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
                         if (devCertificate != null)
                             options.Listen(
                                 localAddress,
-                                Current.Configuration?.Development?.HttpsPort ?? 5001,
+                                Current.Configuration?.Development?.HttpsPort ?? (isContainer ? 443 : 5001),
                                 listenOptions => { listenOptions.UseHttps(devCertificate); });
                     })
                     .Build();

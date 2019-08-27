@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 namespace Zen.Base
@@ -18,8 +19,13 @@ namespace Zen.Base
             ApplicationAssemblyName = ApplicationAssembly.GetName().Name;
             ApplicationAssemblyVersion = ApplicationAssembly.ImageRuntimeVersion;
 
+            IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+            IsContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
             if (!Directory.Exists(DataDirectory)) Directory.CreateDirectory(DataDirectory);
         }
+
+        public static bool IsContainer { get; }
         public static string ApplicationAssemblyVersion { get; set; }
         public static string BaseDirectory { get; }
         public static string DataDirectory { get; }
@@ -27,6 +33,7 @@ namespace Zen.Base
         public static string ApplicationAssemblyName { get; }
         public static Assembly ApplicationAssembly { get; }
         public static string Process { get; }
+        public static bool IsDevelopment { get; } 
 
         private static Assembly GetAppAssembly() { return Assembly.GetEntryAssembly(); }
     }
