@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AssemblyName>Zen.Module.Cloud.AWS</AssemblyName>
+    <RootNamespace>Zen.Module.Cloud.AWS</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.3.103.31" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.104.19" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.56" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.101.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Cloud\Zen.Cloud.csproj" />
+    <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
+  </ItemGroup>
+
+</Project>

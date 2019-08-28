@@ -7,5 +7,6 @@ namespace Zen.Storage.Provider {
         bool IsValid(object sourceModel);
         object Load();
         void Save(object sourceModel);
+        string Descriptor { get; }
     }
 }

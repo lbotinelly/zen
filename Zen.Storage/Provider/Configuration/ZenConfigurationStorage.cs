@@ -24,9 +24,7 @@ namespace Zen.Storage.Provider.Configuration
 
         public void Initialize()
         {
-            // var targetEnvironment = Base.Current.Environment.CurrentCode;
-
-            // Now we have the code. Let's resolve who can get us some sweet, sweet config data.
+            // Let's resolve who can get us some sweet, sweet config data.
 
             var viableProviders = attributes;
 
@@ -38,7 +36,7 @@ namespace Zen.Storage.Provider.Configuration
                 instance.Initialize(i);
 
                 return instance;
-            });
+            }).ToList();
 
             var validInstance = instances.FirstOrDefault(i => i.IsValid(this));
 
@@ -46,7 +44,7 @@ namespace Zen.Storage.Provider.Configuration
 
             Provider = validInstance;
 
-            Events.AddLog("Configuration Storage Provider", validInstance.GetType().Name);
+            Events.AddLog("Configuration Storage Provider", validInstance.GetType().Name + " | " + validInstance.Descriptor);
 
             Provider.Load().CopyPropertiesTo(this);
         }
