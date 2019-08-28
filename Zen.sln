@@ -21,7 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.App", "Zen.App\Zen.App.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Base", "Zen.Base\Zen.Base.csproj", "{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Storage", "Zen.Storage\Zen.Storage.csproj", "{0351EE2B-6463-4E75-9317-7B0A424F6BF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Storage", "Zen.Storage\Zen.Storage.csproj", "{0351EE2B-6463-4E75-9317-7B0A424F6BF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Cloud", "Zen.Cloud\Zen.Cloud.csproj", "{135E1204-21F8-4EDD-8B4B-5EF2CD71EF2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Module.Cloud.AWS", "Zen.Module.Cloud.AWS\Zen.Module.Cloud.AWS.csproj", "{5601DD40-D3B5-483A-889A-081E012FE638}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +73,14 @@ Global
 		{0351EE2B-6463-4E75-9317-7B0A424F6BF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0351EE2B-6463-4E75-9317-7B0A424F6BF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0351EE2B-6463-4E75-9317-7B0A424F6BF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{135E1204-21F8-4EDD-8B4B-5EF2CD71EF2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{135E1204-21F8-4EDD-8B4B-5EF2CD71EF2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{135E1204-21F8-4EDD-8B4B-5EF2CD71EF2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{135E1204-21F8-4EDD-8B4B-5EF2CD71EF2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5601DD40-D3B5-483A-889A-081E012FE638}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5601DD40-D3B5-483A-889A-081E012FE638}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5601DD40-D3B5-483A-889A-081E012FE638}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5601DD40-D3B5-483A-889A-081E012FE638}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
