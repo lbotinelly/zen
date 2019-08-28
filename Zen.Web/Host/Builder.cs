@@ -24,60 +24,61 @@ namespace Zen.Web.Host
         /// <param name="args">Pass-through of start-up parameters.</param>
         public static void Start<T>(string[] args) where T : class
         {
-            var isDevEnv = Base.Host.IsDevelopment;
-            var isContainer = Base.Host.IsContainer;
+            //var isDevEnv = Base.Host.IsDevelopment;
+            //var isContainer = Base.Host.IsContainer;
 
-            if (isDevEnv)
-            {
-                // Pick up certificate from local Store:
-
-                X509Certificate2 devCertificate = null;
-
-                using (var store = new X509Store(StoreName.My))
+            if (!Base.Host.IsContainer)
+                if (Base.Host.IsDevelopment)
                 {
-                    store.Open(OpenFlags.ReadOnly);
+                    // Pick up certificate from local Store:
 
-                    var certs = new X509Certificate2Collection();
+                    X509Certificate2 devCertificate = null;
 
-                    if (Current.Configuration?.Development?.CertificateSubject != null) certs = store.Certificates.Find(X509FindType.FindBySubjectName, Current.Configuration.Development.CertificateSubject, false);
-
-                    if (certs.Count == 0) certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
-
-                    if (certs.Count > 0) devCertificate = certs[0];
-                }
-
-                var host = new WebHostBuilder() // Pretty standard pipeline,
-                    .UseContentRoot(Directory.GetCurrentDirectory())
-                    .UseKestrel()
-                    .UseStartup<T>()
-                    .ConfigureKestrel((context, options) =>
+                    using (var store = new X509Store(StoreName.My))
                     {
-                        var localAddress = IPAddress.Parse("0.0.0.0"); // But we'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
+                        store.Open(OpenFlags.ReadOnly);
 
-                        options.Listen(
-                            localAddress,
-                            Current.Configuration?.Development?.HttpPort ?? (isContainer ? 80 : 5000)
-                        );
+                        var certs = new X509Certificate2Collection();
 
-                        // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
-                        if (devCertificate != null)
+                        if (Current.Configuration?.Development?.CertificateSubject != null)
+                            certs = store.Certificates.Find(X509FindType.FindBySubjectName, Current.Configuration.Development.CertificateSubject, false);
+
+                        if (certs.Count == 0) certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
+
+                        if (certs.Count > 0) devCertificate = certs[0];
+                    }
+
+                    var host = new WebHostBuilder() // Pretty standard pipeline,
+                        .UseContentRoot(Directory.GetCurrentDirectory())
+                        .UseKestrel()
+                        .UseStartup<T>()
+                        .ConfigureKestrel((context, options) =>
+                        {
+                            var localAddress = IPAddress.Parse("0.0.0.0"); // But we'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
+
                             options.Listen(
                                 localAddress,
-                                Current.Configuration?.Development?.HttpsPort ?? (isContainer ? 443 : 5001),
-                                listenOptions => { listenOptions.UseHttps(devCertificate); });
-                    })
-                    .Build();
+                                Current.Configuration?.Development?.HttpPort ?? 5000
+                            );
 
-                if (devCertificate != null) // Log so we know what's going on.
-                    Base.Current.Log.KeyValuePair("Development Certificate", $"{devCertificate.Thumbprint} | {devCertificate.FriendlyName}");
+                            // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
+                            if (devCertificate != null)
+                                options.Listen(
+                                    localAddress,
+                                    Current.Configuration?.Development?.HttpsPort ?? 5001,
+                                    listenOptions => { listenOptions.UseHttps(devCertificate); });
+                        })
+                        .Build();
 
-                host.Run();
-            }
-            else
-            {
-                // Vanilla stuff.
-                WebHost.CreateDefaultBuilder(args).UseStartup<T>().Build().Run();
-            }
+                    if (devCertificate != null) // Log so we know what's going on.
+                        Base.Current.Log.KeyValuePair("Development Certificate", $"{devCertificate.Thumbprint} | {devCertificate.FriendlyName}");
+
+                    host.Run();
+                    return;
+                }
+
+            // Vanilla stuff.
+            WebHost.CreateDefaultBuilder(args).UseStartup<T>().Build().Run();
         }
     }
 }
