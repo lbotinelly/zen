@@ -6,19 +6,18 @@ using Zen.Base.Extension;
 
 namespace Zen.Storage.Provider.Configuration
 {
-    [Priority(Level = -97)]
     public abstract class ZenConfigurationStorage : IZenConfigurationStorage, IZenProvider
     {
-        internal List<ConfigurationStorageAttribute> attributes;
+        internal List<ZenConfigurationStorageAttribute> attributes;
 
         protected ZenConfigurationStorage()
         {
             // At the end of this evaluation only one provider will be made available for the session lifetime.
 
-            attributes = GetType().GetCustomAttributes(typeof(ConfigurationStorageAttribute), false).Select(i => (ConfigurationStorageAttribute) i).ToList();
+            attributes = GetType().GetCustomAttributes(typeof(ZenConfigurationStorageAttribute), false).Select(i => (ZenConfigurationStorageAttribute) i).ToList();
         }
 
-        internal IConfigurationStorageProvider Provider { get; private set; }
+        internal IZenConfigurationStorageProvider Provider { get; private set; }
 
         #region Implementation of IZenProvider
 
@@ -32,7 +31,7 @@ namespace Zen.Storage.Provider.Configuration
 
             var instances = viableProviders.Select(i =>
             {
-                var instance = (IConfigurationStorageProvider) i.Provider.CreateInstance();
+                var instance = (IZenConfigurationStorageProvider) i.Provider.CreateInstance();
                 instance.Initialize(i);
 
                 return instance;

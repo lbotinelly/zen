@@ -8,22 +8,20 @@
     <Deterministic>False</Deterministic>
     <AssemblyVersion>0.0.1.*</AssemblyVersion>
     <FileVersion>0.0.1.*</FileVersion>
-    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
-    <PackageTags>middleware orm dotnet core storage</PackageTags>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
     <Version>0.0.1.0</Version>
     <Description>A storage manager for Zen.</Description>
     <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
+    <LangVersion>7.1</LangVersion>
+    <PackageTags>middleware orm dotnet core storage</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <Copyright />    
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Default\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
   </ItemGroup>
 

@@ -104,16 +104,15 @@ namespace Zen.Module.Data.MongoDB
 
         private void SetBaseCollectionName()
         {
-            var typeName = _refType.FullName;
-
-            if (!string.IsNullOrEmpty(_tabledata?.SetName)) typeName = _tabledata.SetName;
+            var typeName = _tabledata.SetName ?? _statements.TypeName;
+            var typeNamespace = _tabledata?.SetPrefix ?? _statements.TypeNamespace;
 
             if (typeof(IStorageCollectionResolver).GetTypeInfo().IsAssignableFrom(_refType.GetTypeInfo()))
                 typeName = ((IStorageCollectionResolver)_refType.CreateInstance()).GetStorageCollectionName();
 
-            if (!string.IsNullOrEmpty(_tabledata?.SetPrefix)) typeName = $"{_tabledata.SetPrefix}.{typeName}";
+            var qualifiedName = $"{typeNamespace}.{typeName}";
 
-            ReferenceCollectionName = _tabledata?.IgnoreEnvironmentPrefix == true ? typeName : $"{_statements.EnvironmentCode}.{typeName}";
+            ReferenceCollectionName = _tabledata?.IgnoreEnvironmentPrefix == true ? qualifiedName : $"{_statements.EnvironmentCode}.{qualifiedName}";
         }
 
         private void RegisterGenericChain(Type type)

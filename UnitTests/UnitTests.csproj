@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="nunit" Version="3.11.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
+      <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+      <ProjectReference Include="..\Zen.Cloud\Zen.Cloud.csproj" />
+      <ProjectReference Include="..\Zen.Module.Cloud.AWS\Zen.Module.Cloud.AWS.csproj" />
+      <ProjectReference Include="..\Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj" />
+      <ProjectReference Include="..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
+      <ProjectReference Include="..\Zen.Module.Web.Auth.GitHub\Zen.Module.Web.Auth.GitHub.csproj" />
+      <ProjectReference Include="..\Zen.Module.Web.Auth.Google\Zen.Module.Web.Auth.Google.csproj" />
+      <ProjectReference Include="..\Zen.Module.Web.IoT.Alexa\Zen.Module.Web.IoT.Alexa.csproj" />
+      <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
+      <ProjectReference Include="..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
+      <ProjectReference Include="..\Zen.Web\Zen.Web.csproj" />
+    </ItemGroup>
+
+</Project>

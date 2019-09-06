@@ -11,34 +11,97 @@ namespace Zen.Module.Cloud.AWS
 {
     public class S3Connector
     {
-        public S3Connector(string systemName)
+        private readonly string _defaultBucket;
+
+        public S3Connector(string systemName, string defaultBucket = null)
         {
             Client = new AmazonS3Client(new StoredProfileAWSCredentials(), RegionEndpoint.GetBySystemName(systemName));
+            _defaultBucket = defaultBucket;
         }
 
         public IAmazonS3 Client { get; }
 
-        public bool ObjectExists(string bucket, string key)
+        public bool Exists(string key, string bucket = null)
         {
-            try
-            {
-                var probe = Client.GetObjectMetadataAsync(bucket, key).Result;
-                return true;
-            } catch (Exception e) { return false; }
+            return ExistsAsync(key, bucket).Result;
         }
 
-        private GetObjectResponse GetObjectAsync(string bucket, string key)
+        public async Task<bool> ExistsAsync(string key, string bucket = null)
         {
+            bucket = bucket ?? _defaultBucket;
+
+            try
+            {
+                await Client.GetObjectMetadataAsync(bucket, key);
+                return true;
+            }
+            catch (Exception) { return false; }
+        }
+
+        public void Delete(string key, string bucket = null)
+        {
+            bucket = bucket ?? _defaultBucket;
+
+            Client.DeleteObjectAsync(new DeleteObjectRequest
+            {
+                BucketName = bucket,
+                Key = key
+            });
+        }
+
+        public string Put(string key, Stream content, string bucket = null)
+        {
+            bucket = bucket ?? _defaultBucket;
+            var call = PutNativeAsync(key, content, bucket);
+            call.Wait();
+
+            return call.Result.ETag;
+        }
+
+        public async Task<string> PutAsync(string key, Stream content, string bucket = null)
+        {
+            bucket = bucket ?? _defaultBucket;
+            var call = await PutNativeAsync(key, content, bucket);
+
+            return call.ETag;
+        }
+
+        public Stream Get(string key, string bucket = null)
+        {
+            bucket = bucket ?? _defaultBucket;
+
+            var response = GetNativeAsync(key, bucket).Result;
+
+            return response.ResponseStream;
+        }
+
+        public async Task<Stream> GetAsync(string key, string bucket = null)
+        {
+            bucket = bucket ?? _defaultBucket;
+
+            var response = await GetNativeAsync(key, bucket);
+
+            return response.ResponseStream;
+        }
+
+        #region Native methods
+
+        private Task<GetObjectResponse> GetNativeAsync(string key, string bucket = null)
+        {
+            bucket = bucket ?? _defaultBucket;
+
             return Client.GetObjectAsync(new GetObjectRequest
             {
                 BucketName = bucket,
                 Key = key
-            }).Result;
+            });
         }
 
-        private async Task<PutObjectResponse> PutObjectAsync(string bucket, string key, Stream content)
+        private Task<PutObjectResponse> PutNativeAsync(string key, Stream content, string bucket = null)
         {
-            return await Client.PutObjectAsync(new PutObjectRequest
+            bucket = bucket ?? _defaultBucket;
+
+            return Client.PutObjectAsync(new PutObjectRequest
             {
                 BucketName = bucket,
                 Key = key,
@@ -47,29 +110,24 @@ namespace Zen.Module.Cloud.AWS
             });
         }
 
-        public void s3DeleteKeyFromBucket(string bucket, string key)
+        #endregion
+
+        #region Helpers
+
+        public void PutString(string key, string content, string bucket = null)
         {
-            Client.DeleteObjectAsync(new DeleteObjectRequest
-            {
-                BucketName = bucket,
-                Key = key
-            });
+            bucket = bucket ?? _defaultBucket;
+            PutNativeAsync(key, new MemoryStream(Encoding.UTF8.GetBytes(content)), bucket).Wait();
         }
 
-        public void s3WriteStringToBucket(string bucket, string key, string content) { PutObjectAsync(bucket, key, new MemoryStream(Encoding.UTF8.GetBytes(content))).Wait(); }
-
-        public void s3WriteStreamToBucket(string bucket, string key, Stream content) { PutObjectAsync(bucket, key, content).Wait(); }
-
-        public string s3ReadStringFromBucket(string bucket, string key)
+        public string GetString(string key, string bucket = null)
         {
-            var response = GetObjectAsync(bucket, key);
+            bucket = bucket ?? _defaultBucket;
+
+            var response = GetNativeAsync(key, bucket).Result;
             return new StreamReader(response.ResponseStream).ReadToEnd();
         }
 
-        public Stream s3ReadStreamFromBucket(string bucket, string key)
-        {
-            var response = GetObjectAsync(bucket, key);
-            return response.ResponseStream;
-        }
+        #endregion
     }
 }

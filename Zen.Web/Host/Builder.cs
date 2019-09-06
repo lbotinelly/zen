@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Zen.Base.Extension;
 
 namespace Zen.Web.Host
 {
@@ -32,21 +34,7 @@ namespace Zen.Web.Host
                 {
                     // Pick up certificate from local Store:
 
-                    X509Certificate2 devCertificate = null;
-
-                    using (var store = new X509Store(StoreName.My))
-                    {
-                        store.Open(OpenFlags.ReadOnly);
-
-                        var certs = new X509Certificate2Collection();
-
-                        if (Current.Configuration?.Development?.CertificateSubject != null)
-                            certs = store.Certificates.Find(X509FindType.FindBySubjectName, Current.Configuration.Development.CertificateSubject, false);
-
-                        if (certs.Count == 0) certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
-
-                        if (certs.Count > 0) devCertificate = certs[0];
-                    }
+                    var devCertificate = GetDevCertificate();
 
                     var host = new WebHostBuilder() // Pretty standard pipeline,
                         .UseContentRoot(Directory.GetCurrentDirectory())
@@ -79,6 +67,18 @@ namespace Zen.Web.Host
 
             // Vanilla stuff.
             WebHost.CreateDefaultBuilder(args).UseStartup<T>().Build().Run();
+        }
+
+        private static X509Certificate2 GetDevCertificate()
+        {
+
+            var targetSubject = Current.Configuration?.Development?.CertificateSubject ?? "localhost";
+
+            var targetCertificate = new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() ??
+                                    new X509Store(StoreName.My).BySubject(targetSubject).FirstOrDefault() ??
+                                    new X509Store(StoreName.My).BySubject("localhost").FirstOrDefault();
+
+            return targetCertificate;
         }
     }
 }

@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Zen.Base;
-using Zen.Base.Extension;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Module.Service;
 using Zen.Storage.Provider.Configuration;
+using Zen.Storage.Provider.File;
 
 namespace Zen.Storage.Service
 {
@@ -11,10 +9,10 @@ namespace Zen.Storage.Service
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
-            var probe = Resolution.GetClassesByInterface<ZenConfigurationStorage>(false).FirstOrDefault()?.CreateInstance<ZenConfigurationStorage>();
-            serviceCollection.AddSingleton(s => probe);
-
-            Events.AddLog("Configuration Storage", probe?.ToString());
+            serviceCollection
+                .AddZenProvider<ZenConfigurationStorage>("Configuration Storage")
+                .AddZenProvider<ZenFileStoragePrimitive>("File Storage")
+                ;
 
             return serviceCollection;
         }

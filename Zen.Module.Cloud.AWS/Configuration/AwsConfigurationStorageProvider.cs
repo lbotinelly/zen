@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Zen.Base.Extension;
 using Zen.Cloud.Configuration;
-using Zen.Storage.Provider;
 using Zen.Storage.Provider.Configuration;
 
 namespace Zen.Module.Cloud.AWS.Configuration
 {
-    public class AwsConfiguratonStorageProvider<T> : IConfigurationStorageProvider where T : class, IAwsConfigurationStorageProvider
+    public class AwsConfigurationStorageProvider<T> : IZenConfigurationStorageProvider where T : class, IAwsConfigurationStorageProvider
     {
         private CloudConfigurationStorageAttribute _config;
 
@@ -16,7 +15,7 @@ namespace Zen.Module.Cloud.AWS.Configuration
 
         #region Implementation of IConfigurationStorageProvider
 
-        public void Initialize(ConfigurationStorageAttribute config)
+        public void Initialize(ZenConfigurationStorageAttribute config)
         {
             _config = config as CloudConfigurationStorageAttribute;
             if (_config == null) return;
@@ -27,19 +26,19 @@ namespace Zen.Module.Cloud.AWS.Configuration
         {
             _sourceModel = sourceModel;
 
-            var keyExists = _connector.ObjectExists(_config.Bucket, _config.FileName);
+            var keyExists = _connector.Exists(_config.FileName, _config.Bucket);
 
             if (keyExists) return true;
 
             if (_config.ReadOnly) return _config.DefaultIfMissing;
 
-            _connector.s3WriteStringToBucket(_config.Bucket, _config.FileName, sourceModel.ToJson(format: Formatting.Indented));
+            _connector.PutString(_config.FileName, sourceModel.ToJson(format: Formatting.Indented), _config.Bucket);
             return true;
         }
 
-        public object Load() { return _connector.s3ReadStringFromBucket(_config.Bucket, _config.FileName).FromJson<object>() ?? _sourceModel; }
+        public object Load() { return _connector.GetString(_config.FileName, _config.Bucket).FromJson<object>() ?? _sourceModel; }
 
-        public void Save(object sourceModel) { _connector.s3WriteStringToBucket(_config.Bucket, _config.FileName, sourceModel.ToJson(format: Formatting.Indented)); }
+        public void Save(object sourceModel) { _connector.PutString(_config.FileName, sourceModel.ToJson(format: Formatting.Indented), _config.Bucket); }
 
         public string Descriptor => _config.Descriptor;
 
