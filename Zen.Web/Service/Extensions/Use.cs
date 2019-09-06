@@ -9,6 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Zen.Base;
+using Zen.Base.Module.Log;
 
 namespace Zen.Web.Service.Extensions
 {
@@ -53,7 +54,7 @@ namespace Zen.Web.Service.Extensions
 
                 app.UseDefaultFiles(fOptions); // This will allow default (index.html, etc.) requests on the new mapping
 
-                app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
+                app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
 
                 app.UseRouter(r =>
                 {
@@ -62,16 +63,14 @@ namespace Zen.Web.Service.Extensions
                         var destination = "." + rootPrefix;
 
                         if (Current.Configuration?.Development?.QualifiedServerName != null)
-                        {
                             if (context.Request.Host.Host != Current.Configuration?.Development?.QualifiedServerName)
                             {
-                                var destinationHost = context.Request.Host.Port.HasValue ? 
-                                    new HostString(Current.Configuration.Development.QualifiedServerName, context.Request.Host.Port.Value) : 
-                                    new HostString(Current.Configuration.DevelopmentQualifiedServerName);
+                                var destinationHost = context.Request.Host.Port.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, context.Request.Host.Port.Value) : new HostString(Current.Configuration.DevelopmentQualifiedServerName);
 
                                 destination = "//" + destinationHost.ToString() + rootPrefix;
                             }
-                        }
+
+                        Base.Current.Log.Add($"Redirect: {destination}", Message.EContentType.Info);
 
                         context.Response.Redirect(destination, false);
                         return Task.FromResult(0);

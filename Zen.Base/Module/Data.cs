@@ -42,7 +42,9 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(), (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
+                                                 new Settings(), 
+                                                 (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -50,7 +52,23 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.State.Step = "Starting TableData/Statements setup";
 
-                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? typeof(T).Name;
+                    // Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? typeof(T).Name;
+
+                    var sourceType = typeof(T);
+
+                    while (sourceType?.IsGenericType == true)
+                    {
+                        sourceType = sourceType.GenericTypeArguments.FirstOrDefault();
+                    }
+
+                    Info<T>.Settings.TypeName = sourceType?.Name;
+                    Info<T>.Settings.TypeQualifiedName = sourceType?.FullName;
+
+                    if (Info<T>.Settings.TypeQualifiedName != Info<T>.Settings.TypeName)
+                        if (sourceType?.FullName != null)
+                            Info<T>.Settings.TypeNamespace = sourceType?.FullName.Substring(0, Info<T>.Settings.TypeQualifiedName.Length - Info<T>.Settings.TypeName.Length - 1);
+
+                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
 
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
@@ -218,7 +236,7 @@ namespace Zen.Base.Module
                             Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
 
                     if (!Info<T>.Settings.Silent)
-                        Events.AddLog($"Data<{typeof(T).Name}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
+                        Events.AddLog($"Data<{Info<T>.Settings.TypeQualifiedName}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
                 }
                 catch (Exception e)
                 {

@@ -5,7 +5,7 @@ using Zen.Base.Extension;
 
 namespace Zen.Storage.Provider.Configuration.FileSystem
 {
-    public class FileSystemConfiguratonStorageProvider<T> : IConfigurationStorageProvider where T : class
+    public class FileSystemConfiguratonStorageProvider<T> : IZenConfigurationStorageProvider where T : class
     {
         private FileSystemConfigurationStorageAttribute _config;
         private FileInfo _file;
@@ -15,7 +15,7 @@ namespace Zen.Storage.Provider.Configuration.FileSystem
 
         #region Implementation of IConfigurationStorageProvider
 
-        public void Initialize(ConfigurationStorageAttribute config)
+        public void Initialize(ZenConfigurationStorageAttribute config)
         {
             _config = config as FileSystemConfigurationStorageAttribute;
 
@@ -33,11 +33,11 @@ namespace Zen.Storage.Provider.Configuration.FileSystem
 
             if (_config.ReadOnly) return _config.DefaultIfMissing;
 
-            File.WriteAllText(_file.FullName, sourceModel.ToJson(format: Formatting.Indented));
+            System.IO.File.WriteAllText(_file.FullName, sourceModel.ToJson(format: Formatting.Indented));
             return true;
         }
 
-        public object Load() { return _file.Exists ? File.ReadAllText(_file.FullName).FromJson<object>() : _sourceModel; }
+        public object Load() { return _file.Exists ? System.IO.File.ReadAllText(_file.FullName).FromJson<object>() : _sourceModel; }
         public void Save(object sourceModel) { }
         public string Descriptor => _config.Descriptor;
 

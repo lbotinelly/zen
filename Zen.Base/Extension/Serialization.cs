@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using System.Xml;
@@ -333,6 +334,30 @@ namespace Zen.Base.Extension
 
             return expando;
         }
+
+        public static List<X509Certificate2> ToList(this X509Certificate2Collection source)
+        {
+            return source.OfType<X509Certificate2>().ToList();
+        }
+
+        public static List<X509Certificate2> BySubject(this X509Store source, string targetSubject)
+        {
+            source.Open(OpenFlags.ReadOnly);
+            var target = source.Certificates.ToList().Where(i => i?.SubjectName.Name != null && i.SubjectName.Name.Contains(targetSubject)).ToList();
+            source.Close();
+            return target;
+        }
+
+        public static void CopyStreamTo(this Stream input, Stream output)
+        {
+            var buffer = new byte[8 * 1024];
+            int len;
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, len);
+            }
+        }
+
 
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {

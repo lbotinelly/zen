@@ -51,6 +51,9 @@ namespace Zen.Base.Module.Data
         public FieldInfo DisplayField { get; set; }
         public PropertyInfo DisplayProperty { get; set; }
         public bool Silent { get; set; }
+        public string TypeName { get; set; }
+        public string TypeQualifiedName { get; set; }
+        public string TypeNamespace { get; set; }
 
         public Lazy<T> GetInstancedModifier<T>() where T : Data<T> { return new Lazy<T>(() => (T) Activator.CreateInstance(typeof(T), null)); }
 
