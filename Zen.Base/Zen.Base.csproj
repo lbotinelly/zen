@@ -16,7 +16,8 @@
     <Version>0.0.1.0</Version>
     <Description>A fluid, seamless middleware.</Description>
     <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
-    <Copyright />    
+    <Copyright />
+    <LangVersion>7.2</LangVersion>    
   </PropertyGroup>
 
   <ItemGroup>

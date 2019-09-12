@@ -5,6 +5,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AssemblyName>Zen.Web.Auth</AssemblyName>
     <RootNamespace>Zen.Web.Auth</RootNamespace>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

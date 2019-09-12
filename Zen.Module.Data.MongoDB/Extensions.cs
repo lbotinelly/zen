@@ -56,7 +56,6 @@ namespace Zen.Module.Data.MongoDB
 
             if (!string.IsNullOrEmpty(modifier.OmniQuery)) queryBuilder.Add($"$text:{{$search: \'{modifier.OmniQuery.Replace("'", "\\'")}\',$caseSensitive: false,$diacriticSensitive: false}}");
 
-            queryBuilder.Add(modifier?.PartialQuery);
             queryBuilder.Add(modifier?.Filter);
 
             return queryBuilder.Compile();

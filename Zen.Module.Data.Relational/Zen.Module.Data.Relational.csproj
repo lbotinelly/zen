@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AssemblyName>Zen.Module.Data.Relational</AssemblyName>
+    <RootNamespace>Zen.Module.Data.Relational</RootNamespace>
+    <Version>0.0.1.0</Version>
+    <Description>Baseline module for relational database adapters for Zen</Description>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.4" />
+    <PackageReference Include="Dapper.Contrib" Version="2.0.4" />
+    <PackageReference Include="Dapper.FluentMap" Version="1.8.0" />
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+  </ItemGroup>
+
+</Project>

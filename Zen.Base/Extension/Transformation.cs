@@ -39,6 +39,25 @@ namespace Zen.Base.Extension
             "CommonLanguageRuntimeLibrary"
         };
 
+        public static Dictionary<TU, List<T>> DistributeEvenly<T, TU>(this IEnumerable<T> source, IEnumerable<TU> containers)
+        {
+            var enumeratedSource = source.ToList();
+            var enumeratedContainers = containers.ToList();
+
+            var distributionMap = enumeratedContainers.ToList().ToDictionary(i => i, i => new List<T>());
+            var containerCount = distributionMap.Count;
+
+            var containerIndex = 0;
+
+            foreach (var item in enumeratedSource)
+            {
+                distributionMap[enumeratedContainers[containerIndex]].Add(item);
+                containerIndex = (containerIndex + 1) % containerCount;
+            }
+
+            return distributionMap;
+        }
+
         public static IEnumerable<TSource> DistinctBy<TSource, TKey>
             (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {

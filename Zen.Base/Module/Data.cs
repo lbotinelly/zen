@@ -354,6 +354,8 @@ namespace Zen.Base.Module
 
         public string GetDataDisplay() { return GetDataDisplay(this); }
 
+        public string GetFullIdentifier() => Info<T>.Settings.TypeQualifiedName + ":" +   GetDataKey();
+
         #endregion
 
         #region Event handling
