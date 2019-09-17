@@ -5,7 +5,8 @@
         public string CustomSelectQuery = "SELECT {0} FROM {2} WHERE ({1})";
         public string GetAll = "SELECT * FROM {0}";
         public string GetAllSpecified = "SELECT {0} FROM {1}";
-        public string GetSingle = "SELECT * FROM {0} WHERE {1} = {2}Id";
+        //public string GetSingle = "SELECT * FROM {0} WHERE {1} = {2}Id";
+        public string GetSingle = "SELECT * FROM {0} WHERE {1} = {2}";
         public string InsertSingle = "INSERT INTO {0} ({1}) VALUES ({2})";
         public string InsertSingleWithReturn = "INSERT INTO {0} ({1}) VALUES ({2}); select last_insert_rowid() as {4}newid";
         public string OrderByCommand = "ORDER BY";

@@ -25,29 +25,27 @@ namespace Zen.Web.Data.Controller
             header.Add(key, value.ToJson());
         }
 
-
         internal static void AddModelHeaders<T>(this IHeaderDictionary header) where T : Data<T>
         {
-            if (Data<T>.Info<T>.Settings?.Pipelines?.Before != null)
-                foreach (var pipelineMember in Data<T>.Info<T>.Settings.Pipelines.Before)
+            if (Info<T>.Settings?.Pipelines?.Before != null)
+                foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before)
                     AddHeaders(header, pipelineMember.Headers<T>());
 
-            if (Data<T>.Info<T>.Settings?.Pipelines?.After != null)
-                foreach (var pipelineMember in Data<T>.Info<T>.Settings.Pipelines.After)
+            if (Info<T>.Settings?.Pipelines?.After != null)
+                foreach (var pipelineMember in Info<T>.Settings.Pipelines.After)
                     AddHeaders(header, pipelineMember.Headers<T>());
         }
 
         internal static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>
         {
-            var modifier = new Mutator { Transform = new QueryTransform() };
+            var modifier = new Mutator {Transform = new QueryTransform()};
 
-            if (Data<T>.Info<T>.Settings?.Pipelines?.Before != null)
+            if (Info<T>.Settings?.Pipelines?.Before != null)
             {
                 // Transform it only once per request.
                 var stringQueryCollection = source.ToDictionary(i => i.Key, i => i.Value.ToList());
 
-                foreach (var pipelineMember in Data<T>.Info<T>.Settings.Pipelines.Before)
-                    modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
+                foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before) modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
             }
 
             if (source.ContainsKey("sort")) modifier.Transform.OrderBy = source["sort"];
@@ -77,16 +75,16 @@ namespace Zen.Web.Data.Controller
             if (mutator.Transform.Pagination == null) return;
 
             var count = Data<T>.Count(mutator);
-            var pages = count < 2 ? count : (int)((count - 1) / mutator.Transform.Pagination.Size) + 1;
+            var pages = count < 2 ? count : (int) ((count - 1) / mutator.Transform.Pagination.Size) + 1;
 
             header.AddHeader("x-zen-pagination",
-                new
-                {
-                    page = mutator.Transform.Pagination.Index,
-                    size = mutator.Transform.Pagination.Size,
-                    count,
-                    pages
-                });
+                             new
+                             {
+                                 page = mutator.Transform.Pagination.Index,
+                                 size = mutator.Transform.Pagination.Size,
+                                 count,
+                                 pages
+                             });
         }
     }
 }

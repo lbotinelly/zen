@@ -8,7 +8,6 @@ namespace Zen.Storage.Provider.File
     public interface IZenFileDescriptor : IDataId, IDataLocator
     {
         string StorageName { get; set; }
-        long AccessCount { get; set; }
         string OriginalName { get; set; }
         string StoragePath { get; set; }
         string MimeType { get; set; }

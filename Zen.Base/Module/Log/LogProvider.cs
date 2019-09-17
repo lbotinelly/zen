@@ -52,6 +52,7 @@ namespace Zen.Base.Module.Log
         public virtual void Warn(string content) { Add(content, Message.EContentType.Warning); }
 
         public void Add<T>(Exception e) { Add<T>(e, null); }
+        public void Add<T>(string content) { Add(typeof(T).Name + ": " + content); }
 
         public void KeyValuePair(string key, string value, Message.EContentType type) { Current.Log.Add($"{key.TruncateEnd(35, true)} : {value.TruncateEnd(93)}", type); }
 

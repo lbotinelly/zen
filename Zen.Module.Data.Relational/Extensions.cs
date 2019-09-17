@@ -12,6 +12,8 @@ namespace Zen.Module.Data.Relational
         {
             var ret = new SqlBuilder();
 
+            if (mutator == null) return null;
+
             var selector = ret.AddTemplate(mutator.Transform.Statement);
 
             ret.Select(mutator.Transform?.OutputMembers ?? "*");
