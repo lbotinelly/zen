@@ -18,8 +18,6 @@
       <ProjectReference Include="..\Zen.Module.Cloud.AWS\Zen.Module.Cloud.AWS.csproj" />
       <ProjectReference Include="..\Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj" />
       <ProjectReference Include="..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
-      <ProjectReference Include="..\Zen.Module.Web.Auth.GitHub\Zen.Module.Web.Auth.GitHub.csproj" />
-      <ProjectReference Include="..\Zen.Module.Web.Auth.Google\Zen.Module.Web.Auth.Google.csproj" />
       <ProjectReference Include="..\Zen.Module.Web.IoT.Alexa\Zen.Module.Web.IoT.Alexa.csproj" />
       <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
       <ProjectReference Include="..\Zen.Web.Auth\Zen.Web.Auth.csproj" />

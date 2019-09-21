@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Zen.Base.Extension;
 using Zen.Cloud.Configuration;
+using Zen.Module.Cloud.AWS.Connectors;
 using Zen.Storage.Provider.Configuration;
 
 namespace Zen.Module.Cloud.AWS.Configuration

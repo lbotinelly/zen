@@ -25,7 +25,7 @@ namespace Zen.Base.Module
 {
     public abstract partial class Data<T> where T : Data<T>
     {
-        private static string _cacheKeyBase;
+        internal static string _cacheKeyBase;
         private static readonly object _InitializationLock = new object();
         private bool _isDeleted;
         private bool? _isNew;
@@ -42,9 +42,11 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
-                                                 new Settings(), 
+                    TypeConfigurationCache.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
+                                                 new Settings(),
                                                  (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+
+                    _cacheKeyBase = typeof(T).FullName;
 
                     Info<T>.Settings.State.Status = Settings.EStatus.Initializing;
 
@@ -272,7 +274,7 @@ namespace Zen.Base.Module
         private static void ValidateState(EActionType? type = null)
         {
             if (Info<T>.Settings.State.Status != Settings.EStatus.Operational &&
-                Info<T>.Settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+                Info<T>.Settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"{typeof(T).FullName} | Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
 
             switch (type)
             {
@@ -307,8 +309,6 @@ namespace Zen.Base.Module
         #region Static references
 
         // ReSharper disable once StaticMemberInGenericType
-        internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>> ClassRegistration
-            = new ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>>();
 
         public static string GetDataKey(Data<T> oRef)
         {
@@ -353,6 +353,8 @@ namespace Zen.Base.Module
         public string GetDataKey() { return GetDataKey(this); }
 
         public string GetDataDisplay() { return GetDataDisplay(this); }
+
+        public string GetFullIdentifier() => Info<T>.Settings.TypeQualifiedName + ":" + GetDataKey();
 
         #endregion
 

@@ -9,7 +9,6 @@ namespace Zen.Base.Module.Data.Adapter
     public abstract class DataAdapterPrimitive : IInterceptor
     {
         public string ReferenceCollectionName;
-
         public IConnectionBundlePrimitive SourceBundle;
 
         #region Initialization
@@ -25,7 +24,7 @@ namespace Zen.Base.Module.Data.Adapter
 
         public virtual void SetConnectionString<T>() where T : Data<T>
         {
-            var settings = Data<T>.Info<T>.Settings;
+            var settings = Info<T>.Settings;
 
             var envCode = settings.EnvironmentCode;
 

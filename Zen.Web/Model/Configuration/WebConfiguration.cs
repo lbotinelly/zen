@@ -19,8 +19,8 @@ namespace Zen.Web.Model.Configuration
         {
             public string CertificateSubject { get; set; }
             public string QualifiedServerName { get; set; }
-            public int? HttpPort { get; set; }
-            public int? HttpsPort { get; set; }
+            public int? HttpPort { get; set; } = 5000;
+            public int? HttpsPort { get; set; } = 5001;
         }
     }
 }

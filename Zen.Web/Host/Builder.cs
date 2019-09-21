@@ -44,17 +44,27 @@ namespace Zen.Web.Host
                         {
                             var localAddress = IPAddress.Parse("0.0.0.0"); // But we'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
 
+                            var httpPort = Current.Configuration?.Development?.HttpPort ?? 5000;
+                            Base.Host.Variables[Base.Host.Keys.WebHttpPort] = httpPort;
+                            // var httpPort = Base.Host.Variables.GetValue(Base.Host.Constants.WebHttpPort).ToType<int>();
+
                             options.Listen(
                                 localAddress,
-                                Current.Configuration?.Development?.HttpPort ?? 5000
+                                httpPort
                             );
 
                             // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
                             if (devCertificate != null)
+                            {
+
+                                var httpsPort = Current.Configuration?.Development?.HttpsPort ?? 5001;
+                                Base.Host.Variables[Base.Host.Keys.WebHttpsPort] = httpsPort;
+
                                 options.Listen(
                                     localAddress,
-                                    Current.Configuration?.Development?.HttpsPort ?? 5001,
+                                    httpsPort,
                                     listenOptions => { listenOptions.UseHttps(devCertificate); });
+                            }
                         })
                         .Build();
 

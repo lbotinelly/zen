@@ -14,6 +14,8 @@ namespace Zen.Web.Auth.Service.Extensions
     {
         public static Builder AddZenWebAuth(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
         {
+            services.ResolveSettingsPackage();
+
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             configureOptions = configureOptions ?? (x => { });

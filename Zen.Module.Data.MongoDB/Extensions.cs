@@ -1,7 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using System;
+﻿using System;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Module.Data.MongoDB.Factories;
@@ -10,7 +10,7 @@ namespace Zen.Module.Data.MongoDB
 {
     public static class Extensions
     {
-        private static readonly char[] FilterFieldDelimiters = { ',', '.' };
+        private static readonly char[] FilterFieldDelimiters = {',', '.'};
 
         public static IFindFluent<BsonDocument, BsonDocument> ApplyTransform<T>(this IMongoCollection<BsonDocument> source, QueryTransform transform) where T : Data<T>
         {
@@ -19,8 +19,7 @@ namespace Zen.Module.Data.MongoDB
 
             SortDefinition<BsonDocument> sortFilter = sortDocument;
 
-            if (Data<T>.Info<T>.Configuration?.AutoGenerateMissingSchema == true)
-                source.TryCreateIndex<T>(sortDocument);
+            if (Info<T>.Configuration?.AutoGenerateMissingSchema == true) source.TryCreateIndex<T>(sortDocument);
 
             var fluentCollection = source.Find(queryDocument);
 
@@ -33,10 +32,9 @@ namespace Zen.Module.Data.MongoDB
 
         public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, Pagination pagination)
         {
-
             source
-                .Skip((int)(pagination.Index * pagination.Size))
-                .Limit((int)pagination.Size);
+                .Skip((int) (pagination.Index * pagination.Size))
+                .Limit((int) pagination.Size);
 
             return source;
         }
@@ -56,7 +54,6 @@ namespace Zen.Module.Data.MongoDB
 
             if (!string.IsNullOrEmpty(modifier.OmniQuery)) queryBuilder.Add($"$text:{{$search: \'{modifier.OmniQuery.Replace("'", "\\'")}\',$caseSensitive: false,$diacriticSensitive: false}}");
 
-            queryBuilder.Add(modifier?.PartialQuery);
             queryBuilder.Add(modifier?.Filter);
 
             return queryBuilder.Compile();

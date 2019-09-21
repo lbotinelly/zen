@@ -87,8 +87,8 @@ namespace Zen.Module.Data.MongoDB
 
             // Current.Log.Add($"{typeof(T).FullName} {Database.Client?.Settings?.Credential?.Username}:{Database?.DatabaseNamespace}@{server} - REGISTERING", Message.EContentType.StartupSequence);
 
-            _statements = Data<T>.Info<T>.Settings;
-            _tabledata = Data<T>.Info<T>.Configuration;
+            _statements = Info<T>.Settings;
+            _tabledata = Info<T>.Configuration;
 
             RegisterGenericChain(typeof(T));
 

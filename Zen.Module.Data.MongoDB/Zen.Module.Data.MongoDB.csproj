@@ -6,6 +6,7 @@
     <AssemblyName>Zen.Module.Data.MongoDB</AssemblyName>
     <RootNamespace>Zen.Module.Data.MongoDB</RootNamespace>
     <ApplicationIcon />
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

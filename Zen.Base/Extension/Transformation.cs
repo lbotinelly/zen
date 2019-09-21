@@ -24,6 +24,17 @@ namespace Zen.Base.Extension
             Allow
         }
 
+        public static TV GetValue<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default)
+        {
+            // https://stackoverflow.com/a/33223183/1845714
+            return dict != null && dict.TryGetValue(key, out var value) ? value : defaultValue;
+        }
+
+        public static TD GetValueAs<TK, TV, TD>(this IDictionary<TK, TV> dict, TK key, TD type)
+        {
+            return dict.GetValue(key).ToType<TD,TV>();
+        }
+
         private static readonly Random Rnd = new Random();
 
         public static List<string> BlackListedModules = new List<string>
@@ -39,6 +50,25 @@ namespace Zen.Base.Extension
             "CommonLanguageRuntimeLibrary"
         };
 
+        public static Dictionary<TU, List<T>> DistributeEvenly<T, TU>(this IEnumerable<T> source, IEnumerable<TU> containers)
+        {
+            var enumeratedSource = source.ToList();
+            var enumeratedContainers = containers.ToList();
+
+            var distributionMap = enumeratedContainers.ToList().ToDictionary(i => i, i => new List<T>());
+            var containerCount = distributionMap.Count;
+
+            var containerIndex = 0;
+
+            foreach (var item in enumeratedSource)
+            {
+                distributionMap[enumeratedContainers[containerIndex]].Add(item);
+                containerIndex = (containerIndex + 1) % containerCount;
+            }
+
+            return distributionMap;
+        }
+
         public static IEnumerable<TSource> DistinctBy<TSource, TKey>
             (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
@@ -52,6 +82,26 @@ namespace Zen.Base.Extension
         }
 
         public static string FileWildcardToRegex(string pattern) { return "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$"; }
+
+
+        public static T ToType<T>(this object value)
+        {
+            // https://stackoverflow.com/a/1833128/1845714
+            return (T)ChangeType(typeof(T), value);
+        }
+
+        public static object ChangeType(Type t, object value)
+        {
+            TypeConverter tc = TypeDescriptor.GetConverter(t);
+            return tc.ConvertFrom(value);
+        }
+
+        public static void RegisterTypeConverter<T, TC>() where TC : TypeConverter
+        {
+
+            TypeDescriptor.AddAttributes(typeof(T), new TypeConverterAttribute(typeof(TC)));
+        }
+
 
         public static TU ToType<TU, T>(this T source) { return source.ToJson().FromJson<TU>(); }
 

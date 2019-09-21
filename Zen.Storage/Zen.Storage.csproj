@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>7.2</LangVersion>
     <PackageTags>middleware orm dotnet core storage</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <Copyright />    

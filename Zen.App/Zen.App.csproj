@@ -12,6 +12,7 @@
     <Description>Application abstration layer for Zen</Description>
     <PackageTags>middleware orm dotnet core app webapp</PackageTags>
     <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,7 +7,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 
-namespace Zen.Module.Cloud.AWS
+namespace Zen.Module.Cloud.AWS.Connectors
 {
     public class S3Connector
     {
