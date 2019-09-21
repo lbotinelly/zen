@@ -45,7 +45,8 @@ namespace Zen.Web.Data.Controller
                 // Transform it only once per request.
                 var stringQueryCollection = source.ToDictionary(i => i.Key, i => i.Value.ToList());
 
-                foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before) modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
+                foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before)
+                    modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
             }
 
             if (source.ContainsKey("sort")) modifier.Transform.OrderBy = source["sort"];
@@ -67,7 +68,9 @@ namespace Zen.Web.Data.Controller
         private static void AddPipelineMetadata(this Mutator mutator, IBeforeActionPipeline pipelineMember, Dictionary<string, List<string>> headerData)
         {
             var postProcessContent = pipelineMember.ParseRequest(headerData);
-            if (postProcessContent.HasValue) mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
+
+            if (postProcessContent.HasValue)
+                mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
         }
 
         internal static void AddMutatorHeaders<T>(this IHeaderDictionary header, Mutator mutator) where T : Data<T>
@@ -85,6 +88,11 @@ namespace Zen.Web.Data.Controller
                                  count,
                                  pages
                              });
+
+
+            header.AddHeader("X-Total-Count", count);
+            header.AddHeader("X-Total-Pages", pages);
+
         }
     }
 }

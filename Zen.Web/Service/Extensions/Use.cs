@@ -9,6 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Zen.Base;
+using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 
 namespace Zen.Web.Service.Extensions
@@ -65,9 +66,25 @@ namespace Zen.Web.Service.Extensions
                         if (Current.Configuration?.Development?.QualifiedServerName != null)
                             if (context.Request.Host.Host != Current.Configuration?.Development?.QualifiedServerName)
                             {
-                                var destinationHost = context.Request.Host.Port.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, context.Request.Host.Port.Value) : new HostString(Current.Configuration.DevelopmentQualifiedServerName);
+                                var sourcePort = context.Request.Host.Port;
 
-                                destination = "//" + destinationHost.ToString() + rootPrefix;
+                                var targetProtocol = "";
+
+                                if (Base.Host.IsDevelopment)
+                                {
+                                    var httpPort = Base.Host.Variables.GetValue(Base.Host.Keys.WebHttpPort).ToType<int, object>();
+                                    var httpsPort = Base.Host.Variables.GetValue(Base.Host.Keys.WebHttpsPort).ToType<int, object>();
+
+                                    if (sourcePort == httpPort)
+                                    {
+                                        sourcePort = httpsPort;
+                                        targetProtocol = "https:";
+                                    }
+                                }
+
+                                var destinationHost = context.Request.Host.Port.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, sourcePort.Value) : new HostString(Current.Configuration.DevelopmentQualifiedServerName);
+
+                                destination = $"{targetProtocol}//" + destinationHost.ToString() + rootPrefix;
                             }
 
                         Base.Current.Log.Add($"Redirect: {destination}", Message.EContentType.Info);

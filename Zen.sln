@@ -7,10 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.MongoDB", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Encryption.AES", "Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj", "{88BC5B4E-8B54-4D77-807D-E5426D0EFE15}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Web.Auth.GitHub", "Zen.Module.Web.Auth.GitHub\Zen.Module.Web.Auth.GitHub.csproj", "{4518E31D-02F7-4737-B2CC-079FDE9BDEEB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Web.Auth.Google", "Zen.Module.Web.Auth.Google\Zen.Module.Web.Auth.Google.csproj", "{EC33E234-C604-4BF5-AA78-F21DAC3770D8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web", "Zen.Web\Zen.Web.csproj", "{31FCBF37-2E26-4A41-A297-D126D51E67A8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.Auth", "Zen.Web.Auth\Zen.Web.Auth.csproj", "{D3ADE5C6-B48C-4F6F-9EEA-1DD0233E0CEA}"
@@ -33,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.Oracle", "Z
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.Relational", "Zen.Module.Data.Relational\Zen.Module.Data.Relational.csproj", "{1D46E6D8-6804-4734-9E04-F4211B7701EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Media", "Zen.Media\Zen.Media.csproj", "{74F83D53-8177-4975-A97E-92B6DACAB863}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Media", "Zen.Media\Zen.Media.csproj", "{74F83D53-8177-4975-A97E-92B6DACAB863}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Module.Cloud.Google", "Zen.Module.Cloud.Google\Zen.Module.Cloud.Google.csproj", "{69F53337-F42A-4890-8014-635B938CBBDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,14 +47,6 @@ Global
 		{88BC5B4E-8B54-4D77-807D-E5426D0EFE15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88BC5B4E-8B54-4D77-807D-E5426D0EFE15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88BC5B4E-8B54-4D77-807D-E5426D0EFE15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4518E31D-02F7-4737-B2CC-079FDE9BDEEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4518E31D-02F7-4737-B2CC-079FDE9BDEEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4518E31D-02F7-4737-B2CC-079FDE9BDEEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4518E31D-02F7-4737-B2CC-079FDE9BDEEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC33E234-C604-4BF5-AA78-F21DAC3770D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC33E234-C604-4BF5-AA78-F21DAC3770D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC33E234-C604-4BF5-AA78-F21DAC3770D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC33E234-C604-4BF5-AA78-F21DAC3770D8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{31FCBF37-2E26-4A41-A297-D126D51E67A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{31FCBF37-2E26-4A41-A297-D126D51E67A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31FCBF37-2E26-4A41-A297-D126D51E67A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -105,6 +95,10 @@ Global
 		{74F83D53-8177-4975-A97E-92B6DACAB863}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74F83D53-8177-4975-A97E-92B6DACAB863}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74F83D53-8177-4975-A97E-92B6DACAB863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F53337-F42A-4890-8014-635B938CBBDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F53337-F42A-4890-8014-635B938CBBDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F53337-F42A-4890-8014-635B938CBBDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F53337-F42A-4890-8014-635B938CBBDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

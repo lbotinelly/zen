@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -25,6 +26,14 @@ namespace Zen.Base
             if (!Directory.Exists(DataDirectory)) Directory.CreateDirectory(DataDirectory);
         }
 
+        public static class Keys
+        {
+            public static string WebHttpPort = "WebHttpPort";
+            public static string WebHttpsPort = "WebHttpsPort";
+        }
+
+        public static Dictionary<string, object> Variables = new Dictionary<string, object>();
+
         public static bool IsContainer { get; }
         public static string ApplicationAssemblyVersion { get; set; }
         public static string BaseDirectory { get; }
@@ -33,7 +42,7 @@ namespace Zen.Base
         public static string ApplicationAssemblyName { get; }
         public static Assembly ApplicationAssembly { get; }
         public static string Process { get; }
-        public static bool IsDevelopment { get; } 
+        public static bool IsDevelopment { get; }
 
         private static Assembly GetAppAssembly() { return Assembly.GetEntryAssembly(); }
     }

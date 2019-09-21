@@ -23,12 +23,6 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module
 {
-
-    internal static class DataCache
-    {
-        internal static readonly ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>> ClassRegistration = new ConcurrentDictionary<Type, Tuple<Settings, DataConfigAttribute>>();
-    }
-
     public abstract partial class Data<T> where T : Data<T>
     {
         internal static string _cacheKeyBase;
@@ -48,7 +42,7 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    DataCache.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
+                    TypeConfigurationCache.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
                                                  new Settings(),
                                                  (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 

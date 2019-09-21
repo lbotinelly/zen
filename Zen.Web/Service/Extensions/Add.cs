@@ -18,6 +18,8 @@ namespace Zen.Web.Service.Extensions
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
+            services.ResolveSettingsPackage();
+
             configureOptions = configureOptions ?? (x => { });
 
             var useAppCodeAsRoutePrefix = Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
