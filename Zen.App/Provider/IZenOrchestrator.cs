@@ -32,5 +32,7 @@ namespace Zen.App.Provider
         List<IZenPerson> PeopleByGroup(string key);
         List<IZenPersonProfile> GetProfiles(string keys);
         IZenPersonProfile GetProfile(IZenPerson person);
+        IZenApplication GetApplicationById(string identifier);
+        IZenPerson GetPersonByEmail(string email);
     }
 }

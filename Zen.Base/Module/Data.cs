@@ -188,54 +188,63 @@ namespace Zen.Base.Module
 
                     var refType = (ConnectionBundlePrimitive)Activator.CreateInstance(refBundle);
 
-                    Info<T>.Settings.Bundle = refType;
-                    Info<T>.Settings.Bundle.Validate(ConnectionBundlePrimitive.EValidationScope.Database);
-
-                    if (refType.AdapterType == null)
-                    {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
-                                                      "No AdapterType defined on bundle");
-                        return;
-                    }
-
-                    Info<T>.Settings.Adapter = (DataAdapterPrimitive)Activator.CreateInstance(refType.AdapterType);
-
-                    Info<T>.Settings.Adapter.SourceBundle = refType;
+                    Info<T>.Settings.Adapter = GetDataAdapter();
 
                     if (Info<T>.Settings.Adapter == null)
                     {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "Null AdapterType");
-                        return;
+
+                        Info<T>.Settings.Bundle = refType;
+                        Info<T>.Settings.Bundle.Validate(ConnectionBundlePrimitive.EValidationScope.Database);
+
+                        if (refType.AdapterType == null)
+                        {
+                            Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No AdapterType defined on bundle");
+                            return;
+                        }
+
+                        Info<T>.Settings.Adapter = (DataAdapterPrimitive) Activator.CreateInstance(refType.AdapterType);
+
+                        Info<T>.Settings.Adapter.SourceBundle = refType;
+
+                        if (Info<T>.Settings.Adapter == null)
+                        {
+                            Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "Null AdapterType");
+                            return;
+                        }
+
+                        Info<T>.Settings.State.Step = "Setting up CypherKeys";
+                        Info<T>.Settings.ConnectionCypherKeys =
+                            Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
+
+                        Info<T>.Settings.State.Step = "Determining CredentialSets to use";
+                        Info<T>.Settings.CredentialSet =
+                            Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
+
+                        //if (Info<T>.Settings.CredentialSet != null)
+                        //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
+                        //        Info<T>.Settings.CredentialSet?.GetType().Name;
+
+                        Info<T>.Settings.CredentialCypherKeys =
+                            Info<T>.Configuration?.CredentialCypherKeys ??
+                            Info<T>.Settings.CredentialSet?.CredentialCypherKeys;
+
+                        // Now we're ready to talk to the outside world.
+
+                        Info<T>.Settings.State.Step = "Checking Connection to storage";
+
+                        Info<T>.Settings.Adapter.SetConnectionString<T>();
+
+                        Info<T>.Settings.Adapter.Setup<T>(Info<T>.Settings);
+
+                        Info<T>.Settings.State.Step = "Initializing adapter";
+                        Info<T>.Settings.Adapter.Initialize<T>();
                     }
-
-                    Info<T>.Settings.State.Step = "Setting up CypherKeys";
-                    Info<T>.Settings.ConnectionCypherKeys =
-                        Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
-
-                    Info<T>.Settings.State.Step = "Determining CredentialSets to use";
-                    Info<T>.Settings.CredentialSet =
-                        Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
-
-                    //if (Info<T>.Settings.CredentialSet != null)
-                    //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
-                    //        Info<T>.Settings.CredentialSet?.GetType().Name;
-
-                    Info<T>.Settings.CredentialCypherKeys =
-                        Info<T>.Configuration?.CredentialCypherKeys ??
-                        Info<T>.Settings.CredentialSet?.CredentialCypherKeys;
-
-                    // Now we're ready to talk to the outside world.
-
-                    Info<T>.Settings.State.Step = "Checking Connection to storage";
-
-                    Info<T>.Settings.Adapter.SetConnectionString<T>();
-
-                    Info<T>.Settings.Adapter.Setup<T>(Info<T>.Settings);
-                    Info<T>.Settings.Adapter.Initialize<T>();
 
                     if (!Info<T>.Settings.Silent)
                         foreach (var (key, value) in Info<T>.Settings.Statistics)
                             Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
+
+                    Info<T>.Settings.State.Step = "Wrapping up initialization";
 
                     if (!Info<T>.Settings.Silent)
                         Events.AddLog($"Data<{Info<T>.Settings.TypeQualifiedName}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
@@ -271,10 +280,14 @@ namespace Zen.Base.Module
 
         #region State tools
 
+        public static DataAdapterPrimitive GetDataAdapter() => null;
+
         private static void ValidateState(EActionType? type = null)
         {
-            if (Info<T>.Settings.State.Status != Settings.EStatus.Operational &&
-                Info<T>.Settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"{typeof(T).FullName} | Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+            var settings = Info<T>.Settings;
+
+            if (settings.State.Status != Settings.EStatus.Operational && settings.State.Status != Settings.EStatus.Initializing)
+                throw new Exception($"{typeof(T).FullName} | Class is not operational: {settings.State.Status}, {settings.State.Description}");
 
             switch (type)
             {
@@ -399,7 +412,7 @@ namespace Zen.Base.Module
             ValidateState(EActionType.Read);
             mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
 
-            return Info<T>.Settings.Adapter.Where(predicate, mutator).AfterGet();
+            return Info<T>.Settings.Adapter.Where(predicate, mutator).ToList().AfterGet();
         }
 
         public static IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
@@ -449,7 +462,14 @@ namespace Zen.Base.Module
             ValidateState(EActionType.Read);
 
             if (keys == null) return null;
-            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keys).Values;
+
+            var keyList = keys.ToList();
+
+            if (!keyList.Any()) return new List<T>();
+
+            keyList = keyList.Distinct().ToList();
+
+            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keyList).Values;
 
             if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
             throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);

@@ -22,16 +22,17 @@ namespace Zen.Web.Service.Extensions
 
             configureOptions = configureOptions ?? (x => { });
 
-            var useAppCodeAsRoutePrefix = Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var appCode = App.Current.Configuration?.Code?.ToLower();
+            var usePrefix = Current.Configuration?.RoutePrefix != null ||  Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddMvc(options =>
                 {
-                    if (useAppCodeAsRoutePrefix)
+                    if (usePrefix)
                     {
-                        var appCode = App.Current.Configuration.Code.ToLower();
-                        options.UseCentralRoutePrefix(new RouteAttribute(appCode + "/"));
+                        options.UseCentralRoutePrefix(new RouteAttribute(prefix + "/"));
                     }
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)

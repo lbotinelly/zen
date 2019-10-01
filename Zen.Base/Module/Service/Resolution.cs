@@ -15,9 +15,9 @@ namespace Zen.Base.Module.Service
     {
         private static readonly object Lock = new object();
 
-        public static readonly ConcurrentDictionary<string, Assembly> AssemblyCache = new ConcurrentDictionary<string, Assembly>();
-        public static readonly ConcurrentDictionary<string, string> UniqueAssemblies = new ConcurrentDictionary<string, string>();
-        private static readonly ConcurrentDictionary<Type, List<Type>> InterfaceClassesCache = new ConcurrentDictionary<Type, List<Type>>();
+        public static readonly ConcurrentDictionary<string, Assembly> AssemblyMap = new ConcurrentDictionary<string, Assembly>();
+        public static readonly ConcurrentDictionary<string, string> AssemblyLoadMap = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<Type, List<Type>> TypeResolutionCache = new ConcurrentDictionary<Type, List<Type>>();
 
         private static readonly List<string> MonitorWhiteList = new List<string>
         {
@@ -67,7 +67,7 @@ namespace Zen.Base.Module.Service
 
                 //var modList = AssemblyCache.Select(i => i.Value.ToString().Split(',')[0]).ToJson();
 
-                foreach (var item in AssemblyCache)
+                foreach (var item in AssemblyMap)
                 {
                     errCount = 0;
 
@@ -131,9 +131,9 @@ namespace Zen.Base.Module.Service
         {
             var assyName = assy.GetName().Name;
 
-            if (AssemblyCache.ContainsKey(assyName)) return assy;
+            if (AssemblyMap.ContainsKey(assyName)) return assy;
 
-            AssemblyCache[assyName] = assy;
+            AssemblyMap[assyName] = assy;
 
             var refAssemblies = assy.GetReferencedAssemblies().Where(i => !_parserBlackList.Any(j => i.Name.StartsWith(j))).ToList();
 
@@ -156,9 +156,9 @@ namespace Zen.Base.Module.Service
             {
                 var p = Path.GetFileName(physicalPath);
 
-                if (UniqueAssemblies.ContainsKey(p)) return;
+                if (AssemblyLoadMap.ContainsKey(p)) return;
 
-                UniqueAssemblies.TryAdd(p, physicalPath);
+                AssemblyLoadMap.TryAdd(p, physicalPath);
 
                 var assy = Assembly.LoadFrom(physicalPath);
 
@@ -186,7 +186,7 @@ namespace Zen.Base.Module.Service
 
                 if (limitToMainAssembly) assySource.Add(Host.ApplicationAssembly);
                 else
-                    lock (Lock) { assySource = AssemblyCache.Values.ToList(); }
+                    lock (Lock) { assySource = AssemblyMap.Values.ToList(); }
 
                 foreach (var asy in assySource)
                     classCol.AddRange(asy
@@ -223,7 +223,7 @@ namespace Zen.Base.Module.Service
 
                 try
                 {
-                    foreach (var asy in AssemblyCache.Values.ToList())
+                    foreach (var asy in AssemblyMap.Values.ToList())
                     foreach (var st in asy.GetTypes())
                     {
                         if (st.BaseType == null) continue;
@@ -272,23 +272,34 @@ namespace Zen.Base.Module.Service
             return serviceCollection;
         }
 
-        public static List<Type> GetClassesByInterface(Type type, bool excludeCoreNullDefinitions = true)
+        public static List<Type> GetClassesByInterface(Type targetType, bool excludeCoreNullDefinitions = true)
         {
             lock (Lock)
             {
-                var preRet = new List<Type>();
-
-                if (InterfaceClassesCache.ContainsKey(type)) return InterfaceClassesCache[type];
+                if (TypeResolutionCache.ContainsKey(targetType)) return TypeResolutionCache[targetType];
 
                 //Modules.Log.System.Add("Scanning for " + type);
 
-                foreach (var item in AssemblyCache.Values)
+                var currentExecutingAssembly = Assembly.GetExecutingAssembly();
+
+                var globalTypeList = new List<Type>();
+
+                foreach (var item in AssemblyMap.Values)
                 {
-                    if (excludeCoreNullDefinitions && item == Assembly.GetExecutingAssembly()) continue;
+                    if (excludeCoreNullDefinitions && item == currentExecutingAssembly) continue;
 
-                    Type[] preTypes;
+                    try
+                    {
+                        var partialTypeList =
+                            from target in item.GetTypes() // Get a list of all Types in the cached Assembly
+                            where !target.IsInterface // that aren't interfaces
+                            where !target.IsAbstract // and also not abstract (so it can be instantiated)
+                            where targetType.IsAssignableFrom(target) // that can be assigned to the specified type
+                            where targetType != target // (and obviously not the type itself)
+                            select target;
 
-                    try { preTypes = item.GetTypes(); } catch (Exception e)
+                        globalTypeList.AddRange(partialTypeList);
+                    } catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException)
                         {
@@ -301,42 +312,20 @@ namespace Zen.Base.Module.Service
 
                         // Well, this loading can fail by a (long) variety of reasons. 
                         // It's not a real problem not to catch exceptions here. 
-                        continue;
                     }
-
-                    preRet.AddRange(
-                        from target in preTypes
-                        where !target.IsInterface
-                        where !target.IsAbstract
-                        where type.IsAssignableFrom(target)
-                        where type != target
-                        select target);
                 }
 
-                var priorityList = new List<KeyValuePair<int, Type>>();
+                var typesByPriorityLevelMap = globalTypeList
+                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute) i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                    .OrderBy(i => -i.Key);
 
-                //Modules.Log.System.Add("    " + preRet.Count + " [" + type + "] items");
+                var typesByPriorityLevel = typesByPriorityLevelMap
+                    .Select(i => i.Value)
+                    .ToList();
 
-                foreach (var item in preRet)
-                {
-                    var level = 0;
+                TypeResolutionCache.TryAdd(targetType, typesByPriorityLevel); // Caching results, so similar queries will return from cache
 
-                    var attrs = item.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault();
-
-                    if (attrs != null) level = ((PriorityAttribute) attrs).Level;
-
-                    priorityList.Add(new KeyValuePair<int, Type>(level, item));
-                }
-
-                priorityList.Sort((firstPair, nextPair) => nextPair.Key - firstPair.Key);
-
-                //foreach (var item in priorityList) Modules.Log.System.Add("        " + item.Key + " " + item.Value.Name);
-
-                var ret = priorityList.Select(item => item.Value).ToList();
-
-                InterfaceClassesCache.TryAdd(type, ret); // Caching results, so similar queries will return from cache
-
-                return ret;
+                return typesByPriorityLevel;
             }
         }
     }

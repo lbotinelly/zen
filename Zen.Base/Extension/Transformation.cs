@@ -300,6 +300,30 @@ namespace Zen.Base.Extension
             }
         }
 
+        public static bool IsAnyNullOrEmpty(params object[] objects)
+        {
+            foreach (var o in objects)
+            {
+                switch (o) {
+                    case null: return true;
+                    case string s: return string.IsNullOrEmpty(s);
+                }
+
+                return o.GetType().GetProperties()
+                    .Any(x => IsNullOrEmpty(x.GetValue(o)));
+            }
+
+            return false;
+        }
+        private static bool IsNullOrEmpty(object value)
+        {
+            if (ReferenceEquals(value, null))
+                return true;
+
+            var type = value.GetType();
+            return type.IsValueType && Equals(value, Activator.CreateInstance(type));
+        }
+
         public static string Md5Hash(this string input, string salt = null)
         {
             if (input == null) return null;

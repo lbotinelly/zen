@@ -182,6 +182,20 @@ namespace Zen.App.Provider
             return profile;
         }
 
+        public IZenApplication GetApplicationById(string identifier)
+        {
+            var probe = Data<TA>.Get(identifier);
+
+            return probe;
+
+        }
+
+        public IZenPerson GetPersonByEmail(string email)
+        {
+            email = email.ToLower().Trim();
+            return Data<TP>.Where(i => i.Email.ToLower() == email).FirstOrDefault();
+        }
+
         public virtual List<IZenPermission> GetPermissionsByPerson(IZenPerson person)
         {
             var keys = new List<string>();

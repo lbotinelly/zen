@@ -9,6 +9,7 @@ using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Data;
 using Zen.Module.Data.Relational;
+using Zen.Module.Data.Relational.Builder;
 
 namespace Zen.Module.Data.Oracle
 {
@@ -24,6 +25,22 @@ namespace Zen.Module.Data.Oracle
 
         public override void Initialize<T>()
         {
+
+            Masks = new StatementMasks
+            {
+                Column = "{0}",
+                InlineParameter = ":{0}",
+                Parameter = "u_{0}",
+                Values =
+                {
+                    True = 1,
+                    False = 0
+                }
+            };
+
+
+            StatementBuilder = new StatementBuilder { Masks = Masks };
+
             Map<T>();
             RenderSchemaEntityNames<T>();
             ValidateSchema<T>();

@@ -6,6 +6,7 @@ namespace Zen.Web.Model.Configuration
     {
         public BehaviorDescriptor Behavior { get; set; }
         public DevelopmentDescriptor Development { get; set; }
+        public string RoutePrefix {get; set; }
 
         public class BehaviorDescriptor
         {

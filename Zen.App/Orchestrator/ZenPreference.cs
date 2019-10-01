@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -20,12 +19,12 @@ namespace Zen.App.Orchestrator
 
         public JObject GetValues()
         {
-            var co = ((IZenPreference)this).RawMarshalledValue ?? "{}";
+            var co = ((IZenPreference) this).RawMarshalledValue ?? "{}";
 
             return JObject.Parse(co);
         }
 
-        public T GetKeyValue<T>(string key, string userLocator = null, string appLocator = null)
+        public T GetKeyValue(string key, string userLocator = null, string appLocator = null)
         {
             if (userLocator == null) userLocator = Current.Orchestrator?.Person?.Locator;
             if (appLocator == null) appLocator = Current.Orchestrator?.Application?.Code;
@@ -49,11 +48,11 @@ namespace Zen.App.Orchestrator
             Put(obj, userLocator, appLocator);
         }
 
-        public T GetValue<T>(string key)
+        public T GetValue(string key)
         {
             var probe = GetValues().SelectToken(key);
 
-            if (probe == null) return default(T);
+            if (probe == null) return default;
 
             try { return (T) Convert.ChangeType(probe, typeof(T)); } catch { }
 
@@ -67,8 +66,7 @@ namespace Zen.App.Orchestrator
             var c = GetValues();
             c.Merge(content, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Replace});
 
-
-            ((IZenPreference)this).RawMarshalledValue = c.ToJson();
+            ((IZenPreference) this).RawMarshalledValue = c.ToJson();
         }
 
         public T Get(string personLocator, string applicationCode = null)
@@ -130,7 +128,7 @@ namespace Zen.App.Orchestrator
 
             var src = Get(Current.Orchestrator?.Person.Locator, Current.Orchestrator?.Application.Code);
 
-            if (src != null) return (IZenPreference)src;
+            if (src != null) return (IZenPreference) src;
 
             src = new T();
             var prefSource = (IZenPreference) src;
@@ -146,7 +144,5 @@ namespace Zen.App.Orchestrator
             public EScope Scope { get; set; }
             public object Value { get; set; }
         }
-
-    
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Zen.Base.Distributed;
 using Zen.Base.Extension;
 using Zen.Base.Module.Service;
 
@@ -20,16 +21,18 @@ namespace Zen.Base.Maintenance
                     {
                         Type = i,
                         Instance = i.ToInstance<IMaintenanceTask>(),
-                        Setup = (MaintenanceTaskSetupAttribute)i.GetMethod("MaintenanceTask")
+                        Setup = (MaintenanceTaskSetupAttribute) i.GetMethod("MaintenanceTask")
                                     .GetCustomAttributes(typeof(MaintenanceTaskSetupAttribute), false).FirstOrDefault()
-                                ?? new MaintenanceTaskSetupAttribute { Name = "Maintenance Task" }
+                                ?? new MaintenanceTaskSetupAttribute {Name = "Maintenance Task"}
                     };
 
                     item.Description = i.FullName + " | " + item.Setup.Name;
                     item.Id = item.Description.StringToGuid().ToString();
 
                     return item;
-                }).ToList();
+                })
+                .Where(i => i.Setup.Orchestrated)
+                .ToList();
         private Timer _timer;
 
         #region Implementation of IDisposable
@@ -51,10 +54,7 @@ namespace Zen.Base.Maintenance
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Current.Log.Info("Timed Background Service is starting.");
-
-            if (_registeredMaintenanceTasks.Count == 0)
-                return Task.CompletedTask;
+            if (_registeredMaintenanceTasks.Count == 0) return Task.CompletedTask;
 
             _timer = new Timer(RunMaintenance, null, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(5));
 
@@ -69,22 +69,21 @@ namespace Zen.Base.Maintenance
 
             try
             {
-                Current.Log.Info($"Timed Background Service is running {_registeredMaintenanceTasks.Count} tasks");
+                Current.Log.Info($"Orchestrasted Background Maintenance is running {_registeredMaintenanceTasks.Count} maintenance tasks");
 
                 foreach (var item in _registeredMaintenanceTasks)
                 {
-
-                    var trackItem = Tracking.Get(item.Id) ?? new Tracking { Id = item.Id, Description = item.Description };
+                    var trackItem = Tracking.Get(item.Id) ?? new Tracking {Id = item.Id, Description = item.Description};
 
                     var canRun = trackItem.NextRun < DateTime.Now;
 
                     if (!canRun) continue;
 
-                    var distributedTaskHandler = Distributed.Factory.GetTicket(item.Description);
+                    var distributedTaskHandler = Factory.GetTicket(item.Description);
 
                     if (!distributedTaskHandler.CanRun()) continue;
 
-                    Current.Log.KeyValuePair(item.Id, item.Description);
+                    Current.Log.KeyValuePair("Maintenance Test", $"[{item.Id}] {item.Description}");
 
                     distributedTaskHandler.Start();
 
@@ -96,7 +95,6 @@ namespace Zen.Base.Maintenance
                     task.Wait();
 
                     sw.Stop();
-
 
                     if (task.Exception != null)
                     {
@@ -111,7 +109,7 @@ namespace Zen.Base.Maintenance
                     trackItem.LastRun = DateTime.Now;
                     trackItem.LastMessage = trackItem.LastResult.Message;
 
-                    if (item.Setup.Cooldown != default(TimeSpan)) trackItem.NextRun = trackItem.LastRun.Add(item.Setup.Cooldown);
+                    if (item.Setup.Cooldown != default) trackItem.NextRun = trackItem.LastRun.Add(item.Setup.Cooldown);
 
                     trackItem.Save();
 
@@ -123,7 +121,7 @@ namespace Zen.Base.Maintenance
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            Current.Log.Info("Timed Background Service is stopping.");
+            Current.Log.Info("Orchestrasted Background Maintenance is stopping.");
 
             _timer?.Change(Timeout.Infinite, 0);
 

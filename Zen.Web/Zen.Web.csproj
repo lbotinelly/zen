@@ -38,6 +38,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>C:\Users\lmbs001\.nuget\packages\microsoft.aspnet.webapi.client\5.2.6\lib\netstandard2.0\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -50,6 +56,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pipeline\" />
   </ItemGroup>
 
 </Project>

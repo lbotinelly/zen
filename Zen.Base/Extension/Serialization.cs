@@ -352,6 +352,31 @@ namespace Zen.Base.Extension
             while ((len = input.Read(buffer, 0, buffer.Length)) > 0) output.Write(buffer, 0, len);
         }
 
+        public static bool IsJson(this string strInput)
+        {
+            // https://stackoverflow.com/a/14977915/1845714
+
+            strInput = strInput.Trim();
+            if ((!strInput.StartsWith("{") || !strInput.EndsWith("}")) && (!strInput.StartsWith("[") || !strInput.EndsWith("]"))) return false;
+
+            try
+            {
+                JToken.Parse(strInput);
+                return true;
+            } catch (JsonReaderException jex)
+            {
+                //Exception in parsing json
+                Console.WriteLine(jex.Message);
+                return false;
+            } catch (Exception ex) //some other exception
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+
+            return false;
+        }
+
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
@@ -398,7 +423,7 @@ namespace Zen.Base.Extension
             return ret;
         }
 
-        public static T FromJson<T>(this string obj) { return obj == null ? default(T) : JsonConvert.DeserializeObject<T>(obj); }
+        public static T FromJson<T>(this string obj) { return obj == null ? default : JsonConvert.DeserializeObject<T>(obj); }
 
         public static object FromJson(this string obj, Type destinyFormat, bool asList)
         {
@@ -415,6 +440,7 @@ namespace Zen.Base.Extension
             if (obj == null) return null;
             return JsonConvert.DeserializeObject(obj, type);
         }
+
         public static dynamic ToObject(this Dictionary<string, object> source)
         {
             var eo = new ExpandoObject();
@@ -426,6 +452,7 @@ namespace Zen.Base.Extension
 
             return eoDynamic;
         }
+
         public static byte[] ToByteArray<T>(this T obj)
         {
             // https://stackoverflow.com/a/33022788/1845714
@@ -443,7 +470,7 @@ namespace Zen.Base.Extension
         {
             // https://stackoverflow.com/a/33022788/1845714
 
-            if (data == null) return default(T);
+            if (data == null) return default;
             var bf = new BinaryFormatter();
             using (var ms = new MemoryStream(data))
             {

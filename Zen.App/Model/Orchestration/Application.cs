@@ -36,7 +36,9 @@ namespace Zen.App.Model.Orchestration
 
         public bool Active { get; set; } = true;
         public string Name { get; set; }
-        public virtual List<IZenPermission> GetPermissions() { return Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission) i).ToList(); }
+        public virtual List<IZenPermission> GetPermissions() => Permission.Where(i => i.ApplicationId == Id).Select(i => (IZenPermission) i).ToList();
+
+        public IZenGroup GetGroup(string code) { return Group.Where(i => i.ApplicationId == Id).ToList().FirstOrDefault(i => i.Code.EndsWith("_" + code)); }
 
         public override void BeforeUpdate()
         {

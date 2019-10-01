@@ -26,9 +26,12 @@ namespace Zen.Web.Service.Extensions
 
             var builder = new ZenWebBuilder(app, options);
 
-            var useAppCodeAsRoutePrefix = Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
 
-            if (!useAppCodeAsRoutePrefix)
+            var appCode = App.Current.Configuration.Code.ToLower();
+            var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
+
+            if (!usePrefix)
             {
                 // Default behavior: nothing to see here.
 
@@ -39,7 +42,7 @@ namespace Zen.Web.Service.Extensions
             {
                 // The App code will be used as prefix for all requests, so let's move the root:
 
-                var rootPrefix = "/" + App.Current.Configuration.Code.ToLower(); // e.g. "/appcode"
+                var rootPrefix = "/" + prefix; // e.g. "/appcode"
 
                 Events.AddLog("Web.RootPrefix", rootPrefix);
 

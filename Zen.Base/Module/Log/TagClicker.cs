@@ -42,7 +42,7 @@ namespace Zen.Base.Module.Log
         {
             this[tag] += count;
 
-            if (count > 1) Current.Log.Add($"{tag}: {count}");
+            if (count > 1) Current.Log.KeyValuePair($"{tag}", count.ToString(), Message.EContentType.Info);
         }
 
         public void ToLog(Message.EContentType type = Message.EContentType.MoreInfo)

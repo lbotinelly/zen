@@ -26,7 +26,7 @@ namespace Zen.Web.Data.Controller
         private static readonly object _lockObject = new object();
         private Mutator _mutator;
 
-        private Mutator RequestMutator
+        internal Mutator RequestMutator
         {
             get
             {
@@ -87,7 +87,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        private void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
+        internal void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
         {
             var configuration = Configuration;
 
@@ -236,7 +236,7 @@ namespace Zen.Web.Data.Controller
         {
             try
             {
-                EvaluateAuthorization(EHttpMethod.Post, EActionType.Update, EActionScope.Model, model.GetDataKey());
+                EvaluateAuthorization(EHttpMethod.Post, EActionType.Update, EActionScope.Model, model.GetDataKey(), model);
                 var mutator = RequestMutator;
 
                 BeforeModelAction(EHttpMethod.Post, EActionType.Update, ref mutator, ref model);
@@ -322,5 +322,40 @@ namespace Zen.Web.Data.Controller
         }
 
         #endregion
+    }
+
+
+    [Route("api/[controller]"), ApiController]
+    public class DataController<T, TU> : DataController<T> where T : Data<T>
+    {
+
+        public virtual void BeforeSummaryCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<TU> model, string key = null) { }
+        public virtual void AfterSummaryCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<TU> model, string key = null) { }
+
+        [HttpGet("summary")]
+        public IActionResult GetSummary()
+        {
+            try
+            {
+                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Collection);
+                var mutator = RequestMutator;
+                IEnumerable<TU> collection = new List<TU>();
+
+                BeforeSummaryCollectionAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref collection);
+
+                collection = Data<T>.Query<TU>(mutator);
+
+                AfterSummaryCollectionAction(EHttpMethod.Get, EActionType.Read, mutator, ref collection);
+
+                return PrepareResponse(collection);
+            }
+            catch (Exception e)
+            {
+                Base.Current.Log.Warn<T>($"SUMMARY: {e.Message}");
+                Base.Current.Log.Add<T>(e);
+                throw;
+            }
+
+        }
     }
 }

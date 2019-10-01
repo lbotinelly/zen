@@ -12,5 +12,6 @@ namespace Zen.Base.Maintenance {
             get => Cooldown.ToString();
             set => Cooldown = TimeSpan.Parse(value);
         }
+        public bool Orchestrated { get; set; } = false;
     }
 }
