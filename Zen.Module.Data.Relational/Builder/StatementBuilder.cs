@@ -157,6 +157,8 @@ namespace Zen.Module.Data.Relational.Builder
                 case ExpressionType.Or: return "|";
                 case ExpressionType.OrElse: return "OR";
                 case ExpressionType.Subtract: return "-";
+                case ExpressionType.Convert: return "";
+                default: throw new ArgumentOutOfRangeException(nameof(nodeType), nodeType, null);
             }
 
             throw new Exception($"Unsupported node type: {nodeType}");

@@ -31,11 +31,37 @@ namespace Zen.Base.Maintenance
 
         public List<Change> Changes { get; set; } = new List<Change>();
 
+        public DebugInfoBlock DebugInfo { get; set; } = new DebugInfoBlock();
+
         public Change AddChange(Change.EType type, string subject, string locator, string valueName = null, string originalValue = null, string newValue = null, string comments = null)
         {
-            var entry = new Change { Comments = comments, Locator = locator, Subject = subject, Type = type, Value = new Change.ValueBlock { Name = valueName, From = originalValue, To = newValue } };
+            var entry = new Change {Comments = comments, Locator = locator, Subject = subject, Type = type, Value = new Change.ValueBlock {Name = valueName, From = originalValue, To = newValue}};
             Changes.Add(entry);
             return entry;
+        }
+
+        public void SetStep(string step)
+        {
+            Current.Log.Info(step);
+            DebugInfo.Step = step;
+        }
+
+        public void SetDebugTarget(string target, Exception e = null)
+        {
+            Current.Log.Warn(target);
+            DebugInfo.Target = target;
+
+            if (e == null) return;
+
+            Current.Log.Add(e);
+            DebugInfo.TraceInfo = e.ToSummary();
+        }
+
+        public void Handle(Exception exception)
+        {
+            Status = EResultStatus.Failed;
+            SetStep("Failure handling");
+            Message = DebugInfo.Step + ": " + exception.Message;
         }
 
         public class Change
@@ -53,6 +79,7 @@ namespace Zen.Base.Maintenance
             public string Locator { get; set; }
             public string Comments { get; set; }
             public ValueBlock Value { get; set; } = new ValueBlock();
+
             public class ValueBlock
             {
                 public string Name { get; set; }
@@ -67,26 +94,5 @@ namespace Zen.Base.Maintenance
             public string TraceInfo { get; set; }
             public string Target { get; set; }
         }
-
-        public DebugInfoBlock DebugInfo { get; set; } = new DebugInfoBlock();
-
-        public void SetStep(string step)
-        {
-            Current.Log.Info(step);
-            DebugInfo.Step = step;
-        }
-        public void SetDebugTarget(string target, Exception e = null)
-        {
-            Current.Log.Warn(target);
-            DebugInfo.Target = target;
-
-            if (e == null) return;
-
-            Current.Log.Add(e);
-            DebugInfo.TraceInfo = e.ToSummary();
-        }
     }
-
-
-    
 }

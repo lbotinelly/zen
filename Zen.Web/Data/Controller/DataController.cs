@@ -11,6 +11,7 @@ using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.CommonAttributes;
 using Zen.Web.Data.Controller.Attributes;
+using Zen.Web.Filter;
 
 // ReSharper disable InconsistentlySynchronizedField
 // ReSharper disable StaticMemberInGenericType
@@ -181,6 +182,7 @@ namespace Zen.Web.Data.Controller
         }
 
         [HttpGet("new")]
+        [AllProperties]
         public virtual ActionResult<T> GetNewModel()
         {
             try

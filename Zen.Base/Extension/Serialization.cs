@@ -377,6 +377,16 @@ namespace Zen.Base.Extension
             return false;
         }
 
+        public static string XmlToJson(this string source)
+        {
+            var doc = new XmlDocument();
+            doc.LoadXml(source);
+
+            var json = JsonConvert.SerializeXmlNode(doc);
+
+            return json;
+        }
+
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
