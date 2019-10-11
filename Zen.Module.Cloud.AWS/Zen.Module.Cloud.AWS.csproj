@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.103.36" />
+    <PackageReference Include="AWSSDK.Core" Version="3.3.103.45" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.104.24" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.61" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.3.102.4" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.104.33" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.70" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.102.13" />
   </ItemGroup>
 
   <ItemGroup>

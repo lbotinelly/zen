@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.31" />
+    <PackageReference Include="System.DirectoryServices.Protocols" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>

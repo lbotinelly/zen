@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using Zen.Base.Extension;
+using Zen.Base.Module;
+using Zen.Base.Module.Data;
+using Zen.Base.Module.Data.Pipeline;
 
-namespace Zen.Base.Module.Data.Pipeline.ModelVersioning
+namespace Zen.App.Data.Pipeline.ModelVersioning
 {
-    public class ModelVersioning : IAfterActionPipeline
+    [AttributeUsage(AttributeTargets.Class)]
+    public class DataModelVersion : Attribute, IAfterActionPipeline
     {
         #region Implementation of IPipelinePrimitive
 
-        public Dictionary<string, object> Headers<T>() where T : Data<T> { return null; }
+        public string Descriptor { get; set; } = "Model Versioning";
+        public Dictionary<string, object> Headers<T>() where T : Data<T> => null;
 
         public void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
         {
@@ -17,7 +22,7 @@ namespace Zen.Base.Module.Data.Pipeline.ModelVersioning
 
             var sourceId = current.GetDataKey();
 
-            var logModel = new ModelVersioningContainer<T>
+            var versionModel = new ModelVersion<T>
             {
                 SourceId = sourceId,
                 Entry = current,
@@ -57,7 +62,8 @@ namespace Zen.Base.Module.Data.Pipeline.ModelVersioning
                         }
 
                         if (mfl.Count > 0) mfls = mfl.Aggregate((i, j) => i + ", " + j);
-                    } catch (Exception e) { }
+                    }
+                    catch (Exception e) { }
 
                     var ss = sj.Length;
                     var cs = cj.Length;
@@ -65,16 +71,17 @@ namespace Zen.Base.Module.Data.Pipeline.ModelVersioning
 
                     var plural = Math.Abs(diff) > 1 ? "s" : "";
 
-                    if (diff > 0) logModel.Summary = $"{Math.Abs(diff)} character{plural} added";
-                    if (diff < 0) logModel.Summary = $"{Math.Abs(diff)} character{plural} removed";
-                    if (diff == 0) logModel.Summary = $"Size kept";
+                    if (diff > 0) versionModel.Summary = $"{Math.Abs(diff)} character{plural} added";
+                    if (diff < 0) versionModel.Summary = $"{Math.Abs(diff)} character{plural} removed";
+                    if (diff == 0) versionModel.Summary = $"Size kept";
 
-                    if (mfls != null) logModel.Summary += ", modified: " + mfls;
+                    if (mfls != null) versionModel.Summary += ", modified: " + mfls;
                 }
-            } catch (Exception e){ }
+            }
+            catch (Exception e) { }
 
 
-            logModel.Insert();
+            versionModel.Insert();
         }
 
         #endregion

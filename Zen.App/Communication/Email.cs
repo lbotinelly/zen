@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using Zen.App.Provider;
@@ -27,14 +28,14 @@ namespace Zen.App.Communication
         private readonly MailMessage _baseMsg = new MailMessage();
         internal IZenApplication Application;
 
-        public AddressGroup Bcc = new AddressGroup {Code = "Bcc"};
-        public AddressGroup Cc = new AddressGroup {Code = "Cc"};
+        public AddressGroup Bcc = new AddressGroup { Code = "Bcc" };
+        public AddressGroup Cc = new AddressGroup { Code = "Cc" };
 
         public EmailPreferences Preferences = new EmailPreferences();
 
         public EmailStatus Result = new EmailStatus();
         public SerializableMailAddress Sender;
-        public AddressGroup To = new AddressGroup {Code = "To"};
+        public AddressGroup To = new AddressGroup { Code = "To" };
 
         public Email()
         {
@@ -101,25 +102,25 @@ namespace Zen.App.Communication
         {
             var ret = "";
 
-            var col = new List<AddressGroup> {To, Cc};
+            var col = new List<AddressGroup> { To, Cc };
 
             foreach (var i in col)
-            foreach (var item in i.RecipientDescriptor)
-            {
-                if (ret != "") ret += ", ";
+                foreach (var item in i.RecipientDescriptor)
+                {
+                    if (ret != "") ret += ", ";
 
-                var piece = item.Key;
-                if (item.Value != null) piece = "<a href=\"mailto:{0}\" target=\"_top\">{1}</a>".format(item.Value, item.Key);
+                    var piece = item.Key;
+                    if (item.Value != null) piece = "<a href=\"mailto:{0}\" target=\"_top\">{1}</a>".format(item.Value, item.Key);
 
-                ret += piece;
-            }
+                    ret += piece;
+                }
 
             return ret;
         }
 
         public static IEnumerable<Email> QueuedByCampaign(string campaignCode)
         {
-            var q = new {Campaign = campaignCode, Sent = false};
+            var q = new { Campaign = campaignCode, Sent = false };
 
             return Query(q.ToJson());
         }
@@ -135,7 +136,7 @@ namespace Zen.App.Communication
             if (person?.Email == null || person.Name == null) return this;
 
             SenderLocator = person.Locator;
-            Sender = (SerializableMailAddress) new MailAddress(person.Email, person.Name);
+            Sender = (SerializableMailAddress)new MailAddress(person.Email, person.Name);
 
             return this;
         }
@@ -152,7 +153,7 @@ namespace Zen.App.Communication
                 Current.Orchestrator.GetPersonByEmail(parsedLocator) ??
                 Current.Orchestrator.GetPersonByLocator(parsedLocator);
 
-            return person.Id != null ? person : null;
+            return person?.Id != null ? person : null;
 
             // Zen.Base.Current.Log.Add("ERR Person not found: " + parsedLocator, Message.EContentType.Warning);
         }
@@ -171,7 +172,7 @@ namespace Zen.App.Communication
             }
 
             SenderLocator = email;
-            Sender = (SerializableMailAddress) (label == null ? new MailAddress(email) : new MailAddress(email, label));
+            Sender = (SerializableMailAddress)(label == null ? new MailAddress(email) : new MailAddress(email, label));
 
             return this;
         }
@@ -191,7 +192,7 @@ namespace Zen.App.Communication
 
             try
             {
-                var isNotPrd = Host.IsDevelopment;
+                var isNotPrd = !Host.IsProduction;
 
                 msg.From = Sender;
 
@@ -242,7 +243,7 @@ namespace Zen.App.Communication
                         Cc.Clear();
                         Bcc.Clear();
 
-                        var devGroups = new List<IZenGroup> {Application.GetGroup("DEV"), Application.GetGroup("DEVCOPY")};
+                        var devGroups = new List<IZenGroup> { Application.GetGroup("DEV"), Application.GetGroup("DEVCOPY") };
 
                         devGroups = devGroups.Where(i => i != null).ToList();
 
@@ -354,7 +355,8 @@ namespace Zen.App.Communication
                 Sent = true;
 
                 Save();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Result.Status = EmailStatus.EStatus.Error;
                 Result.Timestamp = DateTime.Now;
@@ -368,6 +370,15 @@ namespace Zen.App.Communication
                 Base.Current.Log.Add(e);
                 throw;
             }
+        }
+
+        public void SetApplication(string code)
+        {
+            var targetApp = Zen.App.Current.Orchestrator.GetApplicationByCode(code);
+
+            if (targetApp == null) throw new InvalidDataException("No application found for Code " + code);
+
+            SetApplication(targetApp);
         }
 
         public void SetApplication(IZenApplication app)
@@ -456,7 +467,7 @@ namespace Zen.App.Communication
                 if (!code.IsValidEmail()) return _parent;
 
                 if (!RecipientDescriptor.ContainsKey(code)) RecipientDescriptor.Add(displayName, code);
-                AddressList.Add((SerializableMailAddress) new MailAddress(code, displayName));
+                AddressList.Add((SerializableMailAddress)new MailAddress(code, displayName));
 
                 return _parent;
             }
@@ -471,9 +482,10 @@ namespace Zen.App.Communication
 
                 try
                 {
-                    AddGroupToCollection(group, ref Groups, ref Emails, delegate(MailAddress address) { AddressList.Add((SerializableMailAddress) address); });
+                    AddGroupToCollection(group, ref Groups, ref Emails, delegate (MailAddress address) { AddressList.Add((SerializableMailAddress)address); });
                     return _parent;
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Base.Current.Log.Add(e, $"Email:{Code}:Group:{group.Code}");
                     return _parent;
@@ -485,9 +497,10 @@ namespace Zen.App.Communication
                 try
                 {
                     RecipientDescriptor.Add(person.Name, person.Email);
-                    AddressList.Add((SerializableMailAddress) new MailAddress(person.Email, person.Name));
+                    AddressList.Add((SerializableMailAddress)new MailAddress(person.Email, person.Name));
                     return _parent;
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Base.Current.Log.Add(e, $"Email:{Code}: person:{person.Locator}");
                     return _parent;
@@ -541,22 +554,22 @@ namespace Zen.App.Communication
             {
                 if (ret == null) ret = new MailMessage();
 
-                ret.From = (MailAddress) From;
+                ret.From = (MailAddress)From;
                 ret.Subject = Subject;
                 ret.Body = Body;
                 ret.IsBodyHtml = IsBodyHtml;
 
                 if (To != null)
                     foreach (var mailAddress in To)
-                        ret.To.Add((MailAddress) mailAddress);
+                        ret.To.Add((MailAddress)mailAddress);
 
                 if (CC != null)
                     foreach (var mailAddress in CC)
-                        ret.CC.Add((MailAddress) mailAddress);
+                        ret.CC.Add((MailAddress)mailAddress);
 
                 if (Bcc != null)
                     foreach (var mailAddress in Bcc)
-                        ret.Bcc.Add((MailAddress) mailAddress);
+                        ret.Bcc.Add((MailAddress)mailAddress);
 
                 return ret;
             }

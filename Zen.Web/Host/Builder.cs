@@ -4,6 +4,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Zen.Base;
 using Zen.Base.Extension;
 
 namespace Zen.Web.Host
@@ -28,6 +29,8 @@ namespace Zen.Web.Host
         {
             //var isDevEnv = Base.Host.IsDevelopment;
             //var isContainer = Base.Host.IsContainer;
+
+            Log.Add("Zen | Startup-Sequence START");
 
             if (!Base.Host.IsContainer)
                 if (Base.Host.IsDevelopment)
@@ -56,7 +59,6 @@ namespace Zen.Web.Host
                             // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
                             if (devCertificate != null)
                             {
-
                                 var httpsPort = Current.Configuration?.Development?.HttpsPort ?? 5001;
                                 Base.Host.Variables[Base.Host.Keys.WebHttpsPort] = httpsPort;
 
@@ -81,7 +83,6 @@ namespace Zen.Web.Host
 
         private static X509Certificate2 GetDevCertificate()
         {
-
             var targetSubject = Current.Configuration?.Development?.CertificateSubject ?? "localhost";
 
             var targetCertificate = new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() ??

@@ -718,6 +718,7 @@ namespace Zen.Base.Extension
         }
 
         public static DataReference ToReference<T>(this Data<T> source) where T : Data<T> { return new DataReference { Key = source.GetDataKey(), Display = source.GetDataDisplay() }; }
+        public static IEnumerable<DataReference> ToReference<T>(this IEnumerable<Data<T>> source) where T : Data<T> { return source.Select(i => i.ToReference()); }
 
         public static T ToData<T>(this DataReference source) where T : Data<T> { return Data<T>.Get(source.Key); }
     }

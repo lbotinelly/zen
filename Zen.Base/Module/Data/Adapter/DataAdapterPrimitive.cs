@@ -88,6 +88,9 @@ namespace Zen.Base.Module.Data.Adapter
         public abstract void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
         public abstract void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
 
+        public abstract void DropSet<T>(string setName) where T : Data<T>;
+        public abstract void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) where T : Data<T>;
+
         #endregion
     }
 }

@@ -49,9 +49,14 @@ namespace Zen.Base.Module.Data.Adapter
         #endregion
 
         #region Execute
-
         //IEnumerable<T> Do<T>(InterceptorQuery.EOperation pOperation, object query, object parm = null);
+        #endregion
+
+        #region Set
+        void DropSet<T>(string setIdentifier) where T : Data<T>;
+        void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) where T : Data<T>;
 
         #endregion
+
     }
 }

@@ -25,7 +25,6 @@ namespace Zen.Module.Data.Oracle
 
         public override void Initialize<T>()
         {
-
             Masks = new StatementMasks
             {
                 Column = "{0}",
@@ -38,14 +37,18 @@ namespace Zen.Module.Data.Oracle
                 }
             };
 
-
-            StatementBuilder = new StatementBuilder { Masks = Masks };
+            StatementBuilder = new StatementBuilder {Masks = Masks};
 
             Map<T>();
             RenderSchemaEntityNames<T>();
             ValidateSchema<T>();
             PrepareCachedStatements<T>();
+
+            ReferenceCollectionName = Info<T>.Configuration.SetPrefix + Info<T>.Configuration.SetName;
         }
+
+        public override void DropSet<T>(string setName) { throw new NotImplementedException(); }
+        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) { throw new NotImplementedException(); }
 
         public override void RenderSchemaEntityNames<T>()
         {
@@ -193,8 +196,7 @@ namespace Zen.Module.Data.Oracle
                 {
                     Current.Log.Add<T>("Creating table " + tn);
                     Execute<T>(tableRender.ToString());
-                }
-                catch (Exception e) { Current.Log.Add(e); }
+                } catch (Exception e) { Current.Log.Add(e); }
 
                 if (KeyColumn != null)
                 {
@@ -204,8 +206,7 @@ namespace Zen.Module.Data.Oracle
                     {
                         Current.Log.Add<T>("Creating Sequence " + seqName);
                         Execute<T>("CREATE SEQUENCE " + seqName);
-                    }
-                    catch (Exception e) { }
+                    } catch (Exception e) { }
 
                     //Primary Key
                     var pkName = tn + "_PK";
@@ -215,8 +216,7 @@ namespace Zen.Module.Data.Oracle
                     {
                         Current.Log.Add<T>("Adding Primary Key constraint " + pkName + " (" + KeyColumn + ")");
                         Execute<T>(pkStat);
-                    }
-                    catch (Exception e) { Current.Log.Add(e); }
+                    } catch (Exception e) { Current.Log.Add(e); }
                 }
                 //Trigger
 
@@ -244,8 +244,7 @@ namespace Zen.Module.Data.Oracle
                         string.Format(trigStat,
                                       SchemaElements["BeforeInsertTrigger"].Value, tn, seqName,
                                       KeyColumn));
-                }
-                catch (Exception e) { Current.Log.Add(e); }
+                } catch (Exception e) { Current.Log.Add(e); }
 
                 trigStat =
                     @"CREATE OR REPLACE TRIGGER {0}
@@ -262,8 +261,7 @@ namespace Zen.Module.Data.Oracle
                     Execute<T>(string.Format(trigStat,
                                              SchemaElements["BeforeUpdateTrigger"].Value, tn, seqName,
                                              KeyColumn));
-                }
-                catch (Exception e) { Current.Log.Add(e); }
+                } catch (Exception e) { Current.Log.Add(e); }
 
                 //Now, add comments to everything.
 
@@ -286,10 +284,8 @@ namespace Zen.Module.Data.Oracle
                 {
                     typeof(T).GetMethod("OnSchemaInitialization", BindingFlags.Public | BindingFlags.Static)
                         .Invoke(null, null);
-                }
-                catch { }
-            }
-            catch (Exception e)
+                } catch { }
+            } catch (Exception e)
             {
                 Current.Log.Warn<T>("Schema render Error: " + e.Message);
                 Current.Log.Add(e);

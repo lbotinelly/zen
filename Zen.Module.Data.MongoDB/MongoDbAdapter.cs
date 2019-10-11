@@ -372,6 +372,39 @@ namespace Zen.Module.Data.MongoDB
 
         public override void RemoveAll<T>(Mutator mutator = null) => Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty);
 
+
+
+
+
+
+
+
+        public override void DropSet<T>(string setName)
+        {
+            Database.DropCollection(setName);
+        }
+
+        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
+        {
+            if (flushDestination) DropSet<T>(sourceSetIdentifier);
+
+            var aggDoc = new Dictionary<string, object>
+            {
+                {"aggregate" , sourceSetIdentifier},
+                {"pipeline", new []
+                    {
+                        new Dictionary<string, object> { { "$match" , new BsonDocument() }},
+                        new Dictionary<string, object> { { "$out" , targetSetIdentifier } }
+                    }
+                }
+            };
+
+            var doc = new BsonDocument(aggDoc);
+            var command = new BsonDocumentCommand<BsonDocument>(doc);
+
+            Database.RunCommand(command);
+        }
+
         #endregion
     }
 }

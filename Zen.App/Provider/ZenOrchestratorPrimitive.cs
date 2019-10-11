@@ -57,6 +57,12 @@ namespace Zen.App.Provider
             return probe;
         }
 
+        public IZenApplication GetApplicationByCode(string code)
+        {
+            var probe = Data<TA>.GetByCode(code);
+            return probe;
+        }
+
         public virtual IZenApplication GetApplicationByLocator(string locator)
         {
             var probe = Data<TA>.GetByLocator(locator);

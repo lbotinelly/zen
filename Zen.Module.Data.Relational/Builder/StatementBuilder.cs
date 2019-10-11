@@ -39,7 +39,14 @@ namespace Zen.Module.Data.Relational.Builder
                     if (value is int) return WherePart.IsSql(value.ToString());
                     if (value is string) value = prefix + (string) value + postfix;
                     if (value is bool && isUnary) return WherePart.Concat(WherePart.IsParameter(i++, value), "=", WherePart.IsSql("1"));
-                    return WherePart.IsParameter(i++, value);
+
+                    var constantParametrizedName = Masks.Parameter.format(i);
+
+                    var constantResponse = WherePart.IsSql(Masks.InlineParameter.format(constantParametrizedName));
+                    constantResponse.Parameters.Add(constantParametrizedName, value);
+
+                    return constantResponse;
+                    // return WherePart.IsParameter(i++, value);
 
                 case MemberExpression _:
                     var member = (MemberExpression) expression;

@@ -51,12 +51,14 @@ namespace Zen.Web.Data.Controller
 
             if (source.ContainsKey("sort")) modifier.Transform.OrderBy = source["sort"];
 
-            if (source.ContainsKey("page") || source.ContainsKey("size"))
+            if (source.ContainsKey("page") || source.ContainsKey("size") || source.ContainsKey("limit"))
                 modifier.Transform.Pagination = new Pagination
                 {
                     Index = source.ContainsKey("page") ? Convert.ToInt32(source["page"]) : 0,
-                    Size = source.ContainsKey("size") ? Convert.ToInt32(source["size"]) : 50
+                    Size = source.ContainsKey("size") ? Convert.ToInt32(source["size"]) : source.ContainsKey("limit") ? Convert.ToInt32(source["limit"]) : 50
                 };
+
+            if (source.ContainsKey("output")) modifier.Transform.OutputFormat = source["output"];
 
             if (source.ContainsKey("filter")) modifier.Transform.Filter = source["filter"];
 

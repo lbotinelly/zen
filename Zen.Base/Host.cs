@@ -18,13 +18,20 @@ namespace Zen.Base
 
             ApplicationAssembly = GetAppAssembly();
             ApplicationAssemblyName = ApplicationAssembly.GetName().Name;
-            ApplicationAssemblyVersion = ApplicationAssembly.ImageRuntimeVersion;
+            ApplicationAssemblyVersion = ApplicationAssembly.GetName().Version.ToString();
 
             IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
+            IsProduction = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production";
+
             IsContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
+            if (!IsDevelopment) if (Environment.GetEnvironmentVariable("zen_Web__Development__QualifiedServerName") != null) IsDevelopment = true;
 
             if (!Directory.Exists(DataDirectory)) Directory.CreateDirectory(DataDirectory);
         }
+
+        public static bool IsProduction { get; set; }
 
         public static class Keys
         {

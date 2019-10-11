@@ -8,6 +8,7 @@ using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Common;
 using Zen.Base.Extension;
+using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Service
 {
@@ -15,23 +16,15 @@ namespace Zen.Base.Module.Service
     {
         private static readonly object Lock = new object();
 
-        public static readonly ConcurrentDictionary<string, Assembly> AssemblyMap = new ConcurrentDictionary<string, Assembly>();
-        public static readonly ConcurrentDictionary<string, string> AssemblyLoadMap = new ConcurrentDictionary<string, string>();
-        private static readonly ConcurrentDictionary<Type, List<Type>> TypeResolutionCache = new ConcurrentDictionary<Type, List<Type>>();
+        private static readonly ConcurrentDictionary<string, Assembly> AssemblyLoadMap = new ConcurrentDictionary<string, Assembly>();
+        private static readonly ConcurrentDictionary<string, string> AssemblyPathMap = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<Type, List<Type>> TypeResolutionMap = new ConcurrentDictionary<Type, List<Type>>();
 
-        private static readonly List<string> MonitorWhiteList = new List<string>
-        {
-            "InstallUtil.InstallLog",
-            "*.InstallLog",
-            "*.InstallState"
-        };
-
-        public static readonly Dictionary<Type, List<Type>> GetGenericsByBaseClassCache =
-            new Dictionary<Type, List<Type>>();
+        public static readonly Dictionary<Type, List<Type>> GetGenericsByBaseClassCache = new Dictionary<Type, List<Type>>();
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        private static readonly List<string> _parserBlackList = new List<string> {"System.", "Microsoft."};
+        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard" };
 
         static Resolution()
         {
@@ -67,21 +60,10 @@ namespace Zen.Base.Module.Service
 
                 //var modList = AssemblyCache.Select(i => i.Value.ToString().Split(',')[0]).ToJson();
 
-                foreach (var item in AssemblyMap)
-                {
-                    errCount = 0;
-
-                    try { item.Value.GetTypes(); } catch (Exception e)
-                    {
-                        if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
-                        {
-                            // foreach (var exSub in ((ReflectionTypeLoadException) e).LoaderExceptions) Modules.Log.System.Add(exSub.Message, Message.EContentType.Warning);
-                        }
-
-                        errCount++;
-                    }
-                }
+                foreach (var item in AssemblyLoadMap)
+                    try { item.Value.GetTypes(); } catch (Exception e) { Base.Log.Add("Error while loading " + item.Key, e); }
             }
+            Base.Log.KeyValuePair("Assembly Loader", $"{AssemblyLoadMap.Count} assemblies registered", Message.EContentType.StartupSequence);
         }
 
         public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class { return GetClassesByInterface<T>(excludeCoreNullDefinitions).Select(i => i.CreateInstance<T>()).ToList(); }
@@ -131,17 +113,18 @@ namespace Zen.Base.Module.Service
         {
             var assyName = assy.GetName().Name;
 
-            if (AssemblyMap.ContainsKey(assyName)) return assy;
+            if (AssemblyLoadMap.ContainsKey(assyName)) return assy;
 
-            AssemblyMap[assyName] = assy;
+            AssemblyLoadMap[assyName] = assy;
 
-            var refAssemblies = assy.GetReferencedAssemblies().Where(i => !_parserBlackList.Any(j => i.Name.StartsWith(j))).ToList();
+            var refAssemblies = assy.GetReferencedAssemblies().Where(i => !IgnoreList.Any(j => i.Name.StartsWith(j))).ToList();
 
             if (!refAssemblies.Any()) return assy;
 
             foreach (var assemblyName in refAssemblies)
             {
                 var refAssy = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
+
                 RegisterAssembly(refAssy);
             }
 
@@ -156,14 +139,15 @@ namespace Zen.Base.Module.Service
             {
                 var p = Path.GetFileName(physicalPath);
 
-                if (AssemblyLoadMap.ContainsKey(p)) return;
+                if (AssemblyPathMap.ContainsKey(p)) return;
 
-                AssemblyLoadMap.TryAdd(p, physicalPath);
+                AssemblyPathMap.TryAdd(p, physicalPath);
 
                 var assy = Assembly.LoadFrom(physicalPath);
 
                 RegisterAssembly(assy);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 if (e is ReflectionTypeLoadException exception)
                 {
@@ -186,7 +170,7 @@ namespace Zen.Base.Module.Service
 
                 if (limitToMainAssembly) assySource.Add(Host.ApplicationAssembly);
                 else
-                    lock (Lock) { assySource = AssemblyMap.Values.ToList(); }
+                    lock (Lock) { assySource = AssemblyLoadMap.Values.ToList(); }
 
                 foreach (var asy in assySource)
                     classCol.AddRange(asy
@@ -198,7 +182,8 @@ namespace Zen.Base.Module.Service
                                                   || type.BaseType == refType));
 
                 return classCol;
-            } catch (ReflectionTypeLoadException ex)
+            }
+            catch (ReflectionTypeLoadException ex)
             {
                 foreach (var item in ex.LoaderExceptions)
                 {
@@ -206,7 +191,8 @@ namespace Zen.Base.Module.Service
                 }
 
                 throw ex;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 //Current.Log.Add($"GetClassesByBaseClass ERR for {refType.Name}: {ex.Message}", Message.EContentType.Warning);
                 throw ex;
@@ -223,23 +209,25 @@ namespace Zen.Base.Module.Service
 
                 try
                 {
-                    foreach (var asy in AssemblyMap.Values.ToList())
-                    foreach (var st in asy.GetTypes())
-                    {
-                        if (st.BaseType == null) continue;
-                        if (!st.BaseType.IsGenericType) continue;
-                        if (st == refType) continue;
-
-                        try
+                    foreach (var asy in AssemblyLoadMap.Values.ToList())
+                        foreach (var st in asy.GetTypes())
                         {
-                            foreach (var gta in st.BaseType.GenericTypeArguments)
-                                if (gta == refType)
-                                    classCol.Add(st);
-                        } catch { }
-                    }
+                            if (st.BaseType == null) continue;
+                            if (!st.BaseType.IsGenericType) continue;
+                            if (st == refType) continue;
+
+                            try
+                            {
+                                foreach (var gta in st.BaseType.GenericTypeArguments)
+                                    if (gta == refType)
+                                        classCol.Add(st);
+                            }
+                            catch { }
+                        }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     // Current.Log.Add(e);
                 }
@@ -276,7 +264,7 @@ namespace Zen.Base.Module.Service
         {
             lock (Lock)
             {
-                if (TypeResolutionCache.ContainsKey(targetType)) return TypeResolutionCache[targetType];
+                if (TypeResolutionMap.ContainsKey(targetType)) return TypeResolutionMap[targetType];
 
                 //Modules.Log.System.Add("Scanning for " + type);
 
@@ -284,7 +272,7 @@ namespace Zen.Base.Module.Service
 
                 var globalTypeList = new List<Type>();
 
-                foreach (var item in AssemblyMap.Values)
+                foreach (var item in AssemblyLoadMap.Values)
                 {
                     if (excludeCoreNullDefinitions && item == currentExecutingAssembly) continue;
 
@@ -299,7 +287,8 @@ namespace Zen.Base.Module.Service
                             select target;
 
                         globalTypeList.AddRange(partialTypeList);
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         if (e is ReflectionTypeLoadException)
                         {
@@ -316,14 +305,14 @@ namespace Zen.Base.Module.Service
                 }
 
                 var typesByPriorityLevelMap = globalTypeList
-                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute) i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
                     .OrderBy(i => -i.Key);
 
                 var typesByPriorityLevel = typesByPriorityLevelMap
                     .Select(i => i.Value)
                     .ToList();
 
-                TypeResolutionCache.TryAdd(targetType, typesByPriorityLevel); // Caching results, so similar queries will return from cache
+                TypeResolutionMap.TryAdd(targetType, typesByPriorityLevel); // Caching results, so similar queries will return from cache
 
                 return typesByPriorityLevel;
             }

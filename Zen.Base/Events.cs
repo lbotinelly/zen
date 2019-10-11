@@ -48,6 +48,8 @@ namespace Zen.Base
         {
             var divider = new string('_', 130);
 
+            Current.Log.Debug(divider);
+            Current.Log.Debug("");
             Current.Log.Info(@"Zen " + Assembly.GetCallingAssembly().GetName().Version);
             Current.Log.Debug(divider);
             Current.Log.Debug("");
@@ -67,6 +69,7 @@ namespace Zen.Base
             foreach (var kvp in BootLog) Current.Log.KeyValuePair(kvp.Key, kvp.Value);
 
             Current.Log.Debug(divider);
+            Current.Log.Debug("");
         }
 
         private static void ExecuteShutdownSequenceActions()

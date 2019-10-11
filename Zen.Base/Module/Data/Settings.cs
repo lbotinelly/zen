@@ -22,7 +22,7 @@ namespace Zen.Base.Module.Data
             ShuttingDown
         }
 
-        protected internal DataAdapterPrimitive Adapter;
+        public DataAdapterPrimitive Adapter;
 
         public ConnectionBundlePrimitive Bundle;
 
@@ -47,7 +47,7 @@ namespace Zen.Base.Module.Data
         public Dictionary<string, string> Statistics = new Dictionary<string, string>();
 
         public string StorageName { get; set; }
-        public List<EnvironmentMappingAttribute> EnvironmentMapping { get; set; }
+        public List<DataEnvironmentMappingAttribute> EnvironmentMapping { get; set; }
         public FieldInfo KeyField { get; set; }
         public PropertyInfo KeyProperty { get; set; }
         public FieldInfo DisplayField { get; set; }
