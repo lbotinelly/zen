@@ -24,7 +24,7 @@ namespace Zen.Base.Module.Service
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard" };
+        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard","Serilog.", "ByteSize", "AWSSDK.","StackExchange.", "SixLabors." ,"BouncyCastle.", "MongoDB."};
 
         static Resolution()
         {

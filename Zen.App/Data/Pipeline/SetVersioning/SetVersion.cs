@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Zen.App.Data.Log;
-using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
+using Zen.Base.Module.Data.Connection;
 
 namespace Zen.App.Data.Pipeline.SetVersioning
 {
-    public class SetVersion<T> : Data<SetVersion<T>> where T : Data<T>
+    public class SetVersion<T> : Data<SetVersion<T>>, IStorageCollectionResolver where T : Data<T>
     {
-        private const string _SETPREFIX = "set";
+        private const string CollectionSuffix = "set";
 
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -26,21 +26,23 @@ namespace Zen.App.Data.Pipeline.SetVersioning
         public DateTime TimeStamp { get; set; } = DateTime.Now;
         public string OperatorLocator { get; set; } = Current.Orchestrator?.Person?.Locator;
 
-        public string GetStorageCollectionName() { return $"{Info<T>.Settings.StorageName}#ver"; }
-
-        public new static DataAdapterPrimitive GetDataAdapter() { return Info<T>.Settings.Adapter; }
+        public static DataSetVersion Configuration { get; } = typeof(T).GetCustomAttributes(typeof(DataSetVersion), true).FirstOrDefault() as DataSetVersion;
 
         // public override void OnRemove() { LocalCache.Delete(GetItemCacheKey()); }
 
-        public string GetItemCacheKey() => (Info<T>.Settings.TypeQualifiedName + ":" + Id).Sha512Hash();
+        public string SetTag => $"{CollectionSuffix}:{Id}";
+
+        public string GetStorageCollectionName() { return $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}"; }
+
+        public new static DataAdapterPrimitive GetDataAdapter() { return Info<T>.Settings.Adapter; }
 
         public override void BeforeSave()
         {
             var isNew = IsNew();
 
-            var verb = isNew ? "created" : "updated";
+            var action = isNew ? "Created" : "Updated";
 
-            if (Current.Orchestrator?.Person != null) verb += " by " + Current.Orchestrator?.Person.Name + " (" + Current.Orchestrator?.Person.Locator + ")";
+            if (Current.Orchestrator?.Person != null) action += " by " + Current.Orchestrator?.Person.Name + " (" + Current.Orchestrator?.Person.Locator + ")";
 
             var log = new Log<T>
             {
@@ -48,7 +50,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                 AuthorLocator = Current.Orchestrator?.Person?.Locator,
                 Action = isNew ? "CREATE" : "UPDATE",
                 Type = Log.Constants.Type.VERSIONING,
-                Message = $"Version [{Code}] ({Name}) {verb}"
+                Message = $"Version [{Code}] ({Name}) {action}"
             };
 
             log.Save();
@@ -56,13 +58,13 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
         public override void BeforeRemove()
         {
-            Info<T>.Settings.Adapter.DropSet<T>($"{Id}");
+            Info<T>.Settings.Adapter.DropSet<T>(Id);
 
-            var verb = "dropped";
+            var action = "Dropped";
 
             var person = Current.Orchestrator?.Person;
 
-            if (person != null) verb += " by " + person.Name + " (" + person.Locator + ")";
+            if (person != null) action += " by " + person.Name + " (" + person.Locator + ")";
 
             var log = new Log<T>
             {
@@ -70,41 +72,33 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                 AuthorLocator = person?.Locator,
                 Action = "DROP",
                 Type = Log.Constants.Type.VERSIONING,
-                Message = $"Version [{Code}] ({Name}) {verb}"
+                Message = $"Version [{Code}] ({Name}) {action}"
             };
 
             log.Save();
         }
 
-        public IEnumerable<T> VersionGetAll()
-        {
-            var set = Code == Constants.CURRENT_LIVE_WORKSET_TAG ? "" : $"#{_SETPREFIX}:{Id}";
+        private static string CollectionTag(string id) { return $"{CollectionSuffix}:{id}"; }
 
-            Base.Log.Add($"VersionGetAll: {set}");
+        private IEnumerable<T> VersionGetAll()
+        {
+            var set = Code == Constants.CURRENT_LIVE_WORKSET_TAG ? "" : CollectionTag(Id);
+
+            Base.Log.Add<T>($"VersionGetAll {set ?? "(none)"}");
             var mutator = new Mutator {SetCode = set};
 
             return Data<T>.Query(mutator);
         }
 
-        public T VersionGetItem(string locator)
+        public static SetVersion<T> PushFromWorkset(string id)
         {
-            var set = Code == Constants.CURRENT_LIVE_WORKSET_TAG ? "" : $"#{_SETPREFIX}:{Id}";
-
-            Base.Log.Add($"VersionGetAll: {set}");
-            var mutator = new Mutator {SetCode = set};
-
-            return Data<T>.Get(Id, mutator);
-        }
-
-        public static SetVersion<T> PushFromWorkspace(string id)
-        {
-            var isNew = id == "new";
+            var isNew = id == "new" || id == Constants.CURRENT_LIVE_WORKSET_TAG;
 
             SetVersion<T> probe;
 
             if (isNew)
             {
-                var code = DateTime.Now.ToString("yyyyMMddHHmmss");
+                var code = DateTime.Now.ToString("yyyyMMdd-HHmmss");
                 probe = new SetVersion<T> {Code = "BKP" + code, Name = "Backup:" + code};
             }
             else
@@ -118,7 +112,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                 probe.ItemCount = Data<T>.Count();
                 probe.Save();
 
-                Info<T>.Settings.Adapter.CopySet<T>("", $"#{_SETPREFIX}:{probe.Id}", true);
+                Info<T>.Settings.Adapter.CopySet<T>(Constants.CURRENT_LIVE_WORKSET_TAG, CollectionTag(probe.Id), true);
 
                 var log = new Log<T>
                 {
@@ -126,7 +120,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                     AuthorLocator = Current.Orchestrator?.Person?.Locator,
                     Action = "PUSH",
                     Type = Log.Constants.Type.VERSIONING,
-                    Message = $"Workspace pushed to Version [{probe.Code}] ({probe.Name}): {probe.ItemCount} items copied"
+                    Message = $"Workset pushed to Version [{probe.Code}] ({probe.Name}): {probe.ItemCount} items copied"
                 };
                 log.Save();
 
@@ -146,15 +140,15 @@ namespace Zen.App.Data.Pipeline.SetVersioning
             return ret;
         }
 
-        public static Payload GetPackage(string id)
+        public static Payload GetPackage(string code)
         {
-            var package = Get(id).GetPackage();
+            var package = GetByCode(code).GetPackage();
             return package;
         }
 
-        public void PullToWorkspace()
+        public void PullToWorkset()
         {
-            Info<T>.Settings.Adapter.CopySet<T>($"#{_SETPREFIX}:{Id}", "", true);
+            Info<T>.Settings.Adapter.CopySet<T>(CollectionTag(Id), Constants.CURRENT_LIVE_WORKSET_TAG, true);
 
             new Log<T>
             {
@@ -162,11 +156,14 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                 AuthorLocator = Current.Orchestrator?.Person?.Locator,
                 Action = "PULL",
                 Type = Log.Constants.Type.VERSIONING,
-                Message = $"Version [{Code}] ({Name}) pulled to Workspace"
+                Message = $"Version [{Code}] ({Name}) pulled to Workset"
             }.Save();
         }
 
-        public static SetVersion<T> GetByCode(string code) { return code == Constants.CURRENT_LIVE_WORKSET_TAG ? new SetVersion<T> {Id = Constants.CURRENT_LIVE_WORKSET_TAG, Code = Constants.CURRENT_LIVE_WORKSET_TAG} : Where(i => i.Code == code).FirstOrDefault(); }
+        public static SetVersion<T> GetByCode(string code) { return string.IsNullOrEmpty(code) || code == Constants.CURRENT_LIVE_WORKSET_TAG ? new SetVersion<T> {Id = Constants.CURRENT_LIVE_WORKSET_TAG, Code = Constants.CURRENT_LIVE_WORKSET_TAG} : Where(i => i.Code == code).FirstOrDefault(); }
+
+        public static bool CanModify() { return Configuration.CanModify(); }
+        public static bool CanBrowse() { return Configuration.CanBrowse(); }
 
         public class Payload
         {

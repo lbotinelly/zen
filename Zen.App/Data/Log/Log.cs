@@ -31,7 +31,7 @@ namespace Zen.App.Data.Log
 
         #region Implementation of IStorageCollectionResolver
 
-        public string GetStorageCollectionName() { return $"{Info<T>.Settings.StorageName}#log"; }
+        public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageCollectionName}#log";
         public new static DataAdapterPrimitive GetDataAdapter() { return Info<T>.Settings.Adapter; }
 
         #endregion

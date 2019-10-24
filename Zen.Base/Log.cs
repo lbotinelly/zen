@@ -39,7 +39,7 @@ namespace Zen.Base
 
             if (e.Message.IndexOf("LoaderExceptions", StringComparison.Ordinal) != -1)
             {
-                foreach (var exSub in ((ReflectionTypeLoadException) e).LoaderExceptions) Add(message, exSub);
+                foreach (var exSub in ((ReflectionTypeLoadException)e).LoaderExceptions) Add(message, exSub);
                 return;
             }
 
@@ -52,30 +52,51 @@ namespace Zen.Base
 
         public static void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic) { Add(t.FullName + " | " + message, type); }
 
-        public static void Warn<T>(string v) { Warn(typeof(T).Name + ": " + v); }
+        public static void Warn<T>(string v)
+        {
+            KeyValuePair(typeof(T).FullName, v, Message.EContentType.Warning);
+        }
 
         public static void Warn(string content) { Add(content, Message.EContentType.Warning); }
 
-        public static void Add<T>(Exception e) { Add<T>(e, null); }
-        public static void Add<T>(string content) { Add(typeof(T).Name + ": " + content); }
+        public static void Add<T>(Exception e)
+        {
+            Add<T>(e, null);
+        }
+
+        public static void Add<T>(string content, Message.EContentType type = Message.EContentType.Info)
+        {
+            KeyValuePair(typeof(T).FullName, content, type);
+        }
 
         public static void KeyValuePair(string key, string value, Message.EContentType type = Message.EContentType.Info) { Add($"{key.TruncateEnd(35, true)} : {value.TruncateEnd(93)}", type); }
 
         public static void Info(string content) { Add(content, Message.EContentType.Info); }
 
-        public static void Info<T>(string content) { Info(typeof(T).Name + ": " + content); }
+        public static void Info<T>(string content)
+        {
+            KeyValuePair(typeof(T).FullName, content);
+        }
 
         public static void Debug(string content) { Add(content, Message.EContentType.Debug); }
 
-        public static void Debug<T>(string content) { Debug(typeof(T).Name + ": " + content); }
+        public static void Debug<T>(string content)
+        {
+            KeyValuePair(typeof(T).FullName, content, Message.EContentType.Debug);
+        }
 
         public static void Maintenance(string content) { Add(content, Message.EContentType.Maintenance); }
+        public static void Maintenance<T>(string content) { KeyValuePair(typeof(T).FullName, content, Message.EContentType.Maintenance); }
 
         public static void Add<T>(Exception e, string message, string token = null)
         {
-            message = typeof(T).Name + ": " + message;
-
-            Add(message, Message.EContentType.Exception);
+            KeyValuePair(typeof(T).FullName, message + " | " + e.ToSummary(), Message.EContentType.Exception);
+        }
+        private static readonly string _divider = new string('_', 130);
+        public static void Divider()
+        {
+            Debug(_divider);
+            Debug("");
         }
     }
 }

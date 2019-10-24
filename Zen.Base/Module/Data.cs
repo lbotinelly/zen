@@ -67,7 +67,7 @@ namespace Zen.Base.Module
                         if (sourceType?.FullName != null)
                             Info<T>.Settings.TypeNamespace = sourceType?.FullName.Substring(0, Info<T>.Settings.TypeQualifiedName.Length - Info<T>.Settings.TypeName.Length - 1);
 
-                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
+                    Info<T>.Settings.StorageCollectionName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
 
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
@@ -124,6 +124,19 @@ namespace Zen.Base.Module
                     if (!Info<T>.Settings.Silent)
                         if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
                             Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
+
+                    // Member definitions
+
+                    // Start with properties...
+
+                    Info<T>.Settings.Members = typeof(T).GetProperties()
+                        .ToDictionary(i => i.Name, i => (MemberAttribute) Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute {Name = i.Name});
+
+                    // and add evential Fields.
+                    var FieldDefinitions = typeof(T).GetFields()
+                        .ToDictionary(i => i.Name, i => (MemberAttribute) Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute {Name = i.Name});
+
+                    foreach (var f in FieldDefinitions) Info<T>.Settings.Members.Add(f.Key, f.Value);
 
                     // Do we have any pipelines defined?
 
@@ -236,11 +249,11 @@ namespace Zen.Base.Module
 
                         if (Info<T>.Settings.Pipelines.Before.Any())
                             moreInfo.Add("Pre: " + Info<T>.Settings.Pipelines.Before
-                                             .Select(i => i.Descriptor).Aggregate((i, j) => i + ", " + j));
+                                             .Select(i => i.PipelineName).Aggregate((i, j) => i + ", " + j));
 
                         if (Info<T>.Settings.Pipelines.After.Any())
                             moreInfo.Add("Post: " + Info<T>.Settings.Pipelines.After
-                                             .Select(i => i.Descriptor).Aggregate((i, j) => i + ", " + j));
+                                             .Select(i => i.PipelineName).Aggregate((i, j) => i + ", " + j));
 
                         if (!moreInfo.Any()) return;
 

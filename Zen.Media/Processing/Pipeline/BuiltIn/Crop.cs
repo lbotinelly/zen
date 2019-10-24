@@ -18,7 +18,8 @@ namespace Zen.Media.Processing.Pipeline.BuiltIn
             Right = 0b_0100_0000,
             Center = 0b_0010_0010,
             TopCenter = 0b_0010_0001,
-            BottomCenter = 0b_0010_0100
+            BottomCenter = 0b_0010_0100,
+            NotSpecified = 0
         }
 
         #region Implementation of IRasterImagePipelineItem

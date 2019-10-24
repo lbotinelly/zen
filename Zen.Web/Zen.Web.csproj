@@ -35,6 +35,7 @@
     <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\Zen.Media\Zen.Media.csproj" />
+    <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>

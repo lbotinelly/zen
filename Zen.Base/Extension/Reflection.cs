@@ -186,16 +186,25 @@ namespace Zen.Base.Extension
             }
         }
 
-        public static bool SetPropertyValue(this object o, string property, object value)
+        public static bool SetMemberValue(this object source, string memberName, object model)
         {
             try
             {
-                var propertyInfo = o.GetType().GetProperty(property);
-                if (propertyInfo == null) return false;
+                var propertyInfo = source.GetType().GetProperty(memberName);
+                if (propertyInfo != null)
+                {
 
-                propertyInfo.SetValue(o, value, null);
+                    propertyInfo.SetValue(source, model, null);
+                    return true;
+                }
+
+                var fieldInfo = source.GetType().GetField(memberName);
+                if (fieldInfo == null) return false;
+                fieldInfo.SetValue(model, source);
                 return true;
-            } catch { return false; }
+
+            }
+            catch { return false; }
         }
 
         public static object GetPropertyValue(this object o, string property)

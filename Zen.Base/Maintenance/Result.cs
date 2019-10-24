@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Zen.Base.Extension;
 using Zen.Base.Module;
+using Zen.Base.Module.Data;
 using Zen.Base.Module.Log;
 
 namespace Zen.Base.Maintenance
 {
+    [DataConfig(UseCaching = false)]
     public class Result : Data<Result>
     {
         public enum EResultStatus
@@ -21,9 +23,9 @@ namespace Zen.Base.Maintenance
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
         [Display]
-        public string Message { get; set; }
+        public string Message { get; set; } = "Success";
 
-        public EResultStatus Status { get; set; } = EResultStatus.Undefined;
+        public EResultStatus Status { get; set; } = EResultStatus.Success;
         public TagClicker Counters { get; set; } = new TagClicker();
         public DateTime TimeStamp { get; set; } = DateTime.Now;
         public TimeSpan Duration { get; set; } = TimeSpan.Zero;

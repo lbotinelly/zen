@@ -16,7 +16,7 @@ namespace Zen.App.Data.Pipeline.Moderation
         public string WhitelistPermission { get; set; }
         public string NotifyPermission { get; set; }
         public string AuthorPermission { get; set; }
-        public string Descriptor => "Moderation";
+        public string PipelineName => "Moderation";
 
         #region Implementation of IPipelinePrimitive
 
@@ -76,10 +76,10 @@ namespace Zen.App.Data.Pipeline.Moderation
 
         public T Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T> { return current; }
 
-        public KeyValuePair<string, string>? ParseRequest(Dictionary<string, List<string>> requestData)
+        public KeyValuePair<string, string>? ParseRequest<T>(Dictionary<string, List<string>> requestData) where T: Data<T>
         {
-            if (!requestData.ContainsKey(Mutator.CommonMetadataKeys.Set)) return null;
-            return new KeyValuePair<string, string>(Mutator.CommonMetadataKeys.Set, requestData[Mutator.CommonMetadataKeys.Set].FirstOrDefault());
+            // Moderation involves no key manipulation.
+            return null;
         }
 
         #endregion

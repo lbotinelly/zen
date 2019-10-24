@@ -13,7 +13,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
     {
         #region Implementation of IPipelinePrimitive
 
-        public string Descriptor { get; set; } = "Model Versioning";
+        public string PipelineName { get; set; } = "Model Versioning";
         public Dictionary<string, object> Headers<T>() where T : Data<T> => null;
 
         public void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>

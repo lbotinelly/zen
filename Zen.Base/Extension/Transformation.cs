@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using ByteSizeLib;
 using Newtonsoft.Json.Linq;
 using Zen.Base.Common;
 using Zen.Base.Module;
@@ -33,6 +34,16 @@ namespace Zen.Base.Extension
         public static TD GetValueAs<TK, TV, TD>(this IDictionary<TK, TV> dict, TK key, TD type)
         {
             return dict.GetValue(key).ToType<TD,TV>();
+        }
+
+        public static string ToByteSize(this long size)
+        {
+            return ByteSize.FromBytes(size).ToString();
+        }
+
+        public static string ToByteSize(this int size)
+        {
+            return ByteSize.FromBytes(size).ToString();
         }
 
         private static readonly Random Rnd = new Random();

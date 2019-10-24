@@ -46,7 +46,7 @@ namespace Zen.Base.Module.Data
 
         public Dictionary<string, string> Statistics = new Dictionary<string, string>();
 
-        public string StorageName { get; set; }
+        public string StorageCollectionName { get; set; }
         public List<DataEnvironmentMappingAttribute> EnvironmentMapping { get; set; }
         public FieldInfo KeyField { get; set; }
         public PropertyInfo KeyProperty { get; set; }
@@ -56,6 +56,7 @@ namespace Zen.Base.Module.Data
         public string TypeName { get; set; }
         public string TypeQualifiedName { get; set; }
         public string TypeNamespace { get; set; }
+        public Dictionary<string, MemberAttribute> Members { get; set; }
 
         public Lazy<T> GetInstancedModifier<T>() where T : Data<T> { return new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null)); }
 

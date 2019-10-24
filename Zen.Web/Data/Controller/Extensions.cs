@@ -36,7 +36,7 @@ namespace Zen.Web.Data.Controller
                     AddHeaders(header, pipelineMember.Headers<T>());
         }
 
-        internal static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>
+        public static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>
         {
             var modifier = new Mutator {Transform = new QueryTransform()};
 
@@ -46,7 +46,7 @@ namespace Zen.Web.Data.Controller
                 var stringQueryCollection = source.ToDictionary(i => i.Key, i => i.Value.ToList());
 
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before)
-                    modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
+                    modifier.AddPipelineMetadata<T>(pipelineMember, stringQueryCollection);
             }
 
             if (source.ContainsKey("sort")) modifier.Transform.OrderBy = source["sort"];
@@ -67,10 +67,9 @@ namespace Zen.Web.Data.Controller
             return modifier;
         }
 
-        private static void AddPipelineMetadata(this Mutator mutator, IBeforeActionPipeline pipelineMember, Dictionary<string, List<string>> headerData)
+        private static void AddPipelineMetadata<T>(this Mutator mutator, IBeforeActionPipeline pipelineMember, Dictionary<string, List<string>> headerData) where T: Data<T>
         {
-            var postProcessContent = pipelineMember.ParseRequest(headerData);
-
+            var postProcessContent = pipelineMember.ParseRequest<T>(headerData);
             if (postProcessContent.HasValue)
                 mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
         }

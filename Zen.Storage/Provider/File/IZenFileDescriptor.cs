@@ -15,5 +15,6 @@ namespace Zen.Storage.Provider.File
         DateTime Creation { get; set; }
         TagCollection Tags { get; set; }
         AudienceDefinition Audience { get; set; }
+        IZenFileDescriptor GetNewInstance();
     }
 }

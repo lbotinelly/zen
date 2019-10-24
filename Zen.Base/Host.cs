@@ -37,6 +37,7 @@ namespace Zen.Base
         {
             public static string WebHttpPort = "WebHttpPort";
             public static string WebHttpsPort = "WebHttpsPort";
+            public static string WebRootPrefix = "WebRootPrefix";
         }
 
         public static Dictionary<string, object> Variables = new Dictionary<string, object>();

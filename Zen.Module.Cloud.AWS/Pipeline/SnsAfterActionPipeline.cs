@@ -17,7 +17,7 @@ namespace Zen.Module.Cloud.AWS.Pipeline
         public virtual RegionEndpoint Region { get; set; } = RegionEndpoint.USEast1;
         public virtual string Topic { get; set; } = "";
 
-        public string Descriptor => "SNS Announcer";
+        public string PipelineName => "SNS Announcer";
         public Dictionary<string, object> Headers<T>() where T : Data<T> { return null; }
 
         public virtual void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>

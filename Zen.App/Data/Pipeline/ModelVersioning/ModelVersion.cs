@@ -18,7 +18,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
         public string SourceId { get; set; }
         public string PersonLocator { get; set; } = Current.Orchestrator?.Person?.Locator;
 
-        public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageName}#ver";
+        public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageCollectionName}#ver";
         public new static DataAdapterPrimitive GetDataAdapter() => Info<T>.Settings.Adapter;
     }
 }

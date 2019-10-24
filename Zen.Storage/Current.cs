@@ -11,7 +11,10 @@ namespace Zen.Storage
         private static readonly Lazy<ZenConfigurationStorage> ConfigurationStorage = new Lazy<ZenConfigurationStorage>(() => Instances.ServiceProvider.GetService<ZenConfigurationStorage>(), true);
         public static IZenConfigurationStorage Configuration = ConfigurationStorage.Value;
 
-        private static readonly Lazy<ZenFileStoragePrimitive> FileDescriptor = new Lazy<ZenFileStoragePrimitive>(() => Instances.ServiceProvider.GetService<ZenFileStoragePrimitive>(), true);
-        public static ZenFileStoragePrimitive FileStorageProvider = FileDescriptor.Value;
+        private static readonly Lazy<ZenFileStoragePrimitive> FileStorage = new Lazy<ZenFileStoragePrimitive>(() => Instances.ServiceProvider.GetService<ZenFileStoragePrimitive>(), true);
+        public static ZenFileStoragePrimitive FileStorageProvider = FileStorage.Value;
+
+        //private static readonly Lazy<IZenFileDescriptor> LazyFileDescriptor = new Lazy<IZenFileDescriptor>(() => Instances.ServiceProvider.GetService<IZenFileDescriptor>(), true);
+        //public static IZenFileDescriptor FileDescriptor = LazyFileDescriptor.Value;
     }
 }

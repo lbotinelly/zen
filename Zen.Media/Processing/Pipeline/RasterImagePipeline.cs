@@ -9,19 +9,32 @@ namespace Zen.Media.Processing.Pipeline
     {
         public List<IRasterImagePipelineItem> Items = new List<IRasterImagePipelineItem>();
         public Stream SourceStream { get; set; }
-
+        public Image SourceImage { get; set; }
+        public ImagePackage SourcePackage { get; set; }
         public IImageFormat Format { get; set; }
 
         public Stream Process()
         {
-            var currentImage = Image.Load(SourceStream, out var format);
+            if (SourceStream != null)
+                if (SourceImage == null)
+                {
+                    SourceImage = Image.Load(SourceStream, out var format);
+                    Format = format;
+                }
 
-            if (Format == null) Format = format;
+            if (SourceImage != null)
+                if (SourcePackage == null)
+                    SourcePackage = new ImagePackage { Format = Format, Image = SourceImage };
 
-            foreach (var item in Items) currentImage = item.Process(currentImage);
+            // Now, backfills.
+
+            SourceImage = SourceImage ?? SourcePackage.Image;
+            Format = Format ?? SourcePackage.Format;
+
+            foreach (var item in Items) SourceImage = item.Process(SourceImage);
 
             var memoryStream = new MemoryStream();
-            currentImage.Save(memoryStream, format);
+            SourceImage.Save(memoryStream, Format);
 
             memoryStream.Position = 0;
 

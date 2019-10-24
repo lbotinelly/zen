@@ -6,8 +6,10 @@ namespace Zen.App.Model.Configuration
     {
         public string Code { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public string Locator { get; set; }
         public List<GroupDescriptor> Groups { get; set; }
+        public string FunctionalArea { get; set; }
 
         public class GroupDescriptor
         {

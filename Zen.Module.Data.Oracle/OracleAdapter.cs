@@ -52,7 +52,7 @@ namespace Zen.Module.Data.Oracle
 
         public override void RenderSchemaEntityNames<T>()
         {
-            var tn = Info<T>.Settings.StorageName;
+            var tn = Info<T>.Settings.StorageCollectionName;
 
             if (tn == null) return;
 

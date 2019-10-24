@@ -26,7 +26,6 @@ namespace Zen.Web.Service.Extensions
 
             var builder = new ZenWebBuilder(app, options);
 
-
             var appCode = App.Current.Configuration.Code.ToLower();
             var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
             var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
@@ -43,6 +42,8 @@ namespace Zen.Web.Service.Extensions
                 // The App code will be used as prefix for all requests, so let's move the root:
 
                 var rootPrefix = "/" + prefix; // e.g. "/appcode"
+
+                Base.Host.Variables[Base.Host.Keys.WebRootPrefix] = rootPrefix;
 
                 Events.AddLog("Web.RootPrefix", rootPrefix);
 
@@ -90,7 +91,7 @@ namespace Zen.Web.Service.Extensions
                                 destination = $"{targetProtocol}//" + destinationHost.ToString() + rootPrefix;
                             }
 
-                        Base.Current.Log.Add($"Redirect: {destination}", Message.EContentType.Info);
+                        Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}", Message.EContentType.StartupSequence);
 
                         context.Response.Redirect(destination, false);
                         return Task.FromResult(0);

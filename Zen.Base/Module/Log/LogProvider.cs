@@ -4,6 +4,7 @@ using System.IO;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 using Zen.Base.Extension;
 
 namespace Zen.Base.Module.Log
@@ -122,12 +123,12 @@ namespace Zen.Base.Module.Log
                 case Message.EContentType.ShutdownSequence:
                 case Message.EContentType.Info:
                 case Message.EContentType.MoreInfo:
+                case Message.EContentType.Maintenance:
                     targetLevel = LogEventLevel.Information;
                     break;
 
                 case Message.EContentType.Warning:
                 case Message.EContentType.Audit:
-                case Message.EContentType.Maintenance:
                     targetLevel = LogEventLevel.Warning;
                     break;
 
@@ -165,9 +166,9 @@ namespace Zen.Base.Module.Log
             //_logger = ((ILoggerFactory) Current.ServiceProvider.GetService(typeof(ILoggerFactory))).CreateLogger<LogProvider>();
             _logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
                 .WriteTo.File($"{Host.DataDirectory}{Path.DirectorySeparatorChar}log{Path.DirectorySeparatorChar}log.txt", rollingInterval: RollingInterval.Day)
-                .MinimumLevel.Debug()
+                .MinimumLevel.Verbose()
                 .CreateLogger();
 
             FlushQueue();

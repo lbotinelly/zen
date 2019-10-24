@@ -110,8 +110,16 @@ namespace Zen.App.Provider
         // ReSharper disable once StaticMemberInGenericType
         private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
 
+        private const string IsAuthenticatedPermission = "$ISAUTHENTICATED";
+
         public bool HasAnyPermissions(string expression)
         {
+            if (string.IsNullOrEmpty(expression)) return true;
+
+            if (expression == IsAuthenticatedPermission)
+                if (Person != null)
+                    return true;
+
             var permissionList = expression.Split(PermissionExpressionDelimiters, StringSplitOptions.RemoveEmptyEntries);
             return HasAnyPermissions(permissionList);
         }
