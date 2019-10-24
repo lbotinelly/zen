@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Zen.Base.Module.Data;
 
-namespace Zen.Module.Data.Relational.Mapper {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class ColumnAttribute : Attribute
+namespace Zen.Module.Data.Relational.Mapper
+{
+    public sealed class ColumnAttribute : MemberAttribute
     {
-        public string Name { get; set; }
         public long Length { get; set; }
         public bool Serialized { get; set; }
     }

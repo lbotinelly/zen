@@ -18,8 +18,8 @@ namespace Zen.Base.Module.Data
 
         public static class CommonMetadataKeys
         {
-            public static string Container = "Container";
-            public static string Set = "Set";
+            public static string Container = "container";
+            public static string Set = "set";
         }
     }
 }

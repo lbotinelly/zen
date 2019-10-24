@@ -57,6 +57,12 @@ namespace Zen.App.Provider
             return probe;
         }
 
+        public IZenApplication GetApplicationByCode(string code)
+        {
+            var probe = Data<TA>.GetByCode(code);
+            return probe;
+        }
+
         public virtual IZenApplication GetApplicationByLocator(string locator)
         {
             var probe = Data<TA>.GetByLocator(locator);
@@ -104,8 +110,16 @@ namespace Zen.App.Provider
         // ReSharper disable once StaticMemberInGenericType
         private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
 
+        private const string IsAuthenticatedPermission = "$ISAUTHENTICATED";
+
         public bool HasAnyPermissions(string expression)
         {
+            if (string.IsNullOrEmpty(expression)) return true;
+
+            if (expression == IsAuthenticatedPermission)
+                if (Person != null)
+                    return true;
+
             var permissionList = expression.Split(PermissionExpressionDelimiters, StringSplitOptions.RemoveEmptyEntries);
             return HasAnyPermissions(permissionList);
         }
@@ -180,6 +194,20 @@ namespace Zen.App.Provider
             profile.FromPerson(person);
 
             return profile;
+        }
+
+        public IZenApplication GetApplicationById(string identifier)
+        {
+            var probe = Data<TA>.Get(identifier);
+
+            return probe;
+
+        }
+
+        public IZenPerson GetPersonByEmail(string email)
+        {
+            email = email.ToLower().Trim();
+            return Data<TP>.Where(i => i.Email.ToLower() == email).FirstOrDefault();
         }
 
         public virtual List<IZenPermission> GetPermissionsByPerson(IZenPerson person)

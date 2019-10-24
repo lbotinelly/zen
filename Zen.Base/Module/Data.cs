@@ -23,7 +23,7 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module
 {
-    public abstract partial class Data<T> where T : Data<T>
+    public abstract class Data<T> where T : Data<T>
     {
         internal static string _cacheKeyBase;
         private static readonly object _InitializationLock = new object();
@@ -43,8 +43,8 @@ namespace Zen.Base.Module
                     // First we prepare a registry containing all necessary information for it to operate.
 
                     TypeConfigurationCache.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
-                                                 new Settings(),
-                                                 (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+                                                                        new Settings(),
+                                                                        (DataConfigAttribute) Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     _cacheKeyBase = typeof(T).FullName;
 
@@ -58,10 +58,7 @@ namespace Zen.Base.Module
 
                     var sourceType = typeof(T);
 
-                    while (sourceType?.IsGenericType == true)
-                    {
-                        sourceType = sourceType.GenericTypeArguments.FirstOrDefault();
-                    }
+                    while (sourceType?.IsGenericType == true) sourceType = sourceType.GenericTypeArguments.FirstOrDefault();
 
                     Info<T>.Settings.TypeName = sourceType?.Name;
                     Info<T>.Settings.TypeQualifiedName = sourceType?.FullName;
@@ -70,7 +67,7 @@ namespace Zen.Base.Module
                         if (sourceType?.FullName != null)
                             Info<T>.Settings.TypeNamespace = sourceType?.FullName.Substring(0, Info<T>.Settings.TypeQualifiedName.Length - Info<T>.Settings.TypeName.Length - 1);
 
-                    Info<T>.Settings.StorageName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
+                    Info<T>.Settings.StorageCollectionName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
 
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
@@ -128,44 +125,43 @@ namespace Zen.Base.Module
                         if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
                             Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
 
+                    // Member definitions
+
+                    // Start with properties...
+
+                    Info<T>.Settings.Members = typeof(T).GetProperties()
+                        .ToDictionary(i => i.Name, i => (MemberAttribute) Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute {Name = i.Name});
+
+                    // and add evential Fields.
+                    var FieldDefinitions = typeof(T).GetFields()
+                        .ToDictionary(i => i.Name, i => (MemberAttribute) Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute {Name = i.Name});
+
+                    foreach (var f in FieldDefinitions) Info<T>.Settings.Members.Add(f.Key, f.Value);
+
                     // Do we have any pipelines defined?
-                    var ps = typeof(T).GetCustomAttributes(true).OfType<PipelineAttribute>().ToList();
 
-                    if (ps.Any())
+                    Info<T>.Settings.Pipelines = new Settings.PipelineQueueHandler
                     {
-                        Info<T>.Settings.Pipelines = new Settings.PipelineQueueHandler
-                        {
-                            Before = (from pipelineAttribute in ps
-                                      from type in pipelineAttribute.Types
-                                      where typeof(IBeforeActionPipeline).IsAssignableFrom(type)
-                                      select (IBeforeActionPipeline)type.GetConstructor(new Type[] { })
-                                          .Invoke(new object[] { }))
-                                .ToList(),
-                            After = (from pipelineAttribute in ps
-                                     from type in pipelineAttribute.Types
-                                     where typeof(IAfterActionPipeline).IsAssignableFrom(type)
-                                     select (IAfterActionPipeline)type.GetConstructor(new Type[] { })
-                                         .Invoke(new object[] { }))
-                                .ToList()
-                        };
+                        Before = typeof(T).GetCustomAttributes(true).OfType<IBeforeActionPipeline>().ToList(),
+                        After = typeof(T).GetCustomAttributes(true).OfType<IAfterActionPipeline>().ToList()
+                    };
 
-                        // Now let's report what we've just done.
+                    // Now let's report what we've just done.
 
-                        if (Info<T>.Settings.Pipelines.Before.Any())
-                            Info<T>.Settings.Statistics["Settings.Pipelines.Before"] = Info<T>.Settings.Pipelines.Before
-                                .Select(i => i.GetType().Name).Aggregate((i, j) => i + "," + j);
-                        if (Info<T>.Settings.Pipelines.After.Any())
-                            Info<T>.Settings.Statistics["Settings.Pipelines.After"] = Info<T>.Settings.Pipelines.After
-                                .Select(i => i.GetType().Name).Aggregate((i, j) => i + "," + j);
-                    }
+                    //if (Info<T>.Settings.Pipelines.Before.Any())
+                    //    Info<T>.Settings.Statistics["Settings.Pipelines.Before"] = Info<T>.Settings.Pipelines.Before
+                    //        .Select(i =>i.Descriptor).Aggregate((i, j) => i + "," + j);
+                    //if (Info<T>.Settings.Pipelines.After.Any())
+                    //    Info<T>.Settings.Statistics["Settings.Pipelines.After"] = Info<T>.Settings.Pipelines.After
+                    //        .Select(i => i.Descriptor).Aggregate((i, j) => i + "," + j);
 
                     Info<T>.Settings.State.Step = "Determining Environment";
 
                     // Next step: Record Environment Mapping data, if any.
 
                     Info<T>.Settings.EnvironmentMapping = Attribute
-                        .GetCustomAttributes(typeof(T), typeof(EnvironmentMappingAttribute))
-                        .Select(i => (EnvironmentMappingAttribute)i)
+                        .GetCustomAttributes(typeof(T), typeof(DataEnvironmentMappingAttribute))
+                        .Select(i => (DataEnvironmentMappingAttribute) i)
                         .ToList();
 
                     Info<T>.Settings.EnvironmentCode =
@@ -186,61 +182,85 @@ namespace Zen.Base.Module
                         return;
                     }
 
-                    var refType = (ConnectionBundlePrimitive)Activator.CreateInstance(refBundle);
+                    var refType = (ConnectionBundlePrimitive) Activator.CreateInstance(refBundle);
 
-                    Info<T>.Settings.Bundle = refType;
-                    Info<T>.Settings.Bundle.Validate(ConnectionBundlePrimitive.EValidationScope.Database);
-
-                    if (refType.AdapterType == null)
-                    {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
-                                                      "No AdapterType defined on bundle");
-                        return;
-                    }
-
-                    Info<T>.Settings.Adapter = (DataAdapterPrimitive)Activator.CreateInstance(refType.AdapterType);
-
-                    Info<T>.Settings.Adapter.SourceBundle = refType;
+                    Info<T>.Settings.Adapter = GetDataAdapter();
 
                     if (Info<T>.Settings.Adapter == null)
                     {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "Null AdapterType");
-                        return;
+                        Info<T>.Settings.Bundle = refType;
+                        Info<T>.Settings.Bundle.Validate(ConnectionBundlePrimitive.EValidationScope.Database);
+
+                        if (refType.AdapterType == null)
+                        {
+                            Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No AdapterType defined on bundle");
+                            return;
+                        }
+
+                        Info<T>.Settings.Adapter = (DataAdapterPrimitive) Activator.CreateInstance(refType.AdapterType);
+
+                        Info<T>.Settings.Adapter.SourceBundle = refType;
+
+                        if (Info<T>.Settings.Adapter == null)
+                        {
+                            Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "Null AdapterType");
+                            return;
+                        }
+
+                        Info<T>.Settings.State.Step = "Setting up CypherKeys";
+                        Info<T>.Settings.ConnectionCypherKeys =
+                            Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
+
+                        Info<T>.Settings.State.Step = "Determining CredentialSets to use";
+                        Info<T>.Settings.CredentialSet =
+                            Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
+
+                        //if (Info<T>.Settings.CredentialSet != null)
+                        //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
+                        //        Info<T>.Settings.CredentialSet?.GetType().Name;
+
+                        Info<T>.Settings.CredentialCypherKeys =
+                            Info<T>.Configuration?.CredentialCypherKeys ??
+                            Info<T>.Settings.CredentialSet?.CredentialCypherKeys;
+
+                        // Now we're ready to talk to the outside world.
+
+                        Info<T>.Settings.State.Step = "Checking Connection to storage";
+
+                        Info<T>.Settings.Adapter.SetConnectionString<T>();
+
+                        Info<T>.Settings.Adapter.Setup<T>(Info<T>.Settings);
+
+                        Info<T>.Settings.State.Step = "Initializing adapter";
+                        Info<T>.Settings.Adapter.Initialize<T>();
                     }
-
-                    Info<T>.Settings.State.Step = "Setting up CypherKeys";
-                    Info<T>.Settings.ConnectionCypherKeys =
-                        Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
-
-                    Info<T>.Settings.State.Step = "Determining CredentialSets to use";
-                    Info<T>.Settings.CredentialSet =
-                        Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
-
-                    //if (Info<T>.Settings.CredentialSet != null)
-                    //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
-                    //        Info<T>.Settings.CredentialSet?.GetType().Name;
-
-                    Info<T>.Settings.CredentialCypherKeys =
-                        Info<T>.Configuration?.CredentialCypherKeys ??
-                        Info<T>.Settings.CredentialSet?.CredentialCypherKeys;
-
-                    // Now we're ready to talk to the outside world.
-
-                    Info<T>.Settings.State.Step = "Checking Connection to storage";
-
-                    Info<T>.Settings.Adapter.SetConnectionString<T>();
-
-                    Info<T>.Settings.Adapter.Setup<T>(Info<T>.Settings);
-                    Info<T>.Settings.Adapter.Initialize<T>();
 
                     if (!Info<T>.Settings.Silent)
                         foreach (var (key, value) in Info<T>.Settings.Statistics)
                             Current.Log.KeyValuePair(key, value, Message.EContentType.StartupSequence);
 
+                    Info<T>.Settings.State.Step = "Wrapping up initialization";
+
                     if (!Info<T>.Settings.Silent)
-                        Events.AddLog($"Data<{Info<T>.Settings.TypeQualifiedName}>", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
-                }
-                catch (Exception e)
+                    {
+                        Events.AddLog($"{Info<T>.Settings.TypeQualifiedName}", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
+
+                        var moreInfo = new List<string>();
+
+                        if (Info<T>.Settings.Pipelines.Before.Any())
+                            moreInfo.Add("Pre: " + Info<T>.Settings.Pipelines.Before
+                                             .Select(i => i.PipelineName).Aggregate((i, j) => i + ", " + j));
+
+                        if (Info<T>.Settings.Pipelines.After.Any())
+                            moreInfo.Add("Post: " + Info<T>.Settings.Pipelines.After
+                                             .Select(i => i.PipelineName).Aggregate((i, j) => i + ", " + j));
+
+                        if (!moreInfo.Any()) return;
+
+                        var pipelineInfo = moreInfo.Aggregate((i, j) => i + "; " + j);
+                        Events.AddLog($"{Info<T>.Settings.TypeQualifiedName}", $" More | {pipelineInfo}");
+                    }
+                } catch (Exception e)
                 {
                     Info<T>.Settings.State.Status = Settings.EStatus.CriticalFailure;
 
@@ -253,8 +273,8 @@ namespace Zen.Base.Module
                         refEx = e.InnerException;
                         Info<T>.Settings.State.Description += " / " + refEx.Message;
                     }
-                    if (!Info<T>.Settings.Silent)
-                        Current.Log.Warn(Info<T>.Settings.State.Description);
+
+                    if (!Info<T>.Settings.Silent) Current.Log.Warn(Info<T>.Settings.State.Description);
                 }
             }
         }
@@ -267,14 +287,30 @@ namespace Zen.Base.Module
 
         #endregion
 
-        public static T New() { return (T)Activator.CreateInstance(typeof(T)); }
+        public static T New() { return (T) Activator.CreateInstance(typeof(T)); }
+
+        public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
+        {
+            var model = Where(i => locators.Contains((i as IDataLocator).Locator), mutator).ToList();
+            model.AfterGet();
+
+            return model;
+        }
+
+        private enum EMetadataScope
+        {
+            Collection
+        }
 
         #region State tools
 
+        public static DataAdapterPrimitive GetDataAdapter() { return null; }
+
         private static void ValidateState(EActionType? type = null)
         {
-            if (Info<T>.Settings.State.Status != Settings.EStatus.Operational &&
-                Info<T>.Settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"{typeof(T).FullName} | Class is not operational: {Info<T>.Settings.State.Status}, {Info<T>.Settings.State.Description}");
+            var settings = Info<T>.Settings;
+
+            if (settings.State.Status != Settings.EStatus.Operational && settings.State.Status != Settings.EStatus.Initializing) throw new Exception($"{typeof(T).FullName} | Class is not operational: {settings.State.Status}, {settings.State.Description}");
 
             switch (type)
             {
@@ -292,19 +328,6 @@ namespace Zen.Base.Module
         }
 
         #endregion
-
-        public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
-        {
-            var model = Where(i => locators.Contains((i as IDataLocator).Locator), mutator).ToList();
-            model.AfterGet();
-
-            return model;
-        }
-
-        private enum EMetadataScope
-        {
-            Collection
-        }
 
         #region Static references
 
@@ -354,7 +377,7 @@ namespace Zen.Base.Module
 
         public string GetDataDisplay() { return GetDataDisplay(this); }
 
-        public string GetFullIdentifier() => Info<T>.Settings.TypeQualifiedName + ":" + GetDataKey();
+        public string GetFullIdentifier() { return Info<T>.Settings.TypeQualifiedName + ":" + GetDataKey(); }
 
         #endregion
 
@@ -365,7 +388,10 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.Before == null) return currentModel;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
-                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e); }
+                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e)
+                {
+                    if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
+                }
 
             return currentModel;
         }
@@ -375,7 +401,10 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
-                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e) { if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e); }
+                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e)
+                {
+                    if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
+                }
         }
 
         #endregion
@@ -399,7 +428,7 @@ namespace Zen.Base.Module
             ValidateState(EActionType.Read);
             mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
 
-            return Info<T>.Settings.Adapter.Where(predicate, mutator).AfterGet();
+            return Info<T>.Settings.Adapter.Where(predicate, mutator).ToList().AfterGet();
         }
 
         public static IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
@@ -441,7 +470,6 @@ namespace Zen.Base.Module
             if (!Info<T>.Configuration.UseCaching) return FetchModel(key, mutator);
 
             return CacheFactory.FetchModel<T>(fullKey) ?? FetchModel(key, mutator);
-
         }
 
         public static IEnumerable<T> Get(IEnumerable<string> keys)
@@ -449,7 +477,14 @@ namespace Zen.Base.Module
             ValidateState(EActionType.Read);
 
             if (keys == null) return null;
-            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keys).Values;
+
+            var keyList = keys.ToList();
+
+            if (!keyList.Any()) return new List<T>();
+
+            keyList = keyList.Distinct().ToList();
+
+            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keyList).Values;
 
             if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
             throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
@@ -497,7 +532,7 @@ namespace Zen.Base.Module
 
             if (modelSet.Count == 0) return null;
 
-            var resultPackage = new BulkDataOperation<T> { Type = type };
+            var resultPackage = new BulkDataOperation<T> {Type = type};
 
             // First let's obtain any ServiceTokenGuid set by the user.
 
@@ -515,34 +550,34 @@ namespace Zen.Base.Module
 
                     var paralelizableClicker = logClicker;
 
-                    Parallel.ForEach(modelSet, new ParallelOptions { MaxDegreeOfParallelism = 5 }, item =>
-                      {
-                          paralelizableClicker.Click();
+                    Parallel.ForEach(modelSet, new ParallelOptions {MaxDegreeOfParallelism = 5}, item =>
+                    {
+                        paralelizableClicker.Click();
 
-                          if (item.IsNew())
-                          {
-                              var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
+                        if (item.IsNew())
+                        {
+                            var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
 
-                              if (resultPackage.Control.ContainsKey(tempKey))
-                              {
-                                  if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
-                                  failureSet.Add(item);
-                              }
-                              else { resultPackage.Control[tempKey] = new DataOperationControl<T> { Current = item, IsNew = true, Original = null }; }
+                            if (resultPackage.Control.ContainsKey(tempKey))
+                            {
+                                if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                failureSet.Add(item);
+                            }
+                            else { resultPackage.Control[tempKey] = new DataOperationControl<T> {Current = item, IsNew = true, Original = null}; }
 
-                              return;
-                          }
+                            return;
+                        }
 
-                          var modelKey = mutator?.KeyPrefix + item.GetDataKey();
+                        var modelKey = mutator?.KeyPrefix + item.GetDataKey();
 
-                          if (resultPackage.Control.ContainsKey(modelKey))
-                          {
-                              if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
-                              return;
-                          }
+                        if (resultPackage.Control.ContainsKey(modelKey))
+                        {
+                            if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                            return;
+                        }
 
-                          resultPackage.Control[modelKey] = new DataOperationControl<T> { Current = item };
-                      });
+                        resultPackage.Control[modelKey] = new DataOperationControl<T> {Current = item};
+                    });
 
                     logClicker.End();
 
@@ -631,28 +666,28 @@ namespace Zen.Base.Module
 
                     logStep = _timed.Log("post-processing individual models");
 
-                    Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions { MaxDegreeOfParallelism = 5 }, controlModel =>
-                      {
-                          var key = controlModel.Key;
-                          logClicker.Click();
+                    Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions {MaxDegreeOfParallelism = 5}, controlModel =>
+                    {
+                        var key = controlModel.Key;
+                        logClicker.Click();
 
-                          if (type == EActionType.Remove)
-                          {
-                              controlModel.Value.Current.AfterRemove();
-                              ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                          }
-                          else
-                          {
-                              if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
-                              else controlModel.Value.Current.AfterUpdate(key);
+                        if (type == EActionType.Remove)
+                        {
+                            controlModel.Value.Current.AfterRemove();
+                            ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                        }
+                        else
+                        {
+                            if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
+                            else controlModel.Value.Current.AfterUpdate(key);
 
-                              controlModel.Value.Current.AfterSave(key);
+                            controlModel.Value.Current.AfterSave(key);
 
-                              ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                          }
+                            ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                        }
 
-                          CacheFactory.FlushModel<T>(key);
-                      });
+                        CacheFactory.FlushModel<T>(key);
+                    });
 
                     resultPackage.Success = successSet;
                     resultPackage.Failure = failureSet;
@@ -663,8 +698,7 @@ namespace Zen.Base.Module
                     _timed.End();
 
                     return resultPackage;
-                }
-                catch (Exception e)
+                } catch (Exception e)
                 {
                     if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
                     var ex = new Exception($"{type} - Error while {logStep} {logObj?.ToJson()}: {e.Message}", e);
@@ -693,7 +727,7 @@ namespace Zen.Base.Module
             var fetchKeys = keys.ToList();
 
             // First we create a map to accomodate all the requested records.
-            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T)null);
+            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T) null);
 
             //Then we proceed to probe the cache for individual model copies if the user didn't decided to ignore cache.
             var cacheKeyPrefix = mutator?.KeyPrefix;
@@ -769,7 +803,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Update);
 
-            var localModel = (T)this;
+            var localModel = (T) this;
             T storedModel = null;
             var isNew = IsNew(ref storedModel, mutator);
 
@@ -807,7 +841,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Insert);
 
-            var localModel = (T)this;
+            var localModel = (T) this;
 
             var targetActionType = EActionType.Insert;
 
@@ -839,7 +873,7 @@ namespace Zen.Base.Module
         {
             ValidateState(EActionType.Remove);
 
-            var localModel = (T)this;
+            var localModel = (T) this;
             if (_isDeleted) return null;
 
             T storedModel = null;

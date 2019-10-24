@@ -29,8 +29,6 @@ namespace Zen.Base.Service.Extensions
 
             Current.Log.Add(Current.State.ToString());
 
-
-
             return app;
         }
     }

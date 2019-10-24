@@ -26,8 +26,8 @@ namespace Zen.Web.Communication.Push
             {
                 if (_messageQueue.Count == 0)
                 {
-                    Task.Delay(CycleLengthMilliseconds); // does not block the thread
-                    Thread.Sleep(0); // yield the processor and give up your time slice
+                    //Task.Delay(CycleLengthMilliseconds); // does not block the thread
+                    Thread.Sleep(CycleLengthMilliseconds); // yield the processor and give up your time slice
                 }
                 else { DispatchQueue(); }
             } while (_mustCycle);

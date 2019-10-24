@@ -20,30 +20,34 @@ namespace Zen.App.Model.Orchestration
 
         public string ApplicationId { get; set; }
 
-        public void AddPermission(IZenPermission targetPermission)
+        public bool AddPermission(IZenPermission targetPermission)
         {
-            if (Permissions.Contains(targetPermission.Id)) return;
+            if (Permissions.Contains(targetPermission.Id)) return false;
             Permissions.Add(targetPermission.Id);
             Save();
             Base.Current.Log.KeyValuePair(ToString(), $"+ {targetPermission.FullCode}", Message.EContentType.Info);
+
+            return true;
         }
 
-        public void RemovePermission(IZenPermission targetPermission)
+        public bool RemovePermission(IZenPermission targetPermission)
         {
-            if (!Permissions.Contains(targetPermission.Id)) return;
+            if (!Permissions.Contains(targetPermission.Id)) return false;
             Permissions.Remove(targetPermission.Id);
             Save();
 
             Base.Current.Log.KeyValuePair(ToString(), $"- {targetPermission.FullCode}", Message.EContentType.Info);
+
+            return true;
         }
 
-        public void AddPerson(IZenPerson person, bool automated = false, bool useNonAutomatedIfFound = false)
+        public bool AddPerson(IZenPerson person, bool automated = false, bool useNonAutomatedIfFound = false)
         {
-            var probe = GroupSubscription.Where(i => (i.GroupId == Id) & (i.PersonId == person.Id)).FirstOrDefault();
+            var probe = GroupSubscription.Where(i => i.GroupId != Id || i.PersonId != person.Id).FirstOrDefault();
 
             if (probe != null)
                 if (probe.Active)
-                    return;
+                    return false;
 
             if (probe != null)
             {
@@ -66,23 +70,27 @@ namespace Zen.App.Model.Orchestration
 
             probe.Save();
 
-            Base.Current.Log.KeyValuePair(person.Locator, "ADD to " + ToString(), Message.EContentType.Info);
+            Base.Current.Log.KeyValuePair(person.Locator, $"ADD to {ToString()}", Message.EContentType.Info);
+
+            return true;
         }
 
-        public void RemovePerson(IZenPerson person, bool automated = false, bool useNonAutomatedIfFound = false)
+        public bool RemovePerson(IZenPerson person, bool automated = false, bool useNonAutomatedIfFound = false)
         {
-            var probe = GroupSubscription.Where(i => (i.GroupId == Id) & (i.PersonId == person.Id)).FirstOrDefault();
+            var probe = GroupSubscription.Where(i => i.GroupId == Id && i.PersonId == person.Id).FirstOrDefault();
 
-            if (probe == null) return;
+            if (probe == null) return false;
 
             if (automated)
                 if (!probe.IsImport)
                     if (!useNonAutomatedIfFound)
-                        return;
+                        return false;
 
             probe.Remove();
 
-            Base.Current.Log.KeyValuePair(person.Locator, "REMOVE from " + ToString(), Message.EContentType.Info);
+            Base.Current.Log.KeyValuePair(person.Locator, $"REMOVE from {ToString()}", Message.EContentType.Info);
+
+            return true;
         }
 
         public string ParentId { get; set; }
@@ -103,10 +111,13 @@ namespace Zen.App.Model.Orchestration
 
         public bool Active { get; set; }
 
-        private List<Person> GetPeople()
+        public IEnumerable<IZenPerson> GetPeople() { return GetPeople(false); }
+
+        public IEnumerable<GroupSubscription> GetSubscriptions(bool includeInactive = true) { return GroupSubscription.Where(i => i.GroupId == Id && (includeInactive || i.Active)); }
+
+        public IEnumerable<IZenPerson> GetPeople(bool includeInactive)
         {
-            var subscribedPersonIds = GroupSubscription
-                .Where(i => i.GroupId == Id && i.Active)
+            var subscribedPersonIds = GetSubscriptions(includeInactive)
                 .Select(i => i.PersonId)
                 .Distinct();
 

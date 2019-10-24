@@ -14,6 +14,7 @@ namespace Zen.App.Provider
         IZenPerson GetPersonByLocator(string locator);
         IEnumerable<IZenPerson> GetPeopleByLocators(IEnumerable<string> locators);
         List<IZenPermission> GetPermissionsByPerson(IZenPerson person);
+        IZenApplication GetApplicationByCode(string code);
         IZenApplication GetApplicationByLocator(string appLocator);
         IZenApplication GetNewApplication();
         IZenApplication UpsertApplication(IZenApplication application);
@@ -32,5 +33,7 @@ namespace Zen.App.Provider
         List<IZenPerson> PeopleByGroup(string key);
         List<IZenPersonProfile> GetProfiles(string keys);
         IZenPersonProfile GetProfile(IZenPerson person);
+        IZenApplication GetApplicationById(string identifier);
+        IZenPerson GetPersonByEmail(string email);
     }
 }

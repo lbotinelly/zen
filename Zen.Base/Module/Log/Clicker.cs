@@ -64,7 +64,7 @@ namespace Zen.Base.Module.Log
             var leftT = invPart.Subtract(_s.Elapsed).ToString(@"\:hh\:mm\:ss");
             var totlT = invPart.ToString(@"\:hh\:mm\:ss");
 
-            var msg = $"{_message}:        {sIndex}/{Count} ({partStr} | E{currT} L{leftT} T{totlT})";
+            var msg = $"{_message}:        {sIndex}/{Count} {partStr} E{currT} L{leftT} T{totlT}";
 
             Current.Log.Add(msg, _pNotifySliceMoreInfo == 0 ? Message.EContentType.MoreInfo : Message.EContentType.Debug);
         }

@@ -79,7 +79,7 @@ namespace Zen.Base.Distributed
 
         public void Comment(string comment)
         {
-            Current.Log.Add(this.ToJson());
+            // Current.Log.Add(this.ToJson());
 
             Comments = comment;
             Save();
@@ -90,7 +90,7 @@ namespace Zen.Base.Distributed
             Comments = comment;
             var id = Save();
 
-            Current.Log.Add(this.ToJson());
+            // Current.Log.Add(this.ToJson());
 
             Remove(id.Id);
         }

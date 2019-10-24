@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Threading;
 using Zen.Base.Extension;
 
 namespace Zen.Base.Distributed
 {
     public static class Factory
     {
-        public static Ticket GetTicket(string serviceDescriptor, TimeSpan timeOut = default(TimeSpan))
+        public static Ticket GetTicket(string serviceDescriptor, TimeSpan timeOut = default)
         {
             // First, let's check if a ticket already exists for that Locator:
 
@@ -17,7 +16,7 @@ namespace Zen.Base.Distributed
 
             if (ret == null)
             {
-                Current.Log.Add(serviceDescriptor + ": no ticket, creating.");
+                // Current.Log.Add(serviceDescriptor + ": no ticket, creating.");
                 mustCreate = true;
             }
             else
@@ -31,7 +30,7 @@ namespace Zen.Base.Distributed
 
             if (!mustCreate) return ret;
 
-            if (timeOut.Equals(default(TimeSpan))) timeOut = new TimeSpan(0, 0, 5, 0);
+            if (timeOut.Equals(default)) timeOut = new TimeSpan(0, 0, 5, 0);
 
             ret = new Ticket
             {

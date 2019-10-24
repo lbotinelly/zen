@@ -42,14 +42,14 @@ namespace Zen.Base.Module.Log
         {
             this[tag] += count;
 
-            if (count > 1) Current.Log.Add($"{tag}: {count}");
+            if (count > 1) Current.Log.KeyValuePair($"{tag}", count.ToString(), Message.EContentType.Info);
         }
 
         public void ToLog(Message.EContentType type = Message.EContentType.MoreInfo)
         {
             if (Keys.Count <= 0) return;
 
-            foreach (var key in Keys) Current.Log.Add(key.PadLeft(_maxLength + 4) + (_suffix != null ? " " + _suffix : "") + ": " + base[key], type);
+            foreach (var key in Keys) Base.Log.KeyValuePair((_suffix != null ? " " + _suffix : "") + key, base[key].ToString(), type);
         }
     }
 }

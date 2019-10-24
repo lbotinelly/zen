@@ -36,7 +36,7 @@ namespace Zen.Web.Data.Controller
                     AddHeaders(header, pipelineMember.Headers<T>());
         }
 
-        internal static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>
+        public static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>
         {
             var modifier = new Mutator {Transform = new QueryTransform()};
 
@@ -46,17 +46,19 @@ namespace Zen.Web.Data.Controller
                 var stringQueryCollection = source.ToDictionary(i => i.Key, i => i.Value.ToList());
 
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before)
-                    modifier.AddPipelineMetadata(pipelineMember, stringQueryCollection);
+                    modifier.AddPipelineMetadata<T>(pipelineMember, stringQueryCollection);
             }
 
             if (source.ContainsKey("sort")) modifier.Transform.OrderBy = source["sort"];
 
-            if (source.ContainsKey("page") || source.ContainsKey("size"))
+            if (source.ContainsKey("page") || source.ContainsKey("size") || source.ContainsKey("limit"))
                 modifier.Transform.Pagination = new Pagination
                 {
                     Index = source.ContainsKey("page") ? Convert.ToInt32(source["page"]) : 0,
-                    Size = source.ContainsKey("size") ? Convert.ToInt32(source["size"]) : 50
+                    Size = source.ContainsKey("size") ? Convert.ToInt32(source["size"]) : source.ContainsKey("limit") ? Convert.ToInt32(source["limit"]) : 50
                 };
+
+            if (source.ContainsKey("output")) modifier.Transform.OutputFormat = source["output"];
 
             if (source.ContainsKey("filter")) modifier.Transform.Filter = source["filter"];
 
@@ -65,10 +67,9 @@ namespace Zen.Web.Data.Controller
             return modifier;
         }
 
-        private static void AddPipelineMetadata(this Mutator mutator, IBeforeActionPipeline pipelineMember, Dictionary<string, List<string>> headerData)
+        private static void AddPipelineMetadata<T>(this Mutator mutator, IBeforeActionPipeline pipelineMember, Dictionary<string, List<string>> headerData) where T: Data<T>
         {
-            var postProcessContent = pipelineMember.ParseRequest(headerData);
-
+            var postProcessContent = pipelineMember.ParseRequest<T>(headerData);
             if (postProcessContent.HasValue)
                 mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
         }

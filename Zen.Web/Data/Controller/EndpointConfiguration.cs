@@ -4,7 +4,7 @@ namespace Zen.Web.Data.Controller
 {
     public class EndpointConfiguration
     {
-        public Behavior Behavior = new Behavior();
-        public Security Security = new Security();
+        public DataBehavior Behavior = new DataBehavior();
+        public DataSecurity Security = new DataSecurity();
     }
 }

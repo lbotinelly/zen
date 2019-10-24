@@ -42,6 +42,21 @@ namespace Zen.Base.Module.Log
             {EContentType.Debug, ConsoleColor.Cyan}
         };
 
+        public static Dictionary<EContentType, string> ContentCode = new Dictionary<EContentType, string>
+        {
+            {EContentType.Critical, "[CRITL]"},
+            {EContentType.Audit, "[AUDIT]"},
+            {EContentType.Exception, "[EXEPT]"},
+            {EContentType.StartupSequence, "[START]"},
+            {EContentType.ShutdownSequence, "[SDOWN]"},
+            {EContentType.Warning, "[WARN ]"},
+            {EContentType.Maintenance, "[MAINT]"},
+            {EContentType.Info, "[INFO ]"},
+            {EContentType.MoreInfo, "[MORE ]"},
+            {EContentType.Generic, "       "},
+            {EContentType.Debug, "[DEBUG]"}
+        };
+
         #endregion
 
         #region Exposed Properties

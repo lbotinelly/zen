@@ -18,14 +18,13 @@ namespace Zen.Module.Data.Relational
 
             ret.Select(mutator.Transform?.OutputMembers ?? "*");
 
-            if (mutator.Transform?.Filter != null)
-            {
-                var filterParameters = mutator.Transform?.Filter.FromJson<Dictionary<string, object>>();
+            if (mutator.Transform?.Filter == null) return selector;
 
-                var fieldSet = filterParameters.Keys.Select(i => $"{i} = @{i}");
+            var filterParameters = mutator.Transform?.Filter.FromJson<Dictionary<string, object>>();
 
-                ret.OrWhere(string.Join(", ", fieldSet), filterParameters.ToObject());
-            }
+            var fieldSet = filterParameters.Keys.Select(i => $"{i} = @{i}");
+
+            ret.OrWhere(string.Join(", ", fieldSet), filterParameters.ToObject());
 
             return selector;
         }

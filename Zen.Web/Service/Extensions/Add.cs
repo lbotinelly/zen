@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using Zen.Base;
 using Zen.Web.Convention;
 using Zen.Web.Model.State;
 
@@ -22,17 +22,22 @@ namespace Zen.Web.Service.Extensions
 
             configureOptions = configureOptions ?? (x => { });
 
-            var useAppCodeAsRoutePrefix = Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var appCode = App.Current.Configuration?.Code?.ToLower();
+            var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddMvc(options =>
                 {
-                    if (useAppCodeAsRoutePrefix)
-                    {
-                        var appCode = App.Current.Configuration.Code.ToLower();
-                        options.UseCentralRoutePrefix(new RouteAttribute(appCode + "/"));
-                    }
+                    if (usePrefix) options.UseCentralRoutePrefix(new RouteAttribute(prefix + "/"));
+                })
+                .AddJsonOptions(options => 
+                {
+                    //Json serializer settings Enum as string, omit nulls.
+                    // https://gist.github.com/regisdiogo/27f62ef83a804668eb0d9d0f63989e3e
+                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 // Disable inference rules

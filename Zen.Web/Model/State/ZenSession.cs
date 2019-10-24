@@ -15,7 +15,7 @@ namespace Zen.Web.Model.State
     {
         #region Implementation of IMaintenanceTask
 
-        [MaintenanceTaskSetup(Name = "Session cleanup", Schedule = "1:00:00")]
+        [MaintenanceTaskSetup(Name = "Framework: Session cleanup", Schedule = "1:00:00"), Priority(Level = 5)]
         public Task<Result> MaintenanceTask()
         {
             var result = new Result();

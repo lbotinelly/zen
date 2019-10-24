@@ -17,6 +17,7 @@ namespace Zen.Module.Cloud.AWS.Pipeline
         public virtual RegionEndpoint Region { get; set; } = RegionEndpoint.USEast1;
         public virtual string Topic { get; set; } = "";
 
+        public string PipelineName => "SNS Announcer";
         public Dictionary<string, object> Headers<T>() where T : Data<T> { return null; }
 
         public virtual void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
@@ -29,13 +30,15 @@ namespace Zen.Module.Cloud.AWS.Pipeline
         }
 
         public virtual PublishRequest RenderPayload<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
-            => new PublishRequest
+        {
+            return new PublishRequest
             {
                 Message =
-                new { type = type.ToString(), scope = scope.ToString(), payload = current ?? source }.ToJson(),
+                    new {type = type.ToString(), scope = scope.ToString(), payload = current ?? source}.ToJson(),
                 Subject = $"{(current ?? source).GetFullIdentifier()}",
                 TopicArn = Topic
             };
+        }
 
         private static async Task SendMessage(IAmazonSimpleNotificationService snsClient, PublishRequest payload) { await snsClient.PublishAsync(payload); }
 

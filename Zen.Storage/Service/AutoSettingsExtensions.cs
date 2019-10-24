@@ -12,6 +12,7 @@ namespace Zen.Storage.Service
             serviceCollection
                 .AddZenProvider<ZenConfigurationStorage>("Configuration Storage")
                 .AddZenProvider<ZenFileStoragePrimitive>("File Storage")
+                //.AddZenProvider<IZenFileDescriptor>("File Descriptor")
                 ;
 
             return serviceCollection;

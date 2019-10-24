@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Zen.Base.Extension;
 using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
@@ -20,7 +22,7 @@ namespace Zen.Base.Module.Data
             ShuttingDown
         }
 
-        protected internal DataAdapterPrimitive Adapter;
+        public DataAdapterPrimitive Adapter;
 
         public ConnectionBundlePrimitive Bundle;
 
@@ -40,12 +42,12 @@ namespace Zen.Base.Module.Data
 
         public PipelineQueueHandler Pipelines = null;
 
-        public MicroEntityState State = new MicroEntityState();
+        public DataState State = new DataState();
 
         public Dictionary<string, string> Statistics = new Dictionary<string, string>();
 
-        public string StorageName { get; set; }
-        public List<EnvironmentMappingAttribute> EnvironmentMapping { get; set; }
+        public string StorageCollectionName { get; set; }
+        public List<DataEnvironmentMappingAttribute> EnvironmentMapping { get; set; }
         public FieldInfo KeyField { get; set; }
         public PropertyInfo KeyProperty { get; set; }
         public FieldInfo DisplayField { get; set; }
@@ -54,8 +56,9 @@ namespace Zen.Base.Module.Data
         public string TypeName { get; set; }
         public string TypeQualifiedName { get; set; }
         public string TypeNamespace { get; set; }
+        public Dictionary<string, MemberAttribute> Members { get; set; }
 
-        public Lazy<T> GetInstancedModifier<T>() where T : Data<T> { return new Lazy<T>(() => (T) Activator.CreateInstance(typeof(T), null)); }
+        public Lazy<T> GetInstancedModifier<T>() where T : Data<T> { return new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null)); }
 
         public class PipelineQueueHandler
         {
@@ -63,12 +66,12 @@ namespace Zen.Base.Module.Data
             public List<IBeforeActionPipeline> Before = null;
         }
 
-        public class MicroEntityState
+        public class DataState
         {
             private EStatus _status;
             private string _step;
             public Dictionary<DateTime, string> Events = new Dictionary<DateTime, string>();
-            public MicroEntityState() { Status = EStatus.Undefined; }
+            public DataState() { Status = EStatus.Undefined; }
             public EStatus Status
             {
                 get => _status;
@@ -78,6 +81,13 @@ namespace Zen.Base.Module.Data
                     Step = $"Status: {value}";
                 }
             }
+
+            #region Overrides of Object
+
+            public override string ToString() { return $"{_step} | {Events.LastOrDefault().ToJson()}"; }
+
+            #endregion
+
             protected internal string Description { get; internal set; }
             protected internal string Step
             {
