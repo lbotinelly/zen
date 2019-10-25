@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.IO;
+using System.Security.Authentication;
+using Newtonsoft.Json;
 using Zen.Base.Extension;
 using Zen.Cloud.Configuration;
 using Zen.Module.Cloud.AWS.Connectors;
@@ -42,6 +45,24 @@ namespace Zen.Module.Cloud.AWS.Configuration
         public void Save(object sourceModel) { _connector.PutString(_config.FileName, sourceModel.ToJson(format: Formatting.Indented), _config.Bucket); }
 
         public string Descriptor => _config.Descriptor;
+
+
+        public void SaveTemplateFile(string name, string source)
+        {
+            if (string.Equals(name, _config.FileName, StringComparison.CurrentCultureIgnoreCase))
+                throw new AuthenticationException("Direct access to Configuration file is not allowed.");
+
+            _connector.PutString(name, source, _config.Bucket);
+
+        }
+
+        public string LoadTemplateFile(string name)
+        {
+            if (string.Equals(name, _config.FileName, StringComparison.CurrentCultureIgnoreCase))
+                throw new AuthenticationException("Direct access to Configuration file is not allowed.");
+
+            return _connector.GetString(name, _config.Bucket);
+        }
 
         #endregion
     }

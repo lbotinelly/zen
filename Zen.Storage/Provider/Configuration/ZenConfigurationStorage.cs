@@ -14,10 +14,10 @@ namespace Zen.Storage.Provider.Configuration
         {
             // At the end of this evaluation only one provider will be made available for the session lifetime.
 
-            attributes = GetType().GetCustomAttributes(typeof(ZenConfigurationStorageAttribute), false).Select(i => (ZenConfigurationStorageAttribute) i).ToList();
+            attributes = GetType().GetCustomAttributes(typeof(ZenConfigurationStorageAttribute), false).Select(i => (ZenConfigurationStorageAttribute)i).ToList();
         }
 
-        internal IZenConfigurationStorageProvider Provider { get; private set; }
+        public IZenConfigurationStorageProvider Provider { get; private set; }
 
         #region Implementation of IZenProvider
 
@@ -31,7 +31,7 @@ namespace Zen.Storage.Provider.Configuration
 
             var instances = viableProviders.Select(i =>
             {
-                var instance = (IZenConfigurationStorageProvider) i.Provider.CreateInstance();
+                var instance = (IZenConfigurationStorageProvider)i.Provider.CreateInstance();
                 instance.Initialize(i);
 
                 return instance;

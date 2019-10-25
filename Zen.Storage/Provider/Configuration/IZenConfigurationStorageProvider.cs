@@ -8,5 +8,7 @@ namespace Zen.Storage.Provider.Configuration {
         object Load();
         void Save(object sourceModel);
         string Descriptor { get; }
+        void SaveTemplateFile(string name, string source);
+        string LoadTemplateFile(string name);
     }
 }

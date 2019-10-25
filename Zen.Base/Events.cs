@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using Microsoft.Extensions.Hosting;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
@@ -80,7 +81,7 @@ namespace Zen.Base
 
         public static void End(string pReason = "(None)")
         {
-            Current.Log.Add("Stack shutdown initiated: " + pReason, Message.EContentType.ShutdownSequence);
+            Current.Log.KeyValuePair("Stack shutdown initiated", pReason, Message.EContentType.ShutdownSequence);
 
             if (Status.State == Status.EState.Shuttingdown) return;
 
@@ -88,9 +89,9 @@ namespace Zen.Base
 
             Instances.ServiceData.EndTimeStamp = DateTime.Now;
 
-            Current.Log.Debug($"    Session Start : {Instances.ServiceData.StartTimeStamp}");
-            Current.Log.Debug($"      Session End : {Instances.ServiceData.EndTimeStamp}");
-            Current.Log.Debug($" Session lifetime : {Instances.ServiceData.UpTime}");
+            Current.Log.KeyValuePair("Session Start", Instances.ServiceData.StartTimeStamp.ToString(), Message.EContentType.ShutdownSequence);
+            Current.Log.KeyValuePair("Session End", Instances.ServiceData.EndTimeStamp.ToString(), Message.EContentType.ShutdownSequence);
+            Current.Log.KeyValuePair("Session lifetime", Instances.ServiceData.UpTime.ToString(), Message.EContentType.ShutdownSequence);
             Current.Log.Add(@"  _|\_/|  ZZZzzz", Message.EContentType.Info);
             Current.Log.Add(@"c(_(-.-)", Message.EContentType.Info);
 
