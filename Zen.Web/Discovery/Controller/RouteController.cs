@@ -9,7 +9,7 @@ using Zen.Base.Extension;
 namespace Zen.Web.Discovery.Controller
 {
     [Route("api/discovery/endpoint"), ApiController]
-    public class RouteController : Microsoft.AspNetCore.Mvc.Controller
+    public class RouteController : ControllerBase
     {
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 
@@ -41,9 +41,7 @@ namespace Zen.Web.Discovery.Controller
                     cache[route.AttributeRouteInfo.Template].Parameters = route.Parameters?.Select(p => new
                     {
                         Payload =
-                            !p.ParameterType.IsBasicType() ?
-                                p.ParameterType.GetConstructor(new Type[] { }).Invoke(new object[] { }) : 
-                                "",
+                            !p.ParameterType.IsBasicType() ? p.ParameterType.GetConstructor(new Type[] { }).Invoke(new object[] { }) : "",
                         p.Name
                     }).ToList();
 

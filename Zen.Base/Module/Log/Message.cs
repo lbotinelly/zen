@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Zen.Base.Common;
 using Zen.Base.Diagnostics;
 
 namespace Zen.Base.Module.Log
@@ -27,34 +28,37 @@ namespace Zen.Base.Module.Log
             Undefined = 999
         }
 
-        public static Dictionary<EContentType, ConsoleColor> ContentColors = new Dictionary<EContentType, ConsoleColor>
+        public static Dictionary<EContentType, string> AnsiColors = new Dictionary<EContentType, string>
         {
-            {EContentType.Critical, ConsoleColor.DarkRed},
-            {EContentType.Audit, ConsoleColor.Green},
-            {EContentType.Exception, ConsoleColor.Red},
-            {EContentType.StartupSequence, ConsoleColor.Yellow},
-            {EContentType.ShutdownSequence, ConsoleColor.Yellow},
-            {EContentType.Warning, ConsoleColor.Magenta},
-            {EContentType.Maintenance, ConsoleColor.Cyan},
-            {EContentType.Info, ConsoleColor.Blue},
-            {EContentType.MoreInfo, ConsoleColor.Gray},
-            {EContentType.Generic, ConsoleColor.White},
-            {EContentType.Debug, ConsoleColor.Cyan}
+
+
+
+            {EContentType.Critical, AnsiTerminalColorCode.ANSI_WHITE + AnsiTerminalColorCode.ANSI_RED_BACKGROUND},
+            {EContentType.Audit, AnsiTerminalColorCode.ANSI_WHITE + AnsiTerminalColorCode.ANSI_BLUE_BACKGROUND},
+            {EContentType.Exception, AnsiTerminalColorCode.ANSI_BRIGHT_RED},
+            {EContentType.StartupSequence, AnsiTerminalColorCode.ANSI_BRIGHT_CYAN},
+            {EContentType.ShutdownSequence, AnsiTerminalColorCode.ANSI_CYAN},
+            {EContentType.Warning, AnsiTerminalColorCode.ANSI_BRIGHT_RED},
+            {EContentType.Maintenance, AnsiTerminalColorCode.ANSI_YELLOW},
+            {EContentType.Info, AnsiTerminalColorCode.ANSI_BRIGHT_CYAN},
+            {EContentType.MoreInfo, AnsiTerminalColorCode.ANSI_CYAN},
+            {EContentType.Generic, AnsiTerminalColorCode.ANSI_WHITE},
+            {EContentType.Debug, AnsiTerminalColorCode.ANSI_BRIGHT_BLACK}
         };
 
         public static Dictionary<EContentType, string> ContentCode = new Dictionary<EContentType, string>
         {
-            {EContentType.Critical, "[CRITL]"},
-            {EContentType.Audit, "[AUDIT]"},
-            {EContentType.Exception, "[EXEPT]"},
-            {EContentType.StartupSequence, "[START]"},
-            {EContentType.ShutdownSequence, "[SDOWN]"},
-            {EContentType.Warning, "[WARN ]"},
-            {EContentType.Maintenance, "[MAINT]"},
-            {EContentType.Info, "[INFO ]"},
-            {EContentType.MoreInfo, "[MORE ]"},
-            {EContentType.Generic, "       "},
-            {EContentType.Debug, "[DEBUG]"}
+            {EContentType.Critical, "CRITL"},
+            {EContentType.Audit, "AUDIT"},
+            {EContentType.Exception, "EXEPT"},
+            {EContentType.StartupSequence, "START"},
+            {EContentType.ShutdownSequence, "SDOWN"},
+            {EContentType.Warning, " WARN"},
+            {EContentType.Maintenance, "MAINT"},
+            {EContentType.Info, " INFO"},
+            {EContentType.MoreInfo, " MORE"},
+            {EContentType.Generic,  "    >"},
+            {EContentType.Debug,    "     "}
         };
 
         #endregion

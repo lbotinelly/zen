@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
-
-namespace Zen.Base.Maintenance
+﻿namespace Zen.Base.Maintenance
 {
-    public interface IMaintenanceTask
+    public interface IMaintenanceTask: ISubMaintenanceTask
     {
-        Task<Result> MaintenanceTask();
     }
 }

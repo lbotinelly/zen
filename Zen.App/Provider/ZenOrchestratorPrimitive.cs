@@ -170,7 +170,7 @@ namespace Zen.App.Provider
 
         public virtual List<IZenPerson> PeopleByGroup(string key) { return Person.ByGroup(key); }
 
-        private readonly Type _defaultProfileType = Resolution.GetClassesByInterface<IZenPersonProfile>(false).FirstOrDefault();
+        private readonly Type _defaultProfileType = IoC.GetClassesByInterface<IZenPersonProfile>(false).FirstOrDefault();
 
         public virtual List<IZenPersonProfile> GetProfiles(string keys)
         {

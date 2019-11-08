@@ -4,6 +4,7 @@ using System.Linq;
 using Zen.App.Provider.Application;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Module.Log;
 
 namespace Zen.App.Provider
 {
@@ -29,10 +30,14 @@ namespace Zen.App.Provider
 
             // Now let's handle groups and permissions.
 
+            Log.KeyValuePair($"{application} Startup-Sequence", "Configuration: START", Message.EContentType.StartupSequence);
+
             var settingsHostGroup = Current.Configuration?.Groups?.FirstOrDefault(i => i.IsHost);
             var hostGroup = Current.Orchestrator.GetGroupByCode(settingsHostGroup?.Code);
 
             var settingsNonHostGroups = Current.Configuration?.Groups?.Where(i => !i.IsHost).ToList() ?? new List<Model.Configuration.ApplicationConfiguration.GroupDescriptor>();
+
+            Log.KeyValuePair($"{application} Startup-Sequence", $"Groups: {settingsNonHostGroups.Count}", Message.EContentType.StartupSequence);
 
             if (settingsNonHostGroups.Any())
             {
@@ -82,6 +87,8 @@ namespace Zen.App.Provider
                             targetGroup.AddPerson(targetPermission, true, true);
                         }
                 }
+
+            Log.KeyValuePair($"{application} Startup-Sequence", "Configuration: END", Message.EContentType.StartupSequence);
 
             return application;
         }

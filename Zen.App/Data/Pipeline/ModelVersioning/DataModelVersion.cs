@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Primitives;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
@@ -14,7 +15,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
         #region Implementation of IPipelinePrimitive
 
         public string PipelineName { get; set; } = "Model Versioning";
-        public Dictionary<string, object> Headers<T>() where T : Data<T> => null;
+        public Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders) where T : Data<T> { return null; }
 
         public void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
         {
@@ -62,8 +63,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
                         }
 
                         if (mfl.Count > 0) mfls = mfl.Aggregate((i, j) => i + ", " + j);
-                    }
-                    catch (Exception e) { }
+                    } catch (Exception e) { }
 
                     var ss = sj.Length;
                     var cs = cj.Length;
@@ -77,9 +77,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
 
                     if (mfls != null) versionModel.Summary += ", modified: " + mfls;
                 }
-            }
-            catch (Exception e) { }
-
+            } catch (Exception e) { }
 
             versionModel.Insert();
         }

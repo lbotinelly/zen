@@ -12,7 +12,7 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Service
 {
-    public static class Resolution
+    public static class IoC
     {
         private static readonly object Lock = new object();
 
@@ -24,9 +24,9 @@ namespace Zen.Base.Module.Service
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard","Serilog.", "ByteSize", "AWSSDK.","StackExchange.", "SixLabors." ,"BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig" , "Westwind", "Serilog", "DnsClient","Oracle" };
+        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle" };
 
-        static Resolution()
+        static IoC()
         {
             //Modules.Log.System.Add("Warm-up START", Message.EContentType.StartupSequence);
 
@@ -65,9 +65,9 @@ namespace Zen.Base.Module.Service
             }
             Base.Log.KeyValuePair("Assembly Loader", $"{AssemblyLoadMap.Count} assemblies registered", Message.EContentType.StartupSequence);
 
-            foreach (var assembly in AssemblyLoadMap)
+            foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap))
             {
-                Base.Log.KeyValuePair(assembly.Key, assembly.Value.FullName);
+                Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
             }
 
         }

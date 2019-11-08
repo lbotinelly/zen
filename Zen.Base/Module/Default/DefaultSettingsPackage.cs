@@ -23,7 +23,7 @@ namespace Zen.Base.Module.Default
 
         public void Initialize()
         {
-            Log = new NullLogProvider();
+            Log = new DefaultLogProvider();
             Cache = new NullCacheProvider();
             Environment = new DefaultEnvironmentProvider();
             GlobalConnectionBundleType = null;

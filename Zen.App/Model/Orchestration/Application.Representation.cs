@@ -60,7 +60,7 @@ namespace Zen.App.Model.Orchestration
                             continue;
                         }
 
-                Base.Current.Log.Add($"[{go.Code}] {go.Name}: {g.People.Count} people", Message.EContentType.MoreInfo);
+                Base.Current.Log.KeyValuePair($"[{go.Code}] {go.Name}", $"{g.People.Count} people", Message.EContentType.MoreInfo);
 
                 foreach (var p in g.People)
                     if (p.Action != null)

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Session;
@@ -25,6 +26,11 @@ namespace Zen.Web.Service.Extensions
             var appCode = App.Current.Configuration?.Code?.ToLower();
             var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
             var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
+
+            services.Configure<FormOptions>(options =>
+            {
+                options.MemoryBufferThreshold = Int32.MaxValue;
+            });
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
@@ -20,7 +20,7 @@ using Zen.Web.Filter;
 namespace Zen.Web.Data.Controller
 {
     [Route("api/[controller]"), ApiController]
-    public class DataController<T> : Microsoft.AspNetCore.Mvc.Controller where T : Data<T>
+    public class DataController<T> : ControllerBase where T : Data<T>
     {
         private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
 
@@ -48,14 +48,21 @@ namespace Zen.Web.Data.Controller
 
         #region helpers
 
+
         internal IActionResult PrepareResponse(object content = null, HttpStatusCode status = HttpStatusCode.OK)
         {
-            Response.Headers.AddModelHeaders<T>();
-            Response.Headers.AddHeaders(GetAccessHeadersByPermission());
+            var accessControl = new DataAccessControl
+            {
+                Read = CanRead,
+                Write = CanWrite,
+                Remove = CanRemove
+            };
 
+            Response.Headers.AddModelHeaders<T>(ref accessControl, Request.Query);
+            Response.Headers.AddHeaders(GetAccessHeaders(accessControl));
             Response.Headers.AddMutatorHeaders<T>(RequestMutator);
 
-            var result = new ObjectResult(content) { StatusCode = (int)status };
+            var result = new ObjectResult(content) {StatusCode = (int) status};
             return result;
         }
 
@@ -63,7 +70,7 @@ namespace Zen.Web.Data.Controller
 
         #region Configuration, Authentication and Authorization
 
-        public EndpointConfiguration Configuration
+        public virtual EndpointConfiguration Configuration
         {
             get
             {
@@ -77,8 +84,8 @@ namespace Zen.Web.Data.Controller
 
                     var newDefinition = new EndpointConfiguration
                     {
-                        Security = (DataSecurity)Attribute.GetCustomAttribute(currentType, typeof(DataSecurity)),
-                        Behavior = (DataBehavior)Attribute.GetCustomAttribute(currentType, typeof(DataBehavior))
+                        Security = (DataSecurity) Attribute.GetCustomAttribute(currentType, typeof(DataSecurity)),
+                        Behavior = (DataBehavior) Attribute.GetCustomAttribute(currentType, typeof(DataBehavior))
                     };
 
                     _attributeResolutionCache.TryAdd(currentType, newDefinition);
@@ -120,8 +127,7 @@ namespace Zen.Web.Data.Controller
             try
             {
                 if (AuthorizeAction(method, accessType, scope, key, ref model, context)) return;
-            }
-            catch (Exception e) // User may throw a custom error, and that's fine: let's log it and re-thrown a custom exception.
+            } catch (Exception e) // User may throw a custom error, and that's fine: let's log it and re-thrown a custom exception.
             {
                 Base.Current.Log.Warn<T>($"AUTH DENIED {method} ({accessType}) [{key}]. Reason: {e.Message}");
                 throw new UnauthorizedAccessException("Not authorized: " + e.Message);
@@ -131,33 +137,50 @@ namespace Zen.Web.Data.Controller
             throw new UnauthorizedAccessException("Not authorized.");
         }
 
-        private Dictionary<string, object> GetAccessHeadersByPermission()
+        [NonEvent]
+        public virtual Dictionary<string, object> GetAccessHeaders(DataAccessControl accessControl)
         {
             var payload = new List<string>();
 
-            if (Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.ReadPermission) == true) payload.Add("read");
-            if (Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.WritePermission) == true) payload.Add("write");
-            if (Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.RemovePermission) == true) payload.Add("remove");
+            if (accessControl.Read) payload.Add("read");
+            if (accessControl.Write) payload.Add("write");
+            if (accessControl.Remove) payload.Add("remove");
 
             return new Dictionary<string, object> { { "x-zen-allowed", payload } };
         }
+
+        protected bool CanRead => Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.ReadPermission) == true;
+        protected bool CanWrite => Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.WritePermission) == true;
+        protected bool CanRemove => Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.RemovePermission) == true;
 
         #endregion
 
         #region Event hooks and Behavior modifiers
 
+        [NonAction]
         public virtual bool AuthorizeAction(EHttpMethod method, EActionType pAccessType, EActionScope scope, string key, ref T model, string context) { return true; }
+
+        [NonAction]
         public virtual void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<T> model, string key = null) { }
+
+        [NonAction]
         public virtual void AfterCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<T> model, string key = null) { }
+
+        [NonAction]
         public virtual void BeforeModelAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref T model, T originalModel = null, string key = null) { }
+
+        [NonAction]
         public virtual void AfterModelAction(EHttpMethod method, EActionType type, Mutator mutator, ref T model, T originalModel = null, string key = null) { }
+
+        [NonAction]
         public virtual object BeforeModelEmit(EHttpMethod method, EActionType type, Mutator mutator, T model, T originalModel = null, string key = null) { return null; }
 
         #endregion
 
         #region HTTP Methods
 
-        public IEnumerable<T> FetchCollection()
+        [NonAction]
+        public virtual IEnumerable<T> FetchCollection()
         {
             EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Collection);
             var mutator = RequestMutator;
@@ -186,15 +209,13 @@ namespace Zen.Web.Data.Controller
                     ret = collection.ToReference();
                     break;
 
-                default:
-                    break;
+                default: break;
             }
 
             return ret;
         }
 
-
-        [HttpGet("")]
+        [HttpGet("", Order = 999)]
         public IActionResult GetCollection()
         {
             try
@@ -204,8 +225,7 @@ namespace Zen.Web.Data.Controller
                 var outputCollection = RequestMutator.Transform != null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
 
                 return PrepareResponse(outputCollection);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"GET: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -213,8 +233,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-
-        [HttpGet("new"), AllProperties]
+        [HttpGet("new", Order = 999), AllProperties]
         public virtual ActionResult<T> GetNewModel()
         {
             try
@@ -230,8 +249,7 @@ namespace Zen.Web.Data.Controller
 
                 AfterModelAction(EHttpMethod.Get, EActionType.Read, mutator, ref model);
                 return new ActionResult<T>(model);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"GET NEW: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -239,7 +257,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        [HttpGet("{key}")]
+        [HttpGet("{key}", Order = 999)]
         public virtual ActionResult<object> GetModel(string key)
         {
             try
@@ -259,8 +277,7 @@ namespace Zen.Web.Data.Controller
                 var payload = BeforeModelEmit(EHttpMethod.Get, EActionType.Read, mutator, model) ?? model;
 
                 return new ActionResult<object>(payload);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"GET {key}: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -268,7 +285,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        [HttpPost("")]
+        [HttpPost("", Order = 999)]
         public virtual ActionResult<T> PostModel([FromBody] T model)
         {
             try
@@ -283,8 +300,7 @@ namespace Zen.Web.Data.Controller
                 AfterModelAction(EHttpMethod.Post, EActionType.Update, mutator, ref model);
 
                 return new ActionResult<T>(model);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"POST {model.ToJson()}: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -292,7 +308,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        [HttpDelete("{key}")]
+        [HttpDelete("{key}", Order = 999)]
         public virtual ActionResult<T> RemoveModel(string key)
         {
             try
@@ -312,8 +328,7 @@ namespace Zen.Web.Data.Controller
                 AfterModelAction(EHttpMethod.Delete, EActionType.Read, mutator, ref model, model, key);
 
                 return new ActionResult<T>(model);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"DELETE {key}: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -323,7 +338,7 @@ namespace Zen.Web.Data.Controller
 
         private static T GetByLocatorOrKey(string referenceCode, Mutator mutator) { return typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator); }
 
-        [HttpPatch("{key}")]
+        [HttpPatch("{key}", Order = 999)]
         public virtual ActionResult<T> PatchModel(string key, [FromBody] JsonPatchDocument<T> patchPayload)
         {
             try
@@ -349,8 +364,7 @@ namespace Zen.Web.Data.Controller
                 AfterModelAction(EHttpMethod.Delete, EActionType.Read, mutator, ref patchedModel, originalModel, key);
 
                 return new ActionResult<T>(patchedModel);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"PATCH {key}: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -359,37 +373,5 @@ namespace Zen.Web.Data.Controller
         }
 
         #endregion
-    }
-
-    [Route("api/[controller]"), ApiController]
-    public class DataController<T, TU> : DataController<T> where T : Data<T>
-    {
-        public virtual void BeforeSummaryCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<TU> model, string key = null) { }
-        public virtual void AfterSummaryCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<TU> model, string key = null) { }
-
-        [HttpGet("summary")]
-        public IActionResult GetSummary()
-        {
-            try
-            {
-                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Collection);
-                var mutator = RequestMutator;
-                IEnumerable<TU> collection = new List<TU>();
-
-                BeforeSummaryCollectionAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref collection);
-
-                collection = Data<T>.Query<TU>(mutator);
-
-                AfterSummaryCollectionAction(EHttpMethod.Get, EActionType.Read, mutator, ref collection);
-
-                return PrepareResponse(collection);
-            }
-            catch (Exception e)
-            {
-                Base.Current.Log.Warn<T>($"SUMMARY: {e.Message}");
-                Base.Current.Log.Add<T>(e);
-                throw;
-            }
-        }
     }
 }

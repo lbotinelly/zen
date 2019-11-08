@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web", "Zen.Web\Zen.Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.Auth", "Zen.Web.Auth\Zen.Web.Auth.csproj", "{D3ADE5C6-B48C-4F6F-9EEA-1DD0233E0CEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Web.IoT.Alexa", "Zen.Module.Web.IoT.Alexa\Zen.Module.Web.IoT.Alexa.csproj", "{ABA4D6A2-7531-4BA4-B907-20A108493450}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.App", "Zen.App\Zen.App.csproj", "{5B004B0A-3CBE-4305-9A71-DAD2C9813011}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Base", "Zen.Base\Zen.Base.csproj", "{BF6B93A9-2C18-4465-BEA0-1FEA2677AAA2}"
@@ -31,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.Relational"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Media", "Zen.Media\Zen.Media.csproj", "{74F83D53-8177-4975-A97E-92B6DACAB863}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Module.Cloud.Google", "Zen.Module.Cloud.Google\Zen.Module.Cloud.Google.csproj", "{69F53337-F42A-4890-8014-635B938CBBDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Cloud.Google", "Zen.Module.Cloud.Google\Zen.Module.Cloud.Google.csproj", "{69F53337-F42A-4890-8014-635B938CBBDB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Cache.Redis", "Zen.Module.Cache.Redis\Zen.Module.Cache.Redis.csproj", "{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,10 +55,6 @@ Global
 		{D3ADE5C6-B48C-4F6F-9EEA-1DD0233E0CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3ADE5C6-B48C-4F6F-9EEA-1DD0233E0CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3ADE5C6-B48C-4F6F-9EEA-1DD0233E0CEA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ABA4D6A2-7531-4BA4-B907-20A108493450}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B004B0A-3CBE-4305-9A71-DAD2C9813011}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -99,6 +95,10 @@ Global
 		{69F53337-F42A-4890-8014-635B938CBBDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69F53337-F42A-4890-8014-635B938CBBDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69F53337-F42A-4890-8014-635B938CBBDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

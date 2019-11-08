@@ -16,23 +16,22 @@ using Constants = Zen.App.Data.Pipeline.SetVersioning.Constants;
 
 namespace Zen.Web.Data.Controller.Pipeline
 {
-    public class SetVersioningController<T> : Microsoft.AspNetCore.Mvc.Controller where T : Data<T>
+    public class SetVersioningController<T> : ControllerBase where T : Data<T>
     {
         private static long Count()
         {
-            var dataSetVersion = (DataSetVersion) Attribute.GetCustomAttribute(typeof(T), typeof(DataSetVersion));
+            var dataSetVersion = (DataSetVersioningBase) Attribute.GetCustomAttribute(typeof(T), typeof(DataSetVersioningBase));
 
             if (App.Current.Orchestrator?.Person?.Locator == null) return 0;
 
             long preRet;
 
-            if (dataSetVersion.CanBrowse()) preRet = SetVersion<T>.Count();
+            if (dataSetVersion.CanBrowse()) { preRet = SetVersion<T>.Count(); }
             else
             {
                 var personLocator = App.Current.Orchestrator?.Person?.Locator;
 
-
-                preRet = SetVersion<T>.Where(i=> i.OperatorLocator == personLocator).Count();
+                preRet = SetVersion<T>.Where(i => i.OperatorLocator == personLocator).Count();
             }
 
             return preRet;
@@ -53,7 +52,7 @@ namespace Zen.Web.Data.Controller.Pipeline
                     {
                         Code = Constants.CURRENT_LIVE_WORKSET_TAG,
                         Id = Constants.CURRENT_LIVE_WORKSET_TAG,
-                        Name = "Editorial Workset",
+                        Name = "Workset",
                         IsPublic = true,
                         IsLocked = false,
                         IsCurrent = !preRet.Any(i => i.IsCurrent)
@@ -127,38 +126,50 @@ namespace Zen.Web.Data.Controller.Pipeline
         //    }
         //}
 
+        [NonAction]
         public virtual object InternalPostGet(T source, string code, string locator) { return source; }
 
         #endregion
 
         #region download/upload
 
+        public class PostPayload
+        {
+            public IFormFile file { get; set; }
+            // Other properties
+        }
+
         [Route("version/upload"), HttpPost]
-        public IActionResult UploadToWorkspace(List<IFormFile> files)
+        public IActionResult UploadToWorkspace(PostPayload upload)
         {
             if (!SetVersion<T>.CanModify()) throw new AuthenticationException("User is not a Set Version Operator.");
 
-            var size = files.Sum(f => f.Length);
+            var formFile = upload.file;
 
-            var filePaths = new List<string>();
-            foreach (var formFile in files)
+            try
             {
-                if (formFile.Length <= 0) continue;
+                var size = formFile.Length;
+
+                var filePaths = new List<string>();
+
+                if (formFile.Length <= 0) return null;
 
                 // full path to file in temp location
                 var filePath = Path.GetTempFileName();
                 filePaths.Add(filePath);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    var str = new StreamReader(stream).ReadToEnd();
-                    var objs = str.FromJson<List<T>>();
+                var str = new StreamReader(formFile.OpenReadStream()).ReadToEnd();
+                var packageModel = str.FromJson<SetVersion<T>.Payload>();
+                var objs = packageModel.Items.ToJson().FromJson<List<T>>();
 
-                    Data<T>.Save(objs);
-                }
+                Data<T>.Save(objs);
+
+                return Ok(new {size, filePaths});
+            } catch (Exception e)
+            {
+                Log.Add(e);
+                throw;
             }
-
-            return Ok(new {count = files.Count, size, filePaths});
         }
 
         [Route("version/download"), HttpGet]
@@ -178,7 +189,7 @@ namespace Zen.Web.Data.Controller.Pipeline
             public Stream Stream;
         }
 
-        private FileStreamResult GetZipPackage(string code = null)
+        private FileContentResult GetZipPackage(string code = null)
         {
             if (!SetVersion<T>.CanModify()) throw new AuthenticationException("User is not a Set Version Operator.");
 
@@ -197,16 +208,18 @@ namespace Zen.Web.Data.Controller.Pipeline
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
-                    using (var entryStream = archive.CreateEntry($"{fullName}.json", CompressionLevel.Optimal).Open())
-                    using (var streamWriter = new StreamWriter(entryStream))
                     {
-                        streamWriter.Write(package.ToJson());
-                        streamWriter.Flush();
+                        using (var zipEntry = archive.CreateEntry($"{fullName}.json", CompressionLevel.Optimal).Open())
+                        using (var zipWriter = new StreamWriter(zipEntry))
+                        {
+                            zipWriter.Write(package.ToJson());
+                            zipWriter.Flush();
+                        }
 
                         memoryStream.Seek(0, SeekOrigin.Begin);
                         memoryStream.Position = 0;
-
                         bytes = memoryStream.ToArray();
+                        // memoryStream.Seek(0, SeekOrigin.End);
                     }
                 }
 
@@ -224,7 +237,7 @@ namespace Zen.Web.Data.Controller.Pipeline
                     Message = $"Version [{package.Descriptor.Code}] ({package.Descriptor.Name}) download{(person != null ? $" by [{person.Locator}] {person.Name}" : "")}"
                 }.Insert();
 
-                return File(new MemoryStream(bytes), "application/zip", fullName + ".zip");
+                return File(bytes, "application/zip", fullName + ".zip", true);
             } catch (Exception e)
             {
                 sw.Stop();

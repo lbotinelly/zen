@@ -54,7 +54,7 @@ namespace Zen.Base
             Current.Log.Info(@"Zen " + Assembly.GetCallingAssembly().GetName().Version);
             Current.Log.Debug(divider);
             Current.Log.Debug("");
-            Current.Log.Debug("Providers:");
+            Current.Log.Add("Providers:");
 
             Current.Log.KeyValuePair("Cache", Current.Cache == null ? "(none)" : Current.Cache.ToString());
             Current.Log.KeyValuePair("Environment", Current.Environment == null ? "(none)" : Current.Environment.ToString());
@@ -65,7 +65,7 @@ namespace Zen.Base
             Current.Log.KeyValuePair("Base Directory", Host.BaseDirectory);
             Current.Log.KeyValuePair("Data Directory", Host.DataDirectory);
 
-            Current.Log.Debug("State:");
+            Current.Log.Add("State:");
 
             foreach (var kvp in BootLog) Current.Log.KeyValuePair(kvp.Key, kvp.Value);
 

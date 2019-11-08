@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
 
 namespace Zen.Base.Service.Extensions
@@ -27,7 +28,7 @@ namespace Zen.Base.Service.Extensions
 
             Current.State = Status.EState.Running;
 
-            Current.Log.Add(Current.State.ToString());
+            Current.Log.Add(Current.State.ToString(), Message.EContentType.StartupSequence, Host.ApplicationAssemblyName);
 
             return app;
         }

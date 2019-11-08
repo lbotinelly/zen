@@ -5,6 +5,6 @@ namespace Zen.Base.Module.Data.Pipeline
     public interface IPipelinePrimitive
     {
         string PipelineName { get; }
-        Dictionary<string, object> Headers<T>() where T : Data<T>;
+        Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, Microsoft.Extensions.Primitives.StringValues> requestHeaders) where T : Data<T>;
     }
 }

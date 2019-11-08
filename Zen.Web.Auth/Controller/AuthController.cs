@@ -11,7 +11,7 @@ using Zen.Base.Extension;
 namespace Zen.Web.Auth.Controller
 {
     [Route("framework/auth"), ApiController]
-    public class AuthController : Microsoft.AspNetCore.Mvc.Controller
+    public class AuthController : ControllerBase
     {
         [Authorize, HttpGet("signin")]
         public object SignIn()

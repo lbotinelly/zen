@@ -146,7 +146,7 @@ namespace Zen.App.Model.Orchestration
         #region Implementation of IZenGroup
 
         public List<string> Permissions { get; set; }
-        public bool FromSettings { get; set; }
+        public bool? FromSettings { get; set; }
 
         #endregion
     }

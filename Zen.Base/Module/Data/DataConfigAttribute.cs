@@ -20,5 +20,6 @@ namespace Zen.Base.Module.Data
         public bool IgnoreEnvironmentPrefix { get; set; }
         public string DisplayProperty { get; set; }
         public bool Silent { get; set; }
+        public string Description { get; set; }
     }
 }

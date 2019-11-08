@@ -25,7 +25,7 @@ namespace Zen.Base.Maintenance
         static MaintenanceService()
         {
             // First collect all Maintenance tasks.
-            var validTasks = Resolution.GetClassesByInterface<IMaintenanceTask>();
+            var validTasks = IoC.GetClassesByInterface<IMaintenanceTask>();
 
             var preList = validTasks.Select(i =>
             {

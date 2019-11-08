@@ -11,7 +11,7 @@ namespace Zen.Cloud.Service
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
-            var probe = Resolution.GetClassesByInterface<ICloudProvider>(false).FirstOrDefault()?.CreateInstance<ICloudProvider>();
+            var probe = IoC.GetClassesByInterface<ICloudProvider>(false).FirstOrDefault()?.CreateInstance<ICloudProvider>();
 
             if (probe == null) return serviceCollection;
 

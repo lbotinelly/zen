@@ -57,16 +57,15 @@ namespace Zen.Web.Host
                             );
 
                             // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
-                            if (devCertificate != null)
-                            {
-                                var httpsPort = Current.Configuration?.Development?.HttpsPort ?? 5001;
-                                Base.Host.Variables[Base.Host.Keys.WebHttpsPort] = httpsPort;
+                            if (devCertificate == null) return;
 
-                                options.Listen(
-                                    localAddress,
-                                    httpsPort,
-                                    listenOptions => { listenOptions.UseHttps(devCertificate); });
-                            }
+                            var httpsPort = Current.Configuration?.Development?.HttpsPort ?? 5001;
+                            Base.Host.Variables[Base.Host.Keys.WebHttpsPort] = httpsPort;
+
+                            options.Listen(
+                                localAddress,
+                                httpsPort,
+                                listenOptions => { listenOptions.UseHttps(devCertificate); });
                         })
                         .Build();
 

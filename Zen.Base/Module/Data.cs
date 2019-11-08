@@ -527,6 +527,9 @@ namespace Zen.Base.Module
             object logObj = null;
 
             var modelSet = models.ToList();
+            var modelCount = modelSet.Count;
+
+            var silent = modelCount == 1 || Info<T>.Settings.Silent;
 
             var _timed = new TimeLog();
 
@@ -542,9 +545,10 @@ namespace Zen.Base.Module
                 {
                     var successSet = new List<T>();
                     var failureSet = new List<T>();
+                    Clicker logClicker = null;
 
-                    _timed.Start($"{type} bulk [Warm-up]");
-                    var logClicker = modelSet.GetClicker(_timed.CurrentMessage);
+                    _timed.Start($"{type} bulk [Warm-up]", !silent);
+                    if (!silent) logClicker = modelSet.GetClicker(_timed.CurrentMessage, !silent);
 
                     resultPackage.Control = new ConcurrentDictionary<string, DataOperationControl<T>>();
 
@@ -552,7 +556,7 @@ namespace Zen.Base.Module
 
                     Parallel.ForEach(modelSet, new ParallelOptions {MaxDegreeOfParallelism = 5}, item =>
                     {
-                        paralelizableClicker.Click();
+                        paralelizableClicker?.Click();
 
                         if (item.IsNew())
                         {
@@ -560,7 +564,7 @@ namespace Zen.Base.Module
 
                             if (resultPackage.Control.ContainsKey(tempKey))
                             {
-                                if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                if (!silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
                                 failureSet.Add(item);
                             }
                             else { resultPackage.Control[tempKey] = new DataOperationControl<T> {Current = item, IsNew = true, Original = null}; }
@@ -572,16 +576,16 @@ namespace Zen.Base.Module
 
                         if (resultPackage.Control.ContainsKey(modelKey))
                         {
-                            if (!Info<T>.Settings.Silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                            if (!silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
                             return;
                         }
 
                         resultPackage.Control[modelKey] = new DataOperationControl<T> {Current = item};
                     });
 
-                    logClicker.End();
+                    logClicker?.End();
 
-                    _timed.Log($"{type} bulk  [Before]");
+                    _timed.Log($"{type} bulk  [Before]", false);
 
                     logClicker = modelSet.GetClicker(_timed.CurrentMessage);
 
@@ -600,7 +604,7 @@ namespace Zen.Base.Module
 
                     foreach (var controlItem in resultPackage.Control)
                     {
-                        logClicker.Click();
+                        if (!silent) logClicker.Click();
 
                         var currentModel = controlItem.Value.Current;
                         var originalModel = controlItem.Value.Original;
@@ -655,21 +659,21 @@ namespace Zen.Base.Module
                         }
                     }
 
-                    logClicker.End();
+                    if (!silent) logClicker.End();
 
                     logStep = _timed.Log($"{type} {successSet.Count} models");
 
                     if (type == EActionType.Remove) Info<T>.Settings.Adapter.BulkRemove(successSet);
                     else Info<T>.Settings.Adapter.BulkUpsert(successSet);
 
-                    logClicker = modelSet.GetClicker($"{type} bulk   [After]");
+                    if (!silent) logClicker = modelSet.GetClicker($"{type} bulk   [After]");
 
                     logStep = _timed.Log("post-processing individual models");
 
                     Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions {MaxDegreeOfParallelism = 5}, controlModel =>
                     {
                         var key = controlModel.Key;
-                        logClicker.Click();
+                        if (!silent) logClicker.Click();
 
                         if (type == EActionType.Remove)
                         {
@@ -694,13 +698,13 @@ namespace Zen.Base.Module
 
                     logStep = _timed.Log($"{type} bulk operation complete. Success: {resultPackage.Success.Count} | Failure: {resultPackage.Failure.Count}");
 
-                    logClicker.End();
-                    _timed.End();
+                    if (!silent) logClicker.End();
+                    _timed.End(false);
 
                     return resultPackage;
                 } catch (Exception e)
                 {
-                    if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
+                    if (!silent) Current.Log.Add<T>(e);
                     var ex = new Exception($"{type} - Error while {logStep} {logObj?.ToJson()}: {e.Message}", e);
 
                     _timed.End();
