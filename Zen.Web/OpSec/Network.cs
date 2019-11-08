@@ -17,7 +17,7 @@ namespace Zen.Web.OpSec
 
         static Network()
         {
-            var descriptors = Resolution.GetClassesByInterface<NetworkDescriptorPrimitive>();
+            var descriptors = IoC.GetClassesByInterface<NetworkDescriptorPrimitive>();
             if (descriptors.Any()) Descriptor = (NetworkDescriptorPrimitive) Activator.CreateInstance(descriptors[0]);
         }
 

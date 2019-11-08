@@ -26,15 +26,15 @@ namespace Zen.App.Data.Pipeline.SetVersioning
         public DateTime TimeStamp { get; set; } = DateTime.Now;
         public string OperatorLocator { get; set; } = Current.Orchestrator?.Person?.Locator;
 
-        public static DataSetVersion Configuration { get; } = typeof(T).GetCustomAttributes(typeof(DataSetVersion), true).FirstOrDefault() as DataSetVersion;
+        public static DataSetVersioningBase Configuration { get; } = typeof(T).GetCustomAttributes(typeof(DataSetVersioningBase), true).FirstOrDefault() as DataSetVersioningBase;
 
         // public override void OnRemove() { LocalCache.Delete(GetItemCacheKey()); }
 
         public string SetTag => $"{CollectionSuffix}:{Id}";
 
-        public string GetStorageCollectionName() { return $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}"; }
+        public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}";
 
-        public new static DataAdapterPrimitive GetDataAdapter() { return Info<T>.Settings.Adapter; }
+        public new static DataAdapterPrimitive GetDataAdapter() => Info<T>.Settings.Adapter;
 
         public override void BeforeSave()
         {
@@ -132,7 +132,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
         {
             var ret = new Payload
             {
-                Content = GetType().FullName,
+                Content = Info<T>.Configuration.Description ?? typeof(T).FullName,
                 Descriptor = this,
                 Items = VersionGetAll()
             };

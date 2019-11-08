@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using Microsoft.Extensions.Primitives;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
@@ -18,7 +19,7 @@ namespace Zen.Module.Cloud.AWS.Pipeline
         public virtual string Topic { get; set; } = "";
 
         public string PipelineName => "SNS Announcer";
-        public Dictionary<string, object> Headers<T>() where T : Data<T> { return null; }
+        public Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders) where T : Data<T> { return null; }
 
         public virtual void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
         {

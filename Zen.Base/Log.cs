@@ -7,15 +7,17 @@ namespace Zen.Base
 {
     public static class Log
     {
-        public static void Add(string message, Message.EContentType type = Message.EContentType.Generic)
+        public static void Add(string message, Message.EContentType type = Message.EContentType.Generic, string topic = null)
         {
             if (Status.State != Status.EState.Running)
             {
-                Console.WriteLine($"{Message.ContentCode[type]} {message}");
+                Console.WriteLine(topic != null ? 
+                                      $@"{Message.ContentCode[type]} {topic.TruncateEnd(35, true)} : {message.TruncateEnd(93)}" : 
+                                      $@"{Message.ContentCode[type]} {message}");
                 return;
             }
 
-            Current.Log.Add(message, type);
+            Current.Log.Add(message, type, topic);
         }
 
         public static void Add(string prefix, Exception e) { Add(e, prefix); }
@@ -69,7 +71,10 @@ namespace Zen.Base
             KeyValuePair(typeof(T).FullName, content, type);
         }
 
-        public static void KeyValuePair(string key, string value, Message.EContentType type = Message.EContentType.Info) { Add($"{key.TruncateEnd(35, true)} : {value.TruncateEnd(93)}", type); }
+        public static void KeyValuePair(string key, string value, Message.EContentType type = Message.EContentType.Info)
+        {
+            Add(value, type, key);
+        }
 
         public static void Info(string content) { Add(content, Message.EContentType.Info); }
 

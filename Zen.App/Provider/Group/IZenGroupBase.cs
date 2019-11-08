@@ -6,7 +6,7 @@ namespace Zen.App.Provider.Group {
     {
         List<string> Permissions { get; set; }
         string Name { get; set; }
-        bool FromSettings { get; set; }
+        bool? FromSettings { get; set; }
         string ParentId { get; set; }
         string ApplicationId { get; set; }
     }

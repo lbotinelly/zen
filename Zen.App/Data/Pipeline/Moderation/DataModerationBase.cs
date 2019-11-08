@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Primitives;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Pipeline;
@@ -8,7 +9,7 @@ using Zen.Base.Module.Data.Pipeline;
 namespace Zen.App.Data.Pipeline.Moderation
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class DataModerationAttribute : Attribute, IBeforeActionPipeline
+    public abstract class DataModerationBase : Attribute, IBeforeActionPipeline
     {
         public bool NotifyChanges { get; set; }
         public bool AuthorCanWithdraw { get; set; }
@@ -20,7 +21,7 @@ namespace Zen.App.Data.Pipeline.Moderation
 
         #region Implementation of IPipelinePrimitive
 
-        public Dictionary<string, object> Headers<T>() where T : Data<T>
+        public virtual Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders) where T : Data<T>
         {
             var ctx = new Dictionary<string, object> {{"moderated", true}};
 
@@ -33,9 +34,12 @@ namespace Zen.App.Data.Pipeline.Moderation
                 var probe = (IModerationAbstractProvider) Info<T>.Instance;
                 var def = new Dictionary<string, List<string>>();
 
-                var onInsert = probe.OnInsertAbstracts();if (onInsert.Any()) def.Add("add", onInsert);
-                var onUpdate = probe.OnUpdateAbstracts();if (onUpdate.Any()) def.Add("edit", onUpdate);
-                var onRemove = probe.OnRemoveAbstracts();if (onRemove.Any()) def.Add("del", onRemove);
+                var onInsert = probe.OnInsertAbstracts();
+                if (onInsert.Any()) def.Add("add", onInsert);
+                var onUpdate = probe.OnUpdateAbstracts();
+                if (onUpdate.Any()) def.Add("edit", onUpdate);
+                var onRemove = probe.OnRemoveAbstracts();
+                if (onRemove.Any()) def.Add("del", onRemove);
 
                 ctx.Add("abstract", def);
             }
@@ -43,7 +47,7 @@ namespace Zen.App.Data.Pipeline.Moderation
             var canShow = CanModerate() || IsWhitelisted() || CanAuthor();
             ctx.Add("canShow", canShow);
 
-            var ret = new Dictionary<string, object> {{"x-baf-moderation", ctx}};
+            var ret = new Dictionary<string, object> {{"x-zen-moderation", ctx}};
 
             return ret;
         }
@@ -76,7 +80,7 @@ namespace Zen.App.Data.Pipeline.Moderation
 
         public T Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T> { return current; }
 
-        public KeyValuePair<string, string>? ParseRequest<T>(Dictionary<string, List<string>> requestData) where T: Data<T>
+        public KeyValuePair<string, string>? ParseRequest<T>(Dictionary<string, List<string>> requestData) where T : Data<T>
         {
             // Moderation involves no key manipulation.
             return null;

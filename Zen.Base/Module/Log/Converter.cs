@@ -6,11 +6,7 @@ namespace Zen.Base.Module.Log
 {
     public static class Converter
     {
-        public static Message ToMessage(string content, Message.EContentType type = Message.EContentType.Generic)
-        {
-            var payload = new Message {Content = content, Subject = type.ToString(), Type = type};
-            return payload;
-        }
+        public static Message ToMessage(string content, Message.EContentType type = Message.EContentType.Generic, string topic = null) { return new Message {Content = content, Subject = type.ToString(), Type = type, Topic = topic}; }
 
         public static Message ToMessage(Exception e) { return ToMessage(e, null, null); }
 

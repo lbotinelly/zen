@@ -16,7 +16,10 @@ namespace Zen.Base.Module.Data
 
         public static BulkDataOperation<T> Save<T>(this IEnumerable<T> modelSet) where T : Data<T> { return Data<T>.Save(modelSet); }
 
-        public static BulkDataOperation<T> Remove<T>(this IEnumerable<T> modelSet) where T : Data<T> { return Data<T>.Remove(modelSet); }
+        public static BulkDataOperation<T> Remove<T>(this IEnumerable<T> modelSet) where T : Data<T>
+        {
+            return Data<T>.Remove(modelSet);
+        }
 
         public static IEnumerable<T> AfterGet<T>(this IEnumerable<T> modelSet) where T : Data<T>
         {

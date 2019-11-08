@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Authentication;
+using Microsoft.Extensions.Primitives;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Pipeline;
@@ -10,7 +11,7 @@ using Zen.Base.Module.Data.Pipeline;
 namespace Zen.App.Data.Pipeline.SetVersioning
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public abstract class DataSetVersion : Attribute, IBeforeActionPipeline
+    public abstract class DataSetVersioningBase : Attribute, IBeforeActionPipeline
     {
         public string WritePermission { get; set; } = null;
         public string ReadPermission { get; set; } = null;
@@ -20,16 +21,36 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
         #region Implementation of IPipelinePrimitive
 
-        public virtual Dictionary<string, object> Headers<T>() where T : Data<T>
+        public virtual Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders = null) where T : Data<T>
         {
-            if (!CanBrowse()) return new Dictionary<string, object>();
-
             var ctx = new List<string>();
 
-            if (CanBrowse()) ctx.Add("browse");
-            if (CanModify()) ctx.Add("modify");
+            if (!CanBrowse())
+            {
+                accessControl.Read = false;
+                return new Dictionary<string, object>();
+            }
 
-            return new Dictionary<string, object> {{"x-zen-setversion", ctx}};
+            ctx.Add("browse");
+
+            if (requestHeaders?.ContainsKey(Mutator.CommonMetadataKeys.Set) == true)
+            {
+                if (!string.IsNullOrEmpty(requestHeaders[Mutator.CommonMetadataKeys.Set]))
+                    if (requestHeaders[Mutator.CommonMetadataKeys.Set] != Constants.CURRENT_LIVE_WORKSET_TAG)
+                    {
+                        accessControl.Write = false;
+                        accessControl.Remove = false;
+                    }
+            }
+
+            if (CanModify()) ctx.Add("modify");
+            else
+            {
+                accessControl.Write = false;
+                accessControl.Remove = false;
+            }
+
+            return new Dictionary<string, object> { { "x-zen-setversion", ctx } };
         }
 
         #endregion

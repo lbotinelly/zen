@@ -16,7 +16,7 @@ namespace Zen.App.Service
             serviceCollection.AddZenProvider<IZenEmailConfig>("Email Configuration");
 
             //serviceCollection.AddZenProvider<IZenPreference>("Preferences Provider");
-            serviceCollection.AddSingleton(s => Resolution.GetClassesByInterface<IZenPreference>(false).FirstOrDefault()?.CreateInstance<IZenPreference>());
+            serviceCollection.AddSingleton(s => IoC.GetClassesByInterface<IZenPreference>(false).FirstOrDefault()?.CreateInstance<IZenPreference>());
 
             return serviceCollection;
         }

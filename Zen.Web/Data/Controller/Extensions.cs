@@ -25,15 +25,17 @@ namespace Zen.Web.Data.Controller
             header.Add(key, value.ToJson());
         }
 
-        internal static void AddModelHeaders<T>(this IHeaderDictionary header) where T : Data<T>
+        internal static void AddModelHeaders<T>(this IHeaderDictionary responseHeaders, ref DataAccessControl accessControl, IQueryCollection sourceQuery) where T : Data<T>
         {
+            var sourceParameters = sourceQuery.ToDictionary(i => i.Key, i => i.Value);
+
             if (Info<T>.Settings?.Pipelines?.Before != null)
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before)
-                    AddHeaders(header, pipelineMember.Headers<T>());
+                    AddHeaders(responseHeaders, pipelineMember.Headers<T>(ref accessControl, sourceParameters));
 
             if (Info<T>.Settings?.Pipelines?.After != null)
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.After)
-                    AddHeaders(header, pipelineMember.Headers<T>());
+                    AddHeaders(responseHeaders, pipelineMember.Headers<T>(ref accessControl, sourceParameters));
         }
 
         public static Mutator ToMutator<T>(this IQueryCollection source) where T : Data<T>

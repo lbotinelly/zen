@@ -41,6 +41,18 @@ namespace Zen.Storage.Provider.Configuration.FileSystem
         public void Save(object sourceModel) { }
         public string Descriptor => _config.Descriptor;
 
+        public void SaveTemplateFile(string name, string sourceModel)
+        {
+            var file = new FileInfo(Path.Combine(_path.FullName, name));
+            System.IO.File.WriteAllText(file.FullName, sourceModel);
+        }
+
+        public string LoadTemplateFile(string name)
+        {
+            var file = new FileInfo(Path.Combine(_path.FullName, name));
+            return file.Exists ? System.IO.File.ReadAllText(file.FullName) : null;
+        }
+
         #endregion
     }
 }

@@ -11,8 +11,8 @@ namespace Zen.Base.Module.Service
 {
     public static class AutoService
     {
-        public static List<IZenAutoAddService> AddQueue { get; internal set; } = Resolution.GetInstances<IZenAutoAddService>(false);
-        public static List<IZenAutoUseService> UseQueue { get; internal set; } = Resolution.GetInstances<IZenAutoUseService>(false);
+        public static List<IZenAutoAddService> AddQueue { get; internal set; } = IoC.GetInstances<IZenAutoAddService>(false);
+        public static List<IZenAutoUseService> UseQueue { get; internal set; } = IoC.GetInstances<IZenAutoUseService>(false);
 
         public static void Add()
         {

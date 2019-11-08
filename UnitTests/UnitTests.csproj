@@ -15,10 +15,14 @@
       <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
       <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
       <ProjectReference Include="..\Zen.Cloud\Zen.Cloud.csproj" />
+      <ProjectReference Include="..\Zen.Media\Zen.Media.csproj" />
+      <ProjectReference Include="..\Zen.Module.Cache.Redis\Zen.Module.Cache.Redis.csproj" />
       <ProjectReference Include="..\Zen.Module.Cloud.AWS\Zen.Module.Cloud.AWS.csproj" />
+      <ProjectReference Include="..\Zen.Module.Cloud.Google\Zen.Module.Cloud.Google.csproj" />
       <ProjectReference Include="..\Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj" />
+      <ProjectReference Include="..\Zen.Module.Data.Oracle\Zen.Module.Data.Oracle.csproj" />
+      <ProjectReference Include="..\Zen.Module.Data.Relational\Zen.Module.Data.Relational.csproj" />
       <ProjectReference Include="..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
-      <ProjectReference Include="..\Zen.Module.Web.IoT.Alexa\Zen.Module.Web.IoT.Alexa.csproj" />
       <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
       <ProjectReference Include="..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
       <ProjectReference Include="..\Zen.Web\Zen.Web.csproj" />

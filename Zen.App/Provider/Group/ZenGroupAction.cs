@@ -38,7 +38,7 @@ namespace Zen.App.Provider.Group
 
         public List<string> Permissions { get; set; }
         public string Name { get; set; }
-        public bool FromSettings { get; set; }
+        public bool? FromSettings { get; set; }
         public string ParentId { get; set; }
         public string ApplicationId { get; set; }
 

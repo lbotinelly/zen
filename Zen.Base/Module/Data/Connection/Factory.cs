@@ -29,7 +29,7 @@ namespace Zen.Base.Module.Data.Connection
 
                 if (pPrefCredSetType != null) probeTypes.Add(pPrefCredSetType);
 
-                var scanModules = Resolution.GetClassesByInterface<CredentialSetPrimitive>();
+                var scanModules = IoC.GetClassesByInterface<CredentialSetPrimitive>();
 
                 probeTypes = probeTypes.Concat(scanModules).ToList();
 
