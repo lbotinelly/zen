@@ -57,7 +57,7 @@ namespace Zen.Web.Auth
                             var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
                             response.EnsureSuccessStatusCode();
 
-                            var user = JObject.Parse(await response.Content.ReadAsStringAsync());
+                            var user = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
 
                             context.RunClaimActions(user);
                         }
@@ -94,7 +94,7 @@ namespace Zen.Web.Auth
                                                                            HttpCompletionOption.ResponseHeadersRead, ctx.HttpContext.RequestAborted);
                             response.EnsureSuccessStatusCode();
 
-                            var userInfo = JObject.Parse(await response.Content.ReadAsStringAsync());
+                            var userInfo = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
                             ctx.RunClaimActions(userInfo);
                             // Console.WriteLine($"User Info:\n{userInfo.ToString()}");
                         }
@@ -102,7 +102,7 @@ namespace Zen.Web.Auth
                 });
         }
 
-        //public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        //public void Configure(IApplicationBuilder app, IHostEnvironment env)
         //{
         //    if (env.IsDevelopment())
         //    {

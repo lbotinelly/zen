@@ -12,6 +12,6 @@ namespace Zen.Web.Auth.Service
     {
         public void Add(IServiceCollection services) { services.AddZenWebAuth(); }
 
-        public void Use(IApplicationBuilder app, IHostingEnvironment env = null) { app.UseZenWebAuth(null, env); }
+        public void Use(IApplicationBuilder app, IHostEnvironment env = null) { app.UseZenWebAuth(null, env); }
     }
 }

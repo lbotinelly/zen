@@ -26,8 +26,6 @@ namespace Zen.Module.Data.MongoDB
     {
         private static readonly List<Type> TypeCache = new List<Type>();
         private IMongoClient _client;
-        private object _instance;
-
         private string _keyMember;
         private Type _refType;
         private Settings _statements;

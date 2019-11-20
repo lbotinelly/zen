@@ -16,7 +16,7 @@ namespace Zen.Web.Service.Extensions
 {
     public static class Use
     {
-        public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null, IHostingEnvironment env = null)
+        public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null, IHostEnvironment env = null)
         {
             configuration = configuration ?? (x => { });
 
@@ -99,9 +99,18 @@ namespace Zen.Web.Service.Extensions
                 });
             }
 
-            app
-                //.UseHttpsRedirection()
-                .UseMvc();
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+
+            //app
+            ////    //.UseHttpsRedirection()
+            //    .UseMvc();
 
             if (options.UseSpa)
             {

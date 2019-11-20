@@ -17,8 +17,11 @@ namespace Zen.Web.Filter
             var serializer = new JsonSerializerSettings{NullValueHandling = NullValueHandling.Include};
             serializer.Converters.Add(new StringEnumConverter());
 
-            var formatter = new JsonOutputFormatter(serializer, ctx.HttpContext.RequestServices.GetRequiredService<ArrayPool<char>>());
-            objectResult.Formatters.Add(formatter);
+
+            //var formatter = new JsonOutputFormatter(serializer, ctx.HttpContext.RequestServices.GetRequiredService<ArrayPool<char>>());
+
+
+            //objectResult.Formatters.Add(formatter);
         }
     }
 }

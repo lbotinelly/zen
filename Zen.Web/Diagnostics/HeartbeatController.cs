@@ -2,10 +2,10 @@
 
 namespace Zen.Web.Diagnostics
 {
-    [Route("api/diagnostics/heartbeat"), ApiController]
-    public class HeartbeatController : Controller
+    [Route("api/diagnostics/heartbeat")]
+    public class HeartbeatController : ControllerBase
     {
         [HttpGet]
-        public JsonResult Get() { return Json("its alive!"); }
+        public JsonResult Get() { return new JsonResult("its alive!"); }
     }
 }

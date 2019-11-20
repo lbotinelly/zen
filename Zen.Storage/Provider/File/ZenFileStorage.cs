@@ -6,8 +6,6 @@ namespace Zen.Storage.Provider.File
 {
     public abstract class ZenFileStoragePrimitive : IZenFileStorage
     {
-        internal List<ZenFileStorageAttribute> attributes;
-
         public void Initialize()
         {
             // ReSharper disable once VirtualMemberCallInConstructor

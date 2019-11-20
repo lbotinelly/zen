@@ -373,8 +373,6 @@ namespace Zen.Base.Extension
                 Console.WriteLine(ex.ToString());
                 return false;
             }
-
-            return false;
         }
 
         public static string XmlToJson(this string source)

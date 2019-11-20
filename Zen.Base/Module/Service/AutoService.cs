@@ -28,7 +28,7 @@ namespace Zen.Base.Module.Service
                 try { ((IZenProvider) Instances.ServiceProvider.GetService(zenService.ServiceType)).Initialize(); } catch (Exception e) { Current.Log.Add(e, zenService.ServiceType.FullName); }
         }
 
-        public static void UseAll(IApplicationBuilder app, IHostingEnvironment env)
+        public static void UseAll(IApplicationBuilder app, IHostEnvironment env)
         {
             foreach (var item in UseQueue) item.Use(app, env);
         }

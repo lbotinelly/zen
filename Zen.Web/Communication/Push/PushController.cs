@@ -5,7 +5,7 @@ using Zen.Web.Common.Results;
 namespace Zen.Web.Communication.Push
 {
     [Route("stack/communication/push")]
-    public class PushController : Controller
+    public class PushController : ControllerBase
     {
         [Route("resources"), HttpGet]
         public object GetResources()

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Internal;
 using Zen.Base.Extension;
 
 namespace Zen.Web.Discovery.Controller
 {
-    [Route("api/discovery/endpoint"), ApiController]
+    [Route("api/discovery/endpoint")]
     public class RouteController : ControllerBase
     {
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;

@@ -4,8 +4,8 @@ using Zen.App.Provider.Application;
 
 namespace Zen.Web.Framework
 {
-    [Route("framework/configuration"), ApiController]
-    public class ConfigurationController : Controller
+    [Route("framework/configuration")]
+    public class ConfigurationController : ControllerBase
     {
         [HttpGet("groups")]
         public ZenApplicationRepresentation GetGroups() { return App.Current.Orchestrator.Application?.ToRepresentation(); }

@@ -5,7 +5,7 @@ using Zen.Base.Module;
 using Zen.Base.Module.Data;
 
 namespace Zen.Web.Data.Controller {
-    [Route("api/[controller]"), ApiController]
+    [Route("api/[controller]")]
     public class DataController<T, TSummary> : DataController<T> where T : Data<T>
     {
         [NonAction]
