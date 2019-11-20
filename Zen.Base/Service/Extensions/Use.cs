@@ -10,7 +10,7 @@ namespace Zen.Base.Service.Extensions
 {
     public static class Use
     {
-        public static IApplicationBuilder UseZen(this IApplicationBuilder app, Action<IZenBuilder> configuration = null, IHostingEnvironment env = null)
+        public static IApplicationBuilder UseZen(this IApplicationBuilder app, Action<IZenBuilder> configuration = null, IHostEnvironment env = null)
         {
             configuration = configuration ?? (x => { });
 

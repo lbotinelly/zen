@@ -8,8 +8,8 @@ using Zen.Base.Extension;
 
 namespace Zen.Web.Framework.Data
 {
-    [Route("framework/data"), ApiController]
-    public class PreferencesController : Controller
+    [Route("framework/data")]
+    public class PreferencesController : ControllerBase
     {
         [Route("preferences"), HttpGet]
         public object WebApiPreferencesGet()

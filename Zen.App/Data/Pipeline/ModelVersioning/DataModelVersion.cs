@@ -63,7 +63,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
                         }
 
                         if (mfl.Count > 0) mfls = mfl.Aggregate((i, j) => i + ", " + j);
-                    } catch (Exception e) { }
+                    } catch (Exception) { }
 
                     var ss = sj.Length;
                     var cs = cj.Length;
@@ -77,7 +77,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
 
                     if (mfls != null) versionModel.Summary += ", modified: " + mfls;
                 }
-            } catch (Exception e) { }
+            } catch (Exception) { }
 
             versionModel.Insert();
         }

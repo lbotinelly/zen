@@ -2,6 +2,7 @@ using NUnit.Framework;
 
 namespace UnitTests
 {
+    [TestFixture]
     public class Tests
     {
         [SetUp]
@@ -10,9 +11,11 @@ namespace UnitTests
         }
 
         [Test]
-        public void Test1()
+        public void Encryption()
         {
-            Assert.Pass();
+            var probeValue = "test";
+
+            Assert.AreNotEqual(Zen.Base.Current.Encryption.Encrypt(probeValue), probeValue);
         }
     }
 }

@@ -8,8 +8,8 @@ using Zen.Storage.Cache;
 
 namespace Zen.Web.Media
 {
-    [Route("api/media/external"), ApiController]
-    public class MediaExternalController : Controller
+    [Route("api/media/external")]
+    public class MediaExternalController : ControllerBase
     {
         [HttpGet("get"), ResponseCache(Duration = 1 * 24 * 60 * 60, Location = ResponseCacheLocation.Any, NoStore = false)]
         public object Get()

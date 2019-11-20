@@ -7,11 +7,11 @@ namespace Zen.Base.Service
 {
     internal class LifetimeEventsHostedService : IHostedService
     {
-        private readonly IApplicationLifetime _appLifetime;
+        private readonly IHostApplicationLifetime _appLifetime;
         // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-2.2
         private readonly ILogger _logger;
 
-        public LifetimeEventsHostedService(ILogger<LifetimeEventsHostedService> logger, IApplicationLifetime appLifetime)
+        public LifetimeEventsHostedService(ILogger<LifetimeEventsHostedService> logger, IHostApplicationLifetime appLifetime)
         {
             _logger = logger;
             _appLifetime = appLifetime;

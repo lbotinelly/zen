@@ -16,7 +16,7 @@ namespace Zen.Base.Module.Service
     {
         private static readonly object Lock = new object();
 
-        private static readonly ConcurrentDictionary<string, Assembly> AssemblyLoadMap = new ConcurrentDictionary<string, Assembly>();
+        public static readonly ConcurrentDictionary<string, Assembly> AssemblyLoadMap = new ConcurrentDictionary<string, Assembly>();
         private static readonly ConcurrentDictionary<string, string> AssemblyPathMap = new ConcurrentDictionary<string, string>();
         private static readonly ConcurrentDictionary<Type, List<Type>> TypeResolutionMap = new ConcurrentDictionary<Type, List<Type>>();
 

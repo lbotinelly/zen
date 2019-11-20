@@ -135,11 +135,6 @@ namespace Zen.Module.Data.Relational.Builder
             // source: http://stackoverflow.com/a/2616980/291955
 
             return Expression.Lambda(member).Compile().DynamicInvoke();
-
-            var objectMember = Expression.Convert(member, typeof(object));
-            var getterLambda = Expression.Lambda<Func<object>>(objectMember);
-            var getter = getterLambda.Compile();
-            return getter();
         }
 
         private static string NodeTypeToString(ExpressionType nodeType)

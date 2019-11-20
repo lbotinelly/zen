@@ -8,7 +8,7 @@ namespace Zen.Web.Auth.Service.Extensions
 {
     public static class Use
     {
-        public static void UseZenWebAuth(this IApplicationBuilder app, Action<IBuilder> configuration = null, IHostingEnvironment env = null)
+        public static void UseZenWebAuth(this IApplicationBuilder app, Action<IBuilder> configuration = null, IHostEnvironment env = null)
         {
             configuration = configuration ?? (x => { });
 

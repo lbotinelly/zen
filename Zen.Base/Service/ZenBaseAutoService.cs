@@ -17,7 +17,7 @@ namespace Zen.Base.Service
 
         #region Implementation of IZenAutoUseService
 
-        public void Use(IApplicationBuilder app, IHostingEnvironment env = null) { }
+        public void Use(IApplicationBuilder app, IHostEnvironment env = null) { }
 
         #endregion
     }

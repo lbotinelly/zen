@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AssemblyName>Zen.Module.Data.Oracle</AssemblyName>
     <RootNamespace>Zen.Module.Data.Oracle</RootNamespace>
@@ -16,8 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.31" />
-    <PackageReference Include="System.DirectoryServices.Protocols" Version="4.6.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.50" />
   </ItemGroup>
 
   <ItemGroup>

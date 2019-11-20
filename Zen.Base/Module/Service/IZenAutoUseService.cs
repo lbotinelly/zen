@@ -5,6 +5,6 @@ namespace Zen.Base.Module.Service
 {
     public interface IZenAutoUseService
     {
-        void Use(IApplicationBuilder app, IHostingEnvironment env = null);
+        void Use(IApplicationBuilder app, IHostEnvironment env = null);
     }
 }

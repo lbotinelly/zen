@@ -33,7 +33,7 @@ namespace Zen.App.Orchestrator
 
             T ret;
 
-            try { ret = ((IZenPreference) Get(userLocator, appLocator)).GetValues().SelectToken(keySearch).ToObject<T>(); } catch (Exception e) { ret = Activator.CreateInstance<T>(); }
+            try { ret = ((IZenPreference) Get(userLocator, appLocator)).GetValues().SelectToken(keySearch).ToObject<T>(); } catch (Exception) { ret = Activator.CreateInstance<T>(); }
 
             return ret;
         }

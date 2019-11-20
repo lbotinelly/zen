@@ -12,6 +12,6 @@ namespace Zen.Web.Service
     {
         public void Add(IServiceCollection services) { services.AddZenWeb(); }
 
-        public void Use(IApplicationBuilder app, IHostingEnvironment env = null) { app.UseZenWeb(null, env); }
+        public void Use(IApplicationBuilder app, IHostEnvironment env = null) { app.UseZenWeb(null, env); }
     }
 }

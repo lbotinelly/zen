@@ -206,7 +206,7 @@ namespace Zen.Module.Data.Oracle
                     {
                         Current.Log.Add<T>("Creating Sequence " + seqName);
                         Execute<T>("CREATE SEQUENCE " + seqName);
-                    } catch (Exception e) { }
+                    } catch (Exception) { }
 
                     //Primary Key
                     var pkName = tn + "_PK";
@@ -263,9 +263,6 @@ namespace Zen.Module.Data.Oracle
                                              KeyColumn));
                 } catch (Exception e) { Current.Log.Add(e); }
 
-                //Now, add comments to everything.
-
-                var ocld = " - ";
                 var ocfld = ";";
                 var commentStat =
                     "COMMENT ON TABLE " + tn + " IS 'Auto-generated table for Entity " + typeof(T).FullName + ". " +

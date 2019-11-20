@@ -11,14 +11,14 @@ namespace Zen.Base.Process
         // https://dejanstojanovic.net/aspnet/2018/june/clean-service-stop-on-linux-with-net-core-21/
         public class ApplicationLifetimeHostedService : IHostedService
         {
-            private readonly IApplicationLifetime appLifetime;
+            private readonly IHostApplicationLifetime appLifetime;
             private IConfiguration configuration;
-            private IHostingEnvironment environment;
+            private IHostEnvironment environment;
 
             public ApplicationLifetimeHostedService(
                 IConfiguration configuration,
-                IHostingEnvironment environment,
-                IApplicationLifetime appLifetime)
+                IHostEnvironment environment,
+                IHostApplicationLifetime appLifetime)
             {
                 this.configuration = configuration;
                 this.appLifetime = appLifetime;

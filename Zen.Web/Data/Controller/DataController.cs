@@ -19,7 +19,7 @@ using Zen.Web.Filter;
 
 namespace Zen.Web.Data.Controller
 {
-    [Route("api/[controller]"), ApiController]
+    [Route("api/[controller]")]
     public class DataController<T> : ControllerBase where T : Data<T>
     {
         private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
@@ -137,7 +137,7 @@ namespace Zen.Web.Data.Controller
             throw new UnauthorizedAccessException("Not authorized.");
         }
 
-        [NonEvent]
+        [NonAction]
         public virtual Dictionary<string, object> GetAccessHeaders(DataAccessControl accessControl)
         {
             var payload = new List<string>();
@@ -233,7 +233,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        [HttpGet("new", Order = 999), AllProperties]
+        [HttpGet("new", Order = 999)]
         public virtual ActionResult<T> GetNewModel()
         {
             try
