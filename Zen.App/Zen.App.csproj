@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Deterministic>False</Deterministic>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.0.1.0</Version>
     <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
