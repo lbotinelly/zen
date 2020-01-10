@@ -14,14 +14,12 @@ namespace Zen.Web.Filter
         {
             if (!(ctx.Result is ObjectResult objectResult)) return;
 
-            var serializer = new JsonSerializerSettings{NullValueHandling = NullValueHandling.Include};
+            var serializer = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include };
             serializer.Converters.Add(new StringEnumConverter());
 
+            var formatter = new NewtonsoftJsonOutputFormatter(serializer, ctx.HttpContext.RequestServices.GetRequiredService<ArrayPool<char>>(), new MvcOptions());
 
-            //var formatter = new JsonOutputFormatter(serializer, ctx.HttpContext.RequestServices.GetRequiredService<ArrayPool<char>>());
-
-
-            //objectResult.Formatters.Add(formatter);
+            objectResult.Formatters.Add(formatter);
         }
     }
 }

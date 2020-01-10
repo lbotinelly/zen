@@ -174,6 +174,8 @@ namespace Zen.App.Provider
 
         public virtual List<IZenPersonProfile> GetProfiles(string keys)
         {
+            if (keys == null) return null;
+
             var buffer = new List<IZenPersonProfile>();
 
             var keySet = keys?.Split(',').ToList();

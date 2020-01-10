@@ -83,9 +83,9 @@ namespace Zen.Base
         {
             Current.Log.KeyValuePair("Stack shutdown initiated", pReason, Message.EContentType.ShutdownSequence);
 
-            if (Status.State == Status.EState.Shuttingdown) return;
+            if (Status.State == Status.EState.ShuttingDown) return;
 
-            Status.SetState(Status.EState.Shuttingdown);
+            Status.SetState(Status.EState.ShuttingDown);
 
             Instances.ServiceData.EndTimeStamp = DateTime.Now;
 

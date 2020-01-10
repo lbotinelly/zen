@@ -234,6 +234,7 @@ namespace Zen.Web.Data.Controller
         }
 
         [HttpGet("new", Order = 999)]
+        [AllProperties]
         public virtual ActionResult<T> GetNewModel()
         {
             try
@@ -258,6 +259,7 @@ namespace Zen.Web.Data.Controller
         }
 
         [HttpGet("{key}", Order = 999)]
+        [AllProperties]
         public virtual ActionResult<object> GetModel(string key)
         {
             try

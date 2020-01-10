@@ -9,9 +9,8 @@ namespace Zen.Base
             Unknown,
             Starting,
             Running,
-            Shuttingdown
+            ShuttingDown
         }
-
         public static EState State { get; internal set; }
 
         internal static void SetState(EState newState) { State = newState; }
