@@ -526,6 +526,8 @@ namespace Zen.Base.Module
             var logStep = "";
             object logObj = null;
 
+            if (models == null) return null;
+
             var modelSet = models.ToList();
             var modelCount = modelSet.Count;
 
