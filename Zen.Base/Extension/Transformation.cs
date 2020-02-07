@@ -115,6 +115,7 @@ namespace Zen.Base.Extension
 
 
         public static TU ToType<TU, T>(this T source) { return source.ToJson().FromJson<TU>(); }
+        public static T AsType<T>(this object source) { return source.ToJson().FromJson<T>(); }
 
         public static void CopyProperties<T>(this T source, T destination)
         {

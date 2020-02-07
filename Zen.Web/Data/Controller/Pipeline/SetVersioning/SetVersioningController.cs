@@ -14,13 +14,13 @@ using Zen.Base.Extension;
 using Zen.Base.Module;
 using Constants = Zen.App.Data.Pipeline.SetVersioning.Constants;
 
-namespace Zen.Web.Data.Controller.Pipeline
+namespace Zen.Web.Data.Controller.Pipeline.SetVersioning
 {
     public class SetVersioningController<T> : ControllerBase where T : Data<T>
     {
         private static long Count()
         {
-            var dataSetVersion = (DataSetVersioningBase) Attribute.GetCustomAttribute(typeof(T), typeof(DataSetVersioningBase));
+            var dataSetVersion = (SetVersioningPrimitiveAttribute) Attribute.GetCustomAttribute(typeof(T), typeof(SetVersioningPrimitiveAttribute));
 
             if (App.Current.Orchestrator?.Person?.Locator == null) return 0;
 
@@ -162,7 +162,10 @@ namespace Zen.Web.Data.Controller.Pipeline
                 var packageModel = str.FromJson<SetVersion<T>.Payload>();
                 var objs = packageModel.Items.ToJson().FromJson<List<T>>();
 
-                Data<T>.Save(objs);
+                Data<T>.RemoveAll();
+                Data<T>.Save(objs, null, true);
+
+                Data<T>.New().AfterSetUpdate();
 
                 return Ok(new {size, filePaths});
             } catch (Exception e)

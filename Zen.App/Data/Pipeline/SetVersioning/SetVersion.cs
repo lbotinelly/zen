@@ -26,11 +26,10 @@ namespace Zen.App.Data.Pipeline.SetVersioning
         public DateTime TimeStamp { get; set; } = DateTime.Now;
         public string OperatorLocator { get; set; } = Current.Orchestrator?.Person?.Locator;
 
-        public static DataSetVersioningBase Configuration { get; } = typeof(T).GetCustomAttributes(typeof(DataSetVersioningBase), true).FirstOrDefault() as DataSetVersioningBase;
+        public static SetVersioningPrimitiveAttribute Configuration { get; } = typeof(T).GetCustomAttributes(typeof(SetVersioningPrimitiveAttribute), true).FirstOrDefault() as SetVersioningPrimitiveAttribute;
 
         // public override void OnRemove() { LocalCache.Delete(GetItemCacheKey()); }
-
-        public string SetTag => $"{CollectionSuffix}:{Id}";
+        public string SetTag => Id == Constants.CURRENT_LIVE_WORKSET_TAG ? null : $"{CollectionSuffix}:{Id}";
 
         public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}";
 
@@ -160,7 +159,10 @@ namespace Zen.App.Data.Pipeline.SetVersioning
             }.Save();
         }
 
-        public static SetVersion<T> GetByCode(string code) { return string.IsNullOrEmpty(code) || code == Constants.CURRENT_LIVE_WORKSET_TAG ? new SetVersion<T> {Id = Constants.CURRENT_LIVE_WORKSET_TAG, Code = Constants.CURRENT_LIVE_WORKSET_TAG} : Where(i => i.Code == code).FirstOrDefault(); }
+        public static SetVersion<T> GetByCode(string code)
+        {
+            return string.IsNullOrEmpty(code) || code == Constants.CURRENT_LIVE_WORKSET_TAG ? new SetVersion<T> {Id = Constants.CURRENT_LIVE_WORKSET_TAG, Code = Constants.CURRENT_LIVE_WORKSET_TAG} : Where(i => i.Code == code).FirstOrDefault();
+        }
 
         public static bool CanModify() { return Configuration.CanModify(); }
         public static bool CanBrowse() { return Configuration.CanBrowse(); }

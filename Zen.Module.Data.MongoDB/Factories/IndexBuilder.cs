@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -11,7 +12,7 @@ namespace Zen.Module.Data.MongoDB.Factories
 {
     internal static class IndexBuilder
     {
-        private static readonly Dictionary<string, string> DynamicIndexCache = new Dictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> DynamicIndexCache = new ConcurrentDictionary<string, string>();
 
         internal static void TryCreateIndex<T>(this IMongoCollection<BsonDocument> source, BsonDocument sortDocument) where T : Data<T>
         {
