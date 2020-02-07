@@ -10,12 +10,12 @@ using Zen.Base.Module.Data.Pipeline;
 namespace Zen.App.Data.Pipeline.ModelVersioning
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class DataModelVersion : Attribute, IAfterActionPipeline
+    public class DataModelVersionAttribute : Attribute, IAfterActionPipeline
     {
         #region Implementation of IPipelinePrimitive
 
         public string PipelineName { get; set; } = "Model Versioning";
-        public Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders) where T : Data<T> { return null; }
+        public Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders, EActionScope scope, T model) where T : Data<T> { return null; }
 
         public void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
         {

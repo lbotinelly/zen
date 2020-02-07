@@ -40,8 +40,8 @@ namespace Zen.Base.Maintenance
 
             foreach (var i in preList)
             {
-                i.Setup = (MaintenanceTaskSetup) i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(MaintenanceTaskSetup), false).FirstOrDefault()
-                          ?? new MaintenanceTaskSetup {Name = i.Type.FullName + " Maintenance Task"};
+                i.Setup = (MaintenanceTaskSetupAttribute) i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(MaintenanceTaskSetupAttribute), false).FirstOrDefault()
+                          ?? new MaintenanceTaskSetupAttribute {Name = i.Type.FullName + " Maintenance Task"};
 
                 i.Priority = (PriorityAttribute) i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(PriorityAttribute), false).FirstOrDefault()
                              ?? new PriorityAttribute {Level = 0};
@@ -98,7 +98,7 @@ namespace Zen.Base.Maintenance
         {
             internal Type Type { get; set; }
             internal IMaintenanceTask Instance { get; set; }
-            internal MaintenanceTaskSetup Setup { get; set; }
+            internal MaintenanceTaskSetupAttribute Setup { get; set; }
             public string Description { get; set; }
             public string Id { get; set; }
             public PriorityAttribute Priority { get; set; }

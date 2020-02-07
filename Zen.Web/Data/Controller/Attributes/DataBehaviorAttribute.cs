@@ -3,7 +3,7 @@
 namespace Zen.Web.Data.Controller.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class DataBehavior : Attribute
+    public class DataBehaviorAttribute : Attribute
     {
         public Type SummaryType { get; set; }
         public bool MustPaginate { get; set; }

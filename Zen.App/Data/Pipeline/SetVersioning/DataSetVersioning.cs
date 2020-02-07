@@ -1,4 +1,4 @@
 ﻿namespace Zen.App.Data.Pipeline.SetVersioning
 {
-    public class DataSetVersioning : DataSetVersioningBase { }
+    public class DataSetVersioning : SetVersioningPrimitiveAttribute { }
 }

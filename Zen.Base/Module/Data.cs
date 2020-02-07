@@ -42,9 +42,7 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    TypeConfigurationCache.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(
-                                                                        new Settings(),
-                                                                        (DataConfigAttribute) Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+                    TypeConfigurationCache.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings, DataConfigAttribute>(new Settings(), (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     _cacheKeyBase = typeof(T).FullName;
 
@@ -61,6 +59,7 @@ namespace Zen.Base.Module
                     while (sourceType?.IsGenericType == true) sourceType = sourceType.GenericTypeArguments.FirstOrDefault();
 
                     Info<T>.Settings.TypeName = sourceType?.Name;
+
                     Info<T>.Settings.TypeQualifiedName = sourceType?.FullName;
 
                     if (Info<T>.Settings.TypeQualifiedName != Info<T>.Settings.TypeName)
@@ -68,6 +67,7 @@ namespace Zen.Base.Module
                             Info<T>.Settings.TypeNamespace = sourceType?.FullName.Substring(0, Info<T>.Settings.TypeQualifiedName.Length - Info<T>.Settings.TypeName.Length - 1);
 
                     Info<T>.Settings.StorageCollectionName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
+                    Info<T>.Settings.FriendlyName = Info<T>.Configuration?.FriendlyName ?? Info<T>.Settings.StorageCollectionName;
 
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
@@ -130,11 +130,11 @@ namespace Zen.Base.Module
                     // Start with properties...
 
                     Info<T>.Settings.Members = typeof(T).GetProperties()
-                        .ToDictionary(i => i.Name, i => (MemberAttribute) Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute {Name = i.Name});
+                        .ToDictionary(i => i.Name, i => (MemberAttribute)Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute { Name = i.Name });
 
                     // and add evential Fields.
                     var FieldDefinitions = typeof(T).GetFields()
-                        .ToDictionary(i => i.Name, i => (MemberAttribute) Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute {Name = i.Name});
+                        .ToDictionary(i => i.Name, i => (MemberAttribute)Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute { Name = i.Name });
 
                     foreach (var f in FieldDefinitions) Info<T>.Settings.Members.Add(f.Key, f.Value);
 
@@ -161,7 +161,7 @@ namespace Zen.Base.Module
 
                     Info<T>.Settings.EnvironmentMapping = Attribute
                         .GetCustomAttributes(typeof(T), typeof(DataEnvironmentMappingAttribute))
-                        .Select(i => (DataEnvironmentMappingAttribute) i)
+                        .Select(i => (DataEnvironmentMappingAttribute)i)
                         .ToList();
 
                     Info<T>.Settings.EnvironmentCode =
@@ -177,12 +177,11 @@ namespace Zen.Base.Module
 
                     if (refBundle == null)
                     {
-                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure,
-                                                      "No valid connection bundle found");
+                        Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No valid connection bundle found");
                         return;
                     }
 
-                    var refType = (ConnectionBundlePrimitive) Activator.CreateInstance(refBundle);
+                    var refType = (ConnectionBundlePrimitive)Activator.CreateInstance(refBundle);
 
                     Info<T>.Settings.Adapter = GetDataAdapter();
 
@@ -197,7 +196,7 @@ namespace Zen.Base.Module
                             return;
                         }
 
-                        Info<T>.Settings.Adapter = (DataAdapterPrimitive) Activator.CreateInstance(refType.AdapterType);
+                        Info<T>.Settings.Adapter = (DataAdapterPrimitive)Activator.CreateInstance(refType.AdapterType);
 
                         Info<T>.Settings.Adapter.SourceBundle = refType;
 
@@ -260,7 +259,8 @@ namespace Zen.Base.Module
                         var pipelineInfo = moreInfo.Aggregate((i, j) => i + "; " + j);
                         Events.AddLog($"{Info<T>.Settings.TypeQualifiedName}", $" More | {pipelineInfo}");
                     }
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Info<T>.Settings.State.Status = Settings.EStatus.CriticalFailure;
 
@@ -287,7 +287,7 @@ namespace Zen.Base.Module
 
         #endregion
 
-        public static T New() { return (T) Activator.CreateInstance(typeof(T)); }
+        public static T New() { return (T)Activator.CreateInstance(typeof(T)); }
 
         public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
         {
@@ -388,7 +388,8 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.Before == null) return currentModel;
 
             foreach (var beforeActionPipeline in Info<T>.Settings.Pipelines.Before)
-                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e)
+                try { currentModel = beforeActionPipeline.Process(action, scope, mutator, currentModel, originalModel); }
+                catch (Exception e)
                 {
                     if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
                 }
@@ -401,7 +402,8 @@ namespace Zen.Base.Module
             if (Info<T>.Settings?.Pipelines?.After == null) return;
 
             foreach (var afterActionPipeline in Info<T>.Settings.Pipelines.After)
-                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); } catch (Exception e)
+                try { afterActionPipeline.Process(action, scope, mutator, currentModel, originalModel); }
+                catch (Exception e)
                 {
                     if (!Info<T>.Settings.Silent) Current.Log.Add<T>(e);
                 }
@@ -453,7 +455,7 @@ namespace Zen.Base.Module
             return Info<T>.Settings.Adapter.Count<T>(mutator);
         }
 
-        public static T Get(string key, Mutator mutator = null)
+        public static T Get(string key, Mutator mutator = null, bool bypassCache = false)
         {
             ValidateState(EActionType.Read);
 
@@ -467,7 +469,7 @@ namespace Zen.Base.Module
 
             var fullKey = mutator?.KeyPrefix + key;
 
-            if (!Info<T>.Configuration.UseCaching) return FetchModel(key, mutator);
+            if (!Info<T>.Configuration.UseCaching || bypassCache) return FetchModel(key, mutator);
 
             return CacheFactory.FetchModel<T>(fullKey) ?? FetchModel(key, mutator);
         }
@@ -492,9 +494,9 @@ namespace Zen.Base.Module
 
         private static readonly object _bulkSaveLock = new object();
 
-        public static BulkDataOperation<T> Save(IEnumerable<T> models, Mutator mutator = null) { return BulkExecute(EActionType.Update, models, mutator); }
+        public static BulkDataOperation<T> Save(IEnumerable<T> models, Mutator mutator = null, bool rawMode = false) { return BulkExecute(EActionType.Update, models, mutator, rawMode); }
 
-        public static BulkDataOperation<T> Remove(IEnumerable<T> models, Mutator mutator = null) { return BulkExecute(EActionType.Remove, models, mutator); }
+        public static BulkDataOperation<T> Remove(IEnumerable<T> models, Mutator mutator = null, bool rawMode = false) { return BulkExecute(EActionType.Remove, models, mutator, rawMode); }
 
         public static T Remove(string Key, Mutator mutator = null)
         {
@@ -519,7 +521,7 @@ namespace Zen.Base.Module
 
         #region Internal Model/Storage exchange
 
-        private static BulkDataOperation<T> BulkExecute(EActionType type, IEnumerable<T> models, Mutator mutator = null)
+        private static BulkDataOperation<T> BulkExecute(EActionType type, IEnumerable<T> models, Mutator mutator = null, bool rawMode = false)
         {
             ValidateState(type);
 
@@ -537,7 +539,7 @@ namespace Zen.Base.Module
 
             if (modelSet.Count == 0) return null;
 
-            var resultPackage = new BulkDataOperation<T> {Type = type};
+            var resultPackage = new BulkDataOperation<T> { Type = type };
 
             // First let's obtain any ServiceTokenGuid set by the user.
 
@@ -556,155 +558,164 @@ namespace Zen.Base.Module
 
                     var paralelizableClicker = logClicker;
 
-                    Parallel.ForEach(modelSet, new ParallelOptions {MaxDegreeOfParallelism = 5}, item =>
+                    if (!rawMode)
                     {
-                        paralelizableClicker?.Click();
+                        Parallel.ForEach(modelSet, new ParallelOptions { MaxDegreeOfParallelism = 5 }, item =>
+                          {
+                              paralelizableClicker?.Click();
 
-                        if (item.IsNew())
+                              if (item.IsNew())
+                              {
+                                  var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
+
+                                  if (resultPackage.Control.ContainsKey(tempKey))
+                                  {
+                                      if (!silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                      failureSet.Add(item);
+                                  }
+                                  else { resultPackage.Control[tempKey] = new DataOperationControl<T> { Current = item, IsNew = true, Original = null }; }
+
+                                  return;
+                              }
+
+                              var modelKey = mutator?.KeyPrefix + item.GetDataKey();
+
+                              if (resultPackage.Control.ContainsKey(modelKey))
+                              {
+                                  if (!silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                                  return;
+                              }
+
+                              resultPackage.Control[modelKey] = new DataOperationControl<T> { Current = item };
+                          });
+
+                        logClicker?.End();
+
+                        _timed.Log($"{type} bulk  [Before]", false);
+
+                        logClicker = modelSet.GetClicker(_timed.CurrentMessage);
+
+                        logStep = "obtaining original keys";
+                        var originalKeys = resultPackage.Control.Where(controlItem => !controlItem.Value.IsNew).Select(controlPair => controlPair.Key).ToList();
+
+                        logStep = "obtaining original models";
+                        var originalSet = Get(originalKeys).ToList();
+
+                        logStep = _timed.Log("Populating Control structure");
+                        var originalMap = originalSet.ToDictionary(i => i.GetDataKey(), i => i).ToList();
+
+                        foreach (var item in originalMap) resultPackage.Control[item.Key].Original = item.Value;
+
+                        logStep = "processing Control structure";
+
+                        foreach (var controlItem in resultPackage.Control)
                         {
-                            var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
+                            if (!silent) logClicker.Click();
 
-                            if (resultPackage.Control.ContainsKey(tempKey))
+                            var currentModel = controlItem.Value.Current;
+                            var originalModel = controlItem.Value.Original;
+
+                            var canProceed = true;
+
+                            logStep = "checking if model is new";
+
+                            if (!controlItem.Value.IsNew)
                             {
-                                if (!silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
-                                failureSet.Add(item);
+                                logObj = currentModel;
+
+                                originalModel = type == EActionType.Remove ? ProcBeforePipeline(EActionType.Remove, EActionScope.Model, mutator, currentModel, originalModel) : ProcBeforePipeline(controlItem.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, currentModel, originalModel);
+
+                                if (originalModel == null)
+                                {
+                                    failureSet.Add(currentModel);
+                                    controlItem.Value.Success = false;
+                                    controlItem.Value.Message = "Failed ProcBeforePipeline";
+                                    canProceed = false;
+                                }
                             }
-                            else { resultPackage.Control[tempKey] = new DataOperationControl<T> {Current = item, IsNew = true, Original = null}; }
-
-                            return;
-                        }
-
-                        var modelKey = mutator?.KeyPrefix + item.GetDataKey();
-
-                        if (resultPackage.Control.ContainsKey(modelKey))
-                        {
-                            if (!silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
-                            return;
-                        }
-
-                        resultPackage.Control[modelKey] = new DataOperationControl<T> {Current = item};
-                    });
-
-                    logClicker?.End();
-
-                    _timed.Log($"{type} bulk  [Before]", false);
-
-                    logClicker = modelSet.GetClicker(_timed.CurrentMessage);
-
-                    logStep = "obtaining original keys";
-                    var originalKeys = resultPackage.Control.Where(controlItem => !controlItem.Value.IsNew).Select(controlPair => controlPair.Key).ToList();
-
-                    logStep = "obtaining original models";
-                    var originalSet = Get(originalKeys).ToList();
-
-                    logStep = _timed.Log("Populating Control structure");
-                    var originalMap = originalSet.ToDictionary(i => i.GetDataKey(), i => i).ToList();
-
-                    foreach (var item in originalMap) resultPackage.Control[item.Key].Original = item.Value;
-
-                    logStep = "processing Control structure";
-
-                    foreach (var controlItem in resultPackage.Control)
-                    {
-                        if (!silent) logClicker.Click();
-
-                        var currentModel = controlItem.Value.Current;
-                        var originalModel = controlItem.Value.Original;
-
-                        var canProceed = true;
-
-                        logStep = "checking if model is new";
-
-                        if (!controlItem.Value.IsNew)
-                        {
-                            logObj = currentModel;
-
-                            originalModel = type == EActionType.Remove ? ProcBeforePipeline(EActionType.Remove, EActionScope.Model, mutator, currentModel, originalModel) : ProcBeforePipeline(controlItem.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, currentModel, originalModel);
-
-                            if (originalModel == null)
-                            {
-                                failureSet.Add(currentModel);
-                                controlItem.Value.Success = false;
-                                controlItem.Value.Message = "Failed ProcBeforePipeline";
-                                canProceed = false;
-                            }
-                        }
-                        else
-                        {
-                            if (type == EActionType.Remove) // So we're removing a New object. Just ignore.
-                            {
-                                failureSet.Add(currentModel);
-                                controlItem.Value.Success = false;
-                                controlItem.Value.Message = $"Invalid {type} operation: Record is New()";
-                                canProceed = false;
-                            }
-                            else { originalModel = currentModel; }
-                        }
-
-                        if (canProceed)
-                        {
-                            logStep = "Adding model to process list";
-                            logObj = currentModel;
-
-                            successSet.Add(originalModel);
-
-                            if (type == EActionType.Remove) { originalModel.BeforeRemove(); }
                             else
                             {
-                                if (!originalModel.IsNew()) originalModel.BeforeUpdate();
-                                else originalModel.BeforeInsert();
-
-                                originalModel.BeforeSave();
+                                if (type == EActionType.Remove) // So we're removing a New object. Just ignore.
+                                {
+                                    failureSet.Add(currentModel);
+                                    controlItem.Value.Success = false;
+                                    controlItem.Value.Message = $"Invalid {type} operation: Record is New()";
+                                    canProceed = false;
+                                }
+                                else { originalModel = currentModel; }
                             }
 
-                            controlItem.Value.Success = true;
+                            if (canProceed)
+                            {
+                                logStep = "Adding model to process list";
+                                logObj = currentModel;
+
+                                successSet.Add(originalModel);
+
+                                if (type == EActionType.Remove) { originalModel.BeforeRemove(); }
+                                else
+                                {
+                                    if (!originalModel.IsNew()) originalModel.BeforeUpdate();
+                                    else originalModel.BeforeInsert();
+
+                                    originalModel.BeforeSave();
+                                }
+
+                                controlItem.Value.Success = true;
+                            }
                         }
+
+                        if (!silent) logClicker.End();
+
+                        logStep = _timed.Log($"{type} {successSet.Count} models");
+
+                        if (type == EActionType.Remove) Info<T>.Settings.Adapter.BulkRemove(successSet);
+                        else Info<T>.Settings.Adapter.BulkUpsert(successSet);
+
+                        if (!silent) logClicker = modelSet.GetClicker($"{type} bulk   [After]");
+
+                        logStep = _timed.Log("post-processing individual models");
+
+                        Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions { MaxDegreeOfParallelism = 5 }, controlModel =>
+                          {
+                              var key = controlModel.Key;
+                              if (!silent) logClicker.Click();
+
+                              if (type == EActionType.Remove)
+                              {
+                                  controlModel.Value.Current.AfterRemove();
+                                  ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                              }
+                              else
+                              {
+                                  if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
+                                  else controlModel.Value.Current.AfterUpdate(key);
+
+                                  controlModel.Value.Current.AfterSave(key);
+
+                                  ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                              }
+
+                              CacheFactory.FlushModel<T>(key);
+                          });
+
+                        resultPackage.Success = successSet;
+                        resultPackage.Failure = failureSet;
+
+                        logStep = _timed.Log($"{type} bulk operation complete. Success: {resultPackage.Success.Count} | Failure: {resultPackage.Failure.Count}");
+
+                        if (!silent) logClicker.End();
+                        _timed.End(false);
+                    }
+                    else //RawMode means no triggers. AT ALL.
+                    {
+                        if (type == EActionType.Remove) Info<T>.Settings.Adapter.BulkRemove(modelSet);
+                        else Info<T>.Settings.Adapter.BulkUpsert(modelSet);
                     }
 
-                    if (!silent) logClicker.End();
-
-                    logStep = _timed.Log($"{type} {successSet.Count} models");
-
-                    if (type == EActionType.Remove) Info<T>.Settings.Adapter.BulkRemove(successSet);
-                    else Info<T>.Settings.Adapter.BulkUpsert(successSet);
-
-                    if (!silent) logClicker = modelSet.GetClicker($"{type} bulk   [After]");
-
-                    logStep = _timed.Log("post-processing individual models");
-
-                    Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions {MaxDegreeOfParallelism = 5}, controlModel =>
-                    {
-                        var key = controlModel.Key;
-                        if (!silent) logClicker.Click();
-
-                        if (type == EActionType.Remove)
-                        {
-                            controlModel.Value.Current.AfterRemove();
-                            ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                        }
-                        else
-                        {
-                            if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
-                            else controlModel.Value.Current.AfterUpdate(key);
-
-                            controlModel.Value.Current.AfterSave(key);
-
-                            ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                        }
-
-                        CacheFactory.FlushModel<T>(key);
-                    });
-
-                    resultPackage.Success = successSet;
-                    resultPackage.Failure = failureSet;
-
-                    logStep = _timed.Log($"{type} bulk operation complete. Success: {resultPackage.Success.Count} | Failure: {resultPackage.Failure.Count}");
-
-                    if (!silent) logClicker.End();
-                    _timed.End(false);
-
                     return resultPackage;
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     if (!silent) Current.Log.Add<T>(e);
                     var ex = new Exception($"{type} - Error while {logStep} {logObj?.ToJson()}: {e.Message}", e);
@@ -727,17 +738,17 @@ namespace Zen.Base.Module
             return model;
         }
 
-        internal static Dictionary<string, T> FetchSet(IEnumerable<string> keys, bool ignoreCache = false, Mutator mutator = null)
+        internal static Dictionary<string, T> FetchSet(IEnumerable<string> keys, bool bypassCache = false, Mutator mutator = null)
         {
             //This function mixes cached models with partial queries to the adapter.
             var fetchKeys = keys.ToList();
 
             // First we create a map to accomodate all the requested records.
-            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T) null);
+            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T)null);
 
             //Then we proceed to probe the cache for individual model copies if the user didn't decided to ignore cache.
             var cacheKeyPrefix = mutator?.KeyPrefix;
-            if (!ignoreCache)
+            if (!bypassCache)
                 foreach (var key in fetchKeys)
                     fetchMap[key] = CacheFactory.FetchModel<T>(cacheKeyPrefix + key);
 
@@ -781,7 +792,7 @@ namespace Zen.Base.Module
                 return _isNew.Value;
             }
 
-            originalModel = Get(key, mutator);
+            originalModel = Get(key, mutator, true);
 
             _isNew = originalModel == null;
 
@@ -809,7 +820,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Update);
 
-            var localModel = (T) this;
+            var localModel = (T)this;
             T storedModel = null;
             var isNew = IsNew(ref storedModel, mutator);
 
@@ -847,7 +858,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Insert);
 
-            var localModel = (T) this;
+            var localModel = (T)this;
 
             var targetActionType = EActionType.Insert;
 
@@ -879,7 +890,7 @@ namespace Zen.Base.Module
         {
             ValidateState(EActionType.Remove);
 
-            var localModel = (T) this;
+            var localModel = (T)this;
             if (_isDeleted) return null;
 
             T storedModel = null;
@@ -926,7 +937,7 @@ namespace Zen.Base.Module
         public virtual void AfterRemove() { }
 
         public virtual void AfterGet() { }
-
+        public virtual void AfterSetUpdate() { }
         public virtual Mutator BeforeQuery(EActionType read, Mutator mutator) { return null; }
 
         public virtual Mutator BeforeCount(EActionType read, Mutator mutator) { return null; }

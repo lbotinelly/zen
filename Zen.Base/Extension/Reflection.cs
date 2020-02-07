@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 
 namespace Zen.Base.Extension
@@ -177,34 +178,12 @@ namespace Zen.Base.Extension
                             .IsSimilarType(parameterTypes[i]))
                             break;
                     if (i == parameterInfos.Length)
-                        if (matchingMethod == null)
-                            matchingMethod = methodInfo;
+                        if (matchingMethod == null) matchingMethod = methodInfo;
                         else
                             throw new AmbiguousMatchException(
                                 "More than one matching method found!");
                 }
             }
-        }
-
-        public static bool SetMemberValue(this object source, string memberName, object model)
-        {
-            try
-            {
-                var propertyInfo = source.GetType().GetProperty(memberName);
-                if (propertyInfo != null)
-                {
-
-                    propertyInfo.SetValue(source, model, null);
-                    return true;
-                }
-
-                var fieldInfo = source.GetType().GetField(memberName);
-                if (fieldInfo == null) return false;
-                fieldInfo.SetValue(model, source);
-                return true;
-
-            }
-            catch { return false; }
         }
 
         public static object GetPropertyValue(this object o, string property)
@@ -215,6 +194,91 @@ namespace Zen.Base.Extension
                 return propertyInfo?.GetValue(o);
             } catch { return null; }
         }
+
+        public static object GetMemberValue(this object o, string member)
+        {
+            if (member == null) return null;
+
+            var targetType = o.GetType();
+
+            // Member can be a path, like "People.Creator"
+            var memberParts = member.Split('.');
+            var currentMember = memberParts.FirstOrDefault();
+            var nextMembers = memberParts.Skip(1).ToList();
+
+            if (currentMember == null) return null;
+
+            var probe = targetType.GetProperty(currentMember)?.GetValue(o) ?? targetType.GetField(currentMember)?.GetValue(o);
+
+            if (!nextMembers.Any()) return probe;
+
+            var partialPath = string.Join(".", nextMembers);
+
+            return probe.GetMemberValue(partialPath);
+        }
+
+        public static bool HasMember(this object o, string member)
+        {
+            while (true)
+            {
+                var targetType = o.GetType();
+
+                // Member can be a path, like "People.Creator"
+                var memberParts = member.Split('.');
+                var currentMember = memberParts.FirstOrDefault();
+                var nextMembers = memberParts.Skip(1).ToList();
+
+                if (currentMember == null) return false;
+
+                var probe = targetType.GetProperty(currentMember) != null || targetType.GetField(currentMember) != null;
+
+                if (!nextMembers.Any()) return probe;
+
+                var partialPath = string.Join(".", nextMembers);
+
+                o = o.GetMemberValue(currentMember);
+                member = partialPath;
+            }
+        }
+
+        public static bool SetMemberValue(this object source, string memberName, object model)
+        {
+
+            // Member can be a path, like "People.Creator"
+            var memberParts = memberName.Split('.');
+            var currentMember = memberParts.FirstOrDefault();
+            var nextMembers = memberParts.Skip(1).ToList();
+
+            if (!nextMembers.Any())
+            {
+                try
+                {
+                    // Case 1: Property
+
+                    var propertyInfo = source.GetType().GetProperty(memberName);
+                    if (propertyInfo != null)
+                    {
+                        propertyInfo.SetValue(source, model, null);
+                        return true;
+                    }
+
+                    // Case 2: Field
+
+                    var fieldInfo = source.GetType().GetField(memberName);
+                    if (fieldInfo == null) return false;
+                    fieldInfo.SetValue(model, source);
+                    return true;
+                } catch { return false; }
+            }
+
+            var target = source.GetMemberValue(currentMember);
+            var partialPath = string.Join(".", nextMembers);
+
+            return target.SetMemberValue(partialPath, model);
+        }
+
+
+        public static T GetMemberValue<T>(this object o, string member) { return (T) GetMemberValue(o, member); }
 
         public static bool IsSimilarType(this Type thisType, Type type)
         {

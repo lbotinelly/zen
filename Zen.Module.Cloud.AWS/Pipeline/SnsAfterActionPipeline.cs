@@ -19,7 +19,7 @@ namespace Zen.Module.Cloud.AWS.Pipeline
         public virtual string Topic { get; set; } = "";
 
         public string PipelineName => "SNS Announcer";
-        public Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders) where T : Data<T> { return null; }
+        public Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders, EActionScope scope, T model) where T : Data<T> { return null; }
 
         public virtual void Process<T>(EActionType type, EActionScope scope, Mutator mutator, T current, T source) where T : Data<T>
         {

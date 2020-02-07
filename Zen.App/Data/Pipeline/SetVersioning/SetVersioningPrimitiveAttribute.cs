@@ -11,7 +11,7 @@ using Zen.Base.Module.Data.Pipeline;
 namespace Zen.App.Data.Pipeline.SetVersioning
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public abstract class DataSetVersioningBase : Attribute, IBeforeActionPipeline
+    public abstract class SetVersioningPrimitiveAttribute : Attribute, IBeforeActionPipeline
     {
         public string WritePermission { get; set; } = null;
         public string ReadPermission { get; set; } = null;
@@ -21,7 +21,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
         #region Implementation of IPipelinePrimitive
 
-        public virtual Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders = null) where T : Data<T>
+        public virtual Dictionary<string, object> Headers<T>(ref DataAccessControl accessControl, Dictionary<string, StringValues> requestHeaders, EActionScope scope, T model) where T : Data<T>
         {
             var ctx = new List<string>();
 
