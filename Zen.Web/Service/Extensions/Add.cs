@@ -31,8 +31,7 @@ namespace Zen.Web.Service.Extensions
 
             services.Configure<FormOptions>(options => { options.MemoryBufferThreshold = int.MaxValue; });
 
-            services
-                .AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             var mvc = services
                     .AddControllers(options =>

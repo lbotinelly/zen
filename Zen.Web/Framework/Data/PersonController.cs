@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Zen.App.Provider.Person;
+using Zen.App.Core.Person;
 
 namespace Zen.Web.Framework.Data
 {
@@ -11,7 +11,7 @@ namespace Zen.Web.Framework.Data
     public class PersonController : ControllerBase
     {
         [HttpPost("profile/subset")]
-        public List<IZenPersonProfile> GetProfiles()
+        public List<IPersonProfile> GetProfiles()
         {
             var personKeySet = "";
             var request = Request;
@@ -32,7 +32,7 @@ namespace Zen.Web.Framework.Data
         }
 
         [HttpGet("profile/subset")]
-        public List<IZenPersonProfile> GetProfiles([FromQuery] string keys)
+        public List<IPersonProfile> GetProfiles([FromQuery] string keys)
         {
             var profiles = App.Current.Orchestrator.GetProfiles(keys);
             return profiles;

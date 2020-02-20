@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Zen.App.Model.Orchestration;
+using Zen.App.Core.Application;
 using Zen.Base;
+using Application = Zen.App.Model.Core.Application;
 
 namespace Zen.App
 {
@@ -31,7 +32,7 @@ namespace Zen.App
         {
             public bool Active;
             public string Code;
-            public Application.ConfigurationBlock Configuration;
+            public ConfigurationBlock Configuration;
             public string Locator;
             public string Name;
             public string Version;

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.App.Communication;
+using Zen.App.Core.Application;
 using Zen.App.Orchestrator;
 using Zen.App.Provider;
 using Zen.Base.Extension;
@@ -12,8 +13,9 @@ namespace Zen.App.Service
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddZenProvider<IEmailConfig>("Email Configuration");
+            serviceCollection.AddZenProvider<IApplicationProvider>("Application Provider");
             serviceCollection.AddZenProvider<IZenOrchestrator>("Orchestrator");
-            serviceCollection.AddZenProvider<IZenEmailConfig>("Email Configuration");
 
             //serviceCollection.AddZenProvider<IZenPreference>("Preferences Provider");
             serviceCollection.AddSingleton(s => IoC.GetClassesByInterface<IZenPreference>(false).FirstOrDefault()?.CreateInstance<IZenPreference>());

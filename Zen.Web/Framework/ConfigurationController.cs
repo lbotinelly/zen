@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Zen.App.Model.Orchestration;
-using Zen.App.Provider.Application;
+using Zen.App.Core.Application;
 
 namespace Zen.Web.Framework
 {
@@ -8,10 +7,10 @@ namespace Zen.Web.Framework
     public class ConfigurationController : ControllerBase
     {
         [HttpGet("groups")]
-        public ZenApplicationRepresentation GetGroups() { return App.Current.Orchestrator.Application?.ToRepresentation(); }
+        public ApplicationRepresentation GetGroups() { return App.Current.Orchestrator.Application?.ToRepresentation(); }
 
         [HttpPost("groups")]
-        public ZenApplicationRepresentation SetGroups([FromBody] ZenApplicationRepresentation model)
+        public ApplicationRepresentation SetGroups([FromBody] ApplicationRepresentation model)
         {
             App.Current.Orchestrator.Application.FromRepresentation(model);
 

@@ -2,22 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
-using Zen.App.Provider.Application;
-using Zen.App.Provider.Person;
+using Zen.App.Core.Application;
+using Zen.App.Core.Group;
+using Zen.App.Core.Person;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Service;
+using Factory = Zen.App.Core.Person.Factory;
 
 namespace Zen.App.Provider
 {
     public abstract class ZenOrchestratorPrimitive<TA, TG, TP, TPerm> : IZenOrchestrator
-        where TA : Data<TA>, IZenApplication
-        where TG : Data<TG>, IZenGroup
-        where TP : Data<TP>, IZenPerson
-        where TPerm : Data<TPerm>, IZenPermission
+        where TA : Data<TA>, IApplication
+        where TG : Data<TG>, IGroup
+        where TP : Data<TP>, IPerson
+        where TPerm : Data<TPerm>, IPermission
     {
-        private IZenApplication _application;
+        private IApplication _application;
 
         #region Implementation of IZenProvider
 
@@ -32,10 +34,10 @@ namespace Zen.App.Provider
         #region Implementation of IAppOrchestrator
 
         public virtual Dictionary<string, object> Settings { get; private set; }
-        public virtual IZenPerson GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
-        public virtual IEnumerable<IZenPerson> GetPeopleByLocators(IEnumerable<string> locators) { return Data<TP>.GetByLocator(locators); }
+        public virtual IPerson GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
+        public virtual IEnumerable<IPerson> GetPeopleByLocators(IEnumerable<string> locators) { return Data<TP>.GetByLocator(locators); }
 
-        public virtual IZenGroup GetGroupByCode(string code, string name = null, IZenApplication application = null, IZenGroup parent = null, bool createIfNotFound = false)
+        public virtual IGroup GetGroupByCode(string code, string name = null, IApplication application = null, IGroup parent = null, bool createIfNotFound = false)
         {
             var probe = Data<TG>.GetByCode(code);
 
@@ -57,39 +59,39 @@ namespace Zen.App.Provider
             return probe;
         }
 
-        public IZenApplication GetApplicationByCode(string code)
+        public IApplication GetApplicationByCode(string code)
         {
             var probe = Data<TA>.GetByCode(code);
             return probe;
         }
 
-        public virtual IZenApplication GetApplicationByLocator(string locator)
+        public virtual IApplication GetApplicationByLocator(string locator)
         {
             var probe = Data<TA>.GetByLocator(locator);
 
             return probe;
         }
 
-        public IZenApplication GetNewApplication() { return Data<TA>.New(); }
+        public IApplication GetNewApplication() { return Data<TA>.New(); }
 
-        public IZenApplication UpsertApplication(IZenApplication application)
+        public IApplication UpsertApplication(IApplication application)
         {
             var temp = (Data<TA>) application;
             temp.Save();
 
-            return (IZenApplication) temp;
+            return (IApplication) temp;
         }
 
-        public List<IZenGroup> GetFullHierarchicalChain(IZenGroup referenceGroup, bool ignoreParentWhenAppOwned = true)
+        public List<IGroup> GetFullHierarchicalChain(IGroup referenceGroup, bool ignoreParentWhenAppOwned = true)
         {
             var baseType = referenceGroup.GetType().FullName + ".Hierarchy:";
             var key = $"{baseType}{referenceGroup.Id}/{(ignoreParentWhenAppOwned ? "-app-isolated" : "")}";
 
             var cached = Base.Current.Cache[key];
 
-            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IZenGroup) i).ToList();
+            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IGroup) i).ToList();
 
-            var chain = new List<IZenGroup>();
+            var chain = new List<IGroup>();
 
             if (referenceGroup.ParentId != null)
                 if (string.IsNullOrEmpty(referenceGroup.ApplicationId) || !ignoreParentWhenAppOwned)
@@ -105,7 +107,7 @@ namespace Zen.App.Provider
             return chain;
         }
 
-        public List<IZenGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IZenGroup) i).ToList(); }
+        public List<IGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IGroup) i).ToList(); }
 
         // ReSharper disable once StaticMemberInGenericType
         private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
@@ -135,7 +137,7 @@ namespace Zen.App.Provider
             return Person?.Permissions.Intersect(matchingPermissions).Any() == true;
         }
 
-        public IZenPermission GetPermissionByCode(string code, string name = null, IZenApplication application = null, bool createIfNotFound = false)
+        public IPermission GetPermissionByCode(string code, string name = null, IApplication application = null, bool createIfNotFound = false)
         {
             var referenceApplication = application ?? Application;
 
@@ -157,26 +159,26 @@ namespace Zen.App.Provider
             return probe;
         }
 
-        public List<IZenPerson> GetPeople(IEnumerable<string> keySet = null)
+        public List<IPerson> GetPeople(IEnumerable<string> keySet = null)
         {
             var set = keySet != null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
 
-            return set.Select(i => (IZenPerson) i).ToList();
+            return set.Select(i => (IPerson) i).ToList();
         }
 
-        public void SavePerson(List<IZenPerson> people) { Data<TP>.Save(people.Select(i => (TP) i)); }
+        public void SavePerson(List<IPerson> people) { Data<TP>.Save(people.Select(i => (TP) i)); }
         public virtual string GetApiUri() { throw new NotImplementedException(); }
         public virtual string GetResourceUri() { throw new NotImplementedException(); }
 
-        public virtual List<IZenPerson> PeopleByGroup(string key) { return Person.ByGroup(key); }
+        public virtual List<IPerson> PeopleByGroup(string key) { return Person.ByGroup(key); }
 
-        private readonly Type _defaultProfileType = IoC.GetClassesByInterface<IZenPersonProfile>(false).FirstOrDefault();
+        private readonly Type _defaultProfileType = IoC.GetClassesByInterface<IPersonProfile>(false).FirstOrDefault();
 
-        public virtual List<IZenPersonProfile> GetProfiles(string keys)
+        public virtual List<IPersonProfile> GetProfiles(string keys)
         {
             if (keys == null) return null;
 
-            var buffer = new List<IZenPersonProfile>();
+            var buffer = new List<IPersonProfile>();
 
             var keySet = keys?.Split(',').ToList();
 
@@ -184,54 +186,53 @@ namespace Zen.App.Provider
 
             foreach (var zenPerson in people) buffer.Add(GetProfile(zenPerson));
 
-            var orderedOutput = new Dictionary<string, IZenPersonProfile>();
+            var orderedOutput = new Dictionary<string, IPersonProfile>();
             foreach (var key in keySet) orderedOutput[key] = buffer.FirstOrDefault(i => i.Locator == key);
 
             return orderedOutput.Values.ToList();
         }
 
-        public virtual IZenPersonProfile GetProfile(IZenPerson person)
+        public virtual IPersonProfile GetProfile(IPerson person)
         {
-            var profile = _defaultProfileType.CreateInstance<IZenPersonProfile>();
+            var profile = _defaultProfileType.CreateInstance<IPersonProfile>();
             profile.FromPerson(person);
 
             return profile;
         }
 
-        public IZenApplication GetApplicationById(string identifier)
+        public IApplication GetApplicationById(string identifier)
         {
             var probe = Data<TA>.Get(identifier);
 
             return probe;
-
         }
 
-        public IZenPerson GetPersonByEmail(string email)
+        public IPerson GetPersonByEmail(string email)
         {
             email = email.ToLower().Trim();
             return Data<TP>.Where(i => i.Email.ToLower() == email).FirstOrDefault();
         }
 
-        public virtual List<IZenPermission> GetPermissionsByPerson(IZenPerson person)
+        public virtual List<IPermission> GetPermissionsByPerson(IPerson person)
         {
             var keys = new List<string>();
 
-            IEnumerable<IZenGroup> groups = person.Groups().WithParents().ToList();
+            IEnumerable<IGroup> groups = person.Groups().WithParents().ToList();
 
             foreach (var zenGroup in groups) keys.AddRange(zenGroup.Permissions);
 
             keys = keys.Distinct().ToList();
 
-            var permissions = Data<TPerm>.Get(keys).Select(i => (IZenPermission) i).ToList();
+            var permissions = Data<TPerm>.Get(keys).Select(i => (IPermission) i).ToList();
 
             return permissions;
         }
 
-        public virtual IZenPerson SigninPersonByIdentity(IIdentity userIdentity) { throw new NotImplementedException(); }
-        public virtual void SignInPerson(IZenPerson person) { throw new NotImplementedException(); }
+        public virtual IPerson SigninPersonByIdentity(IIdentity userIdentity) { throw new NotImplementedException(); }
+        public virtual void SignInPerson(IPerson person) { throw new NotImplementedException(); }
 
-        public virtual IZenPerson Person { get; }
-        public virtual IZenApplication Application => _application;
+        public IPerson Person => Factory.Current;
+        public virtual IApplication Application => _application;
 
         public void DetectEnvironment()
         {
@@ -239,12 +240,10 @@ namespace Zen.App.Provider
 
             if (_application != null) return;
 
-            _application = GetCurrentApplication();
+            _application = Core.Application.Factory.Current;
 
             Events.AddLog("Application", _application.ToString());
         }
-
-        private static IZenApplication GetCurrentApplication() { return Factory.GetCurrentApplication(); }
 
         #endregion
     }

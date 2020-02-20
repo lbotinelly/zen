@@ -72,7 +72,7 @@ namespace Zen.Web.Data.Controller.Pipeline.Moderation
         }
 
         [Route("moderation/status"), HttpGet]
-        public virtual IActionResult GetStatus() { return PrepareResponse(new {count = InternalCount()}); }
+        public virtual IActionResult GetStatus() => PrepareResponse(new {count = InternalCount()});
 
         internal IActionResult PrepareResponse(object content = null, EActionScope scope = EActionScope.Collection, T model = null, HttpStatusCode status = HttpStatusCode.OK)
         {
@@ -83,9 +83,10 @@ namespace Zen.Web.Data.Controller.Pipeline.Moderation
                 Remove = CanRemove
             };
 
-            Response.Headers.AddModelHeaders(ref accessControl, Request.Query, scope, model);
-            Response.Headers.AddHeaders(accessControl.GetAccessHeaders());
-            Response.Headers.AddMutatorHeaders<T>(RequestMutator);
+            Response.Headers?
+                .AddModelHeaders(ref accessControl, Request.Query, scope, model)?
+                .AddHeaders(accessControl.GetAccessHeaders())?
+                .AddMutatorHeaders<T>(RequestMutator);
 
             var result = new ObjectResult(content) {StatusCode = (int) status};
             return result;

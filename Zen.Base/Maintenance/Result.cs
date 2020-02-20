@@ -62,8 +62,8 @@ namespace Zen.Base.Maintenance
         public void Handle(Exception exception)
         {
             Status = EResultStatus.Failed;
-            SetStep("Failure handling");
-            Message = DebugInfo.Step + ": " + exception.Message;
+            SetStep($"Failure handling: {exception.FancyString()}");
+            Message = DebugInfo.Step;
         }
 
         public class Change
