@@ -95,9 +95,9 @@ namespace Zen.Web.Data.Pipeline.Moderation
             var allowedActions = customModerationPipeline?.GetModerationActions(type, scope, mutator, current, source) ?? moderationSetup.ModerationActions;
             var currentPerson = App.Current.Orchestrator.Person?.Locator;
 
-            Log.Info<T>($"MOD {type} | {currentPerson}");
-            Log.Info<T>($"MOD {type} | {allowedActions.ToJson()}");
-            Log.Info<T>($"MOD {type} | {current.ToReference()}");
+            //Log.Info<T>($"MOD {type} | {currentPerson}");
+            //Log.Info<T>($"MOD {type} | {allowedActions.ToJson()}");
+            //Log.Info<T>($"MOD {type} | {current.ToReference()}");
 
             var currentKey = current.GetDataKey();
 

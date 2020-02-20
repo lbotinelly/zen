@@ -385,6 +385,16 @@ namespace Zen.Base.Extension
             return json;
         }
 
+        public static List<T> ToList<T>(this IEnumerator<T> e)
+        {
+            var list = new List<T>();
+            while (e.MoveNext())
+            {
+                list.Add(e.Current);
+            }
+            return list;
+        }
+
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};

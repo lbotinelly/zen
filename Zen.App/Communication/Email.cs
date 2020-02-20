@@ -5,8 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using Zen.App.Core.Application;
+using Zen.App.Core.Group;
+using Zen.App.Core.Person;
 using Zen.App.Provider;
-using Zen.App.Provider.Application;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
@@ -26,7 +28,7 @@ namespace Zen.App.Communication
         private static readonly SmtpClient Smtp = new SmtpClient(Current.EmailConfiguration.SmtpServer);
 
         private readonly MailMessage _baseMsg = new MailMessage();
-        internal IZenApplication Application;
+        internal IApplication Application;
 
         public AddressGroup Bcc = new AddressGroup { Code = "Bcc" };
         public AddressGroup Cc = new AddressGroup { Code = "Cc" };
@@ -131,7 +133,7 @@ namespace Zen.App.Communication
             return this;
         }
 
-        public Email SetSender(IZenPerson person)
+        public Email SetSender(IPerson person)
         {
             if (person?.Email == null || person.Name == null) return this;
 
@@ -141,7 +143,7 @@ namespace Zen.App.Communication
             return this;
         }
 
-        private static IZenPerson LocatorStringToPerson(string email)
+        private static IPerson LocatorStringToPerson(string email)
         {
             if (email == null) return null;
 
@@ -243,7 +245,7 @@ namespace Zen.App.Communication
                         Cc.Clear();
                         Bcc.Clear();
 
-                        var devGroups = new List<IZenGroup> { Application.GetGroup("DEV"), Application.GetGroup("DEVCOPY") };
+                        var devGroups = new List<IGroup> { Application.GetGroup("DEV"), Application.GetGroup("DEVCOPY") };
 
                         devGroups = devGroups.Where(i => i != null).ToList();
 
@@ -381,7 +383,7 @@ namespace Zen.App.Communication
             SetApplication(targetApp);
         }
 
-        public void SetApplication(IZenApplication app)
+        public void SetApplication(IApplication app)
         {
             Application = app;
             ApplicationCode = app.Code;
@@ -472,7 +474,7 @@ namespace Zen.App.Communication
                 return _parent;
             }
 
-            public Email Add(IZenGroup group)
+            public Email Add(IGroup group)
             {
                 if (group == null)
                 {
@@ -492,7 +494,7 @@ namespace Zen.App.Communication
                 }
             }
 
-            public Email Add(IZenPerson person)
+            public Email Add(IPerson person)
             {
                 try
                 {
@@ -507,7 +509,7 @@ namespace Zen.App.Communication
                 }
             }
 
-            private void AddGroupToCollection(IZenGroup grp, ref List<string> groupList, ref Dictionary<string, string> groupEmails, Action<MailAddress> action)
+            private void AddGroupToCollection(IGroup grp, ref List<string> groupList, ref Dictionary<string, string> groupEmails, Action<MailAddress> action)
             {
                 if (!groupList.Contains(grp.Code))
                 {
@@ -634,8 +636,8 @@ namespace Zen.App.Communication
 
         #region To
 
-        public Email AddTo(IZenPerson person) { return To.Add(person); }
-        public Email AddTo(IZenGroup group) { return To.Add(group); }
+        public Email AddTo(IPerson person) { return To.Add(person); }
+        public Email AddTo(IGroup group) { return To.Add(group); }
         public Email AddTo(string code) { return To.Add(code); }
         public Email AddTo(string code, string displayName) { return To.Add(code, displayName); }
 
@@ -643,8 +645,8 @@ namespace Zen.App.Communication
 
         #region CC
 
-        public void AddCc(IZenPerson person) { Cc.Add(person); }
-        public void AddCc(IZenGroup group) { Cc.Add(group); }
+        public void AddCc(IPerson person) { Cc.Add(person); }
+        public void AddCc(IGroup group) { Cc.Add(group); }
         public void AddCc(string code) { Cc.Add(code); }
         public void AddCc(string code, string displayName) { Cc.Add(code, displayName); }
 
@@ -652,8 +654,8 @@ namespace Zen.App.Communication
 
         #region BCC
 
-        public void AddBcc(IZenPerson person) { Bcc.Add(person); }
-        public void AddBcc(IZenGroup group) { Bcc.Add(group); }
+        public void AddBcc(IPerson person) { Bcc.Add(person); }
+        public void AddBcc(IGroup group) { Bcc.Add(group); }
         public void AddBcc(string code) { Bcc.Add(code); }
         public void AddBcc(string code, string displayName) { Bcc.Add(code, displayName); }
 

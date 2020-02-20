@@ -11,21 +11,25 @@ namespace Zen.Web.Data.Controller
 {
     public static class Extensions
     {
-        internal static void AddHeaders(this IHeaderDictionary header, Dictionary<string, object> payload)
+        internal static IHeaderDictionary AddHeaders(this IHeaderDictionary headers, Dictionary<string, object> payload)
         {
-            if (payload == null) return;
+            if (payload == null) return headers;
 
-            foreach (var (key, value) in payload) header.AddHeader(key, value);
+            foreach (var (key, value) in payload) headers.AddHeader(key, value);
+
+            return headers;
         }
 
-        internal static void AddHeader(this IHeaderDictionary header, string key, object value)
+        internal static IHeaderDictionary AddHeader(this IHeaderDictionary headers, string key, object value)
         {
-            if (value == null) return;
-            if (header.ContainsKey(key)) header.Remove(key);
-            header.Add(key, value.ToJson());
+            if (value == null) return headers;
+            if (headers.ContainsKey(key)) headers.Remove(key);
+            headers.Add(key, value.ToJson());
+
+            return headers;
         }
 
-        internal static void AddModelHeaders<T>(this IHeaderDictionary responseHeaders, ref DataAccessControl accessControl, IQueryCollection sourceQuery, EActionScope scope, T model = null) where T : Data<T>
+        internal static IHeaderDictionary AddModelHeaders<T>(this IHeaderDictionary responseHeaders, ref DataAccessControl accessControl, IQueryCollection sourceQuery, EActionScope scope, T model = null) where T : Data<T>
         {
             var sourceParameters = sourceQuery.ToDictionary(i => i.Key, i => i.Value);
 
@@ -36,6 +40,8 @@ namespace Zen.Web.Data.Controller
             if (Info<T>.Settings?.Pipelines?.After != null)
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.After)
                     AddHeaders(responseHeaders, pipelineMember.Headers(ref accessControl, sourceParameters, scope, model));
+
+            return responseHeaders;
         }
 
         public static Dictionary<string, object> GetAccessHeaders(this DataAccessControl accessControl)
@@ -86,14 +92,14 @@ namespace Zen.Web.Data.Controller
             if (postProcessContent.HasValue) mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
         }
 
-        internal static void AddMutatorHeaders<T>(this IHeaderDictionary header, Mutator mutator) where T : Data<T>
+        internal static IHeaderDictionary AddMutatorHeaders<T>(this IHeaderDictionary headers, Mutator mutator) where T : Data<T>
         {
-            if (mutator.Transform.Pagination == null) return;
+            if (mutator.Transform.Pagination == null) return headers;
 
             var count = Data<T>.Count(mutator);
             var pages = count < 2 ? count : (int)((count - 1) / mutator.Transform.Pagination.Size) + 1;
 
-            header.AddHeader("x-zen-pagination",
+            headers.AddHeader("x-zen-pagination",
                              new
                              {
                                  page = mutator.Transform.Pagination.Index,
@@ -102,8 +108,10 @@ namespace Zen.Web.Data.Controller
                                  pages
                              });
 
-            header.AddHeader("X-Total-Count", count);
-            header.AddHeader("X-Total-Pages", pages);
+            headers.AddHeader("X-Total-Count", count);
+            headers.AddHeader("X-Total-Pages", pages);
+
+            return headers;
         }
     }
 }

@@ -59,9 +59,10 @@ namespace Zen.Web.Data.Controller
                 Remove = CanRemove
             };
 
-            Response.Headers.AddModelHeaders<T>(ref accessControl, Request.Query, scope, model);
-            Response.Headers.AddHeaders(GetAccessHeaders(accessControl));
-            Response.Headers.AddMutatorHeaders<T>(RequestMutator);
+            Response.Headers?
+                .AddModelHeaders(ref accessControl, Request.Query, scope, model)?
+                .AddHeaders(GetAccessHeaders(accessControl))?
+                .AddMutatorHeaders<T>(RequestMutator);
 
             var result = new ObjectResult(content) { StatusCode = (int)status };
             return result;
@@ -219,19 +220,21 @@ namespace Zen.Web.Data.Controller
                 var outputCollection = RequestMutator.Transform != null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
 
                 return PrepareResponse(outputCollection);
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"GET: {e.Message}");
                 Base.Current.Log.Add<T>(e);
                 throw;
+            }
+            finally
+            {
+                tl.End();
             }
         }
 
         [HttpGet("new", Order = 999), AllProperties]
         public virtual IActionResult GetNewModel()
         {
-
             var tl = new TimeLog().Start();
 
             try
@@ -383,7 +386,6 @@ namespace Zen.Web.Data.Controller
                 throw;
             }
         }
-
         #endregion
     }
 }

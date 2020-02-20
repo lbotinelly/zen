@@ -262,7 +262,7 @@ namespace Zen.Base.Module.Service
 
             var probe = types.CreateInstance<T>();
 
-            serviceCollection.AddSingleton(s => probe);
+            serviceCollection.AddSingleton(s=> probe);
             Events.AddLog(descriptor, probe.ToString());
 
             return serviceCollection;
