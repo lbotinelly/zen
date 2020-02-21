@@ -48,7 +48,7 @@ namespace Zen.Web.Host
                             var localAddress = IPAddress.Parse("0.0.0.0"); // But we'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
 
                             var httpPort = Current.Configuration?.Development?.HttpPort ?? 5000;
-                            Base.Host.Variables[Base.Host.Keys.WebHttpPort] = httpPort;
+                            Base.Host.Variables[Keys.WebHttpPort] = httpPort;
                             // var httpPort = Base.Host.Variables.GetValue(Base.Host.Constants.WebHttpPort).ToType<int>();
 
                             options.Listen(
@@ -60,7 +60,7 @@ namespace Zen.Web.Host
                             if (devCertificate == null) return;
 
                             var httpsPort = Current.Configuration?.Development?.HttpsPort ?? 5001;
-                            Base.Host.Variables[Base.Host.Keys.WebHttpsPort] = httpsPort;
+                            Base.Host.Variables[Keys.WebHttpsPort] = httpsPort;
 
                             options.Listen(
                                 localAddress,

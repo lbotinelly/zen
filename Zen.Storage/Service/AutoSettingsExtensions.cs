@@ -10,9 +10,8 @@ namespace Zen.Storage.Service
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddZenProvider<ZenConfigurationStorage>("Configuration Storage")
-                .AddZenProvider<ZenFileStoragePrimitive>("File Storage")
-                //.AddZenProvider<IZenFileDescriptor>("File Descriptor")
+                .AddZenProvider<ConfigurationStorage>("Configuration Storage")
+                .AddZenProvider<FileStoragePrimitive>("File Storage")
                 ;
 
             return serviceCollection;

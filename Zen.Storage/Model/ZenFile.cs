@@ -7,7 +7,7 @@ using Zen.Storage.Provider.File;
 namespace Zen.Storage.Model
 {
     [Priority(Level = -99)]
-    public class ZenFile : ZenFileBaseDescriptor<ZenFile>, IZenFileDescriptor {
+    public class ZenFile : ZenFileBaseDescriptor<ZenFile>, IFileDescriptor {
         #region Implementation of IDataId
 
         public string Id { get; set; }
@@ -30,7 +30,7 @@ namespace Zen.Storage.Model
         public DateTime Creation { get; set; }
         public TagCollection Tags { get; set; }
         public AudienceDefinition Audience { get; set; }
-        public IZenFileDescriptor GetNewInstance() => new ZenFile();
+        public IFileDescriptor GetNewInstance() => new ZenFile();
 
         #endregion
     }

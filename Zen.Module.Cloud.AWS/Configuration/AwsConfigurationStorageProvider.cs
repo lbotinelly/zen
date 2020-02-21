@@ -9,7 +9,7 @@ using Zen.Storage.Provider.Configuration;
 
 namespace Zen.Module.Cloud.AWS.Configuration
 {
-    public class AwsConfigurationStorageProvider<T> : IZenConfigurationStorageProvider where T : class, IAwsConfigurationStorageProvider
+    public class AwsConfigurationStorageProvider<T> : IConfigurationStorageProvider where T : class, IAwsConfigurationStorageProvider
     {
         private CloudConfigurationStorageAttribute _config;
 
@@ -19,7 +19,7 @@ namespace Zen.Module.Cloud.AWS.Configuration
 
         #region Implementation of IConfigurationStorageProvider
 
-        public void Initialize(ZenConfigurationStorageAttribute config)
+        public void Initialize(ConfigurationStorageAttribute config)
         {
             _config = config as CloudConfigurationStorageAttribute;
             if (_config == null) return;

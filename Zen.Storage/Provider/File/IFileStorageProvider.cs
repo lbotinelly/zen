@@ -1,9 +1,9 @@
 ﻿namespace Zen.Storage.Provider.File
 {
-    public interface IZenFileStorageProvider
+    public interface IFileStorageProvider
     {
         string Descriptor { get; }
-        void Initialize(ZenFileStorageAttribute config);
+        void Initialize(FileStorageAttribute config);
         bool IsValid(object sourceModel);
         object Load();
         void Save(object sourceModel);

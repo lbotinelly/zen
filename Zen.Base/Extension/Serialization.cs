@@ -30,13 +30,25 @@ namespace Zen.Base.Extension
             lock (OLock) { source.Add(obj); }
         }
 
+        public static string MergeJson(this string source, string extra)
+        {
+            var sourceObject = JObject.Parse(source);
+            var extraObject = JObject.Parse(extra);
+
+            sourceObject.Merge(extraObject, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+
+            source = sourceObject.ToString(Formatting.None);
+
+            return source;
+        }
+
         public static string ToXml(this object obj)
         {
             var serializer = new XmlSerializer(obj.GetType());
 
             using (var writer = new Utf8StringWriter())
             {
-                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings {Indent = false}))
+                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = false }))
                 {
                     var ns = new XmlSerializerNamespaces();
 
@@ -73,8 +85,8 @@ namespace Zen.Base.Extension
         {
             var jo = JObject.Parse(obj);
             var myTest = jo.Descendants()
-                .Where(t => t.Type == JTokenType.Property && ((JProperty) t).Name == nodeName)
-                .Select(p => ((JProperty) p).Value)
+                .Where(t => t.Type == JTokenType.Property && ((JProperty)t).Name == nodeName)
+                .Select(p => ((JProperty)p).Value)
                 .FirstOrDefault();
             return myTest.ToString();
         }
@@ -96,7 +108,7 @@ namespace Zen.Base.Extension
                     if (colpos > 0) sb.Append(", ");
                     sb.Append("\"" + column + "\":");
 
-                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime) obj[colpos]).ToString("o") + "\"");
+                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime)obj[colpos]).ToString("o") + "\"");
                     else sb.Append(CleanupJsonData(obj[colpos]));
                 }
 
@@ -165,8 +177,8 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                where p.GetValue(obj, null) != null
-                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+                             where p.GetValue(obj, null) != null
+                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
         }
@@ -192,7 +204,7 @@ namespace Zen.Base.Extension
                 else if (c >= 'A' && c <= 'Z')
                 {
                     // tricky way to convert to lowercase
-                    sb.Append((char) (c | 32));
+                    sb.Append((char)(c | 32));
                     prevdash = false;
                 }
                 else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
@@ -305,14 +317,14 @@ namespace Zen.Base.Extension
             // https://theburningmonk.com/2011/05/idictionarystring-object-to-expandoobject-extension-method/
 
             var expando = new ExpandoObject();
-            var expandoDic = (IDictionary<string, object>) expando;
+            var expandoDic = (IDictionary<string, object>)expando;
 
             // go through the items in the dictionary and copy over the key value pairs)
             foreach (var kvp in dictionary)
                 // if the value can also be turned into an ExpandoObject, then do it!
                 if (kvp.Value is IDictionary<string, object>)
                 {
-                    var expandoValue = ((IDictionary<string, object>) kvp.Value).ToExpando();
+                    var expandoValue = ((IDictionary<string, object>)kvp.Value).ToExpando();
                     expandoDic.Add(kvp.Key, expandoValue);
                 }
                 else if (kvp.Value is ICollection)
@@ -320,10 +332,10 @@ namespace Zen.Base.Extension
                     // iterate through the collection and convert any strin-object dictionaries
                     // along the way into expando objects
                     var itemList = new List<object>();
-                    foreach (var item in (ICollection) kvp.Value)
+                    foreach (var item in (ICollection)kvp.Value)
                         if (item is IDictionary<string, object>)
                         {
-                            var expandoItem = ((IDictionary<string, object>) item).ToExpando();
+                            var expandoItem = ((IDictionary<string, object>)item).ToExpando();
                             itemList.Add(expandoItem);
                         }
                         else { itemList.Add(item); }
@@ -363,12 +375,14 @@ namespace Zen.Base.Extension
             {
                 JToken.Parse(strInput);
                 return true;
-            } catch (JsonReaderException jex)
+            }
+            catch (JsonReaderException jex)
             {
                 //Exception in parsing json
                 Console.WriteLine(jex.Message);
                 return false;
-            } catch (Exception ex) //some other exception
+            }
+            catch (Exception ex) //some other exception
             {
                 Console.WriteLine(ex.ToString());
                 return false;
@@ -427,14 +441,14 @@ namespace Zen.Base.Extension
         {
             var ret = new Dictionary<string, string>();
 
-            foreach (var jToken in (JToken) source)
+            foreach (var jToken in (JToken)source)
             {
-                var t = (JProperty) jToken;
+                var t = (JProperty)jToken;
 
                 var k = t.Name;
                 var v = t.Value;
 
-                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject) v)).ToDictionary(x => x.Key, x => x.Value);
+                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject)v)).ToDictionary(x => x.Key, x => x.Value);
                 else ret.Add(t.Path, v.ToString());
             }
 
@@ -452,7 +466,7 @@ namespace Zen.Base.Extension
                 var genericListType = typeof(List<>);
 
                 var specificListType = genericListType.MakeGenericType(destinyFormat);
-                type = ((IEnumerable<object>) Activator.CreateInstance(specificListType)).GetType();
+                type = ((IEnumerable<object>)Activator.CreateInstance(specificListType)).GetType();
             }
 
             if (obj == null) return null;
@@ -462,7 +476,7 @@ namespace Zen.Base.Extension
         public static dynamic ToObject(this Dictionary<string, object> source)
         {
             var eo = new ExpandoObject();
-            var eoColl = (ICollection<KeyValuePair<string, object>>) eo;
+            var eoColl = (ICollection<KeyValuePair<string, object>>)eo;
 
             foreach (var kvp in source) eoColl.Add(kvp);
 
@@ -493,7 +507,7 @@ namespace Zen.Base.Extension
             using (var ms = new MemoryStream(data))
             {
                 var obj = bf.Deserialize(ms);
-                return (T) obj;
+                return (T)obj;
             }
         }
 
@@ -515,7 +529,7 @@ namespace Zen.Base.Extension
             using (var stream = new MemoryStream(obj))
             {
                 var ser = new BinaryFormatter();
-                return (T) ser.Deserialize(stream);
+                return (T)ser.Deserialize(stream);
             }
         }
 
@@ -648,7 +662,8 @@ namespace Zen.Base.Extension
             {
                 creator = BuildCreator();
                 initializationException = null;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 creator = null;
                 initializationException = e;

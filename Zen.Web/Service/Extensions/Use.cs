@@ -43,7 +43,7 @@ namespace Zen.Web.Service.Extensions
 
                 var rootPrefix = "/" + prefix; // e.g. "/appcode"
 
-                Base.Host.Variables[Base.Host.Keys.WebRootPrefix] = rootPrefix;
+                Base.Host.Variables[Host.Keys.WebRootPrefix] = rootPrefix;
 
                 Events.AddLog("Web.RootPrefix", rootPrefix);
 
@@ -76,8 +76,8 @@ namespace Zen.Web.Service.Extensions
 
                                 if (Base.Host.IsDevelopment)
                                 {
-                                    var httpPort = Base.Host.Variables.GetValue(Base.Host.Keys.WebHttpPort).ToType<int, object>();
-                                    var httpsPort = Base.Host.Variables.GetValue(Base.Host.Keys.WebHttpsPort).ToType<int, object>();
+                                    var httpPort = Base.Host.Variables.GetValue(Host.Keys.WebHttpPort).ToType<int, object>();
+                                    var httpsPort = Base.Host.Variables.GetValue(Host.Keys.WebHttpsPort).ToType<int, object>();
 
                                     if (sourcePort == httpPort)
                                     {

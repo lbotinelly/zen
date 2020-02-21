@@ -5,7 +5,7 @@ using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.Storage.Provider.File
 {
-    public interface IZenFileDescriptor : IDataId, IDataLocator
+    public interface IFileDescriptor : IDataId, IDataLocator
     {
         string StorageName { get; set; }
         string OriginalName { get; set; }
@@ -15,6 +15,6 @@ namespace Zen.Storage.Provider.File
         DateTime Creation { get; set; }
         TagCollection Tags { get; set; }
         AudienceDefinition Audience { get; set; }
-        IZenFileDescriptor GetNewInstance();
+        IFileDescriptor GetNewInstance();
     }
 }

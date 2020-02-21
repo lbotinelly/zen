@@ -4,7 +4,7 @@ using Zen.Storage.Provider.Configuration;
 namespace Zen.Cloud.Configuration
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class CloudConfigurationStorageAttribute : ZenConfigurationStorageAttribute
+    public class CloudConfigurationStorageAttribute : ConfigurationStorageAttribute
     {
         public bool ReadOnly { get; set; } = true;
         public string FileName { get; set; } = "zenFrameworkSettings.json";

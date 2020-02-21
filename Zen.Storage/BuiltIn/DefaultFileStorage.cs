@@ -8,19 +8,19 @@ using Zen.Storage.Provider.File;
 namespace Zen.Storage.BuiltIn
 {
     [Priority(Level = -99)]
-    public class DefaultFileStorage : ZenFileStoragePrimitive
+    public class DefaultFileStorage : FileStoragePrimitive
     {
         private string _location;
 
         public override void ResolveStorage() { _location = Host.DataDirectory; }
 
-        public override async Task<Stream> Fetch(IZenFileDescriptor fileDescriptor)
+        public override async Task<Stream> Fetch(IFileDescriptor fileDescriptor)
         {
             var targetPath = Path.Combine(fileDescriptor.StoragePath, fileDescriptor.StorageName);
             return new FileStream(targetPath, FileMode.Open);
         }
 
-        public override async Task<string> Store(IZenFileDescriptor definition, Stream source)
+        public override async Task<string> Store(IFileDescriptor definition, Stream source)
         {
             var targetPath = Path.Combine(definition.StoragePath, definition.StorageName);
 

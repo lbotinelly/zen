@@ -10,7 +10,7 @@ namespace Zen.Storage.Model
     public class ZenFileBaseDescriptor<T> : Data<T> where T : Data<T>
     {
         private readonly ZenFileDescriptorAttribute _attribute;
-        private readonly ZenFileStoragePrimitive _provider;
+        private readonly FileStoragePrimitive _provider;
 
         public ZenFileBaseDescriptor()
         {
@@ -19,12 +19,12 @@ namespace Zen.Storage.Model
                              .Select(i => (ZenFileDescriptorAttribute) i)
                              .FirstOrDefault() ?? new ZenFileDescriptorAttribute();
             _provider =
-                _attribute.StorageType == null ? Current.FileStorageProvider : _attribute.StorageType.CreateInstance<ZenFileStoragePrimitive>();
+                _attribute.StorageType == null ? Current.FileStorageProvider : _attribute.StorageType.CreateInstance<FileStoragePrimitive>();
         }
 
-        public async Task<Stream> Fetch() { return await _provider.Fetch((IZenFileDescriptor) this); }
+        public async Task<Stream> Fetch() { return await _provider.Fetch((IFileDescriptor) this); }
 
-        public async Task<string> Store(Stream source) { return await _provider.Store((IZenFileDescriptor) this, source); }
-        public async Task<bool> Exists() { return await _provider.Exists((IZenFileDescriptor) this); }
+        public async Task<string> Store(Stream source) { return await _provider.Store((IFileDescriptor) this, source); }
+        public async Task<bool> Exists() { return await _provider.Exists((IFileDescriptor) this); }
     }
 }

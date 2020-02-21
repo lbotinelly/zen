@@ -2,7 +2,7 @@
 
 namespace Zen.Storage.Provider.File
 {
-    public abstract class ZenFileStorageAttribute : Attribute
+    public abstract class FileStorageAttribute : Attribute
     {
         public Type Provider { get; set; }
     }

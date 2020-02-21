@@ -74,9 +74,6 @@ namespace Zen.Base
             public static string EnvironmentIsProduction = "environmentIsProduction";
             public static string EnvironmentVersion = "environmentVersion";
             public static string RuntimeFramework = "runtimeFramework";
-            public static string WebHttpPort = "webHttpPort";
-            public static string WebHttpsPort = "webHttpsPort";
-            public static string WebRootPrefix = "webRootPrefix";
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Zen.Cloud.Service
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
-            var probe = IoC.GetClassesByInterface<ICloudProvider>(false).FirstOrDefault()?.CreateInstance<ICloudProvider>();
+            var targetProvider = IoC.GetClassesByInterface<ICloudProvider>(false).FirstOrDefault()?.CreateInstance<ICloudProvider>();
 
-            if (probe == null) return serviceCollection;
+            if (targetProvider == null) return serviceCollection;
 
-            serviceCollection.AddSingleton(s => probe);
-            Events.AddLog("Cloud Provider", probe?.ToString());
+            serviceCollection.AddSingleton(s => targetProvider);
+            Events.AddLog("Cloud Provider", targetProvider?.ToString());
 
             return serviceCollection;
             

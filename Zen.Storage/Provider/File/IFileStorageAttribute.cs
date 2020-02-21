@@ -1,6 +1,6 @@
 ﻿namespace Zen.Storage.Provider.File
 {
-    public interface IZenFileStorageAttribute
+    public interface IFileStorageAttribute
     {
         bool ReadOnly { get; set; }
     }

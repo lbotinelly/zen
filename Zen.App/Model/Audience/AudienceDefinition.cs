@@ -20,7 +20,6 @@ namespace Zen.App.Model.Audience
 
             var grps = Current.Orchestrator
                 .GetPersonByLocator(locator)
-
                 .Groups().Select(i => i.Code);
 
             if (Groups.Count > 0)
