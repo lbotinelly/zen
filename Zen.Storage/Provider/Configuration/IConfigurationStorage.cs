@@ -1,4 +1,4 @@
 ﻿namespace Zen.Storage.Provider.Configuration
 {
-    public interface IZenConfigurationStorage { }
+    public interface IConfigurationStorage { }
 }

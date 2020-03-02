@@ -268,22 +268,33 @@ namespace Zen.Web.Data.Controller
             }
         }
 
+
+        [NonAction]
+        public virtual T FetchModel(string key, ref Mutator mutator)
+        {
+            EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Model, key);
+            T model = null;
+
+            BeforeModelAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref model, null, key);
+
+            model = GetByLocatorOrKey(key, mutator);
+
+            if (model == null) return null;
+
+            AfterModelAction(EHttpMethod.Get, EActionType.Read, mutator, ref model, null, key);
+
+            return model;
+        }
+
+
         [HttpGet("{key}", Order = 999), AllProperties]
         public virtual IActionResult GetModel(string key)
         {
             try
             {
-                EvaluateAuthorization(EHttpMethod.Get, EActionType.Read, EActionScope.Model, key);
-                T model = null;
                 var mutator = RequestMutator;
 
-                BeforeModelAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref model, null, key);
-
-                model = GetByLocatorOrKey(key, mutator);
-
-                if (model == null) return NotFound();
-
-                AfterModelAction(EHttpMethod.Get, EActionType.Read, mutator, ref model, null, key);
+                var model = FetchModel(key, ref mutator);
 
                 var payload = BeforeModelEmit(EHttpMethod.Get, EActionType.Read, mutator, model) ?? model;
 
@@ -350,7 +361,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        private static T GetByLocatorOrKey(string referenceCode, Mutator mutator) { return typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator); }
+        internal T GetByLocatorOrKey(string referenceCode, Mutator mutator) { return typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator); }
 
         [HttpPatch("{key}", Order = 999)]
         public virtual ActionResult<T> PatchModel(string key, [FromBody] JsonPatchDocument<T> patchPayload)

@@ -33,6 +33,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Cloud.Google", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Cache.Redis", "Zen.Module.Cache.Redis\Zen.Module.Cache.Redis.csproj", "{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.Geo", "Zen.Pebble.Geo\Zen.Pebble.Geo.csproj", "{FAA7FCB3-59D0-484E-BD78-63898522A928}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.Database", "Zen.Pebble.Database\Zen.Pebble.Database.csproj", "{1C2F074C-5945-4203-AAF9-613AD09AF1F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,14 @@ Global
 		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70215602-70C1-4AE0-A3A0-E6424C7F1FFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAA7FCB3-59D0-484E-BD78-63898522A928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAA7FCB3-59D0-484E-BD78-63898522A928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAA7FCB3-59D0-484E-BD78-63898522A928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAA7FCB3-59D0-484E-BD78-63898522A928}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

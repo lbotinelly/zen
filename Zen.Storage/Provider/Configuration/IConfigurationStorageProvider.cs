@@ -1,9 +1,9 @@
 ﻿using Zen.Storage.Provider.Configuration;
 
 namespace Zen.Storage.Provider.Configuration {
-    public interface IZenConfigurationStorageProvider
+    public interface IConfigurationStorageProvider
     {
-        void Initialize(ZenConfigurationStorageAttribute config);
+        void Initialize(ConfigurationStorageAttribute config);
         bool IsValid(object sourceModel);
         object Load();
         void Save(object sourceModel);

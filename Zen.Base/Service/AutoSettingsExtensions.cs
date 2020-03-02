@@ -18,15 +18,9 @@ namespace Zen.Base.Service
         {
             serviceCollection.AddOptions();
 
-            // If a definition package is available use it; otherwise offer an empty package.
-
             var configurationPackage = (IoC.GetClassesByInterface<IConfigurationPackage>(false).FirstOrDefault() ?? typeof(DefaultSettingsPackage)).CreateInstance<IConfigurationPackage>();
 
-
             serviceCollection.AddSingleton(configurationPackage);
-
-            //var a = configurationPackage.Log ?? Resolution.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>();
-            //var b = configurationPackage.Cache ?? Resolution.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault()?.CreateInstance<ICacheProvider>();
 
             serviceCollection.AddSingleton(s => configurationPackage.Environment ?? IoC.GetClassesByInterface<IEnvironmentProvider>(false).FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.Log ?? IoC.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>());

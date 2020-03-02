@@ -5,7 +5,7 @@ using Zen.Base.Extension;
 
 namespace Zen.Storage.Provider.Configuration.FileSystem
 {
-    public class FileSystemConfiguratonStorageProvider<T> : IZenConfigurationStorageProvider where T : class
+    public class FileSystemConfiguratonStorageProvider<T> : IConfigurationStorageProvider where T : class
     {
         private FileSystemConfigurationStorageAttribute _config;
         private FileInfo _file;
@@ -15,7 +15,7 @@ namespace Zen.Storage.Provider.Configuration.FileSystem
 
         #region Implementation of IConfigurationStorageProvider
 
-        public void Initialize(ZenConfigurationStorageAttribute config)
+        public void Initialize(ConfigurationStorageAttribute config)
         {
             _config = config as FileSystemConfigurationStorageAttribute;
 

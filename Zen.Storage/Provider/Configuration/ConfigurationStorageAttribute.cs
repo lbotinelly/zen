@@ -2,7 +2,7 @@
 
 namespace Zen.Storage.Provider.Configuration
 {
-    public abstract class ZenConfigurationStorageAttribute : Attribute
+    public abstract class ConfigurationStorageAttribute : Attribute
     {
         public Type Provider { get; set; }
     }

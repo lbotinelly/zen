@@ -6,32 +6,30 @@ using Zen.Base.Extension;
 
 namespace Zen.Storage.Provider.Configuration
 {
-    public abstract class ZenConfigurationStorage : IZenConfigurationStorage, IZenProvider
+    public abstract class ConfigurationStorage : IConfigurationStorage, IZenProvider
     {
-        internal List<ZenConfigurationStorageAttribute> attributes;
+        internal List<ConfigurationStorageAttribute> Attributes;
 
-        protected ZenConfigurationStorage()
+        protected ConfigurationStorage()
         {
             // At the end of this evaluation only one provider will be made available for the session lifetime.
-
-            attributes = GetType().GetCustomAttributes(typeof(ZenConfigurationStorageAttribute), false).Select(i => (ZenConfigurationStorageAttribute)i).ToList();
+            Attributes = GetType().GetCustomAttributes(typeof(ConfigurationStorageAttribute), false).Select(i => (ConfigurationStorageAttribute)i).ToList();
         }
 
-        public IZenConfigurationStorageProvider Provider { get; private set; }
+        public IConfigurationStorageProvider Provider { get; private set; }
 
         #region Implementation of IZenProvider
 
         public void Initialize()
         {
             // Let's resolve who can get us some sweet, sweet config data.
-
-            var viableProviders = attributes;
+            var viableProviders = Attributes;
 
             if (!viableProviders.Any()) return;
 
             var instances = viableProviders.Select(i =>
             {
-                var instance = (IZenConfigurationStorageProvider)i.Provider.CreateInstance();
+                var instance = (IConfigurationStorageProvider)i.Provider.CreateInstance();
                 instance.Initialize(i);
 
                 return instance;

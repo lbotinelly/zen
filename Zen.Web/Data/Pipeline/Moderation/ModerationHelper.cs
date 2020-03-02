@@ -20,7 +20,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
             lock (ConcurrentLock)
             {
                 var t = typeof(T);
-                if (ConfigBlockCache.ContainsKey(t)) return (ConfigBlock<T>) ConfigBlockCache[t];
+                if (ConfigBlockCache.ContainsKey(t)) return (ConfigBlock<T>)ConfigBlockCache[t];
 
                 var e = new ConfigBlock<T>
                 {
@@ -46,12 +46,10 @@ namespace Zen.Web.Data.Pipeline.Moderation
             try
             {
                 // Maybe it came through POST:
-
-                Current.Context.Request.Body.Position = 0;
-                var preRet = new StreamReader(Current.Context.Request.Body).ReadToEnd();
-                response = preRet.FromJson<ModerationControlPayload>();
-                return response;
-            } catch { }
+                response = Current.Context.Request.BodyContent().FromJson<ModerationControlPayload>();
+                if (response != null) return response;
+            }
+            catch { }
 
             // But Querystring is also an option.
 
@@ -77,7 +75,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
                         var targetType = typeof(T);
                         if (CustomModerationPipelineCache.ContainsKey(targetType)) return CustomModerationPipelineCache[targetType];
 
-                        var targetModerationPipeline = typeof(ICustomModerationPipeline).IsAssignableFrom(typeof(T)) ? (ICustomModerationPipeline) Info<T>.Instance : null;
+                        var targetModerationPipeline = typeof(ICustomModerationPipeline).IsAssignableFrom(typeof(T)) ? (ICustomModerationPipeline)Info<T>.Instance : null;
 
                         CustomModerationPipelineCache.Add(targetType, targetModerationPipeline);
 

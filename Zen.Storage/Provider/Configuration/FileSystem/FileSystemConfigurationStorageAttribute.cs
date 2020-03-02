@@ -3,7 +3,7 @@
 namespace Zen.Storage.Provider.Configuration.FileSystem
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class FileSystemConfigurationStorageAttribute : ZenConfigurationStorageAttribute
+    public class FileSystemConfigurationStorageAttribute : ConfigurationStorageAttribute
     {
         public string FileName { get; set; }
         public string Location { get; set; }
