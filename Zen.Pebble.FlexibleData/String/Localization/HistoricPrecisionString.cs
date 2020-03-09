@@ -3,23 +3,24 @@ using System.Globalization;
 using System.Linq;
 using Zen.Pebble.FlexibleData.Common.Interface;
 using Zen.Pebble.FlexibleData.Culture;
+using Zen.Pebble.FlexibleData.Historical;
 using Zen.Pebble.FlexibleData.String.Localization.Concrete;
 using Zen.Pebble.FlexibleData.String.Localization.Interface;
 
 namespace Zen.Pebble.FlexibleData.String.Localization
 {
-    public class CultureTemporalString : IVariantCultured<string>
+    public class HistoricPrecisionString : VariantTemporalMap<string, string>, IScoped<string, string>
     {
         private CultureInfo _culture = CultureInfo.CurrentCulture;
-        public CultureTemporalString() { }
+        public HistoricPrecisionString() { }
 
-        public CultureTemporalString(string source, string culture = null, string comments = null)
+
+        public HistoricPrecisionString(string source, string culture = null, string comments = null)
         {
             _culture = culture.ToCultureInfo() ?? CultureInfo.CurrentCulture;
             SetVariant(source, culture, comments);
         }
 
-        public string Culture { get => _culture.Name; set => _culture = value.ToCultureInfo(); }
 
         public string Value
         {
@@ -30,15 +31,14 @@ namespace Zen.Pebble.FlexibleData.String.Localization
                 if (Variants.Count == 0) return null;
 
                 // DO we have a variant for the current culture? Otherwise pick whatever we have.
-                return Variants.ContainsKey(_culture.Name) ? Variants[_culture.Name].Variants.FirstOrDefault().Value : Variants.FirstOrDefault().Value.Variants.FirstOrDefault().Value;
+                return Variants.ContainsKey(_culture.Name) ? Variants[_culture.Name].Variants.FirstOrDefault()?.Value : Variants.FirstOrDefault().Value.Variants.FirstOrDefault()?.Value;
+            }
+            set
+            {
+                // Auto-resolved, so ignore. Setter preserved for serialization purposes.
             }
         }
-
-        #region Implementation of ICulturedVariantValue<string>
-
-        public Dictionary<string, IVariant<ITemporalCommented<string>>> Variants { get; set; }
-
-        #endregion
+        public string Scope { get => _culture.Name; set => _culture = value.ToCultureInfo(); }
 
         public override string ToString()
         {
@@ -47,16 +47,12 @@ namespace Zen.Pebble.FlexibleData.String.Localization
 
             if (!(Variants?.Count > 0)) return tmp ?? base.ToString();
 
-            tmp += $" ({string.Join(", ", Variants.Select(i => $"[{i.Key}] {string.Join(", ", i.Value)}").ToList())})";
+            // tmp += $" ({string.Join(", ", Variants.Select(i => $"[{i.Key}] {string.Join(", ", i.Value)}").ToList())})";
 
             return tmp;
         }
 
-        public CultureTemporalString SetVariant(string value, string culture = null, string comments = null, System.DateTime? startDate = null, System.DateTime? endDate = null) { return SetVariant(value, culture, comments, null, startDate, endDate); }
-
-        public CultureTemporalString SetVariant(string value, string culture = null, string comments = null) { return SetVariant(value, culture, comments, null); }
-
-        public CultureTemporalString SetVariant(string value, string culture, string comments, string boundaryId, System.DateTime? startDate, System.DateTime? endDate)
+        public HistoricPrecisionString SetVariant(string value, string culture = null, string comments = null, string boundaryId = null, System.DateTime? startDate = null, System.DateTime? endDate = null)
         {
             if (value == null) return null;
 
@@ -64,13 +60,13 @@ namespace Zen.Pebble.FlexibleData.String.Localization
 
             value = value?.Trim();
 
-            if (Variants == null) Variants = new Dictionary<string, IVariant<ITemporalCommented<string>>>();
+            if (Variants == null) Variants = new Dictionary<string, Variant<TemporalCommented<string>>>();
 
             // Detect target Culture
 
             var cultureProbe = culture.ToCultureInfo()?.Name ?? _culture.Name;
 
-            if (!Variants.ContainsKey(cultureProbe)) Variants[cultureProbe] = new VariantCommentedTemporalString { Variants = new List<ITemporalCommented<string>>() };
+            if (!Variants.ContainsKey(cultureProbe)) Variants[cultureProbe] = new HistoricCultureString { Variants = new List<TemporalCommented<string>>() };
 
             // Detect target Boundary
 
@@ -88,12 +84,18 @@ namespace Zen.Pebble.FlexibleData.String.Localization
             targetEntry.Value = value;
             targetEntry.Comments = comments;
 
-            if (startDate != null || endDate != null) targetEntry.Boundaries = new HistoricPrecisionBoundary(startDate, endDate);
+            if (startDate != null || endDate != null) targetEntry.Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
 
             return this;
         }
 
-        public static implicit operator CultureTemporalString(string source) { return new CultureTemporalString(source); }
-        public static implicit operator string(CultureTemporalString source) { return source.Value; }
+        public static implicit operator HistoricPrecisionString(string source) => string.IsNullOrEmpty(source) ? null : new HistoricPrecisionString(source);
+        public static implicit operator string(HistoricPrecisionString source) => source.Value;
+
+        #region Implementation of IVariantTemporalMap<string,string>
+
+
+
+        #endregion
     }
 }

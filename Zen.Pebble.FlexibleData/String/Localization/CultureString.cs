@@ -12,7 +12,7 @@
 //    {
 
 //        public Dictionary<string, IVariant<ICommentedTemporalValue<string>>> Variants { get; set; }
-        
+
 //        private CultureInfo _culture = CultureInfo.CurrentCulture;
 //        public CultureString() { }
 //        public CultureString(string source, string culture = null, string comment = null) => SetVariant(source, culture, comment);
@@ -60,7 +60,7 @@
 //                return null;
 //            }
 
-//            Variants[culture] = comments != null ? new CommentedStringValue {Value = value, Comments = comments} : new StringValue {Value = value};
+//            Variants[culture] = comments != null ? new CommentedStringValue { Value = value, Comments = comments } : new StringValue { Value = value };
 
 //            return this;
 //        }

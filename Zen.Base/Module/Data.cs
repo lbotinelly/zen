@@ -30,8 +30,9 @@ namespace Zen.Base.Module
         private bool _isDeleted;
         private bool? _isNew;
 
-        #region Bootstrap
+        public static string GetName() => Info<T>.Settings.FriendlyName;
 
+        #region Bootstrap
         static Data()
         {
             lock (_InitializationLock)
@@ -428,9 +429,21 @@ namespace Zen.Base.Module
         public static IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
             ValidateState(EActionType.Read);
-            mutator = Info<T>.Settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
 
-            return Info<T>.Settings.Adapter.Where(predicate, mutator).ToList().AfterGet();
+
+            var settings = Info<T>.Settings;
+
+            mutator = settings.GetInstancedModifier<T>().Value.BeforeQuery(EActionType.Read, mutator) ?? mutator;
+
+            try
+            {
+                return settings.Adapter.Where(predicate, mutator).ToList().AfterGet();
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public static IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }

@@ -1,4 +1,6 @@
-﻿namespace Zen.Base.Common
+﻿using Zen.Base.Module;
+
+namespace Zen.Base.Common
 {
     public class DataReference
     {
@@ -7,8 +9,13 @@
 
         #region Overrides of Object
 
-        public override string ToString() { return Display.Equals(Key) ? Key: $"[{Key}] {Display}" ; }
+        public override string ToString() { return Display.Equals(Key) ? Key : $"[{Key}] {Display}"; }
 
         #endregion
+    }
+
+    public class DataReference<T> : DataReference where T : Data<T>
+    {
+        public T GetModel() { return Key == null ? null : Data<T>.Get(Key); }
     }
 }
