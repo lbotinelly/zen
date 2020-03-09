@@ -9,7 +9,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
         public StringValue(string source = null) => Value = source;
         public string Value { get; set; }
 
-        public static implicit operator StringValue(string source) => new StringValue(source);
+        public static implicit operator StringValue(string source) => string.IsNullOrEmpty(source) ? null : new StringValue(source);
         public static implicit operator string(StringValue source) => source.Value;
     }
 }

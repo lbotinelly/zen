@@ -63,13 +63,10 @@ namespace Zen.Base.Module.Service
                 foreach (var item in AssemblyLoadMap)
                     try { item.Value.GetTypes(); } catch (Exception e) { Base.Log.Add("Error while loading " + item.Key, e); }
             }
+
             Base.Log.KeyValuePair("Assembly Loader", $"{AssemblyLoadMap.Count} assemblies registered", Message.EContentType.StartupSequence);
 
-            foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap))
-            {
-                Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
-            }
-
+            foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap)) Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
         }
 
         public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class { return GetClassesByInterface<T>(excludeCoreNullDefinitions).Select(i => i.CreateInstance<T>()).ToList(); }
@@ -168,6 +165,10 @@ namespace Zen.Base.Module.Service
             }
         }
 
+        public static List<Type> TypeByName(string typeName) => AssemblyLoadMap.Values.ToList()
+            .SelectMany(i => i.GetTypes().Where(j => !j.IsInterface && !j.IsAbstract && (j.Name.Equals(typeName) || j.FullName?.Equals(typeName) == true)))
+            .ToList();
+
         public static List<Type> GetClassesByBaseClass(Type refType, bool limitToMainAssembly = false)
         {
             try
@@ -262,7 +263,7 @@ namespace Zen.Base.Module.Service
 
             var probe = types.CreateInstance<T>();
 
-            serviceCollection.AddSingleton(s=> probe);
+            serviceCollection.AddSingleton(s => probe);
             Events.AddLog(descriptor, probe.ToString());
 
             return serviceCollection;

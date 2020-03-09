@@ -17,6 +17,7 @@ using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Log;
+using Zen.Base.Module.Service;
 using Zen.Module.Data.MongoDB.Mapping;
 using Zen.Module.Data.MongoDB.Serialization;
 
@@ -122,6 +123,26 @@ namespace Zen.Module.Data.MongoDB
         private string _collectionNamespace = "";
         private string _collectionName = "";
 
+        private void RegisterBsonType(Type type, bool mapId = true)
+        {
+            if (BsonClassMap.IsClassMapRegistered(type)) return;
+
+            Current.Log.KeyValuePair("MongoDbAdapter ClassMap", type.FullName);
+
+            var classMapDefinition = typeof(BsonClassMap<>);
+            var classMapType = classMapDefinition.MakeGenericType(type);
+            var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
+
+            try
+            {
+                classMap.AutoMap();
+                if (mapId) classMap.MapIdProperty(Key);
+
+                BsonClassMap.RegisterClassMap(classMap);
+            }
+            catch (Exception e) { Log.KeyValuePair(type.FullName, e.Message, Message.EContentType.Warning); }
+        }
+
         private void RegisterGenericChain(Type type)
         {
             try
@@ -133,32 +154,10 @@ namespace Zen.Module.Data.MongoDB
                         TypeCache.Add(type);
 
                         if (!type.IsAbstract)
-                            if (!type.IsGenericType)
-                            {
-                                if (!BsonClassMap.IsClassMapRegistered(type))
-                                {
-                                    // Current.Log.Add("MongoDbinterceptor: Registering " + type.FullName);
-
-                                    var classMapDefinition = typeof(BsonClassMap<>);
-                                    var classMapType = classMapDefinition.MakeGenericType(type);
-                                    var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
-
-                                    // Do custom initialization here, e.g. classMap.SetDiscriminator, AutoMap etc
-
-                                    try
-                                    {
-                                        classMap.AutoMap();
-                                        classMap.MapIdProperty(Key);
-
-                                        BsonClassMap.RegisterClassMap(classMap);
-                                    }
-                                    catch (Exception e) { Log.KeyValuePair(type.FullName, e.Message, Message.EContentType.Warning); }
-                                }
-                            }
+                            if (!type.IsGenericType) RegisterBsonType(type);
                             else
-                            {
-                                foreach (var t in type.GetTypeInfo().GenericTypeArguments) RegisterGenericChain(t);
-                            }
+                                foreach (var t in type.GetTypeInfo().GenericTypeArguments)
+                                    RegisterGenericChain(t);
                     }
 
                     type = type.BaseType;
@@ -200,6 +199,11 @@ namespace Zen.Module.Data.MongoDB
 
                 return model == null ? null : BsonSerializer.Deserialize<T>(model);
             }
+            catch (FormatException e)
+            {
+                if (TryRegisterByException(e)) return Get<T>(key, mutator);
+                throw;
+            }
             catch (Exception e)
             {
                 Current.Log.Add($"{Database.Client.Settings.Credential.Username}@{Database.DatabaseNamespace} - {Collection(mutator).CollectionNamespace}:{key} {e.Message}", Message.EContentType.Warning);
@@ -217,25 +221,61 @@ namespace Zen.Module.Data.MongoDB
 
         public override IEnumerable<T> Query<T>(string statement) { return Query<T>(statement.ToModifier()); }
 
-        public override IEnumerable<T> Query<T>(Mutator mutator = null) { return Query<T, T>(mutator); }
+        public override IEnumerable<T> Query<T>(Mutator mutator = null)
+        {
+
+            return Query<T, T>(mutator);
+        }
 
         public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            var t = Collection<T>(mutator).AsQueryable().Where(predicate);
-            return t;
+            try { return Collection<T>(mutator).AsQueryable().Where(predicate).ToList(); }
+            catch (FormatException e)
+            {
+                if (TryRegisterByException(e)) return Where(predicate, mutator);
+
+                throw;
+            }
+        }
+
+        private bool TryRegisterByException(FormatException formatException)
+        {
+            var parts = formatException.Message.Split("'").ToList();
+
+            if (parts.Count != 3) return false;
+
+            try
+            {
+                var probe = IoC.TypeByName(parts[1])?.FirstOrDefault();
+                RegisterBsonType(probe, false);
+
+                return true;
+            }
+            catch (Exception e) { }
+
+            return false;
         }
 
         public override IEnumerable<TU> Query<T, TU>(string statement) { return Query<T, TU>(statement.ToModifier()); }
 
         public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null)
         {
-            var fluentCollection = Collection(mutator).ApplyTransform<T>(mutator?.Transform);
+            try
+            {
 
-            var colRes = fluentCollection.ToListAsync();
-            Task.WhenAll(colRes);
+                var fluentCollection = Collection(mutator).ApplyTransform<T>(mutator?.Transform);
 
-            var res = colRes.Result.AsParallel().Select(v => BsonSerializer.Deserialize<TU>(v)).ToList();
-            return res;
+                var colRes = fluentCollection.ToListAsync();
+                Task.WhenAll(colRes);
+
+                var res = colRes.Result.AsParallel().Select(v => BsonSerializer.Deserialize<TU>(v)).ToList();
+                return res;
+            }
+            catch (FormatException e)
+            {
+                if (TryRegisterByException(e)) return Query<T, TU>(mutator);
+                throw;
+            }
         }
 
         public override long Count<T>(Mutator mutator = null) { return Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument()); }

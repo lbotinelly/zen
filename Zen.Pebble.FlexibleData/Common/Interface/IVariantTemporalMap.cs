@@ -3,8 +3,8 @@ using Zen.Pebble.FlexibleData.String.Localization.Interface;
 
 namespace Zen.Pebble.FlexibleData.Common.Interface
 {
-    public interface IVariantCultured<T> : ICultured<T>
+    public interface IVariantTemporalMap<TU, T>
     {
-        Dictionary<string, IVariant<ITemporalCommented<T>>> Variants { get; set; }
+        Dictionary<TU, IVariant<ITemporalCommented<T>>> Variants { get; set; }
     }
 }

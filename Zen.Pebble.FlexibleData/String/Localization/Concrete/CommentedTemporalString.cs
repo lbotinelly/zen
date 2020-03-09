@@ -2,7 +2,7 @@
 
 namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
 {
-    public class CommentedTemporalString : ITemporalCommented<string>
+    public class CommentedTemporalString : TemporalCommented<string>
     {
         public CommentedTemporalString() { }
 
@@ -10,18 +10,12 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
         {
             Value = source;
             Comments = comments;
-            if (startDate != null || endDate != null) Boundaries = new HistoricPrecisionBoundary(startDate, endDate);
+            if (startDate != null || endDate != null) Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
         }
-
-        public HistoricPrecisionBoundary Boundaries { get; set; }
-        public string Comments { get; set; }
-
-        public string Value { get; set; }
-
         public override string ToString() { return Value; }
 
-        public static implicit operator CommentedTemporalString(string source) { return new CommentedTemporalString(source); }
+        public static implicit operator CommentedTemporalString(string source) => string.IsNullOrEmpty(source) ? null : new CommentedTemporalString(source);
 
-        public static implicit operator string(CommentedTemporalString source) { return source.Value; }
+        public static implicit operator string(CommentedTemporalString source) => source.Value;
     }
 }

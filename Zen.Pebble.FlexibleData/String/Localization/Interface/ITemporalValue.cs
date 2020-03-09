@@ -5,6 +5,6 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Interface
 {
     public interface ITemporalValue<out T> : IValue<T>
     {
-        HistoricPrecisionBoundary Boundaries { get; }
+        HistoricDateTimeBoundary Boundaries { get; }
     }
 }

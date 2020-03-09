@@ -227,14 +227,14 @@ namespace Zen.Base.Common
         /// </summary>
         /// <param name="shortGuid"></param>
         /// <returns></returns>
-        public static implicit operator ShortGuid(string shortGuid) { return new ShortGuid(shortGuid); }
+        public static implicit operator ShortGuid(string shortGuid) => new ShortGuid(shortGuid);
 
         /// <summary>
         ///     Implicitly converts the Guid to a ShortGuid
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public static implicit operator ShortGuid(Guid guid) { return new ShortGuid(guid); }
+        public static implicit operator ShortGuid(Guid guid) => new ShortGuid(guid);
 
         #endregion
     }
