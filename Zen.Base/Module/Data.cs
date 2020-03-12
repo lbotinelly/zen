@@ -746,7 +746,7 @@ namespace Zen.Base.Module
 
             var fullKey = mutator?.KeyPrefix + model?.GetDataKey();
 
-            CacheFactory.StoreModel(fullKey, model);
+            if (!string.IsNullOrEmpty(fullKey)) CacheFactory.StoreModel(fullKey, model);
 
             return model;
         }
