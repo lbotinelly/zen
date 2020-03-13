@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         zen-project: [Base,App,Storage,Media,Web,Module.Cache.Redis,Module.Data.LiteDB,Module.Data.MongoDB]
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -25,7 +26,7 @@ jobs:
         uses: AArnott/nbgv@v0.3
         with:
           setAllVars: true
-          
+
       - name: Publish Zen.${{matrix.zen-project}}
         uses: lbotinelly/publish-nuget@v2
         continue-on-error: true
