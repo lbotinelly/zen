@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - run: dotnet tool install -g nbgv
 
@@ -22,10 +24,10 @@ jobs:
       # with:
       #   dotnet-version: 3.1.100
 
-      #- name: Nerdbank.GitVersioning
-      #  uses: AArnott/nbgv@v0.3
-      #  with:
-      #    setAllVars: true
+      - name: Nerdbank.GitVersioning
+        uses: AArnott/nbgv@v0.3
+        with:
+          setAllVars: true
 
       #- run: echo "NBGV_SemVer2 $NBGV_SemVer2"          
 
