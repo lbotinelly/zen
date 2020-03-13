@@ -63,8 +63,8 @@ jobs:
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
-          PROJECT_FILE_PATH: Zen.Module.Data.LiteDB/Zen.Module.Data.LiteDB.csproj 
-          TAG_COMMIT: false 
+          PROJECT_FILE_PATH: Zen.Module.Data.LiteDB/Zen.Module.Data.LiteDB.csproj
+          TAG_COMMIT: false
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
       - name: Publish Zen.Module.Data.MongoDB
