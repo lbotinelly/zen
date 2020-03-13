@@ -15,6 +15,7 @@
     <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
     <PackageIconUrl />
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
