@@ -6,6 +6,9 @@
     <AssemblyName>Zen.Module.Cloud.AWS</AssemblyName>
     <RootNamespace>Zen.Module.Cloud.AWS</RootNamespace>
     <LangVersion>7.2</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +23,13 @@
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\Zen.Cloud\Zen.Cloud.csproj" />
     <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

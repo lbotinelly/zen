@@ -7,11 +7,14 @@
     <RootNamespace>Zen.Web</RootNamespace>
     <Version>0.0.1.0</Version>
     <Description>Web-related abstration layer for Zen</Description>
-    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
     <LangVersion>7.2</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,6 +44,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
