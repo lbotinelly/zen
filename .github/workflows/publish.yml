@@ -11,19 +11,15 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
+        zen-project: [Base,App,Storage,Media,Web,Module.Cache.Redis,Module.Data.LiteDB,Module.Data.MongoDB]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      # Required for a specific dotnet version that doesn't come with ubuntu-latest / windows-latest
-      # Visit bit.ly/2synnZl to see the list of SDKs that are pre-installed with ubuntu-latest / windows-latest
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
-      # with:
-      #   dotnet-version: 3.1.100
 
       - name: Nerdbank.GitVersioning
         uses: AArnott/nbgv@v0.3
@@ -32,7 +28,6 @@ jobs:
 
       - name: Publish Zen.${{matrix.zen-project}}
         uses: rohith/publish-nuget@v2
-        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.${{matrix.zen-project}}/Zen.${{matrix.zen-project}}.csproj
           TAG_COMMIT: false
