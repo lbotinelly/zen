@@ -10,6 +10,13 @@ jobs:
     name: list on nuget
     runs-on: ubuntu-latest
     steps:
+      - name: Nerdbank.GitVersioning
+        uses: AArnott/nbgv@v0.3
+        with:
+          setAllVars: true
+
+      - run: echo "NBGV_SemVer2 $NBGV_SemVer2"          
+
       - uses: actions/checkout@v2
 
       # Required for a specific dotnet version that doesn't come with ubuntu-latest / windows-latest
