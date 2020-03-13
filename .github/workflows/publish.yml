@@ -1,8 +1,10 @@
-name: publish to nuget
+name: Publish to nuget
+
 on:
   push:
     branches:
       - master # Default release branch
+
 jobs:
   publish:
     name: list on nuget
