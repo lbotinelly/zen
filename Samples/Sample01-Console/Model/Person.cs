@@ -10,7 +10,6 @@ namespace Sample01_Console.Model
     {
         [Key] public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        public string Name { get; set; } 
-            = DateTime.Now.ToString(CultureInfo.InvariantCulture).Md5Hash();
+        public string Name { get; set; } = DateTime.Now.ToString(CultureInfo.InvariantCulture).Md5Hash();
     }
 }
