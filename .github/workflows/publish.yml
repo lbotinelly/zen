@@ -20,12 +20,12 @@ jobs:
       # with:
       #   dotnet-version: 3.1.100
 
-      - name: Nerdbank.GitVersioning
-        uses: AArnott/nbgv@v0.3
-        with:
-          setAllVars: true
+      #- name: Nerdbank.GitVersioning
+      #  uses: AArnott/nbgv@v0.3
+      #  with:
+      #    setAllVars: true
 
-      - run: echo "NBGV_SemVer2 $NBGV_SemVer2"          
+      #- run: echo "NBGV_SemVer2 $NBGV_SemVer2"          
 
       # Publish
       - name: publish on version change
