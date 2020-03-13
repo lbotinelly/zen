@@ -27,9 +27,10 @@ jobs:
           setAllVars: true
 
       - name: Publish Zen.${{matrix.zen-project}}
-        uses: rohith/publish-nuget@v2
+        uses: lbotinelly/publish-nuget@v2
         continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.${{matrix.zen-project}}/Zen.${{matrix.zen-project}}.csproj
+          VERSION_STATIC: ${{env.NBGV_Version}}
           TAG_COMMIT: false
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
