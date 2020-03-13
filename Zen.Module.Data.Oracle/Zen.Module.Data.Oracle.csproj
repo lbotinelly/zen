@@ -13,6 +13,10 @@
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
     <LangVersion>7.1</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

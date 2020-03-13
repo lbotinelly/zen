@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +23,13 @@
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
     <ProjectReference Include="..\Zen.Web\Zen.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

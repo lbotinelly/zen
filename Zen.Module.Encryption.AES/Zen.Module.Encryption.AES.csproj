@@ -6,10 +6,24 @@
     <AssemblyName>Zen.Module.Encryption.AES</AssemblyName>
     <RootNamespace>Zen.Module.Encryption.AES</RootNamespace>
     <LangVersion>7.2</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

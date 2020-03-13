@@ -10,19 +10,28 @@
     <FileVersion>0.0.1.*</FileVersion>
     <Version>0.0.1.0</Version>
     <Description>A storage manager for Zen.</Description>
-    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
     <LangVersion>7.2</LangVersion>
     <PackageTags>middleware orm dotnet core storage</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <Copyright />    
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>    
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

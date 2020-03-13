@@ -6,6 +6,13 @@
     <AssemblyName>Zen.Web.Auth</AssemblyName>
     <RootNamespace>Zen.Web.Auth</RootNamespace>
     <LangVersion>7.2</LangVersion>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <RepositoryType>middleware orm dotnet core</RepositoryType>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +30,13 @@
     <Reference Include="Microsoft.AspNetCore.Identity.UI">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.identity.ui\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Identity.UI.dll</HintPath>
       </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

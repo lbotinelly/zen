@@ -9,6 +9,10 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageTags>middleware orm dotnet core</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
