@@ -8,7 +8,7 @@ on:
 jobs:
   publish:
     name: Publish flow
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
