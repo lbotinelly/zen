@@ -14,8 +14,16 @@
     <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
     <Version>0.0.1.0</Version>
     <Description>A Geolocation Zen pebble.</Description>
-    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
-    <Copyright />
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
     <LangVersion>7.2</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 </Project>
