@@ -7,10 +7,15 @@ on:
 
 jobs:
   publish:
-    name: list on nuget
+    name: Publish flow
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "${{ env.DOTNET_VERSION }}"      
 
       # Required for a specific dotnet version that doesn't come with ubuntu-latest / windows-latest
       # Visit bit.ly/2synnZl to see the list of SDKs that are pre-installed with ubuntu-latest / windows-latest
@@ -25,7 +30,7 @@ jobs:
           setAllVars: true
 
       - run: echo "NBGV_SemVer2 $NBGV_SemVer2"          
-      
+
       # Publish
       - name: publish on version change
         uses: lbotinelly/publish-nuget@v2
