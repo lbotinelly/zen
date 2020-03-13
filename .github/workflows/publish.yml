@@ -9,9 +9,9 @@ jobs:
   warmup:
     name: Warm-Up
     runs-on: windows-latest
-      strategy:
-        matrix:
-          zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
+    strategy:
+      matrix:
+        zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
