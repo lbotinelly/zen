@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.0.1.0</Version>
-    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
@@ -13,6 +13,8 @@
     <PackageTags>middleware orm dotnet core app webapp</PackageTags>
     <AssemblyVersion>0.0.1.0</AssemblyVersion>
     <LangVersion>7.2</LangVersion>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +34,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
