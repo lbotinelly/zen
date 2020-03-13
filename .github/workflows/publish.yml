@@ -29,6 +29,7 @@ jobs:
 
   project-publish:
       name: Publish Projects
+      runs-on: windows-latest
       strategy:
         matrix:
           zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
