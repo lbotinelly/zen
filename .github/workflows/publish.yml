@@ -29,6 +29,7 @@ jobs:
 
       - name: Publish Zen.Base
         uses: rohith/publish-nuget@v2
+        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.Base/Zen.Base.csproj # Relative to repository root
           TAG_COMMIT: false # Flag to enable / disalge git tagging
@@ -36,6 +37,7 @@ jobs:
 
       - name: Publish Zen.App
         uses: rohith/publish-nuget@v2
+        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.App/Zen.App.csproj # Relative to repository root
           TAG_COMMIT: false # Flag to enable / disalge git tagging
@@ -43,6 +45,7 @@ jobs:
 
       - name: Publish Zen.Storage
         uses: rohith/publish-nuget@v2
+        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.Storage/Zen.Storage.csproj # Relative to repository root
           TAG_COMMIT: false # Flag to enable / disalge git tagging
@@ -50,6 +53,7 @@ jobs:
 
       - name: Publish Zen.Web
         uses: rohith/publish-nuget@v2
+        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.Web/Zen.Web.csproj # Relative to repository root
           TAG_COMMIT: false # Flag to enable / disalge git tagging
@@ -57,6 +61,7 @@ jobs:
 
       - name: Publish Zen.Module.Data.LiteDB
         uses: rohith/publish-nuget@v2
+        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.Module.Data.LiteDB/Zen.Module.Data.LiteDB.csproj 
           TAG_COMMIT: false 
@@ -64,6 +69,7 @@ jobs:
 
       - name: Publish Zen.Module.Data.MongoDB
         uses: rohith/publish-nuget@v2
+        continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.Module.Data.MongoDB/Zen.Module.Data.MongoDB.csproj # Relative to repository root
           TAG_COMMIT: false
