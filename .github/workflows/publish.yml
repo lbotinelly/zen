@@ -6,9 +6,12 @@ on:
       - master # Default release branch
 
 jobs:
-  warm-up:
+  warmup:
     name: Warm-Up
     runs-on: windows-latest
+    strategy:
+      matrix:
+        zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -28,9 +31,6 @@ jobs:
           setAllVars: true
 
       - name: Publish Zen.${{matrix.zen-project}}
-        strategy:
-          matrix:
-            zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
