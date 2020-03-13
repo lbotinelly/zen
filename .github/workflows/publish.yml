@@ -15,8 +15,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: dotnet tool install -g nbgv
-
       # Required for a specific dotnet version that doesn't come with ubuntu-latest / windows-latest
       # Visit bit.ly/2synnZl to see the list of SDKs that are pre-installed with ubuntu-latest / windows-latest
       - name: Setup dotnet
@@ -29,16 +27,44 @@ jobs:
         with:
           setAllVars: true
 
-      #- run: echo "NBGV_SemVer2 $NBGV_SemVer2"          
-
-      # Publish
-      - name: publish on version change
-        uses: lbotinelly/publish-nuget@v2
+      - name: Publish Zen.Base
+        uses: rohith/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Zen.Base/Zen.Base.csproj # Relative to repository root
-          # VERSION_FILE_PATH: Directory.Build.props # Filepath with version info, relative to repository root. Defaults to project file
-          # VERSION_REGEX: <Version>(.*)<\/Version> # Regex pattern to extract version info in a capturing group
-          TAG_COMMIT: true # Flag to enable / disalge git tagging
-          TAG_FORMAT: v* # Format of the git tag, [*] gets replaced with version
+          TAG_COMMIT: false # Flag to enable / disalge git tagging
           NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
-          # PACKAGE_NAME: NuGet package name, required when it's different from project name. Defaults to project name
+
+      - name: Publish Zen.App
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Zen.App/Zen.App.csproj # Relative to repository root
+          TAG_COMMIT: false # Flag to enable / disalge git tagging
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+
+      - name: Publish Zen.Storage
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Zen.Storage/Zen.Storage.csproj # Relative to repository root
+          TAG_COMMIT: false # Flag to enable / disalge git tagging
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+
+      - name: Publish Zen.Web
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Zen.Web/Zen.Web.csproj # Relative to repository root
+          TAG_COMMIT: false # Flag to enable / disalge git tagging
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+
+      - name: Publish Zen.Module.Data.LiteDB
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Zen.Module.Data.LiteDB/Zen.Module.Data.LiteDB.csproj 
+          TAG_COMMIT: false 
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+
+      - name: Publish Zen.Module.Data.MongoDB
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Zen.Module.Data.MongoDB/Zen.Module.Data.MongoDB.csproj # Relative to repository root
+          TAG_COMMIT: false
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
