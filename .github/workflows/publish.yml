@@ -19,7 +19,7 @@ jobs:
       
       # Publish
       - name: publish on version change
-        uses: rohith/publish-nuget@v2
+        uses: lbotinelly/publish-nuget@v2
         with:
           PROJECT_FILE_PATH: Zen.Base/Zen.Base.csproj # Relative to repository root
           # VERSION_FILE_PATH: Directory.Build.props # Filepath with version info, relative to repository root. Defaults to project file
