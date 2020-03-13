@@ -13,6 +13,8 @@
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +23,10 @@
 
   <ItemGroup>
     <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\static\res\zen-icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

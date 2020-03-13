@@ -17,6 +17,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <RepositoryType>..\static\res\zen-icon.png</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

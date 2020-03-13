@@ -13,7 +13,9 @@
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>..\static\res\zen-icon.png</Copyright>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +29,10 @@
 
   <ItemGroup>
     <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\static\res\zen-icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

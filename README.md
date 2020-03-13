@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.stack.imgur.com/wpwwJ.png">
+  <img src="https://raw.githubusercontent.com/lbotinelly/zen/master/static/res/zen-banner.png">
   # zen
 </p>
 

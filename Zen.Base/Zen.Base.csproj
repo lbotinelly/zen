@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <Version>0.0.1.0</Version>
     <Description>A fluid, seamless middleware.</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
@@ -20,7 +20,8 @@
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>    
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageIcon>zen-icon.png</PackageIcon>    
   </PropertyGroup>
 
   <ItemGroup>
@@ -55,6 +56,10 @@
 
   <ItemGroup>
     <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\static\res\zen-icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
