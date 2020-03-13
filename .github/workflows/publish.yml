@@ -1,4 +1,4 @@
-name: CI - Publish master to nuget 
+name: Publish NuGet packages 
 
 on:
   push:
@@ -32,32 +32,32 @@ jobs:
         continue-on-error: true
         with:
           PROJECT_FILE_PATH: Zen.Base/Zen.Base.csproj # Relative to repository root
-          TAG_COMMIT: false # Flag to enable / disalge git tagging
+          TAG_COMMIT: false # Flag to enable / disable git tagging
           NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
 
       - name: Publish Zen.App
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
-          PROJECT_FILE_PATH: Zen.App/Zen.App.csproj # Relative to repository root
-          TAG_COMMIT: false # Flag to enable / disalge git tagging
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+          PROJECT_FILE_PATH: Zen.App/Zen.App.csproj
+          TAG_COMMIT: false
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
       - name: Publish Zen.Storage
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
-          PROJECT_FILE_PATH: Zen.Storage/Zen.Storage.csproj # Relative to repository root
-          TAG_COMMIT: false # Flag to enable / disalge git tagging
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+          PROJECT_FILE_PATH: Zen.Storage/Zen.Storage.csproj
+          TAG_COMMIT: false
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
       - name: Publish Zen.Web
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
-          PROJECT_FILE_PATH: Zen.Web/Zen.Web.csproj # Relative to repository root
-          TAG_COMMIT: false # Flag to enable / disalge git tagging
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
+          PROJECT_FILE_PATH: Zen.Web/Zen.Web.csproj
+          TAG_COMMIT: false
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 
       - name: Publish Zen.Module.Data.LiteDB
         uses: rohith/publish-nuget@v2
@@ -71,6 +71,6 @@ jobs:
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
-          PROJECT_FILE_PATH: Zen.Module.Data.MongoDB/Zen.Module.Data.MongoDB.csproj # Relative to repository root
+          PROJECT_FILE_PATH: Zen.Module.Data.MongoDB/Zen.Module.Data.MongoDB.csproj
           TAG_COMMIT: false
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
