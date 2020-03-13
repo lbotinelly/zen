@@ -27,14 +27,10 @@ jobs:
         with:
           setAllVars: true
 
-  project-publish:
-      name: Publish Projects
-      runs-on: windows-latest
-      strategy:
-        matrix:
-          zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
-      steps:
       - name: Publish Zen.${{matrix.zen-project}}
+        strategy:
+          matrix:
+            zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
