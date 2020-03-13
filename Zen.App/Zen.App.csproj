@@ -11,7 +11,6 @@
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <Description>Application abstration layer for Zen</Description>
     <PackageTags>middleware orm dotnet core app webapp</PackageTags>
-    <AssemblyVersion>0.0.1.0</AssemblyVersion>
     <LangVersion>7.2</LangVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>

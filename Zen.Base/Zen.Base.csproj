@@ -18,6 +18,7 @@
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageIcon>zen-icon.png</PackageIcon>    
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

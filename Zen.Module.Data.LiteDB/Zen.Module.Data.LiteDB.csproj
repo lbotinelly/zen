@@ -4,13 +4,13 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageIcon>zen-icon.png</PackageIcon>
-    <PackageIconUrl />
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Copyright>..\static\res\zen-icon.png</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
-    <PackageIconUrl />
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
