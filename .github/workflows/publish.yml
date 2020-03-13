@@ -6,8 +6,8 @@ on:
       - master # Default release branch
 
 jobs:
-  publish:
-    name: Publish flow
+  warm-up:
+    name: Warm-Up
     runs-on: windows-latest
     steps:
       - name: Checkout source
@@ -27,50 +27,16 @@ jobs:
         with:
           setAllVars: true
 
-      - name: Publish Zen.Base
+  project-publish:
+      name: Publish Projects
+      strategy:
+        matrix:
+          zen-project: [Base,App,Storage,Web,Module.Data.LiteDB,Module.Data.MongoDB]
+      steps:
+      - name: Publish Zen.${{matrix.zen-project}}
         uses: rohith/publish-nuget@v2
         continue-on-error: true
         with:
-          PROJECT_FILE_PATH: Zen.Base/Zen.Base.csproj # Relative to repository root
-          TAG_COMMIT: false # Flag to enable / disable git tagging
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
-
-      - name: Publish Zen.App
-        uses: rohith/publish-nuget@v2
-        continue-on-error: true
-        with:
-          PROJECT_FILE_PATH: Zen.App/Zen.App.csproj
-          TAG_COMMIT: false
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-
-      - name: Publish Zen.Storage
-        uses: rohith/publish-nuget@v2
-        continue-on-error: true
-        with:
-          PROJECT_FILE_PATH: Zen.Storage/Zen.Storage.csproj
-          TAG_COMMIT: false
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-
-      - name: Publish Zen.Web
-        uses: rohith/publish-nuget@v2
-        continue-on-error: true
-        with:
-          PROJECT_FILE_PATH: Zen.Web/Zen.Web.csproj
-          TAG_COMMIT: false
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-
-      - name: Publish Zen.Module.Data.LiteDB
-        uses: rohith/publish-nuget@v2
-        continue-on-error: true
-        with:
-          PROJECT_FILE_PATH: Zen.Module.Data.LiteDB/Zen.Module.Data.LiteDB.csproj
-          TAG_COMMIT: false
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-
-      - name: Publish Zen.Module.Data.MongoDB
-        uses: rohith/publish-nuget@v2
-        continue-on-error: true
-        with:
-          PROJECT_FILE_PATH: Zen.Module.Data.MongoDB/Zen.Module.Data.MongoDB.csproj
+          PROJECT_FILE_PATH: Zen.${{matrix.zen-project}}/Zen.${{matrix.zen-project}}.csproj
           TAG_COMMIT: false
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
