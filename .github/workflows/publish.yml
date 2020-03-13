@@ -13,6 +13,8 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v2
 
+      - run: dotnet tool install -g nbgv
+
       # Required for a specific dotnet version that doesn't come with ubuntu-latest / windows-latest
       # Visit bit.ly/2synnZl to see the list of SDKs that are pre-installed with ubuntu-latest / windows-latest
       - name: Setup dotnet
