@@ -37,13 +37,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.Geo", "Zen.Pebbl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.Database", "Zen.Pebble.Database\Zen.Pebble.Database.csproj", "{1C2F074C-5945-4203-AAF9-613AD09AF1F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "Samples\WebApp\WebApp.csproj", "{3B78D027-7909-4991-9C48-CD06A0E41412}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{78820033-BB39-4C01-A416-0A7C0A86199B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample01-Console", "Samples\Sample01-Console\Sample01-Console.csproj", "{29D490EA-2F2A-4FBD-A84E-6F6D1D192261}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample01-Console", "Samples\Sample01-Console\Sample01-Console.csproj", "{29D490EA-2F2A-4FBD-A84E-6F6D1D192261}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Module.Data.LiteDB", "Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj", "{810A436F-7DB5-4CDF-A39A-AECEA9A8AC2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.LiteDB", "Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj", "{810A436F-7DB5-4CDF-A39A-AECEA9A8AC2B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample02-REST", "Samples\Sample02-REST\Sample02-REST.csproj", "{F2EFBE3F-BDBC-42B1-A0EC-B3AF7CA40830}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.FlexibleData", "Zen.Pebble.FlexibleData\Zen.Pebble.FlexibleData.csproj", "{34D1D434-DAFA-40C3-A360-D0DC90864555}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,10 +121,6 @@ Global
 		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C2F074C-5945-4203-AAF9-613AD09AF1F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3B78D027-7909-4991-9C48-CD06A0E41412}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B78D027-7909-4991-9C48-CD06A0E41412}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B78D027-7909-4991-9C48-CD06A0E41412}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B78D027-7909-4991-9C48-CD06A0E41412}.Release|Any CPU.Build.0 = Release|Any CPU
 		{29D490EA-2F2A-4FBD-A84E-6F6D1D192261}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{29D490EA-2F2A-4FBD-A84E-6F6D1D192261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29D490EA-2F2A-4FBD-A84E-6F6D1D192261}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -131,13 +129,21 @@ Global
 		{810A436F-7DB5-4CDF-A39A-AECEA9A8AC2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{810A436F-7DB5-4CDF-A39A-AECEA9A8AC2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{810A436F-7DB5-4CDF-A39A-AECEA9A8AC2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2EFBE3F-BDBC-42B1-A0EC-B3AF7CA40830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2EFBE3F-BDBC-42B1-A0EC-B3AF7CA40830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2EFBE3F-BDBC-42B1-A0EC-B3AF7CA40830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2EFBE3F-BDBC-42B1-A0EC-B3AF7CA40830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34D1D434-DAFA-40C3-A360-D0DC90864555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34D1D434-DAFA-40C3-A360-D0DC90864555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34D1D434-DAFA-40C3-A360-D0DC90864555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34D1D434-DAFA-40C3-A360-D0DC90864555}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{3B78D027-7909-4991-9C48-CD06A0E41412} = {78820033-BB39-4C01-A416-0A7C0A86199B}
 		{29D490EA-2F2A-4FBD-A84E-6F6D1D192261} = {78820033-BB39-4C01-A416-0A7C0A86199B}
+		{F2EFBE3F-BDBC-42B1-A0EC-B3AF7CA40830} = {78820033-BB39-4C01-A416-0A7C0A86199B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F7669975-FD73-4B57-A032-98D614C3BBC5}
