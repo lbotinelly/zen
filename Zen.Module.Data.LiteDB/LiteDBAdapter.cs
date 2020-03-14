@@ -25,7 +25,6 @@ namespace Zen.Module.Data.LiteDB
         private DataConfigAttribute _tabledata;
         public LiteDatabase Database;
 
-
         public override void Setup<T>(Settings settings)
         {
             _statements = settings;
@@ -34,7 +33,7 @@ namespace Zen.Module.Data.LiteDB
 
             var statementsConnectionString = _statements.ConnectionString ??
                                              Host.DataDirectory + Path.DirectorySeparatorChar + "lite.db";
-            Database = new LiteDatabase(statementsConnectionString);
+            Database = Instances.GetDatabase(statementsConnectionString);
 
             _statements = Info<T>.Settings;
             _tabledata = Info<T>.Configuration;
@@ -48,7 +47,7 @@ namespace Zen.Module.Data.LiteDB
 
         private ILiteCollection<T> Collection<T>()
         {
-            return (ILiteCollection<T>)_Collection;
+            return (ILiteCollection<T>) _Collection;
         }
 
 
@@ -57,7 +56,7 @@ namespace Zen.Module.Data.LiteDB
             _collectionNamespace = _tabledata?.SetPrefix ?? _statements.TypeNamespace;
             var typeName = _tabledata?.SetName ?? _statements.TypeName;
             if (typeof(IStorageCollectionResolver).GetTypeInfo().IsAssignableFrom(_refType.GetTypeInfo()))
-                typeName = ((IStorageCollectionResolver)_refType.CreateInstance()).GetStorageCollectionName();
+                typeName = ((IStorageCollectionResolver) _refType.CreateInstance()).GetStorageCollectionName();
             _collectionName = typeName;
             ReferenceCollectionName = GetCollectionName().Replace(".", "_");
         }
