@@ -26,7 +26,7 @@ namespace Zen.Web.Service.Extensions
 
             var builder = new ZenWebBuilder(app, options);
 
-            var appCode = App.Current.Configuration.Code.ToLower();
+            var appCode = App.Current.Configuration?.Code?.ToLower() ?? Zen.Base.Host.ApplicationAssemblyName;
             var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
             var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
 
