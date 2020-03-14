@@ -43,12 +43,12 @@ namespace Zen.Base.Module.Data.Adapter
             // If it fails to decrypt, no biggie; It may be plain-text. ignore and continue.
             settings.CredentialsString = Current.Encryption.TryDecrypt(settings.CredentialsString);
 
-            if (string.IsNullOrEmpty(settings.ConnectionString)) Current.Log.KeyValuePair(typeof(T).FullName, "Connection Cypher Key not set", Message.EContentType.Warning);
+            // if (string.IsNullOrEmpty(settings.ConnectionString)) Current.Log.KeyValuePair(typeof(T).FullName, "Connection Cypher Key not set", Message.EContentType.Warning);
 
             if (!settings.CredentialCypherKeys.ContainsKey(envCode)) return;
 
             //Handling credentials
-            if (settings.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1) Current.Log.Warn<T>("Credentials set, but no placeholder found on connection string");
+            // if (settings.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1) Current.Log.Warn<T>("Credentials set, but no placeholder found on connection string");
 
             settings.CredentialsString = settings.CredentialCypherKeys[envCode];
 
