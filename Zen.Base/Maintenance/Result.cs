@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Zen.Base.Extension;
@@ -26,7 +27,7 @@ namespace Zen.Base.Maintenance
         public string Message { get; set; } = "Success";
 
         public EResultStatus Status { get; set; } = EResultStatus.Success;
-        public TagClicker Counters { get; set; } = new TagClicker();
+        public ConcurrentDictionary<string, long> Counters { get; set; } = new ConcurrentDictionary<string, long>();
         public DateTime TimeStamp { get; set; } = DateTime.Now;
         public TimeSpan Duration { get; set; } = TimeSpan.Zero;
         public int Priority { get; set; }
