@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Zen.Base.Extension;
 using Zen.Base.Module;
+using Zen.Base.Module.Log;
 
 namespace Sample01_Console.Model
 {
