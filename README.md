@@ -1,9 +1,10 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/lbotinelly/zen/master/static/res/zen-banner.png">
-  # zen
 </p>
 
 Zen is platform-independent .NET Core middleware that simplifies the implementation of data-driven, API-focused apps.
+
+![Publish NuGet packages](https://github.com/lbotinelly/zen/workflows/Publish%20NuGet%20packages/badge.svg)
 
 ## Yet another do-it-all framework? Really?
 
