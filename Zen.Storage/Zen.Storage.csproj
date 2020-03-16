@@ -17,10 +17,11 @@
     <LangVersion>7.2</LangVersion>
     <PackageTags>middleware orm dotnet core storage</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <PackageIcon>zen-icon.png</PackageIcon>    
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <Authors>Zen Development Team</Authors>    
   </PropertyGroup>
 
   <ItemGroup>
