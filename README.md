@@ -6,29 +6,28 @@ Zen is platform-independent .NET Core middleware that simplifies the implementat
 
 ![Publish NuGet packages](https://github.com/lbotinelly/zen/workflows/Publish%20NuGet%20packages/badge.svg)
 
-## Yet another do-it-all framework? Really?
+## Oh, c'mon! Yet another do-it-all framework? Really?
 
-Not quite. Zen provides several features like ORM, caching, encryption and RESTful endpoints out of the box with zero setup in some cases. Think of it like a drop-in package set that'll get your app working with persistent storage to REST endpoints in no time and with minimal scaffolding.
+Not quite. Zen provides several features like ORM, caching, encryption and RESTful endpoints out of the box with zero setup in most cases. Think of it like a drop-in middleware that'll get your PoC app working with persistent storage to REST endpoints in no time and with minimal scaffolding - and you can add more features as the need arises.
 
-Its core aspect is the ability to handle data for multiple connectors at the same time, regardless of the target database: Both relational and document (no-SQL) models are supported.
+Its core aspect is the ability to handle data for multiple connectors at the same time, regardless of the target database: Both relational and document (no-SQL) models are supported. Pull data from Oracle and write to Mongo, this kind of stuff.
 
-## Installation
+## Something basic: a database-backed console app
 
-To have it working straight out of the box with no setup required, add a reference to `Zen.Base` and `Zen.Module.Data.LiteDB`; Compile from source, or check NuGet for these packages:
+To have it working straight out of the box we need `Zen.Base` (the ORM handler) and a database adapter; let's pick `Zen.Module.Data.LiteDB` for this example.
 
 - [📦 Zen.Base](https://www.nuget.org/packages/Zen.Base/)
 - [📦 Zen.Module.Data.LiteDB](https://www.nuget.org/packages/Zen.Module.Data.LiteDB/)
 
-## Usage
-
-Extremely complicated example ahead, you better pay attention!
- - Create a class that inherits from the `Data<>` generic class;
+Extremely complicated example ahead. Pay attention!
+ - Create a class that inherits from the `Zen.Base.Module.Data<>` generic class;
  - Mark the property you want to use as a unique identifier with the [Key] Data Annotation attribute.
 
 C# example:
 
     using System.ComponentModel.DataAnnotations;
     using System;
+    using Zen.Base.Module;
     
     namespace Test
     {
@@ -100,7 +99,7 @@ The relational Data module wraps around [Stack Exchange Dapper](https://github.c
 
 ## Zen Development Team
 
-- [Leo Botinelly](https://www.linkedin.com/in/lbotinelly) (http://pt.stackoverflow.com/users/1897/onosendai)
+- [Leo Botinelly, Bucknell University](https://www.linkedin.com/in/lbotinelly) (http://pt.stackoverflow.com/users/1897/onosendai)
 
 ## License
 MIT - a permissive free software license originating at the Massachusetts Institute of Technology (MIT), it puts only very limited restriction on reuse and has, therefore, an excellent license compatibility. It permits reuse within proprietary software provided that all copies of the licensed software include a copy of the MIT License terms and the copyright notice.
