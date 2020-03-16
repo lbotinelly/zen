@@ -44,6 +44,60 @@ C# example:
 
 Congratulations! You created a LiteDB-backed ORM class. A default database was created, together with a collection to store entries.
 
+## You mentioned something about REST
+
+Oh, REST! Right. So, once you decide you want to expose your ORM class data through a REST endpoint, do this:
+
+- Add a reference to [📦 Zen.Web](https://www.nuget.org/packages/Zen.Web/)
+- Implement a class deriving from `Zen.Web.Data.Controller.DataController<>`, and assign a route to it:
+```
+[Route("api/people")]
+public class PersonController : DataController<Person> {}
+```
+- Add Zen to the Service collection and configure it with the Application builder:
+```
+using Zen.Base.Service.Extensions;
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    { services.AddZen(); }
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    { app.UseZen(); }
+}
+```
+- Optionally use the simplified Builder:
+```
+using Zen.Web.Host;
+namespace Sample
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        { Builder.Start<Startup>(args); }
+    }
+}
+```
+- ...and that's it.
+
+Now run your project, and reach the endpoint you specified. If you're running the sample provided (`Nyan.Samples.REST`), you can try the following URLs:
+
+- **`http://localhost/Nyan.Samples.REST/users`**  
+ ```
+[{"id":1,"Name":"Maximus Howell III","Surname":null,"isAdmin":false,"BirthDate":"2002-05-13T00:00:00"},{"id":2,"Name":"Odie Yost","Surname":null,"isAdmin":false,"BirthDate":"1989-04-21T00:00:00"},{"id":3,"Name":"Vincent Pouros","Surname":null,"isAdmin":true,"BirthDate":"2002-02-23T00:00:00"},{"id":4,"Name":"Russel Fadel","Surname":null,(...)
+```
+- **`http://localhost/Nyan.Samples.REST/users/1`**  
+ ```
+{"id":1,"Name":"Maximus Howell III","Surname":null,"isAdmin":false,"BirthDate":"2002-05-13T00:00:00"}
+```
+
+- **`http://localhost/Nyan.Samples.REST/users/new`**  
+ `{"id":0,"Name":null,"Surname":null,"isAdmin":false,"BirthDate":null}`  
+
+
+
+
+
+
 ## Core dependencies
 
 The relational Data module wraps around [Stack Exchange Dapper](https://github.com/StackExchange/dapper-dot-net), an abusively fast IDbConnection interface extender.
