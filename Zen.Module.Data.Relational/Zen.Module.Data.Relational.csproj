@@ -17,8 +17,9 @@
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
+    <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>
