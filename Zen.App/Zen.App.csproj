@@ -13,8 +13,10 @@
     <PackageTags>middleware orm dotnet core app webapp</PackageTags>
     <LangVersion>7.2</LangVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
+    <Authors>Zen Development Team</Authors>
+    <Company>Zen Development Team</Company>
   </PropertyGroup>
 
   <ItemGroup>
