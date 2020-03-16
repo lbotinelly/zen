@@ -7,15 +7,16 @@
     <RootNamespace>Zen.Web.Auth</RootNamespace>
     <LangVersion>7.2</LangVersion>
     <PackageTags>middleware orm dotnet core</PackageTags>
-    <RepositoryType>middleware orm dotnet core</RepositoryType>
+    <RepositoryType></RepositoryType>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
     <PackageIconUrl />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>
