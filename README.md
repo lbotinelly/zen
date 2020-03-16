@@ -78,7 +78,7 @@ public class PersonController : DataController<Person> {}
 ```
 - ...and that's it.
 
-`DataController<>` implements standard REST operations (`GET`, `GET/{ID}`, `POST`, `DELETE`, `PATCH`) as well as some useful extentions (GET/new).
+`DataController<>` implements standard REST operations (`GET`, `GET/{ID}`, `POST`, `DELETE`, `PATCH`) as well as some useful extentions (e.g. `GET/new`). These can be expanded by modules that offer functionalities like moderation and set versioning.
 
 Now run your project, and reach the endpoint you specified. If you're running the sample provided (`Sample02-REST`), you can try the following URLs:
 
