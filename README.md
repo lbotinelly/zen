@@ -49,11 +49,6 @@ Congratulations! You created a LiteDB-backed ORM class. A default database was c
 Oh, REST! Right. So, once you decide you want to expose your ORM class data through a REST endpoint, do this:
 
 - Add a reference to [📦 Zen.Web](https://www.nuget.org/packages/Zen.Web/)
-- Implement a class deriving from `Zen.Web.Data.Controller.DataController<>`, and assign a route to it:
-```
-[Route("api/people")]
-public class PersonController : DataController<Person> {}
-```
 - Add Zen to the Service collection and configure it with the Application builder:
 ```
 using Zen.Base.Service.Extensions;
@@ -65,7 +60,7 @@ public class Startup
     { app.UseZen(); }
 }
 ```
-- Optionally use the simplified Builder:
+- Use the simplified Builder:
 ```
 using Zen.Web.Host;
 namespace Sample
@@ -77,26 +72,27 @@ namespace Sample
     }
 }
 ```
+- Implement a class deriving from `Zen.Web.Data.Controller.DataController<>`, and assign a route to it:
+```
+[Route("api/people")]
+public class PersonController : DataController<Person> {}
+```
 - ...and that's it.
 
-Now run your project, and reach the endpoint you specified. If you're running the sample provided (`Nyan.Samples.REST`), you can try the following URLs:
+Now run your project, and reach the endpoint you specified. If you're running the sample provided (`Sample02-REST`), you can try the following URLs:
 
-- **`http://localhost/Nyan.Samples.REST/users`**  
- ```
-[{"id":1,"Name":"Maximus Howell III","Surname":null,"isAdmin":false,"BirthDate":"2002-05-13T00:00:00"},{"id":2,"Name":"Odie Yost","Surname":null,"isAdmin":false,"BirthDate":"1989-04-21T00:00:00"},{"id":3,"Name":"Vincent Pouros","Surname":null,"isAdmin":true,"BirthDate":"2002-02-23T00:00:00"},{"id":4,"Name":"Russel Fadel","Surname":null,(...)
+- **`https://localhost:5001/api/people`**  
 ```
-- **`http://localhost/Nyan.Samples.REST/users/1`**  
- ```
-{"id":1,"Name":"Maximus Howell III","Surname":null,"isAdmin":false,"BirthDate":"2002-05-13T00:00:00"}
+[{"Id":"1","Name":"Halie","LastName":"Ebert","Email":"Blanca.Koss@gmail.com"},{"Id":"2","Name":"Meta","LastName":"Mayert","Email":"Kyle64@hotmail.com"},{"Id":"3","Name":"Deonte","LastName":"Orn","Email":"Joshua23@gmail.com"},,(...)
 ```
-
-- **`http://localhost/Nyan.Samples.REST/users/new`**  
- `{"id":0,"Name":null,"Surname":null,"isAdmin":false,"BirthDate":null}`  
-
-
-
-
-
+- **`https://localhost:5001/api/people/1`**  
+```
+{"Id":"1","Name":"Halie","LastName":"Ebert","Email":"Blanca.Koss@gmail.com"}
+```
+- **`https://localhost:5001/api/people/new`**  
+```
+{"Id":"fc8dbb27-42fe-45db-be09-18a84361d509","Name":null,"LastName":null,"Email":null}
+```
 
 ## Core dependencies
 
