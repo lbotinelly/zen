@@ -10,7 +10,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
-    <PackageIconUrl>https://i.imgur.com/UfxwhGi.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
@@ -18,6 +18,7 @@
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <RepositoryType>..\static\res\zen-icon.png</RepositoryType>
+    <PackageIcon>zen-icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,6 +52,10 @@
 
   <ItemGroup>
     <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\static\res\zen-icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

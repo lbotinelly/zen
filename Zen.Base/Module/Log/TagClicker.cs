@@ -4,8 +4,13 @@ using System.Linq;
 
 namespace Zen.Base.Module.Log
 {
+
+
+
     public class TagClicker : ConcurrentDictionary<string, long>
     {
+
+
         private readonly string _suffix;
         private int _maxLength;
 
@@ -34,17 +39,6 @@ namespace Zen.Base.Module.Log
                 base[tag] = value;
             }
         }
-        public void Click(string tag) { this[tag]++; }
-
-        public void Click<T>(string tag, IEnumerable<T> source) { Click(tag, source.Count()); }
-
-        public void Click(string tag, long count)
-        {
-            this[tag] += count;
-
-            if (count > 1) Current.Log.KeyValuePair($"{tag}", count.ToString(), Message.EContentType.Info);
-        }
-
         public void ToLog(Message.EContentType type = Message.EContentType.MoreInfo)
         {
             if (Keys.Count <= 0) return;

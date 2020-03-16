@@ -7,6 +7,7 @@ using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Maintenance;
 using Zen.Base.Module;
+using Zen.Base.Module.Log;
 
 namespace Zen.Web.Model.State
 {
