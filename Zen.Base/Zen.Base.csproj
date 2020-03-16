@@ -12,13 +12,15 @@
     <PackageIconUrl></PackageIconUrl>
     <Description>A fluid, seamless middleware.</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageIcon>zen-icon.png</PackageIcon>    
-    <Version>0.0.1.0</Version>
+    <Version>0.0.1.0</Version>    
+    <Authors>Zen Development Team</Authors>    
+    <Company>Zen Development Team</Company>
   </PropertyGroup>
 
   <ItemGroup>
