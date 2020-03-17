@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Sample02_REST.Model;
 using Zen.Base.Service.Extensions;
 
 namespace Sample02_REST
@@ -22,7 +23,21 @@ namespace Sample02_REST
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello World!"); });
+                endpoints.MapGet("/", async context =>
+                {
+
+                    var rc = Person.Count();
+
+                    if (rc == 0)
+                        for (var i = 1; i < 10; i++)
+                        {
+                            var r = Person.Random();
+                            r.Id = i.ToString();
+                            r.Save();
+                        }
+
+                    await context.Response.WriteAsync("Hello World!");
+                });
             });
         }
     }
