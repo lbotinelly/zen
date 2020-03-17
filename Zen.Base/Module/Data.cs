@@ -344,9 +344,10 @@ namespace Zen.Base.Module
 
         public static string GetDataDisplay(Data<T> oRef)
         {
-            return oRef == null
-                ? null
-                : (oRef.GetType().GetProperty(Info<T>.Settings.DisplayMemberName)?.GetValue(oRef, null) ?? "").ToString();
+            if (oRef == null) return null;
+            if (Info<T>.Settings.DisplayMemberName == null) return null;
+
+            return (oRef.GetType().GetProperty(Info<T>.Settings.DisplayMemberName)?.GetValue(oRef, null) ?? "").ToString();
         }
 
         #endregion
@@ -374,11 +375,11 @@ namespace Zen.Base.Module
             refProp?.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
         }
 
-        public string GetDataKey() { return GetDataKey(this); }
+        public string GetDataKey() => GetDataKey(this);
 
-        public string GetDataDisplay() { return GetDataDisplay(this); }
+        public string GetDataDisplay() => GetDataDisplay(this);
 
-        public string GetFullIdentifier() { return Info<T>.Settings.TypeQualifiedName + ":" + GetDataKey(); }
+        public string GetFullIdentifier() => Info<T>.Settings.TypeQualifiedName + ":" + GetDataKey();
 
         #endregion
 
