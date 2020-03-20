@@ -49,7 +49,7 @@ namespace Zen.Module.Cache.Redis
                     if (cacheTimeOutSeconds == 0) db.StringSet(key, value);
                     else db.StringSet(key, value, TimeSpan.FromSeconds(cacheTimeOutSeconds));
 
-                    //if (oSet != null)
+                    //if (oSet!= null)
                     //    db.SetAdd(oSet, value);
                 } catch (Exception e)
                 {
@@ -118,7 +118,7 @@ namespace Zen.Module.Cache.Redis
             try
             {
                 var db = _redis.GetDatabase(DatabaseIndex);
-                //if (oSet != null)
+                //if (oSet!= null)
                 //db.SetRemove(oSet, this[key]);
 
                 db.KeyDelete(key);

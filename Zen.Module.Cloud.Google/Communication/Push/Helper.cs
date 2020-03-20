@@ -207,7 +207,7 @@ namespace Zen.Module.Cloud.Google.Communication.Push
 
             Request.Headers.Add("TTL", ttl.ToString());
 
-            if (data != null && userKey != null && userSecret != null)
+            if (data!= null && userKey!= null && userSecret!= null)
             {
                 var Package = EncryptMessage(userKey, userSecret, data, padding, randomisePadding);
                 Request.Content = new ByteArrayContent(Package.Payload);

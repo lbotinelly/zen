@@ -20,7 +20,7 @@ namespace Zen.Web.Communication
 
             BeforeCollectionAction(EHttpMethod.Get, EActionType.Read, ref mutator, ref collection);
 
-            if (App.Current.Orchestrator.Application != null) mutator.Transform.AddFilter(new { ApplicationCode = App.Current.Orchestrator.Application?.Code });
+            if (App.Current.Orchestrator.Application!= null) mutator.Transform.AddFilter(new { ApplicationCode = App.Current.Orchestrator.Application?.Code });
 
             if (App.Current.Orchestrator.Person == null || !App.Current.Orchestrator.HasAnyPermissions(AdminPermission))
             {

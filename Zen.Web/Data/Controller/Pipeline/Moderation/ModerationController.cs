@@ -31,7 +31,7 @@ namespace Zen.Web.Data.Controller.Pipeline.Moderation
         {
             get
             {
-                if (_mutator != null) return _mutator;
+                if (_mutator!= null) return _mutator;
 
                 var mutator = Request.Query.ToMutator<T>();
 

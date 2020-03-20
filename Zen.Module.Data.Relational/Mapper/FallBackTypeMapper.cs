@@ -19,7 +19,7 @@ namespace Zen.Module.Data.Relational.Mapper
                 {
                     var result = mapper.FindConstructor(names, types);
 
-                    if (result != null) return result;
+                    if (result!= null) return result;
                 } catch
                 {
                     // the CustomPropertyTypeMap only supports a no-args
@@ -34,7 +34,7 @@ namespace Zen.Module.Data.Relational.Mapper
         {
             return _mappers
                 .Select(mapper => mapper.FindExplicitConstructor())
-                .FirstOrDefault(result => result != null);
+                .FirstOrDefault(result => result!= null);
         }
 
         public SqlMapper.IMemberMap GetConstructorParameter(ConstructorInfo constructor, string columnName)
@@ -44,7 +44,7 @@ namespace Zen.Module.Data.Relational.Mapper
                 {
                     var result = mapper.GetConstructorParameter(constructor, columnName);
 
-                    if (result != null) return result;
+                    if (result!= null) return result;
                 } catch
                 {
                     // the CustomPropertyTypeMap only supports a no-args
@@ -62,7 +62,7 @@ namespace Zen.Module.Data.Relational.Mapper
                 {
                     var result = mapper.GetMember(columnName);
 
-                    if (result != null) return result;
+                    if (result!= null) return result;
                 } catch
                 {
                     // the CustomPropertyTypeMap only supports a no-args

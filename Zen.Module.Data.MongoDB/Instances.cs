@@ -29,7 +29,7 @@ namespace Zen.Module.Data.MongoDB
 
                 try { serverSuffix = client.Settings.Servers.FirstOrDefault()?.Host; } catch (Exception) { serverSuffix = client.Settings.Server.Host; }
 
-                if (serverSuffix != null) serverSuffix = "@" + serverSuffix;
+                if (serverSuffix!= null) serverSuffix = "@" + serverSuffix;
 
                 var credentialInfo = $"{client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{serverSuffix}";
 

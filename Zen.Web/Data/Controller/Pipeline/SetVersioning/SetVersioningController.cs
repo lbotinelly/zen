@@ -85,7 +85,7 @@ namespace Zen.Web.Data.Controller.Pipeline.SetVersioning
 
         //        var ret = tempPackage.Items;
 
-        //        if (ClassBehavior.SummaryType != null) ret = (IEnumerable<object>) ret.ToJson().FromJson(ClassBehavior.SummaryType, true);
+        //        if (ClassBehavior.SummaryType!= null) ret = (IEnumerable<object>) ret.ToJson().FromJson(ClassBehavior.SummaryType, true);
 
         //        if (ClassBehavior.CacheResults)
 
@@ -202,7 +202,7 @@ namespace Zen.Web.Data.Controller.Pipeline.SetVersioning
             {
                 sw.Start();
 
-                var fullName = $"{App.Current.Orchestrator.Application.Code}.{typeof(T).Name}{(code != null ? $".{code}" : "")}";
+                var fullName = $"{App.Current.Orchestrator.Application.Code}.{typeof(T).Name}{(code!= null ? $".{code}" : "")}";
 
                 var package = SetVersion<T>.GetPackage(code);
 
@@ -237,7 +237,7 @@ namespace Zen.Web.Data.Controller.Pipeline.SetVersioning
                     AuthorLocator = person?.Locator,
                     Action = "DOWNLOAD",
                     Type = App.Data.Log.Constants.Type.VERSIONING,
-                    Message = $"Version [{package.Descriptor.Code}] ({package.Descriptor.Name}) download{(person != null ? $" by [{person.Locator}] {person.Name}" : "")}"
+                    Message = $"Version [{package.Descriptor.Code}] ({package.Descriptor.Name}) download{(person!= null ? $" by [{person.Locator}] {person.Name}" : "")}"
                 }.Insert();
 
                 return File(bytes, "application/zip", fullName + ".zip", true);

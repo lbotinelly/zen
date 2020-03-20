@@ -37,7 +37,7 @@ namespace Zen.Module.Data.MongoDB
         {
             get
             {
-                if (_keyMember != null) return _keyMember;
+                if (_keyMember!= null) return _keyMember;
                 _keyMember = _statements.KeyMemberName;
                 return _keyMember;
             }
@@ -147,7 +147,7 @@ namespace Zen.Module.Data.MongoDB
         {
             try
             {
-                while (type != null && type.BaseType != null)
+                while (type!= null && type.BaseType!= null)
                 {
                     if (!TypeCache.Contains(type))
                     {

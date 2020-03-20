@@ -75,7 +75,7 @@ namespace Zen.Web.Communication
             var typeLim = "";
 
             var userStatement = package.GetStatement();
-            if (userStatement != null) userStatement = $",{{$or:{userStatement}}}";
+            if (userStatement!= null) userStatement = $",{{$or:{userStatement}}}";
 
             // ReSharper disable once InconsistentNaming
             var ANDlist = (queryParameters.ReferenceDateTime.HasValue ? $"{GetPeriodStatement(queryParameters.ReferenceDateTime.Value)}" : "") +
@@ -84,7 +84,7 @@ namespace Zen.Web.Communication
 
             var q = (queryParameters.WrapOutput ? "{" : "") +
                     (queryParameters.Active.HasValue ? $"Active: {queryParameters.Active.Value.ToString().ToLower()}, " : "") +
-                    (queryParameters.Status != null ? $"Status: '{queryParameters.Status}', " : "") +
+                    (queryParameters.Status!= null ? $"Status: '{queryParameters.Status}', " : "") +
                     (queryParameters.Type == null ? "" : $"Type: \'{queryParameters.Type}\', ") +
                     (ANDlist == "" ? "" : "$and:[" + ANDlist + "]") +
                     (queryParameters.WrapOutput ? "}" : "");
@@ -118,25 +118,25 @@ namespace Zen.Web.Communication
                 // First case: Nothing specified, so entry is 'public'.
                 var qSequence = "{'Audience.People': { '$size' : 0}, 'Audience.Groups': { '$size' : 0}, 'Audience.Permissions': { '$size' : 0}}";
 
-                if (Person != null)
+                if (Person!= null)
                 {
                     qSequence += qSequence != "" ? "," : "";
                     qSequence += $"{{'Audience.People': {Person}}}";
                 }
 
-                if (Groups != null)
+                if (Groups!= null)
                 {
                     qSequence += qSequence != "" ? "," : "";
                     qSequence += $"{{'Audience.Groups': {Groups}}}";
                 }
 
-                if (Permissions != null)
+                if (Permissions!= null)
                 {
                     qSequence += qSequence != "" ? "," : "";
                     qSequence += $"{{'Audience.Permissions': {Permissions}}}";
                 }
 
-                if (Tags != null)
+                if (Tags!= null)
                 {
                     qSequence += qSequence != "" ? "," : "";
                     qSequence += $"{{'Audience.Tags': {Tags}}}";

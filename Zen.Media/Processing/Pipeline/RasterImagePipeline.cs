@@ -15,14 +15,14 @@ namespace Zen.Media.Processing.Pipeline
 
         public Stream Process()
         {
-            if (SourceStream != null)
+            if (SourceStream!= null)
                 if (SourceImage == null)
                 {
                     SourceImage = Image.Load(SourceStream, out var format);
                     Format = format;
                 }
 
-            if (SourceImage != null)
+            if (SourceImage!= null)
                 if (SourcePackage == null)
                     SourcePackage = new ImagePackage { Format = Format, Image = SourceImage };
 

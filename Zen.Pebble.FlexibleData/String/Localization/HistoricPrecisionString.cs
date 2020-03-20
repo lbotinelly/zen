@@ -43,7 +43,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
         public override string ToString()
         {
             string tmp = null;
-            if (Value != null) tmp = $"{Value}";
+            if (Value!= null) tmp = $"{Value}";
 
             if (!(Variants?.Count > 0)) return tmp ?? base.ToString();
 
@@ -72,7 +72,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
 
             CommentedTemporalString targetEntry = null;
 
-            if (boundaryId != null) { targetEntry = (CommentedTemporalString)Variants[cultureProbe].Variants.FirstOrDefault(i => i.Boundaries?.BoundaryId.Equals(boundaryId) == true); }
+            if (boundaryId!= null) { targetEntry = (CommentedTemporalString)Variants[cultureProbe].Variants.FirstOrDefault(i => i.Boundaries?.BoundaryId.Equals(boundaryId) == true); }
             else
             {
                 targetEntry = new CommentedTemporalString(value, comments, startDate, endDate);
@@ -84,7 +84,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
             targetEntry.Value = value;
             targetEntry.Comments = comments;
 
-            if (startDate != null || endDate != null) targetEntry.Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
+            if (startDate!= null || endDate!= null) targetEntry.Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
 
             return this;
         }

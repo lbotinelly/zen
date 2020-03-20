@@ -35,7 +35,7 @@
 //        public override string ToString()
 //        {
 //            string tmp = null;
-//            if (Value != null) tmp = $"{Value}";
+//            if (Value!= null) tmp = $"{Value}";
 
 //            if (!(Variants?.Count > 0)) return tmp ?? base.ToString();
 
@@ -60,7 +60,7 @@
 //                return null;
 //            }
 
-//            Variants[culture] = comments != null ? new CommentedStringValue { Value = value, Comments = comments } : new StringValue { Value = value };
+//            Variants[culture] = comments!= null ? new CommentedStringValue { Value = value, Comments = comments } : new StringValue { Value = value };
 
 //            return this;
 //        }

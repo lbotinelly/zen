@@ -12,9 +12,9 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
 
         public HistoricDateTimeBoundary(System.DateTime? startDate, System.DateTime? endDate = null)
         {
-            if (startDate != null) Start = new HistoricDateTime(startDate);
+            if (startDate!= null) Start = new HistoricDateTime(startDate);
 
-            if (endDate != null) End = new HistoricDateTime(endDate);
+            if (endDate!= null) End = new HistoricDateTime(endDate);
         }
 
         public string BoundaryId { get => _boundaryId ??= Guid.NewGuid().ToString(); set => _boundaryId = value; }

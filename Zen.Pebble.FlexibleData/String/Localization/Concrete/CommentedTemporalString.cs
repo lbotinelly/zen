@@ -10,7 +10,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
         {
             Value = source;
             Comments = comments;
-            if (startDate != null || endDate != null) Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
+            if (startDate!= null || endDate!= null) Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
         }
         public override string ToString() { return Value; }
 

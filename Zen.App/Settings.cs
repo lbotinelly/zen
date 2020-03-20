@@ -10,7 +10,7 @@ namespace Zen.App
     {
         public Dictionary<string, object> GetSettings()
         {
-            //if (_settings != null) return;
+            //if (_settings!= null) return;
             if (Current.Orchestrator.Application == null) return null;
 
             var settings = new Dictionary<string, object>
