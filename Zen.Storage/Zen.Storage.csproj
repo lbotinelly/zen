@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Zen.App\Zen.App.csproj" />
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Service.Maintenance\Zen.Service.Maintenance.csproj" />
   </ItemGroup>
 
   <ItemGroup>
