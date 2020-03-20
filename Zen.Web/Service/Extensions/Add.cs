@@ -26,7 +26,7 @@ namespace Zen.Web.Service.Extensions
             configureOptions = configureOptions ?? (x => { });
 
             var appCode = App.Current.Configuration?.Code?.ToLower();
-            var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var usePrefix = Current.Configuration?.RoutePrefix!= null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
             var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
 
             services.Configure<FormOptions>(options => { options.MemoryBufferThreshold = int.MaxValue; });
@@ -88,7 +88,7 @@ namespace Zen.Web.Service.Extensions
 
             var builder = new ZenWebBuilder(services);
 
-            if (configureOptions != null) services.Configure(configureOptions);
+            if (configureOptions!= null) services.Configure(configureOptions);
 
             return builder;
         }

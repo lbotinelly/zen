@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Zen.Base.Service
 {
+
     internal class LifetimeEventsHostedService : IHostedService
     {
         private readonly IHostApplicationLifetime _appLifetime;

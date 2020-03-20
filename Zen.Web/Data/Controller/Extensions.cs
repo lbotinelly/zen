@@ -33,11 +33,11 @@ namespace Zen.Web.Data.Controller
         {
             var sourceParameters = sourceQuery.ToDictionary(i => i.Key, i => i.Value);
 
-            if (Info<T>.Settings?.Pipelines?.Before != null)
+            if (Info<T>.Settings?.Pipelines?.Before!= null)
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.Before)
                     AddHeaders(responseHeaders, pipelineMember.Headers(ref accessControl, sourceParameters, scope, model));
 
-            if (Info<T>.Settings?.Pipelines?.After != null)
+            if (Info<T>.Settings?.Pipelines?.After!= null)
                 foreach (var pipelineMember in Info<T>.Settings.Pipelines.After)
                     AddHeaders(responseHeaders, pipelineMember.Headers(ref accessControl, sourceParameters, scope, model));
 
@@ -60,7 +60,7 @@ namespace Zen.Web.Data.Controller
         {
             var modifier = new Mutator { Transform = new QueryTransform() };
 
-            if (Info<T>.Settings?.Pipelines?.Before != null)
+            if (Info<T>.Settings?.Pipelines?.Before!= null)
             {
                 // Transform it only once per request.
                 var stringQueryCollection = source.ToDictionary(i => i.Key, i => i.Value.ToList());

@@ -16,6 +16,7 @@
     <Copyright>..\static\res\zen-icon.png</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
     <Version>0.0.1.0</Version>
+    <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>

@@ -42,13 +42,13 @@ namespace Zen.Web.Data.Pipeline.Moderation
 
             var allowedActions = moderationSetup.ModerationActions;
 
-            if (customModerationPipeline != null && scope == EActionScope.Model) allowedActions = customModerationPipeline.GetModerationActions(EActionType.Read, scope, null, model, null) ?? allowedActions;
+            if (customModerationPipeline!= null && scope == EActionScope.Model) allowedActions = customModerationPipeline.GetModerationActions(EActionType.Read, scope, null, model, null) ?? allowedActions;
 
             if (allowedActions.Moderate) ctx.Add("moderator", true);
             if (allowedActions.Whitelisted) ctx.Add("whiteListed", true);
             if (allowedActions.Author) ctx.Add("canPost", true);
 
-            if (customModerationPipeline != null)
+            if (customModerationPipeline!= null)
             {
                 var headerPayloadDictionary = new Dictionary<string, List<string>>();
 
@@ -106,7 +106,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
             // Before anything, check if the target entry is marked as Imported. In that case the whole Moderation pipeline is sidestepped.
 
             var importModelMember = moderationSetup.Setup.ImportModelMember;
-            if (importModelMember != null)
+            if (importModelMember!= null)
             {
                 if (!current.HasMember(importModelMember))
                 {
@@ -125,7 +125,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
                         var newStatus = current.GetMemberValue<bool>(importModelMember);
                         var oldStatus = source.GetMemberValue<bool>(importModelMember);
 
-                        if (source != null)
+                        if (source!= null)
                             if (newStatus != oldStatus)
                                 throw new ArgumentException($"Moderation Pipeline: Import flag [{importModelMember}] cannot be changed.");
 
@@ -139,7 +139,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
             string creatorLocator = null;
 
             var creatorLocatorModelMember = moderationSetup.Setup.CreatorLocatorModelMember;
-            if (creatorLocatorModelMember != null)
+            if (creatorLocatorModelMember!= null)
             {
                 if (!current.HasMember(creatorLocatorModelMember))
                 {
@@ -157,7 +157,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
             // There are two kinds of Moderation action that this pipeline can handle. One is a Moderation Task....
 
             var controlPayload = ModerationHelper.GetModerationControlPayload();
-            if (controlPayload != null)
+            if (controlPayload!= null)
             {
                 // This is a Moderation Task operation - say, like an User trying to delete their own entry,
                 // or a Mod changing things. We can use some extra data to help with the process.
@@ -165,7 +165,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
                 var oTaskId = controlPayload?.___ModerationTaskId;
                 oRationale = controlPayload?.___ModerationRationale;
 
-                if (oTaskId != null)
+                if (oTaskId!= null)
                 {
                     var oTask = ModerationTask<T>.Get(oTaskId);
 
@@ -240,7 +240,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
             if (mustCreateTask) // 
             {
                 var statusModelMember = moderationSetup.Setup.StatusModelMember;
-                if (statusModelMember != null)
+                if (statusModelMember!= null)
                     if (current.HasMember(statusModelMember))
                         if (!current.SetMemberValue(statusModelMember, null)) // Mark as 'Waiting Moderation'.
                             Base.Current.Log.Warn<T>($"Could NOT change moderation status on [{statusModelMember}] | {type}, entry {{{currentKey}}}");

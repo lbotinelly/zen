@@ -43,9 +43,9 @@ namespace Zen.Web.Data.Pipeline.Moderation
 
             var oProbe = (Data<T>) preRet.Entry;
 
-            if (hs.Setup.StatusModelMember != null)
+            if (hs.Setup.StatusModelMember!= null)
                 if (!oProbe.SetMemberValue(hs.Setup.StatusModelMember, States.ResultLabel.Approved)) Base.Current.Log.Warn<T>($"Could NOT change moderation status field {hs.Setup.StatusModelMember} on [{preRet.SourceId}]");
-                else if (hs.Setup.ActivityModelMember != null) oProbe.SetMemberValue(hs.Setup.ActivityModelMember, true);
+                else if (hs.Setup.ActivityModelMember!= null) oProbe.SetMemberValue(hs.Setup.ActivityModelMember, true);
 
             oProbe.Save();
 
@@ -72,11 +72,11 @@ namespace Zen.Web.Data.Pipeline.Moderation
 
             var preRet = Get(tid);
 
-            if (hs.Setup.StatusModelMember != null)
+            if (hs.Setup.StatusModelMember!= null)
             {
                 var oProbe = Data<T>.Get(preRet.SourceId);
 
-                if (oProbe != null)
+                if (oProbe!= null)
                 {
                     if (!oProbe.SetMemberValue(hs.Setup.StatusModelMember, States.ResultLabel.Rejected)) Base.Current.Log.Warn<T>($"Could NOT change moderation status field {hs.Setup.StatusModelMember} on [{preRet.SourceId}]");
                     else oProbe.Save();

@@ -70,7 +70,9 @@ namespace Zen.Module.Data.LiteDB
 
         public override T Get<T>(string key, Mutator mutator = null)
         {
-            var model = Collection<T>().FindOne($"$.{_statements.KeyMemberName} = '{key}'");
+            var statement = $"$._id = '{key}'";
+
+            var model = Collection<T>().FindOne(statement);
             return model;
         }
 

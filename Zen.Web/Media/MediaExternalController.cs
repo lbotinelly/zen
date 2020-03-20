@@ -25,7 +25,7 @@ namespace Zen.Web.Media
             var targetStream = Local.Read(cacheTag);
             var targetStreamMimeType = Local.ReadString(mimeCacheTag);
 
-            if (targetStream != null && targetStreamMimeType != null)
+            if (targetStream!= null && targetStreamMimeType!= null)
             {
                 Log.KeyValuePair(cacheTag + " " + targetStreamMimeType, query["url"]);
                 return File(targetStream, targetStreamMimeType);

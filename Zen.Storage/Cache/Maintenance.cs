@@ -2,8 +2,10 @@
 using System.IO;
 using System.Threading.Tasks;
 using Zen.Base.Common;
-using Zen.Base.Maintenance;
 using Zen.Base.Module.Log;
+using Zen.Service.Maintenance.Attributes;
+using Zen.Service.Maintenance.Model;
+using Zen.Service.Maintenance.Shared;
 
 namespace Zen.Storage.Cache {
     public class Maintenance : IMaintenanceTask

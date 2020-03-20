@@ -47,7 +47,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
             {
                 // Maybe it came through POST:
                 response = Current.Context.Request.BodyContent().FromJson<ModerationControlPayload>();
-                if (response != null) return response;
+                if (response!= null) return response;
             }
             catch { }
 
@@ -90,8 +90,8 @@ namespace Zen.Web.Data.Pipeline.Moderation
                 {
                     var response = new States.ModerationActions
                     {
-                        Moderate = Setup.ModeratorPermission != null && App.Current.Orchestrator.Person?.HasAnyPermissions(Setup.ModeratorPermission) == true,
-                        Whitelisted = Setup.WhitelistPermission != null && App.Current.Orchestrator.Person?.HasAnyPermissions(Setup.WhitelistPermission) == true,
+                        Moderate = Setup.ModeratorPermission!= null && App.Current.Orchestrator.Person?.HasAnyPermissions(Setup.ModeratorPermission) == true,
+                        Whitelisted = Setup.WhitelistPermission!= null && App.Current.Orchestrator.Person?.HasAnyPermissions(Setup.WhitelistPermission) == true,
                         Author = App.Current.Orchestrator.Person?.HasAnyPermissions(Setup.CreatorPermission) == true
                     };
 

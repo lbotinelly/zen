@@ -23,7 +23,7 @@ namespace Zen.Module.Data.MongoDB
 
             var fluentCollection = source.Find(queryDocument);
 
-            if (sortFilter != null) fluentCollection.Sort(sortFilter);
+            if (sortFilter!= null) fluentCollection.Sort(sortFilter);
 
             fluentCollection.Paginate(transform);
 
@@ -41,7 +41,7 @@ namespace Zen.Module.Data.MongoDB
 
         public static IFindFluent<BsonDocument, BsonDocument> Paginate(this IFindFluent<BsonDocument, BsonDocument> source, QueryTransform payload)
         {
-            if (payload?.Pagination != null) source.Paginate(payload.Pagination);
+            if (payload?.Pagination!= null) source.Paginate(payload.Pagination);
 
             return source;
         }

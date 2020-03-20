@@ -14,7 +14,7 @@ namespace Zen.Base.Module.Data
         public Mutator(string filter) { Transform = new QueryTransform {Filter = filter}; }
 
         public string SetCode { get => PipelineMetadata.ContainsKey(CommonMetadataKeys.Set) ? PipelineMetadata[CommonMetadataKeys.Set] : null; set => PipelineMetadata[CommonMetadataKeys.Set] = value; }
-        public string KeyPrefix => SetCode != null ? SetCode + "." : null;
+        public string KeyPrefix => SetCode!= null ? SetCode + "." : null;
 
         public static class CommonMetadataKeys
         {

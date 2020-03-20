@@ -177,7 +177,7 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null) != null
+                             where p.GetValue(obj, null)!= null
                              select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
@@ -352,7 +352,7 @@ namespace Zen.Base.Extension
         public static List<X509Certificate2> BySubject(this X509Store source, string targetSubject)
         {
             source.Open(OpenFlags.ReadOnly);
-            var target = source.Certificates.ToList().Where(i => i?.SubjectName.Name != null && i.SubjectName.Name.Contains(targetSubject)).ToList();
+            var target = source.Certificates.ToList().Where(i => i?.SubjectName.Name!= null && i.SubjectName.Name.Contains(targetSubject)).ToList();
             source.Close();
             return target;
         }
@@ -556,7 +556,7 @@ namespace Zen.Base.Extension
 
         public static bool IsSubclassOfRawGeneric(this Type toCheck, Type generic)
         {
-            while (toCheck != null && toCheck != typeof(object))
+            while (toCheck!= null && toCheck != typeof(object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur) return true;
@@ -672,14 +672,14 @@ namespace Zen.Base.Extension
 
         internal static TTarget Copy(TSource source)
         {
-            if (initializationException != null) throw initializationException;
+            if (initializationException!= null) throw initializationException;
             if (source == null) throw new ArgumentNullException("source");
             return creator(source);
         }
 
         internal static void Copy(TSource source, TTarget target)
         {
-            if (initializationException != null) throw initializationException;
+            if (initializationException!= null) throw initializationException;
             if (source == null) throw new ArgumentNullException("source");
             for (var i = 0; i < sourceProperties.Count; i++) targetProperties[i].SetValue(target, sourceProperties[i].GetValue(source, null), null);
         }

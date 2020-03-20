@@ -128,7 +128,7 @@ namespace Zen.App.Orchestrator
 
             var src = Get(Current.Orchestrator?.Person.Locator, Current.Orchestrator?.Application.Code);
 
-            if (src != null) return (IZenPreference) src;
+            if (src!= null) return (IZenPreference) src;
 
             src = new T();
             var prefSource = (IZenPreference) src;

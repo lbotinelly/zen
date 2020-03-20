@@ -175,9 +175,9 @@ namespace Zen.Base.Diagnostics
                 //}
             }
 
-            PreCompEntryAssembly = Assembly.GetEntryAssembly() != null ? Assembly.GetEntryAssembly()?.GetName().Name : "N/A";
-            PreCompCallingAssembly = Assembly.GetCallingAssembly() != null ? Assembly.GetCallingAssembly().GetName().Name : "N/A";
-            PreCompExecutingAssembly = Assembly.GetExecutingAssembly() != null ? Assembly.GetExecutingAssembly().GetName().Name : "N/A";
+            PreCompEntryAssembly = Assembly.GetEntryAssembly()!= null ? Assembly.GetEntryAssembly()?.GetName().Name : "N/A";
+            PreCompCallingAssembly = Assembly.GetCallingAssembly()!= null ? Assembly.GetCallingAssembly().GetName().Name : "N/A";
+            PreCompExecutingAssembly = Assembly.GetExecutingAssembly()!= null ? Assembly.GetExecutingAssembly().GetName().Name : "N/A";
 
             PreCompBaseAssembly = PreCompInitializingAssembly ?? PreCompEntryAssembly;
 

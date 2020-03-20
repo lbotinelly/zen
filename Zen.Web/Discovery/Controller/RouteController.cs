@@ -22,7 +22,7 @@ namespace Zen.Web.Discovery.Controller
             var routes = _actionDescriptorCollectionProvider
                 .ActionDescriptors
                 .Items
-                .Where(ad => ad.AttributeRouteInfo != null)
+                .Where(ad => ad.AttributeRouteInfo!= null)
                 .OrderBy(x => x.AttributeRouteInfo.Template)
                 .ToList();
 

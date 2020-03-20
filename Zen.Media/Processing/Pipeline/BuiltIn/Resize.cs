@@ -23,7 +23,7 @@ namespace Zen.Media.Processing.Pipeline.BuiltIn
                 Width = (int?) (Height * sourceRatio);
 
             if (Proportional) // If we're doing a proportional crop then source size may need to be adjusted.
-                if (Width != null && Height != null)
+                if (Width!= null && Height!= null)
                 {
                     var projectedRatio = Width.Value / (decimal) Height.Value;
 

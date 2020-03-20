@@ -18,7 +18,7 @@ namespace Zen.Base.Module.Data
         {
             get
             {
-                if (_Instance != null) return _Instance;
+                if (_Instance!= null) return _Instance;
 
                 _Instance = (T) Activator.CreateInstance(typeof(T), null);
                 return _Instance;

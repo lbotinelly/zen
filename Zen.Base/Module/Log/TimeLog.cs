@@ -32,7 +32,7 @@ namespace Zen.Base.Module.Log
         {
             _s.Start();
             if (verbose)
-                if (message != null)
+                if (message!= null)
                     Log(message);
 
             return this;

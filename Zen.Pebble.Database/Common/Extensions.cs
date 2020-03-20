@@ -20,7 +20,7 @@ namespace Zen.Pebble.Database.Common
             {
                 var referenceException = e;
 
-                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
+                while (referenceException.InnerException!= null) referenceException = referenceException.InnerException;
 
                 throw referenceException;
             }
@@ -32,7 +32,7 @@ namespace Zen.Pebble.Database.Common
             {
                 var referenceException = e;
 
-                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
+                while (referenceException.InnerException!= null) referenceException = referenceException.InnerException;
 
                 throw referenceException;
             }

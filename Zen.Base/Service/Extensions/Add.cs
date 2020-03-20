@@ -1,15 +1,17 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base.Maintenance;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
-using Zen.Base.Process.Core.Service.Sample;
+using Zen.Base.Process;
 
 namespace Zen.Base.Service.Extensions
 {
     public static class Add
     {
-        public static ZenBuilder AddZen(this IServiceCollection services, string defaultScheme) { return services.AddZen(o => o.DefaultScheme = defaultScheme); }
+        public static ZenBuilder AddZen(this IServiceCollection services, string defaultScheme)
+        {
+            return services.AddZen(o => o.DefaultScheme = defaultScheme);
+        }
 
         public static ZenBuilder AddZen(this IServiceCollection services, Action<ZenOptions> configureOptions = null)
         {
@@ -24,9 +26,9 @@ namespace Zen.Base.Service.Extensions
             if (configureOptions != null) services.Configure(configureOptions);
 
             services.AddHostedService<ApplicationLifetimeHostedService>();
-            services.AddHostedService<MaintenanceService>();
 
-            Log.KeyValuePair("ZenBuilder", $"{services.Count} services registered", Message.EContentType.StartupSequence);
+            Log.KeyValuePair("ZenBuilder", $"{services.Count} services registered",
+                Message.EContentType.StartupSequence);
 
             return builder;
         }

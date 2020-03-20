@@ -47,12 +47,12 @@ namespace Zen.Base
 
         private static void DumpStartInfo()
         {
-            var divider = new string('_', 130);
+            //var divider = new string('_', 130);
 
-            Current.Log.Debug(divider);
+            //Current.Log.Debug(divider);
             Current.Log.Debug("");
             Current.Log.Info(@"Zen " + Assembly.GetCallingAssembly().GetName().Version);
-            Current.Log.Debug(divider);
+            //Current.Log.Debug(divider);
             Current.Log.Debug("");
             Current.Log.Add("Providers:");
 
@@ -69,7 +69,7 @@ namespace Zen.Base
 
             foreach (var kvp in BootLog) Current.Log.KeyValuePair(kvp.Key, kvp.Value);
 
-            Current.Log.Debug(divider);
+            //Current.Log.Debug(divider);
             Current.Log.Debug("");
         }
 
@@ -106,7 +106,7 @@ namespace Zen.Base
         {
             _doShutdown = true;
 
-            if (_workerThread != null) return;
+            if (_workerThread!= null) return;
 
             _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
             _workerThread.Start();

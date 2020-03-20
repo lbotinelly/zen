@@ -31,7 +31,7 @@ namespace Zen.Web.Auth.Service.Extensions
             var googleClientId = googleAuthNSection["ClientId"];
             var googleClientSecret = googleAuthNSection["ClientSecret"];
 
-            if (googleClientId != null)
+            if (googleClientId!= null)
             {
                 Settings.IsAuthProvider = true;
 
@@ -76,7 +76,7 @@ namespace Zen.Web.Auth.Service.Extensions
 
             var builder = new Builder(services);
 
-            if (configureOptions != null) services.Configure(configureOptions);
+            if (configureOptions!= null) services.Configure(configureOptions);
 
             return builder;
         }

@@ -130,7 +130,7 @@ namespace Zen.Module.Data.Oracle
                         if (typeof(IList).IsAssignableFrom(pType)) continue;
                         if (typeof(IDictionary).IsAssignableFrom(pType)) continue;
 
-                        if (pType.BaseType != null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
+                        if (pType.BaseType!= null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
 
                         var isNullable = false;
 
@@ -138,7 +138,7 @@ namespace Zen.Module.Data.Oracle
 
                         var nullProbe = Nullable.GetUnderlyingType(pType);
 
-                        if (nullProbe != null)
+                        if (nullProbe!= null)
                         {
                             isNullable = true;
                             pType = nullProbe;
@@ -198,7 +198,7 @@ namespace Zen.Module.Data.Oracle
                     Execute<T>(tableRender.ToString());
                 } catch (Exception e) { Current.Log.Add(e); }
 
-                if (KeyColumn != null)
+                if (KeyColumn!= null)
                 {
                     try { Execute<T>("DROP SEQUENCE " + seqName); } catch { }
 
@@ -226,7 +226,7 @@ namespace Zen.Module.Data.Oracle
                 FOR EACH ROW
                 BEGIN
                 " +
-                    (KeyColumn != null
+                    (KeyColumn!= null
                         ? @"IF :new.{3} is null 
                     THEN       
                         SELECT {2}.NEXTVAL INTO :new.{3} FROM dual;

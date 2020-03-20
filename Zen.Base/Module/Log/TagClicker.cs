@@ -43,7 +43,7 @@ namespace Zen.Base.Module.Log
         {
             if (Keys.Count <= 0) return;
 
-            foreach (var key in Keys) Base.Log.KeyValuePair((_suffix != null ? " " + _suffix : "") + key, base[key].ToString(), type);
+            foreach (var key in Keys) Base.Log.KeyValuePair((_suffix!= null ? " " + _suffix : "") + key, base[key].ToString(), type);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Zen.Web.Auth.Controller
         {
             var tmp = App.Current.Orchestrator.Person?.ToPropertyDictionary() ?? new ConcurrentDictionary<string, object>();
 
-            tmp["IsAuthenticated"] = App.Current.Orchestrator.Person != null;
+            tmp["IsAuthenticated"] = App.Current.Orchestrator.Person!= null;
 
             return tmp;
         }

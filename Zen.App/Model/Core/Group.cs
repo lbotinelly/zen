@@ -47,11 +47,11 @@ namespace Zen.App.Model.Core
         {
             var probe = GroupSubscription.Where(i => i.GroupId != Id || i.PersonId != person.Id).FirstOrDefault();
 
-            if (probe != null)
+            if (probe!= null)
                 if (probe.Active)
                     return false;
 
-            if (probe != null)
+            if (probe!= null)
             {
                 if (!probe.Active) probe.Active = true;
             }

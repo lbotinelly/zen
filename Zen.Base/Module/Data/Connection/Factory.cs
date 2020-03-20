@@ -27,7 +27,7 @@ namespace Zen.Base.Module.Data.Connection
 
                 var probeTypes = new List<Type>();
 
-                if (pPrefCredSetType != null) probeTypes.Add(pPrefCredSetType);
+                if (pPrefCredSetType!= null) probeTypes.Add(pPrefCredSetType);
 
                 var scanModules = IoC.GetClassesByInterface<CredentialSetPrimitive>();
 

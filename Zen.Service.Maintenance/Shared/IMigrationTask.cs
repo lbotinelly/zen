@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
+using Zen.Service.Maintenance.Model;
 
-namespace Zen.Base.Maintenance {
+namespace Zen.Service.Maintenance.Shared
+{
     public interface IMigrationTask
     {
         Task<Result> MigrationTask();

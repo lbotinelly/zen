@@ -47,7 +47,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample02-REST", "Samples\Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.FlexibleData", "Zen.Pebble.FlexibleData\Zen.Pebble.FlexibleData.csproj", "{34D1D434-DAFA-40C3-A360-D0DC90864555}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample3-Web", "Samples\Sample3-Web\Sample3-Web.csproj", "{38887F08-02E6-4BE8-B190-E1C4DE8AE233}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample3-Web", "Samples\Sample3-Web\Sample3-Web.csproj", "{38887F08-02E6-4BE8-B190-E1C4DE8AE233}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Service.Maintenance", "Zen.Service.Maintenance\Zen.Service.Maintenance.csproj", "{7E66929A-D6C5-4645-90EF-C26C1C3E640C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -143,6 +145,10 @@ Global
 		{38887F08-02E6-4BE8-B190-E1C4DE8AE233}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38887F08-02E6-4BE8-B190-E1C4DE8AE233}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38887F08-02E6-4BE8-B190-E1C4DE8AE233}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E66929A-D6C5-4645-90EF-C26C1C3E640C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E66929A-D6C5-4645-90EF-C26C1C3E640C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E66929A-D6C5-4645-90EF-C26C1C3E640C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E66929A-D6C5-4645-90EF-C26C1C3E640C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

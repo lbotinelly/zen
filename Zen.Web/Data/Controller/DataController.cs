@@ -32,7 +32,7 @@ namespace Zen.Web.Data.Controller
         {
             get
             {
-                if (_mutator != null) return _mutator;
+                if (_mutator!= null) return _mutator;
 
                 var mutator = Request.Query.ToMutator<T>();
 
@@ -104,7 +104,7 @@ namespace Zen.Web.Data.Controller
         {
             var configuration = Configuration;
 
-            if (key == null) key = model != null ? Data<T>.GetDataKey(model) : null;
+            if (key == null) key = model!= null ? Data<T>.GetDataKey(model) : null;
 
             if (configuration == null) return;
 
@@ -217,7 +217,7 @@ namespace Zen.Web.Data.Controller
             {
                 var collection = FetchCollection();
 
-                var outputCollection = RequestMutator.Transform != null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
+                var outputCollection = RequestMutator.Transform!= null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
 
                 return PrepareResponse(outputCollection);
             } catch (Exception e)

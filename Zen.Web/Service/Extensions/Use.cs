@@ -27,7 +27,7 @@ namespace Zen.Web.Service.Extensions
             var builder = new ZenWebBuilder(app, options);
 
             var appCode = App.Current.Configuration?.Code?.ToLower() ?? Zen.Base.Host.ApplicationAssemblyName;
-            var usePrefix = Current.Configuration?.RoutePrefix != null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+            var usePrefix = Current.Configuration?.RoutePrefix!= null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
             var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
 
             if (!usePrefix)
@@ -49,17 +49,26 @@ namespace Zen.Web.Service.Extensions
 
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"); // We're still using the default wwwroot folder
 
-                var fileProvider = new PhysicalFileProvider(path);
-
-                var fOptions = new DefaultFilesOptions
+                if (Directory.Exists(path))
                 {
-                    FileProvider = fileProvider,
-                    RequestPath = rootPrefix
-                };
+                    var fileProvider = new PhysicalFileProvider(path);
 
-                app.UseDefaultFiles(fOptions); // This will allow default (index.html, etc.) requests on the new mapping
+                    var fOptions = new DefaultFilesOptions
+                    {
+                        FileProvider = fileProvider,
+                        RequestPath = rootPrefix
+                    };
 
-                app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
+                    app.UseDefaultFiles(
+                        fOptions); // This will allow default (index.html, etc.) requests on the new mapping
+
+                    app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
+                }
+                else
+                {
+                    app.UseDefaultFiles();
+                    app.UseStaticFiles();
+                }
 
                 app.UseRouter(r =>
                 {
@@ -67,7 +76,7 @@ namespace Zen.Web.Service.Extensions
                     {
                         var destination = "." + rootPrefix;
 
-                        if (Current.Configuration?.Development?.QualifiedServerName != null)
+                        if (Current.Configuration?.Development?.QualifiedServerName!= null)
                             if (context.Request.Host.Host != Current.Configuration?.Development?.QualifiedServerName)
                             {
                                 var sourcePort = context.Request.Host.Port;

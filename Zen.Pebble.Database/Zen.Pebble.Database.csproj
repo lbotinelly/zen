@@ -8,9 +8,10 @@
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2019 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
     <PackageIconUrl />
+    <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>

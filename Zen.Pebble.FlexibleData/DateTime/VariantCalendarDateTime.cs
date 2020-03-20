@@ -95,7 +95,7 @@ namespace Zen.Pebble.FlexibleData.DateTime
 
         private void CompileVariants()
         {
-            if (_variants != null) return;
+            if (_variants!= null) return;
 
             _variants = new Dictionary<Calendars.ECalendarType, string>();
 
@@ -114,7 +114,7 @@ namespace Zen.Pebble.FlexibleData.DateTime
                 {
                     var targetCultureName = Calendars.CulturesPerCalendar[key].FirstOrDefault(i => i.StartsWith(languageParticle)) ?? Calendars.CulturesPerCalendar[key].FirstOrDefault();
 
-                    if (targetCultureName != null)
+                    if (targetCultureName!= null)
                     {
                         var targetCulture = new CultureInfo(targetCultureName) {DateTimeFormat = {Calendar = value}};
 
@@ -124,7 +124,7 @@ namespace Zen.Pebble.FlexibleData.DateTime
 
                 if (dateLocalizedExpression == null) dateLocalizedExpression = _value.ToCalendar(value)?.ToString(outputFormat, _culture);
 
-                if (dateLocalizedExpression != null) _variants[key] = dateLocalizedExpression;
+                if (dateLocalizedExpression!= null) _variants[key] = dateLocalizedExpression;
             }
         }
     }
