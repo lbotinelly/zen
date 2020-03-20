@@ -33,60 +33,100 @@ namespace Zen.Web.Host
             Log.Add("Zen | Startup-Sequence START");
 
             if (!Base.Host.IsContainer)
-                if (Base.Host.IsDevelopment)
-                {
-                    // Pick up certificate from local Store:
+            {
+                // Pick up certificate from local Store:
 
-                    var devCertificate = GetDevCertificate();
+                var hostCertificate = GetCertificate();
 
-                    var host = new WebHostBuilder() // Pretty standard pipeline,
-                        .UseContentRoot(Directory.GetCurrentDirectory())
-                        .UseKestrel()
-                        .UseStartup<T>()
-                        .ConfigureKestrel((context, options) =>
-                        {
-                            var localAddress = IPAddress.Parse("0.0.0.0"); // But we'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
+                var host = new WebHostBuilder() // Pretty standard pipeline,
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseKestrel()
+                    .UseStartup<T>()
+                    .ConfigureKestrel((context, options) =>
+                    {
+                        var localAddress =
+                            IPAddress.Parse(
+                                "0.0.0.0"); // But we'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
 
-                            var httpPort = Current.Configuration?.Development?.HttpPort ?? 5000;
-                            Base.Host.Variables[Keys.WebHttpPort] = httpPort;
-                            // var httpPort = Base.Host.Variables.GetValue(Base.Host.Constants.WebHttpPort).ToType<int>();
+                        var httpPort =
+                            (Base.Host.IsDevelopment
+                                ? Current.Configuration?.Development?.HttpPort
+                                : Current.Configuration?.Production?.HttpPort)
+                            ??
+                            Current.Configuration?.HttpPort ??
+                            5000;
+                        Base.Host.Variables[Keys.WebHttpPort] = httpPort;
+                        // var httpPort = Base.Host.Variables.GetValue(Base.Host.Constants.WebHttpPort).ToType<int>();
 
-                            options.Listen(
-                                localAddress,
-                                httpPort
-                            );
+                        options.Listen(
+                            localAddress,
+                            httpPort
+                        );
 
-                            // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
-                            if (devCertificate == null) return;
+                        // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default devcert created by VS.
+                        if (hostCertificate == null) return;
 
-                            var httpsPort = Current.Configuration?.Development?.HttpsPort ?? 5001;
-                            Base.Host.Variables[Keys.WebHttpsPort] = httpsPort;
+                        var httpsPort =
+                            (Base.Host.IsDevelopment
+                                ? Current.Configuration?.Development?.HttpsPort
+                                : Current.Configuration?.Production?.HttpsPort)
+                            ??
+                            Current.Configuration?.HttpsPort ??
+                            5001;
+                        Base.Host.Variables[Keys.WebHttpsPort] = httpsPort;
 
-                            options.Listen(
-                                localAddress,
-                                httpsPort,
-                                listenOptions => { listenOptions.UseHttps(devCertificate); });
-                        })
-                        .Build();
+                        options.Listen(
+                            localAddress,
+                            httpsPort,
+                            listenOptions => { listenOptions.UseHttps(hostCertificate); });
+                    })
+                    .Build();
 
-                    if (devCertificate != null) // Log so we know what's going on.
-                        Base.Current.Log.KeyValuePair("Development Certificate", $"{devCertificate.Thumbprint} | {devCertificate.FriendlyName}");
+                if (hostCertificate!= null) // Log so we know what's going on.
+                    Base.Current.Log.KeyValuePair("Certificate",
+                        $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
 
-                    host.Run();
-                    return;
-                }
+                host.Run();
+                return;
+            }
 
             // Vanilla stuff.
             WebHost.CreateDefaultBuilder(args).UseStartup<T>().Build().Run();
         }
 
-        private static X509Certificate2 GetDevCertificate()
+        private static X509Certificate2 GetCertificate()
         {
-            var targetSubject = Current.Configuration?.Development?.CertificateSubject ?? "localhost";
+            X509Certificate2 targetCertificate = null;
 
-            var targetCertificate = new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() ??
+            if (Base.Host.IsDevelopment)
+            {
+                var targetSubject = Current.Configuration?.Development?.CertificateSubject ?? "localhost";
+
+                targetCertificate = new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() ??
                                     new X509Store(StoreName.My).BySubject(targetSubject).FirstOrDefault() ??
                                     new X509Store(StoreName.My).BySubject("localhost").FirstOrDefault();
+            }
+
+            if (Base.Host.IsProduction)
+            {
+                var certPath =
+                    $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
+
+                if (!Directory.Exists(certPath))
+                {
+                    Log.Warn($"No physical certificate storage [{certPath}]");
+                }
+                else
+                {
+                    var certFile = Directory.GetFiles(certPath).FirstOrDefault();
+
+                    if (certFile == null)
+                        Log.Warn($"No certificate in physical storage [{certPath}]");
+                    else
+
+                        targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile));
+                }
+            }
 
             return targetCertificate;
         }
