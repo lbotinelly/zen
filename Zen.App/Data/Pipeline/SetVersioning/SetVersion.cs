@@ -41,7 +41,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
             var action = isNew ? "Created" : "Updated";
 
-            if (Current.Orchestrator?.Person != null) action += " by " + Current.Orchestrator?.Person.Name + " (" + Current.Orchestrator?.Person.Locator + ")";
+            if (Current.Orchestrator?.Person!= null) action += " by " + Current.Orchestrator?.Person.Name + " (" + Current.Orchestrator?.Person.Locator + ")";
 
             var log = new Log<T>
             {
@@ -63,7 +63,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
             var person = Current.Orchestrator?.Person;
 
-            if (person != null) action += " by " + person.Name + " (" + person.Locator + ")";
+            if (person!= null) action += " by " + person.Name + " (" + person.Locator + ")";
 
             var log = new Log<T>
             {

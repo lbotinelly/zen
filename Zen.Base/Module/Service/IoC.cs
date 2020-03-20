@@ -34,7 +34,7 @@ namespace Zen.Base.Module.Service
 
             var self = Assembly.GetEntryAssembly();
 
-            if (self != null) RegisterAssembly(self);
+            if (self!= null) RegisterAssembly(self);
 
             // 1st cycle: Local (base directory) assemblies
 
@@ -184,7 +184,7 @@ namespace Zen.Base.Module.Service
                 foreach (var asy in assySource)
                     classCol.AddRange(asy
                                           .GetTypes()
-                                          .Where(type => type.BaseType != null)
+                                          .Where(type => type.BaseType!= null)
                                           .Where(
                                               type =>
                                                   type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == refType

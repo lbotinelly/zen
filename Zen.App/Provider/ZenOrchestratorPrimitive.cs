@@ -41,7 +41,7 @@ namespace Zen.App.Provider
         {
             var probe = Data<TG>.GetByCode(code);
 
-            if (probe != null) return probe;
+            if (probe!= null) return probe;
 
             if (!createIfNotFound) return null;
 
@@ -89,11 +89,11 @@ namespace Zen.App.Provider
 
             var cached = Base.Current.Cache[key];
 
-            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IGroup) i).ToList();
+            if (cached!= null) return cached.FromJson<List<TG>>().Select(i => (IGroup) i).ToList();
 
             var chain = new List<IGroup>();
 
-            if (referenceGroup.ParentId != null)
+            if (referenceGroup.ParentId!= null)
                 if (string.IsNullOrEmpty(referenceGroup.ApplicationId) || !ignoreParentWhenAppOwned)
                 {
                     var parent = Data<TG>.Get(referenceGroup.ParentId);
@@ -119,7 +119,7 @@ namespace Zen.App.Provider
             if (string.IsNullOrEmpty(expression)) return true;
 
             if (expression == IsAuthenticatedPermission)
-                if (Person != null)
+                if (Person!= null)
                     return true;
 
             var permissionList = expression.Split(PermissionExpressionDelimiters, StringSplitOptions.RemoveEmptyEntries);
@@ -145,7 +145,7 @@ namespace Zen.App.Provider
 
             var probe = Data<TPerm>.Where(i => i.FullCode == fullCode).FirstOrDefault();
 
-            if (probe != null) return probe;
+            if (probe!= null) return probe;
 
             if (!createIfNotFound) return null;
 
@@ -161,7 +161,7 @@ namespace Zen.App.Provider
 
         public List<IPerson> GetPeople(IEnumerable<string> keySet = null)
         {
-            var set = keySet != null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
+            var set = keySet!= null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
 
             return set.Select(i => (IPerson) i).ToList();
         }
@@ -238,7 +238,7 @@ namespace Zen.App.Provider
         {
             // Let's determine the current app.
 
-            if (_application != null) return;
+            if (_application!= null) return;
 
             _application = Core.Application.Factory.Current;
 

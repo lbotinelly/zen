@@ -29,7 +29,7 @@ namespace Zen.Base
             IsContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 
             if (!IsDevelopment)
-                if (Environment.GetEnvironmentVariable("zen_Web__Development__QualifiedServerName") != null)
+                if (Environment.GetEnvironmentVariable("zen_Web__Development__QualifiedServerName")!= null)
                     IsDevelopment = true;
 
             if (!Directory.Exists(DataDirectory)) Directory.CreateDirectory(DataDirectory);

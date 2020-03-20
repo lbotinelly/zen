@@ -11,8 +11,8 @@ namespace Zen.Base
         {
             if (Status.State != Status.EState.Running)
             {
-                Console.WriteLine(topic != null ? 
-                                      $@"{Message.ContentCode[type]} {topic.TruncateEnd(35, true)} : {message.TruncateEnd(93)}" : 
+                Console.WriteLine(topic!= null ? 
+                                      $@"{Message.ContentCode[type]} {topic.TruncateEnd(25, true)} : {message.TruncateEnd(53)}" : 
                                       $@"{Message.ContentCode[type]} {message}");
                 return;
             }
@@ -45,11 +45,11 @@ namespace Zen.Base
                 return;
             }
 
-            message = (message != null ? message + ": " : "") + e.ToSummary();
+            message = (message!= null ? message + ": " : "") + e.ToSummary();
 
             Add(message, Message.EContentType.Exception);
 
-            if (e.InnerException != null) Add(e.InnerException);
+            if (e.InnerException!= null) Add(e.InnerException);
         }
 
         public static void Add(Type t, string message, Message.EContentType type = Message.EContentType.Generic) { Add(t.FullName + " | " + message, type); }

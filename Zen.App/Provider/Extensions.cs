@@ -26,7 +26,7 @@ namespace Zen.App.Provider
             var rawKeyCollection = groups.Aggregate(new List<string>(), (i, j) =>
             {
                 var groupPermissions = j.Permissions;
-                if (groupPermissions != null) i.AddRange(groupPermissions);
+                if (groupPermissions!= null) i.AddRange(groupPermissions);
 
                 return i;
             }).Distinct();

@@ -8,7 +8,6 @@ using System.Net.Mail;
 using Zen.App.Core.Application;
 using Zen.App.Core.Group;
 using Zen.App.Core.Person;
-using Zen.App.Provider;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
@@ -30,14 +29,14 @@ namespace Zen.App.Communication
         private readonly MailMessage _baseMsg = new MailMessage();
         internal IApplication Application;
 
-        public AddressGroup Bcc = new AddressGroup { Code = "Bcc" };
-        public AddressGroup Cc = new AddressGroup { Code = "Cc" };
+        public AddressGroup Bcc = new AddressGroup {Code = "Bcc"};
+        public AddressGroup Cc = new AddressGroup {Code = "Cc"};
 
         public EmailPreferences Preferences = new EmailPreferences();
 
         public EmailStatus Result = new EmailStatus();
         public SerializableMailAddress Sender;
-        public AddressGroup To = new AddressGroup { Code = "To" };
+        public AddressGroup To = new AddressGroup {Code = "To"};
 
         public Email()
         {
@@ -51,8 +50,8 @@ namespace Zen.App.Communication
             EnvironmentCode = Base.Current.Environment.Current.Code;
         }
 
-        [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        [Key] public string Id { get; set; } = Guid.NewGuid().ToString();
+
         public string Header { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
@@ -104,25 +103,26 @@ namespace Zen.App.Communication
         {
             var ret = "";
 
-            var col = new List<AddressGroup> { To, Cc };
+            var col = new List<AddressGroup> {To, Cc};
 
             foreach (var i in col)
-                foreach (var item in i.RecipientDescriptor)
-                {
-                    if (ret != "") ret += ", ";
+            foreach (var item in i.RecipientDescriptor)
+            {
+                if (ret != "") ret += ", ";
 
-                    var piece = item.Key;
-                    if (item.Value != null) piece = "<a href=\"mailto:{0}\" target=\"_top\">{1}</a>".format(item.Value, item.Key);
+                var piece = item.Key;
+                if (item.Value != null)
+                    piece = "<a href=\"mailto:{0}\" target=\"_top\">{1}</a>".format(item.Value, item.Key);
 
-                    ret += piece;
-                }
+                ret += piece;
+            }
 
             return ret;
         }
 
         public static IEnumerable<Email> QueuedByCampaign(string campaignCode)
         {
-            var q = new { Campaign = campaignCode, Sent = false };
+            var q = new {Campaign = campaignCode, Sent = false};
 
             return Query(q.ToJson());
         }
@@ -138,7 +138,7 @@ namespace Zen.App.Communication
             if (person?.Email == null || person.Name == null) return this;
 
             SenderLocator = person.Locator;
-            Sender = (SerializableMailAddress)new MailAddress(person.Email, person.Name);
+            Sender = (SerializableMailAddress) new MailAddress(person.Email, person.Name);
 
             return this;
         }
@@ -174,7 +174,7 @@ namespace Zen.App.Communication
             }
 
             SenderLocator = email;
-            Sender = (SerializableMailAddress)(label == null ? new MailAddress(email) : new MailAddress(email, label));
+            Sender = (SerializableMailAddress) (label == null ? new MailAddress(email) : new MailAddress(email, label));
 
             return this;
         }
@@ -188,7 +188,8 @@ namespace Zen.App.Communication
             if (Sent)
                 if (!ignoreSent)
                 {
-                    Base.Current.Log.Add($"Email {Id} was already sent at {Result.Timestamp} ", Message.EContentType.Warning);
+                    Base.Current.Log.Add($"Email {Id} was already sent at {Result.Timestamp} ",
+                        Message.EContentType.Warning);
                     return;
                 }
 
@@ -200,7 +201,9 @@ namespace Zen.App.Communication
 
                 var title = Title;
 
-                if (!Preferences.SupressSubjectAppCodeTag) title = "[" + Application.Code + (isNotPrd ? " - " + Base.Current.Environment.CurrentCode : "") + "] " + title;
+                if (!Preferences.SupressSubjectAppCodeTag)
+                    title = "[" + Application.Code + (isNotPrd ? " - " + Base.Current.Environment.CurrentCode : "") +
+                            "] " + title;
 
                 msg.Subject = title;
 
@@ -245,7 +248,7 @@ namespace Zen.App.Communication
                         Cc.Clear();
                         Bcc.Clear();
 
-                        var devGroups = new List<IGroup> { Application.GetGroup("DEV"), Application.GetGroup("DEVCOPY") };
+                        var devGroups = new List<IGroup> {Application.GetGroup("DEV"), Application.GetGroup("DEVCOPY")};
 
                         devGroups = devGroups.Where(i => i != null).ToList();
 
@@ -260,12 +263,15 @@ namespace Zen.App.Communication
                             foreach (var a in devGroups)
                             {
                                 AddTo(a);
-                                foreach (var i in a.GetPeople().ToList()) msg.To.Add(new SerializableMailAddress(i.Email, i.Name));
+                                foreach (var i in a.GetPeople().ToList())
+                                    msg.To.Add(new SerializableMailAddress(i.Email, i.Name));
                             }
                         }
                         else
                         {
-                            Base.Current.Log.Add("Non-PRD Environment can't send email: no DEV/DEVCOPY/ADM groups found.", Message.EContentType.Warning);
+                            Base.Current.Log.Add(
+                                "Non-PRD Environment can't send email: no DEV/DEVCOPY/ADM groups found.",
+                                Message.EContentType.Warning);
                             AddTo(Current.EmailConfiguration.FallbackPersonEmail);
 
                             return;
@@ -283,7 +289,9 @@ namespace Zen.App.Communication
                 // var targetCount = _msg.To.Count + _msg.CC.Count + _msg.Bcc.Count;
                 var targetCount = msg.CC.Count + msg.Bcc.Count;
 
-                Base.Current.Log.Add($"Sending message [{msg.Subject}] TO {targetCount} recipients FROM {msg.From.Address}", Message.EContentType.Maintenance);
+                Base.Current.Log.Add(
+                    $"Sending message [{msg.Subject}] TO {targetCount} recipients FROM {msg.From.Address}",
+                    Message.EContentType.Maintenance);
 
                 // Finally, if single
 
@@ -342,15 +350,21 @@ namespace Zen.App.Communication
                                     copyMsg.Bcc.Add(t.Item2);
                                     break;
                             }
+
                         msgsToSend.Add(copyMsg);
                         blockPointer += maxBlockSize;
                     } while (targetSet.Count > 0);
 
-                    Base.Current.Log.Add($"    BlockSend: {msgsToSend.Count} (maxSize: {maxBlockSize} | total: {targetCol.Count})", Message.EContentType.Maintenance);
+                    Base.Current.Log.Add(
+                        $"    BlockSend: {msgsToSend.Count} (maxSize: {maxBlockSize} | total: {targetCol.Count})",
+                        Message.EContentType.Maintenance);
 
                     foreach (var preMail in msgsToSend) Smtp.Send(preMail.ToMailMessage());
                 }
-                else { Smtp.Send(msg.ToMailMessage(_baseMsg)); }
+                else
+                {
+                    Smtp.Send(msg.ToMailMessage(_baseMsg));
+                }
 
                 Result.Status = EmailStatus.EStatus.Sent;
                 Result.Timestamp = DateTime.Now;
@@ -376,7 +390,7 @@ namespace Zen.App.Communication
 
         public void SetApplication(string code)
         {
-            var targetApp = Zen.App.Current.Orchestrator.GetApplicationByCode(code);
+            var targetApp = Current.Orchestrator.GetApplicationByCode(code);
 
             if (targetApp == null) throw new InvalidDataException("No application found for Code " + code);
 
@@ -412,7 +426,10 @@ namespace Zen.App.Communication
             public Dictionary<string, string> RecipientDescriptor = new Dictionary<string, string>();
             internal string Code { get; set; }
 
-            public void SetParent(Email reference) { _parent = reference; }
+            public void SetParent(Email reference)
+            {
+                _parent = reference;
+            }
 
             public void Clear()
             {
@@ -469,7 +486,7 @@ namespace Zen.App.Communication
                 if (!code.IsValidEmail()) return _parent;
 
                 if (!RecipientDescriptor.ContainsKey(code)) RecipientDescriptor.Add(displayName, code);
-                AddressList.Add((SerializableMailAddress)new MailAddress(code, displayName));
+                AddressList.Add((SerializableMailAddress) new MailAddress(code, displayName));
 
                 return _parent;
             }
@@ -478,13 +495,15 @@ namespace Zen.App.Communication
             {
                 if (group == null)
                 {
-                    Base.Current.Log.Add($"Email:{Code}: Group:NULL - No group specified", Message.EContentType.Warning);
+                    Base.Current.Log.Add($"Email:{Code}: Group:NULL - No group specified",
+                        Message.EContentType.Warning);
                     return _parent;
                 }
 
                 try
                 {
-                    AddGroupToCollection(group, ref Groups, ref Emails, delegate (MailAddress address) { AddressList.Add((SerializableMailAddress)address); });
+                    AddGroupToCollection(group, ref Groups, ref Emails,
+                        delegate(MailAddress address) { AddressList.Add((SerializableMailAddress) address); });
                     return _parent;
                 }
                 catch (Exception e)
@@ -499,7 +518,7 @@ namespace Zen.App.Communication
                 try
                 {
                     RecipientDescriptor.Add(person.Name, person.Email);
-                    AddressList.Add((SerializableMailAddress)new MailAddress(person.Email, person.Name));
+                    AddressList.Add((SerializableMailAddress) new MailAddress(person.Email, person.Name));
                     return _parent;
                 }
                 catch (Exception e)
@@ -509,7 +528,8 @@ namespace Zen.App.Communication
                 }
             }
 
-            private void AddGroupToCollection(IGroup grp, ref List<string> groupList, ref Dictionary<string, string> groupEmails, Action<MailAddress> action)
+            private void AddGroupToCollection(IGroup grp, ref List<string> groupList,
+                ref Dictionary<string, string> groupEmails, Action<MailAddress> action)
             {
                 if (!groupList.Contains(grp.Code))
                 {
@@ -556,22 +576,22 @@ namespace Zen.App.Communication
             {
                 if (ret == null) ret = new MailMessage();
 
-                ret.From = (MailAddress)From;
+                ret.From = (MailAddress) From;
                 ret.Subject = Subject;
                 ret.Body = Body;
                 ret.IsBodyHtml = IsBodyHtml;
 
                 if (To != null)
                     foreach (var mailAddress in To)
-                        ret.To.Add((MailAddress)mailAddress);
+                        ret.To.Add((MailAddress) mailAddress);
 
                 if (CC != null)
                     foreach (var mailAddress in CC)
-                        ret.CC.Add((MailAddress)mailAddress);
+                        ret.CC.Add((MailAddress) mailAddress);
 
                 if (Bcc != null)
                     foreach (var mailAddress in Bcc)
-                        ret.Bcc.Add((MailAddress)mailAddress);
+                        ret.Bcc.Add((MailAddress) mailAddress);
 
                 return ret;
             }
@@ -603,7 +623,9 @@ namespace Zen.App.Communication
 
         public class SerializableMailAddress
         {
-            public SerializableMailAddress() { }
+            public SerializableMailAddress()
+            {
+            }
 
             public SerializableMailAddress(string email, string name)
             {
@@ -615,7 +637,11 @@ namespace Zen.App.Communication
             public string User { get; set; }
             public string Host { get; set; }
             public string Address { get; set; }
-            public static explicit operator MailAddress(SerializableMailAddress s) { return new MailAddress(s.Address, s.DisplayName); }
+
+            public static explicit operator MailAddress(SerializableMailAddress s)
+            {
+                return new MailAddress(s.Address, s.DisplayName);
+            }
 
             public static explicit operator SerializableMailAddress(MailAddress b)
             {
@@ -636,28 +662,73 @@ namespace Zen.App.Communication
 
         #region To
 
-        public Email AddTo(IPerson person) { return To.Add(person); }
-        public Email AddTo(IGroup group) { return To.Add(group); }
-        public Email AddTo(string code) { return To.Add(code); }
-        public Email AddTo(string code, string displayName) { return To.Add(code, displayName); }
+        public Email AddTo(IPerson person)
+        {
+            return To.Add(person);
+        }
+
+        public Email AddTo(IGroup group)
+        {
+            return To.Add(group);
+        }
+
+        public Email AddTo(string code)
+        {
+            return To.Add(code);
+        }
+
+        public Email AddTo(string code, string displayName)
+        {
+            return To.Add(code, displayName);
+        }
 
         #endregion
 
         #region CC
 
-        public void AddCc(IPerson person) { Cc.Add(person); }
-        public void AddCc(IGroup group) { Cc.Add(group); }
-        public void AddCc(string code) { Cc.Add(code); }
-        public void AddCc(string code, string displayName) { Cc.Add(code, displayName); }
+        public void AddCc(IPerson person)
+        {
+            Cc.Add(person);
+        }
+
+        public void AddCc(IGroup group)
+        {
+            Cc.Add(group);
+        }
+
+        public void AddCc(string code)
+        {
+            Cc.Add(code);
+        }
+
+        public void AddCc(string code, string displayName)
+        {
+            Cc.Add(code, displayName);
+        }
 
         #endregion
 
         #region BCC
 
-        public void AddBcc(IPerson person) { Bcc.Add(person); }
-        public void AddBcc(IGroup group) { Bcc.Add(group); }
-        public void AddBcc(string code) { Bcc.Add(code); }
-        public void AddBcc(string code, string displayName) { Bcc.Add(code, displayName); }
+        public void AddBcc(IPerson person)
+        {
+            Bcc.Add(person);
+        }
+
+        public void AddBcc(IGroup group)
+        {
+            Bcc.Add(group);
+        }
+
+        public void AddBcc(string code)
+        {
+            Bcc.Add(code);
+        }
+
+        public void AddBcc(string code, string displayName)
+        {
+            Bcc.Add(code, displayName);
+        }
 
         #endregion
     }

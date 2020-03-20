@@ -64,7 +64,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.TypeQualifiedName = sourceType?.FullName;
 
                     if (Info<T>.Settings.TypeQualifiedName != Info<T>.Settings.TypeName)
-                        if (sourceType?.FullName != null)
+                        if (sourceType?.FullName!= null)
                             Info<T>.Settings.TypeNamespace = sourceType?.FullName.Substring(0, Info<T>.Settings.TypeQualifiedName.Length - Info<T>.Settings.TypeName.Length - 1);
 
                     Info<T>.Settings.StorageCollectionName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
@@ -73,7 +73,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
 
-                    if (Info<T>.Settings.KeyField == null && Info<T>.Settings.KeyProperty == null && Info<T>.Configuration?.KeyName != null)
+                    if (Info<T>.Settings.KeyField == null && Info<T>.Settings.KeyProperty == null && Info<T>.Configuration?.KeyName!= null)
                     {
                         // A Key member name was provided. Does it really exist? Let's find out.
                         // (Some drivers need explicit key property declaration, like LiteDB.)
@@ -109,7 +109,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.DisplayField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true));
                     Info<T>.Settings.DisplayProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true));
 
-                    if (Info<T>.Settings.DisplayField == null && Info<T>.Settings.DisplayProperty == null && Info<T>.Configuration?.DisplayProperty != null)
+                    if (Info<T>.Settings.DisplayField == null && Info<T>.Settings.DisplayProperty == null && Info<T>.Configuration?.DisplayProperty!= null)
                     {
                         // A Display member name was provided. Does it really exist? Let's find out.
                         Info<T>.Settings.DisplayField = typeof(T).GetFields().FirstOrDefault(i => i.Name == Info<T>.Configuration.DisplayProperty);
@@ -123,7 +123,7 @@ namespace Zen.Base.Module
                         Info<T>.Settings.DisplayProperty?.Name;
 
                     if (!Info<T>.Settings.Silent)
-                        if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
+                        if (Info<T>.Settings.DisplayProperty?.Name!= null && Info<T>.Settings.DisplayMemberName == null)
                             Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
 
                     // Member definitions
@@ -215,7 +215,7 @@ namespace Zen.Base.Module
                         Info<T>.Settings.CredentialSet =
                             Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
 
-                        //if (Info<T>.Settings.CredentialSet != null)
+                        //if (Info<T>.Settings.CredentialSet!= null)
                         //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
                         //        Info<T>.Settings.CredentialSet?.GetType().Name;
 
@@ -269,7 +269,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.State.Stack = new StackTrace(e, true).FancyString();
 
                     var refEx = e;
-                    while (refEx.InnerException != null)
+                    while (refEx.InnerException!= null)
                     {
                         refEx = e.InnerException;
                         Info<T>.Settings.State.Description += " / " + refEx.Message;
@@ -320,7 +320,7 @@ namespace Zen.Base.Module
                 case EActionType.Insert:
                 case EActionType.Update:
                 case EActionType.Remove:
-                    if (Info<T>.Configuration != null)
+                    if (Info<T>.Configuration!= null)
                         if (Info<T>.Configuration.IsReadOnly)
                             throw new Exception("This model is set as read-only.");
                     break;
@@ -360,7 +360,7 @@ namespace Zen.Base.Module
             if (value.IsNumeric()) value = Convert.ToInt64(value);
 
             var refField = GetType().GetField(Info<T>.Settings.KeyMemberName);
-            if (refField != null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
+            if (refField!= null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
             {
                 var refProp = GetType().GetProperty(Info<T>.Settings.KeyMemberName);
                 refProp?.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
@@ -500,7 +500,7 @@ namespace Zen.Base.Module
 
             keyList = keyList.Distinct().ToList();
 
-            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keyList).Values;
+            if (Info<T>.Settings.KeyMemberName!= null) return FetchSet(keyList).Values;
 
             if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
             throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
@@ -776,7 +776,7 @@ namespace Zen.Base.Module
             foreach (var model in cachedSet) model.AfterGet();
 
             // Now we fill the map with the missing models that we sucessfully fetched.
-            foreach (var model in cachedSet.Where(model => model != null))
+            foreach (var model in cachedSet.Where(model => model!= null))
             {
                 var key = cacheKeyPrefix + model.GetDataKey();
                 fetchMap[key] = model;

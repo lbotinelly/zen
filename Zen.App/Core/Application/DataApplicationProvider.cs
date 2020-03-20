@@ -17,7 +17,7 @@ namespace Zen.App.Core.Application
         {
             get
             {
-                if (_current != null) return _current;
+                if (_current!= null) return _current;
 
                 _current = Compile();
                 return _current;
@@ -63,16 +63,16 @@ namespace Zen.App.Core.Application
                 // Host group defined, so now we can start.
             }
 
-            if (settingsHostGroup != null)
+            if (settingsHostGroup!= null)
             {
-                if (settingsHostGroup.Permissions != null)
+                if (settingsHostGroup.Permissions!= null)
                     foreach (var permissionCode in settingsHostGroup.Permissions)
                     {
                         var targetPermission = Current.Orchestrator.GetPermissionByCode(permissionCode, permissionCode, application, true);
                         hostGroup.AddPermission(targetPermission);
                     }
 
-                if (settingsHostGroup.Members != null)
+                if (settingsHostGroup.Members!= null)
                     foreach (var personLocator in settingsHostGroup.Members)
                     {
                         var targetPermission = Current.Orchestrator.GetPersonByLocator(personLocator);
@@ -87,14 +87,14 @@ namespace Zen.App.Core.Application
 
                     var targetGroup = Current.Orchestrator.GetGroupByCode(code, groupDescriptor.Name, application, hostGroup, true);
 
-                    if (groupDescriptor.Permissions != null)
+                    if (groupDescriptor.Permissions!= null)
                         foreach (var permissionCode in groupDescriptor.Permissions)
                         {
                             var targetPermission = Current.Orchestrator.GetPermissionByCode(permissionCode, permissionCode, application, true);
                             targetGroup.AddPermission(targetPermission);
                         }
 
-                    if (groupDescriptor.Members != null)
+                    if (groupDescriptor.Members!= null)
                         foreach (var personLocator in groupDescriptor.Members)
                         {
                             var targetPermission = Current.Orchestrator.GetPersonByLocator(personLocator);

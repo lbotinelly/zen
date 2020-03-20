@@ -14,7 +14,7 @@ namespace Zen.App.Model.Tag
 
                 var probe = Find(a => a.StartsWith(keyword));
 
-                if (probe != null) base.Remove(probe);
+                if (probe!= null) base.Remove(probe);
 
                 base.Add(item);
             }
@@ -39,7 +39,7 @@ namespace Zen.App.Model.Tag
 
                 var probe = Find(a => a.StartsWith(keyword));
 
-                if (probe != null) base.Remove(probe);
+                if (probe!= null) base.Remove(probe);
             }
             else { base.Add(item); }
         }

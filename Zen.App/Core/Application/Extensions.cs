@@ -45,7 +45,7 @@ namespace Zen.App.Core.Application
             {
                 var go = Current.Orchestrator.GetGroupByCode(g.Code);
 
-                if (go.ApplicationId != null) // It's Owned by the app.
+                if (go.ApplicationId!= null) // It's Owned by the app.
                     if (adminGroupCodes.Any(a => go.Code.IndexOf("_" + a, StringComparison.Ordinal) != -1))
                         // Seems to be part of the Administrative groupset
                         if (!isAdmin) // But user isn't admin
@@ -59,7 +59,7 @@ namespace Zen.App.Core.Application
                 Base.Current.Log.KeyValuePair($"[{go.Code}] {go.Name}", $"{g.People.Count} people", Message.EContentType.MoreInfo);
 
                 foreach (var p in g.People)
-                    if (p.Action != null)
+                    if (p.Action!= null)
                     {
                         var po = Current.Orchestrator.GetPersonByLocator(p.Locator);
 

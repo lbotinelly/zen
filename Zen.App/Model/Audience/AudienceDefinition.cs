@@ -10,7 +10,7 @@ namespace Zen.App.Model.Audience
         public List<string> Permissions = new List<string>();
         public List<string> Tags = new List<string>();
 
-        public bool IsVisibleToCurrentPerson() { return Current.Orchestrator.Person != null && IsVisibleToPerson(Current.Orchestrator.Person?.Locator); }
+        public bool IsVisibleToCurrentPerson() { return Current.Orchestrator.Person!= null && IsVisibleToPerson(Current.Orchestrator.Person?.Locator); }
 
         public bool IsVisibleToPerson(string locator)
         {

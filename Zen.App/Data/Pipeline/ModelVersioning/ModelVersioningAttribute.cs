@@ -73,7 +73,7 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
                     if (delta < 0) versionModel.Summary = $"{Math.Abs(delta)} character{plural} removed";
                     if (delta == 0) versionModel.Summary = "Value changed, same size";
 
-                    if (diffExpression != null) versionModel.Summary += ", modified: " + diffExpression;
+                    if (diffExpression!= null) versionModel.Summary += ", modified: " + diffExpression;
                 }
             } catch (Exception) { }
 

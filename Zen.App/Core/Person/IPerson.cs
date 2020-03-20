@@ -33,7 +33,7 @@ namespace Zen.App.Core.Person
         {
             terms = terms.ToList();
 
-            if (terms.Contains(_IsAuthenticated)) if (Current.Orchestrator.Person != null) return true;
+            if (terms.Contains(_IsAuthenticated)) if (Current.Orchestrator.Person!= null) return true;
 
             var appCodeMatrix = $"[{Current.Orchestrator.Application.Code}].[{{0}}]";
 

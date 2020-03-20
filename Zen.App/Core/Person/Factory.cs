@@ -8,6 +8,6 @@ namespace Zen.App.Core.Person
     public class Factory
     {
         private static readonly List<IPersonProvider> Providers = IoC.GetClassesByInterface<IPersonProvider>(false).CreateInstances<IPersonProvider>().ToList();
-        public static IPerson Current => Providers.Select(zenPersonProvider => zenPersonProvider.Person).FirstOrDefault(p => p != null);
+        public static IPerson Current => Providers.Select(zenPersonProvider => zenPersonProvider.Person).FirstOrDefault(p => p!= null);
     }
 }

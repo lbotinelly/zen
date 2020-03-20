@@ -76,7 +76,7 @@ namespace Zen.Base.Extension
             {
                 var propertyNameRes = kv.Key;
 
-                if (translationDictionary != null)
+                if (translationDictionary!= null)
                     if (translationDictionary.ContainsValue(propertyNameRes))
                         propertyNameRes = translationDictionary.FirstOrDefault(x => x.Value == propertyNameRes).Key;
 
@@ -98,14 +98,14 @@ namespace Zen.Base.Extension
                     if (kt == typeof(int)) val = Convert.ToInt32(val);
                     if (kt == typeof(long)) val = Convert.ToInt64(val);
                     if (kt == typeof(Guid))
-                        if (val != null)
+                        if (val!= null)
                             val = new Guid(val.ToString());
                     if (kt.IsEnum) val = Enum.Parse(k.PropertyType, val.ToString());
 
                     k.SetValue(obj, val);
                 }
 
-                else { k.SetValue(obj, kv.Value != null ? JsonConvert.DeserializeObject(kv.Value.ToString(), kt) : null); }
+                else { k.SetValue(obj, kv.Value!= null ? JsonConvert.DeserializeObject(kv.Value.ToString(), kt) : null); }
             }
 
             return (T) obj;
@@ -230,7 +230,7 @@ namespace Zen.Base.Extension
 
                 if (currentMember == null) return false;
 
-                var probe = targetType.GetProperty(currentMember) != null || targetType.GetField(currentMember) != null;
+                var probe = targetType.GetProperty(currentMember)!= null || targetType.GetField(currentMember)!= null;
 
                 if (!nextMembers.Any()) return probe;
 
@@ -256,7 +256,7 @@ namespace Zen.Base.Extension
                     // Case 1: Property
 
                     var propertyInfo = source.GetType().GetProperty(memberName);
-                    if (propertyInfo != null)
+                    if (propertyInfo!= null)
                     {
                         propertyInfo.SetValue(source, model, null);
                         return true;
@@ -341,7 +341,7 @@ namespace Zen.Base.Extension
             {
                 var referenceException = e;
 
-                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
+                while (referenceException.InnerException!= null) referenceException = referenceException.InnerException;
 
                 throw referenceException;
             }
@@ -353,7 +353,7 @@ namespace Zen.Base.Extension
             {
                 var referenceException = e;
 
-                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
+                while (referenceException.InnerException!= null) referenceException = referenceException.InnerException;
 
                 throw referenceException;
             }

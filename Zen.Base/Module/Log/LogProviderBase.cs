@@ -89,7 +89,7 @@ namespace Zen.Base.Module.Log
                 default: throw new ArgumentOutOfRangeException();
             }
 
-            _logger.Write(targetLevel, (m.Topic!= null? $"{m.Topic} | " : "") +  m.Content);
+            _logger.Write(targetLevel, (m.Topic != null ? $"{m.Topic} | " : "") + m.Content);
         }
 
         private static void FlushContent(Message mContent)
@@ -99,7 +99,7 @@ namespace Zen.Base.Module.Log
 
         private static string GetThemedContent(Message mContent)
         {
-            var content = mContent.Topic != null ? $"{mContent.Topic.TruncateEnd(35, true)} : {mContent.Content.TruncateEnd(93)}" : mContent.Content;
+            var content = mContent.Topic != null ? $"{mContent.Topic.TruncateEnd(25, true)} : {mContent.Content.TruncateEnd(78)}" : mContent.Content;
 
             if (WindowsConsole.IsAnsi) content = $"{Message.AnsiColors[mContent.Type]}{content}{AnsiTerminalColorCode.ANSI_RESET}";
 
@@ -116,7 +116,7 @@ namespace Zen.Base.Module.Log
             WindowsConsole.EnableVirtualTerminalProcessing();
 
             var stdout = Console.OpenStandardOutput();
-            Console.SetOut(new StreamWriter(stdout, Encoding.ASCII) {AutoFlush = true});
+            Console.SetOut(new StreamWriter(stdout, Encoding.ASCII) { AutoFlush = true });
 
             _initialized = true;
 

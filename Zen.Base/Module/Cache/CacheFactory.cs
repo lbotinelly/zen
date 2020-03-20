@@ -22,7 +22,7 @@ namespace Zen.Base.Module.Cache
             var cacheKey = typeof(T).CacheKey(key);
 
             var cacheModel = Current.Cache[cacheKey].FromJson<List<T>>();
-            if (cacheModel != null) return cacheModel;
+            if (cacheModel!= null) return cacheModel;
 
             cacheModel = method(key);
 
@@ -45,7 +45,7 @@ namespace Zen.Base.Module.Cache
 
             var cacheModel = Current.Cache[cacheKey].FromJson<T>();
 
-            if (cacheModel != null) return cacheModel;
+            if (cacheModel!= null) return cacheModel;
 
             cacheModel = method(key);
 
@@ -61,7 +61,7 @@ namespace Zen.Base.Module.Cache
 
             var cacheModel = Current.Cache[cacheKey].FromJson<T>();
 
-            if (cacheModel != null) return cacheModel;
+            if (cacheModel!= null) return cacheModel;
 
             cacheModel = method(parameter);
 
@@ -135,12 +135,12 @@ namespace Zen.Base.Module.Cache
             if (singletonLock == null) singletonLock = new object();
 
             var cacheModel = Current.Cache[cacheKey].FromJson<T>();
-            if (cacheModel != null) return cacheModel;
+            if (cacheModel!= null) return cacheModel;
 
             lock (singletonLock)
             {
                 cacheModel = Current.Cache[cacheKey].FromJson<T>();
-                if (cacheModel != null) return cacheModel;
+                if (cacheModel!= null) return cacheModel;
 
                 var ret = method();
 
