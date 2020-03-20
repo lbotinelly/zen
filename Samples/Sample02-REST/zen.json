@@ -1,0 +1,13 @@
+{
+  "Web": {
+    "HttpPort": 80,
+    "HttpsPort": 443,
+    "Behavior": {
+      "UseAppCodeAsRoutePrefix": true
+    },
+    "Development": {
+      "HttpPort": 5000,
+      "HttpsPort": 5001
+    }
+  }
+}

@@ -23,7 +23,7 @@ namespace Sample02_REST
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
+                endpoints.MapGet("/Sample02-REST/", async context =>
                 {
 
                     var rc = Person.Count();
