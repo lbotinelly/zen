@@ -490,7 +490,7 @@ namespace Zen.Web.OpSec
             {
                 IpNetwork ipnetwork2 = null;
                 InternalParse(true, ipaddress, netmask, out ipnetwork2);
-                var parsed = ipnetwork2 != null;
+                var parsed = ipnetwork2!= null;
                 ipnetwork = ipnetwork2;
                 return parsed;
             }
@@ -511,7 +511,7 @@ namespace Zen.Web.OpSec
             {
                 IpNetwork ipnetwork2 = null;
                 InternalParse(true, ipaddress, cidr, out ipnetwork2);
-                var parsed = ipnetwork2 != null;
+                var parsed = ipnetwork2!= null;
                 ipnetwork = ipnetwork2;
                 return parsed;
             }
@@ -533,7 +533,7 @@ namespace Zen.Web.OpSec
             {
                 IpNetwork ipnetwork2 = null;
                 InternalParse(true, network, out ipnetwork2);
-                var parsed = ipnetwork2 != null;
+                var parsed = ipnetwork2!= null;
                 ipnetwork = ipnetwork2;
                 return parsed;
             }
@@ -556,7 +556,7 @@ namespace Zen.Web.OpSec
             {
                 IpNetwork ipnetwork2 = null;
                 InternalParse(true, ipaddress, netmask, out ipnetwork2);
-                var parsed = ipnetwork2 != null;
+                var parsed = ipnetwork2!= null;
                 ipnetwork = ipnetwork2;
                 return parsed;
             }
@@ -768,7 +768,7 @@ namespace Zen.Web.OpSec
             {
                 uint? uintIpAddress2 = null;
                 InternalToUint(true, ipaddress, out uintIpAddress2);
-                var parsed = uintIpAddress2 != null;
+                var parsed = uintIpAddress2!= null;
                 uintIpAddress = uintIpAddress2;
                 return parsed;
             }
@@ -816,7 +816,7 @@ namespace Zen.Web.OpSec
             {
                 uint? uintNetmask2 = null;
                 InternalToUint(true, cidr, out uintNetmask2);
-                var parsed = uintNetmask2 != null;
+                var parsed = uintNetmask2!= null;
                 uintNetmask = uintNetmask2;
                 return parsed;
             }
@@ -906,7 +906,7 @@ namespace Zen.Web.OpSec
             {
                 byte? cidr2 = null;
                 InternalToCidr(true, netmask, out cidr2);
-                var parsed = cidr2 != null;
+                var parsed = cidr2!= null;
                 cidr = cidr2;
                 return parsed;
             }
@@ -969,7 +969,7 @@ namespace Zen.Web.OpSec
             {
                 IPAddress netmask2 = null;
                 InternalToNetmask(true, cidr, out netmask2);
-                var parsed = netmask2 != null;
+                var parsed = netmask2!= null;
                 netmask = netmask2;
                 return parsed;
             }
@@ -1272,7 +1272,7 @@ namespace Zen.Web.OpSec
             {
                 IpNetwork outSupernet = null;
                 InternalSupernet(true, network1, network2, out outSupernet);
-                var parsed = outSupernet != null;
+                var parsed = outSupernet!= null;
                 supernet = outSupernet;
                 return parsed;
             }
@@ -1524,7 +1524,7 @@ namespace Zen.Web.OpSec
                     return;
                 }
 
-                var nnin = Array.FindAll(ipnetworks, delegate(IpNetwork ipnet) { return ipnet != null; });
+                var nnin = Array.FindAll(ipnetworks, delegate(IpNetwork ipnet) { return ipnet!= null; });
 
                 if (nnin.Length <= 0)
                 {

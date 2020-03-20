@@ -96,7 +96,7 @@ namespace Zen.Web.Model.State
         // This will throw if called directly and a failure occurs. The user is expected to handle the failures.
         public async Task LoadAsync(CancellationToken cancellationToken = default)
         {
-            if (sourceModel != null)
+            if (sourceModel!= null)
             {
                 using (var timeout = new CancellationTokenSource(_ioTimeout))
                 {
@@ -142,13 +142,13 @@ namespace Zen.Web.Model.State
 
         private void Load()
         {
-            if (sourceModel != null) return;
+            if (sourceModel!= null) return;
 
             try
             {
                 sourceModel = ZenSession.Get(Id) ?? new ZenSession() { Id = Id };
 
-                if (sourceModel != null) FetchFromSourceModel();
+                if (sourceModel!= null) FetchFromSourceModel();
 
                 _isAvailable = true;
                 _isModified = false;

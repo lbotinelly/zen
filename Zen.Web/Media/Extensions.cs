@@ -23,14 +23,14 @@ namespace Zen.Web.Media
             var f = FormatParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
             var p = PositionParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
 
-            var w = ws != null ? int.Parse(ws) : (int?)null;
-            var h = hs != null ? int.Parse(hs) : (int?)null;
+            var w = ws!= null ? int.Parse(ws) : (int?)null;
+            var h = hs!= null ? int.Parse(hs) : (int?)null;
 
             if (position == Crop.EPosition.NotSpecified)
             {
                 position = Crop.EPosition.Center;
 
-                if (p != null)
+                if (p!= null)
                     switch (p.ToLower())
                     {
                         case "top": position = Crop.EPosition.TopCenter; break;
@@ -41,13 +41,13 @@ namespace Zen.Web.Media
                     }
             }
 
-            if ((w ?? h) != null) // If [w]idth or [h]eight are defined,
+            if ((w ?? h)!= null) // If [w]idth or [h]eight are defined,
             {
                 ret.Items.Add(new Resize { Width = w, Height = h, Proportional = true });
                 ret.Items.Add(new Crop { Width = w, Height = h, Proportional = true, Position = position });
             }
 
-            if (f != null) ret.Format = Configuration.Default.ImageFormatsManager.FindFormatByFileExtension(f);
+            if (f!= null) ret.Format = Configuration.Default.ImageFormatsManager.FindFormatByFileExtension(f);
 
             return ret;
         }
