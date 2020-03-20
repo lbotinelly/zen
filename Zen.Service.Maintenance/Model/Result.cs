@@ -2,12 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
-using Zen.Base.Module.Log;
 
-namespace Zen.Base.Maintenance
+namespace Zen.Service.Maintenance.Model
 {
     [DataConfig(UseCaching = false)]
     public class Result : Data<Result>
@@ -21,10 +21,9 @@ namespace Zen.Base.Maintenance
             Skipped
         }
 
-        [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        [Display]
-        public string Message { get; set; } = "Success";
+        [Key] public string Id { get; set; } = Guid.NewGuid().ToString();
+
+        [Display] public string Message { get; set; } = "Success";
 
         public EResultStatus Status { get; set; } = EResultStatus.Success;
         public ConcurrentDictionary<string, long> Counters { get; set; } = new ConcurrentDictionary<string, long>();
@@ -36,9 +35,14 @@ namespace Zen.Base.Maintenance
 
         public DebugInfoBlock DebugInfo { get; set; } = new DebugInfoBlock();
 
-        public Change AddChange(Change.EType type, string subject, string locator, string valueName = null, string originalValue = null, string newValue = null, string comments = null)
+        public Change AddChange(Change.EType type, string subject, string locator, string valueName = null,
+            string originalValue = null, string newValue = null, string comments = null)
         {
-            var entry = new Change {Comments = comments, Locator = locator, Subject = subject, Type = type, Value = new Change.ValueBlock {Name = valueName, From = originalValue, To = newValue}};
+            var entry = new Change
+            {
+                Comments = comments, Locator = locator, Subject = subject, Type = type,
+                Value = new Change.ValueBlock {Name = valueName, From = originalValue, To = newValue}
+            };
             Changes.Add(entry);
             return entry;
         }

@@ -6,13 +6,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Zen.Base;
 using Zen.Base.Common;
 using Zen.Base.Distributed;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
+using Zen.Service.Maintenance.Attributes;
+using Zen.Service.Maintenance.Model;
+using Zen.Service.Maintenance.Shared;
+using Host = Zen.Base.Host;
 
-namespace Zen.Base.Maintenance
+namespace Zen.Service.Maintenance.Service
 {
     public class MaintenanceService : IHostedService, IDisposable
     {
@@ -40,11 +45,11 @@ namespace Zen.Base.Maintenance
 
             foreach (var i in preList)
             {
-                i.Setup = (MaintenanceTaskSetupAttribute) i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(MaintenanceTaskSetupAttribute), false).FirstOrDefault()
-                          ?? new MaintenanceTaskSetupAttribute {Name = i.Type.FullName + " Maintenance Task"};
+                i.Setup = (MaintenanceTaskSetupAttribute)i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(MaintenanceTaskSetupAttribute), false).FirstOrDefault()
+                          ?? new MaintenanceTaskSetupAttribute { Name = i.Type.FullName + " Maintenance Task" };
 
-                i.Priority = (PriorityAttribute) i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(PriorityAttribute), false).FirstOrDefault()
-                             ?? new PriorityAttribute {Level = 0};
+                i.Priority = (PriorityAttribute)i.Type.GetMethod("MaintenanceTask")?.GetCustomAttributes(typeof(PriorityAttribute), false).FirstOrDefault()
+                             ?? new PriorityAttribute { Level = 0 };
 
                 i.Description = i.Setup?.Name;
 
@@ -140,9 +145,9 @@ namespace Zen.Base.Maintenance
             LocalInstance
         }
 
-        private void RunMaintenance(object state) { RunMaintenance(state, EScope.LocalInstance); }
+        private void RunMaintenance(object state) { RunMaintenance(EScope.LocalInstance); }
 
-        public static void RunMaintenance(object state = null, EScope scope = EScope.Distributed)
+        public static void RunMaintenance(EScope scope = EScope.Distributed)
         {
             if (!Monitor.TryEnter(LockObject)) return;
 
@@ -153,7 +158,7 @@ namespace Zen.Base.Maintenance
                 var trackId = i.Id;
                 if (i.Setup.LocalInstance) trackId = $"{Environment.MachineName.ToLower()}.{Host.ApplicationAssemblyName}.{trackId}";
 
-                var trackItem = Tracking.Get(trackId) ?? new Tracking {Id = trackId, Description = i.Description};
+                var trackItem = Tracking.Get(trackId) ?? new Tracking { Id = trackId, Description = i.Description };
 
                 trackItem.InstanceIdentifier = Environment.MachineName;
 
@@ -197,7 +202,8 @@ namespace Zen.Base.Maintenance
 
                         task?.Wait();
 
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         if (task != null)
                         {
@@ -244,18 +250,14 @@ namespace Zen.Base.Maintenance
             }
             finally
             {
-
-
                 Monitor.Exit(LockObject);
             }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            Current.Log.Info("Orchestrasted Background Maintenance is stopping.");
-
+            Current.Log.Info("Orchestrated Background Maintenance is stopping.");
             _timer?.Change(Timeout.Infinite, 0);
-
             return Task.CompletedTask;
         }
 

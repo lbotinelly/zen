@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 
-namespace Zen.Base.Maintenance
+namespace Zen.Service.Maintenance.Model
 {
     [DataConfig(UseCaching = false)]
     public class Tracking : Data<Tracking>
