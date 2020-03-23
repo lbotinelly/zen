@@ -1,31 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using Zen.Web.Host;
 
 namespace Zen.Web.Model.Configuration
 {
-    public class WebConfiguration
+    public class WebConfiguration : EnvironmentDescriptor
     {
-        public int? HttpPort { get; set; } = 5000;
-        public int? HttpsPort { get; set; } = 5001;
-        public BehaviorDescriptor Behavior { get; set; }
         public EnvironmentDescriptor Development { get; set; }
         public EnvironmentDescriptor Production { get; set; }
-        public string RoutePrefix {get; set; }
+
+        public EnvironmentDescriptor GetCurrentEnvironment()
+        {
+            return Base.Host.IsDevelopment ? Development : Production;
+        }
+    }
+
+
+    public class EnvironmentDescriptor
+    {
+        public BehaviorDescriptor Behavior { get; set; }
+        public string CertificateSubject { get; set; }
+        public string QualifiedServerName { get; set; }
+        public int? HttpPort { get; set; } = Defaults.WebHttpPort;
+        public int? HttpsPort { get; set; } = Defaults.WebHttpsPort;
+        public string RoutePrefix { get; set; }
 
         public class BehaviorDescriptor
         {
             public bool UseAppCodeAsRoutePrefix { get; set; } = false;
-        }
-
-        public string DevelopmentCertificateSubject { get; set; }
-        public string DevelopmentQualifiedServerName { get; set; }
-
-        public class EnvironmentDescriptor
-        {
-            public BehaviorDescriptor Behavior { get; set; }
-            public string CertificateSubject { get; set; }
-            public string QualifiedServerName { get; set; }
-            public int? HttpPort { get; set; } = 5000;
-            public int? HttpsPort { get; set; } = 5001;
         }
     }
 }
