@@ -27,8 +27,7 @@ namespace Zen.Base.Service.Extensions
 
             services.AddHostedService<ApplicationLifetimeHostedService>();
 
-            Log.KeyValuePair("ZenBuilder", $"{services.Count} services registered",
-                Message.EContentType.StartupSequence);
+            Log.KeyValuePair("ZenBuilder", $"{services.Count} services registered", Message.EContentType.StartupSequence);
 
             return builder;
         }
