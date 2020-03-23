@@ -28,12 +28,25 @@ namespace Zen.Base.Extension
         public static TV GetValue<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default)
         {
             // https://stackoverflow.com/a/33223183/1845714
-            return dict!= null && dict.TryGetValue(key, out var value) ? value : defaultValue;
+            return dict != null && dict.TryGetValue(key, out var value) ? value : defaultValue;
+        }
+
+        public static TO Get<TK, TV, TO>(this IDictionary<TK, TV> dict, TK key, TO defaultValue = default)
+        {
+            // https://stackoverflow.com/a/33223183/1845714
+            return dict != null && dict.TryGetValue(key, out var value) ? (TO)(object)value : defaultValue;
+        }
+
+        public static TO Get<TO, TK, TV>(this IDictionary<TK, TV> dict, TK key)
+        {
+            TO defaultValue = default;
+            // https://stackoverflow.com/a/33223183/1845714
+            return dict != null && dict.TryGetValue(key, out var value) ? (TO)(object)value : defaultValue;
         }
 
         public static TD GetValueAs<TK, TV, TD>(this IDictionary<TK, TV> dict, TK key, TD type)
         {
-            return dict.GetValue(key).ToType<TD,TV>();
+            return dict.GetValue(key).ToType<TD, TV>();
         }
 
         public static string ToByteSize(this long size)
@@ -210,7 +223,7 @@ namespace Zen.Base.Extension
             {
                 var tokenName = key.Substring(2, key.Length - 4);
                 var probe = source.SelectToken(tokenName);
-                if (probe!= null) tmp = tmp.Replace(key, probe.ToString());
+                if (probe != null) tmp = tmp.Replace(key, probe.ToString());
             }
 
             return tmp;
@@ -249,7 +262,7 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this Dictionary<string, string> obj)
         {
             var properties = from p in obj
-                             where p.Value!= null
+                             where p.Value != null
                              select p.Key + "=" + HttpUtility.UrlEncode(p.Value);
 
             return string.Join("&", properties.ToArray());
@@ -258,7 +271,7 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null)!= null
+                             where p.GetValue(obj, null) != null
                              select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
@@ -316,7 +329,8 @@ namespace Zen.Base.Extension
         {
             foreach (var o in objects)
             {
-                switch (o) {
+                switch (o)
+                {
                     case null: return true;
                     case string s: return string.IsNullOrEmpty(s);
                 }
@@ -379,7 +393,7 @@ namespace Zen.Base.Extension
             var p1 = input.Md5Hash(salt);
             var p2 = input.Sha512Hash(salt);
 
-            var p3 = p1!= null && p2!= null ? "-" : null;
+            var p3 = p1 != null && p2 != null ? "-" : null;
 
             return p1 + p3 + p2;
         }
@@ -431,7 +445,7 @@ namespace Zen.Base.Extension
             var output = "";
 
             output += ex.Message + new StackTrace(ex, true).FancyString();
-            if (ex.InnerException!= null) output += "; " + ex.InnerException.ToSummary();
+            if (ex.InnerException != null) output += "; " + ex.InnerException.ToSummary();
 
             return output;
         }
