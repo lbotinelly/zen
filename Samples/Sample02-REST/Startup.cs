@@ -25,7 +25,6 @@ namespace Sample02_REST
             {
                 endpoints.MapGet("/Sample02-REST/", async context =>
                 {
-
                     var rc = Person.Count();
 
                     if (rc == 0)

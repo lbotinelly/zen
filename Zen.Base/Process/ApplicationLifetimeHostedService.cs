@@ -9,42 +9,41 @@ namespace Zen.Base.Process
     // https://dejanstojanovic.net/aspnet/2018/june/clean-service-stop-on-linux-with-net-core-21/
     public class ApplicationLifetimeHostedService : IHostedService
     {
-        private readonly IHostApplicationLifetime appLifetime;
-        private IConfiguration configuration;
-        private IHostEnvironment environment;
+        private readonly IHostApplicationLifetime _appLifetime;
+        private IConfiguration _configuration;
+        private IHostEnvironment _environment;
 
         public ApplicationLifetimeHostedService(IConfiguration configuration, IHostEnvironment environment, IHostApplicationLifetime appLifetime)
         {
-            this.configuration = configuration;
-            this.appLifetime = appLifetime;
-            this.environment = environment;
+            this._configuration = configuration;
+            this._appLifetime = appLifetime;
+            this._environment = environment;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Log.KeyValuePair(Host.ApplicationAssemblyName, "StartAsync", Message.EContentType.StartupSequence);
+            Log.KeyValuePair(Host.ApplicationAssemblyName, "Started!", Message.EContentType.StartupSequence);
 
-            appLifetime.ApplicationStarted.Register(OnStarted);
-            appLifetime.ApplicationStopping.Register(OnStopping);
-            appLifetime.ApplicationStopped.Register(OnStopped);
+            _appLifetime.ApplicationStarted.Register(OnStarted);
+            _appLifetime.ApplicationStopping.Register(OnStopping);
+            _appLifetime.ApplicationStopped.Register(OnStopped);
 
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            Log.KeyValuePair(Host.ApplicationAssemblyName, "StopAsync", Message.EContentType.StartupSequence);
+            Log.KeyValuePair(Host.ApplicationAssemblyName, "Stopped!", Message.EContentType.ShutdownSequence);
             return Task.CompletedTask;
         }
 
-        private void OnStarted() { Log.KeyValuePair(Host.ApplicationAssemblyName, "OnStarted", Message.EContentType.StartupSequence); }
 
         private void OnStopping()
         {
-            Log.KeyValuePair(Host.ApplicationAssemblyName, "OnStopping", Message.EContentType.ShutdownSequence);
-            appLifetime?.StopApplication();
+            Log.KeyValuePair(Host.ApplicationAssemblyName, "Stopping...", Message.EContentType.ShutdownSequence);
+            _appLifetime?.StopApplication();
         }
-
-        private void OnStopped() { Log.KeyValuePair(Host.ApplicationAssemblyName, "OnStopped", Message.EContentType.ShutdownSequence); }
+        private void OnStarted() { }
+        private void OnStopped() { }
     }
 }

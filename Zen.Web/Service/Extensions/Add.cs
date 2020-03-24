@@ -11,13 +11,15 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Zen.Base.Module.Service;
 using Zen.Web.Convention;
+using Zen.Web.Host;
 using Zen.Web.Model.State;
 
 namespace Zen.Web.Service.Extensions
 {
     public static class Add
     {
-        public static ZenWebBuilder AddZenWeb(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
+        public static ZenWebBuilder AddZenWeb(this IServiceCollection services,
+            Action<ZenWebConfigureOptions> configureOptions = null)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -25,9 +27,32 @@ namespace Zen.Web.Service.Extensions
 
             configureOptions = configureOptions ?? (x => { });
 
-            var appCode = App.Current.Configuration?.Code?.ToLower();
-            var usePrefix = Current.Configuration?.RoutePrefix!= null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
-            var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
+            var ctxConfig = Current.Configuration?.GetCurrentEnvironment();
+
+            var appCode = App.Current.Configuration?.Code?.ToLower() ?? Base.Host.ApplicationAssemblyName;
+
+            var usePrefix =
+                ctxConfig?.RoutePrefix != null ||
+                ctxConfig?.Behavior?.UseAppCodeAsRoutePrefix == true ||
+                Current.Configuration?.RoutePrefix != null ||
+                Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+
+            var prefix =
+                (ctxConfig?.RoutePrefix ??
+                 (ctxConfig?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null)) ??
+                (Current.Configuration?.RoutePrefix ??
+                 (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null));
+
+            Base.Host.Variables[Keys.WebAppCode] = appCode;
+
+            Base.Host.Variables[Keys.WebUsePrefix] = usePrefix;
+            Base.Host.Variables[Keys.WebRootPrefix] = "/" + prefix;
+
+            Base.Host.Variables[Keys.WebHttpPort] = ctxConfig?.HttpPort ?? Current.Configuration?.HttpPort ?? Defaults.WebHttpPort;
+            Base.Host.Variables[Keys.WebHttpsPort] = ctxConfig?.HttpsPort ?? Current.Configuration?.HttpsPort ?? Defaults.WebHttpsPort;
+
+            Base.Host.Variables[Keys.WebQualifiedServerName] =
+                ctxConfig?.QualifiedServerName ?? Current.Configuration?.QualifiedServerName;
 
             services.Configure<FormOptions>(options => { options.MemoryBufferThreshold = int.MaxValue; });
 
@@ -50,7 +75,6 @@ namespace Zen.Web.Service.Extensions
 
                         // Resolve Looping navigation properties
                         options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-
                     })
                     // Disable inference rules
                     // https://docs.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-2.2
@@ -65,13 +89,13 @@ namespace Zen.Web.Service.Extensions
                         //    "https://httpstatuses.com/404";
                     }) // "How to turn off or handle camelCasing in JSON response ASP.NET Core?"
                        // https://stackoverflow.com/questions/38728200/how-to-turn-off-or-handle-camelcasing-in-json-response-asp-net-core
-                       .AddJsonOptions(opt =>
-                       {
-                           opt.JsonSerializerOptions.PropertyNamingPolicy = null;
-                           opt.JsonSerializerOptions.IgnoreNullValues = true;
-                           opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                           opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                       })
+                    .AddJsonOptions(opt =>
+                    {
+                        opt.JsonSerializerOptions.PropertyNamingPolicy = null;
+                        opt.JsonSerializerOptions.IgnoreNullValues = true;
+                        opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                        opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    })
                     .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                     //https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-3.0
                     .AddXmlSerializerFormatters()
@@ -88,7 +112,7 @@ namespace Zen.Web.Service.Extensions
 
             var builder = new ZenWebBuilder(services);
 
-            if (configureOptions!= null) services.Configure(configureOptions);
+            if (configureOptions != null) services.Configure(configureOptions);
 
             return builder;
         }

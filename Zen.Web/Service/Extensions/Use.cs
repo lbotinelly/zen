@@ -11,48 +11,40 @@ using Microsoft.Extensions.Options;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
+using Zen.Web.Host;
 
 namespace Zen.Web.Service.Extensions
 {
     public static class Use
     {
-        public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null, IHostEnvironment env = null)
+        public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null,
+            IHostEnvironment env = null)
         {
             configuration = configuration ?? (x => { });
-
             var optionsProvider = app.ApplicationServices.GetService<IOptions<ZenWebOptions>>();
 
             var options = new ZenWebOptions(optionsProvider.Value);
-
             var builder = new ZenWebBuilder(app, options);
 
-            var appCode = App.Current.Configuration?.Code?.ToLower() ?? Zen.Base.Host.ApplicationAssemblyName;
-            var usePrefix = Current.Configuration?.RoutePrefix!= null || Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
-            var prefix = Current.Configuration?.RoutePrefix ?? (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null);
+            var usePrefix = Base.Host.Variables.Get(Keys.WebUsePrefix, false);
 
             if (!usePrefix)
             {
                 // Default behavior: nothing to see here.
-
                 app.UseDefaultFiles();
                 app.UseStaticFiles();
             }
             else
             {
                 // The App code will be used as prefix for all requests, so let's move the root:
-
-                var rootPrefix = "/" + prefix; // e.g. "/appcode"
-
-                Base.Host.Variables[Host.Keys.WebRootPrefix] = rootPrefix;
-
-                Events.AddLog("Web.RootPrefix", rootPrefix);
-
+                var rootPrefix = Base.Host.Variables.Get(Keys.WebRootPrefix, "");
+                Events.AddLog("Web RootPrefix", rootPrefix);
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"); // We're still using the default wwwroot folder
+                Events.AddLog("Host path", path);
 
                 if (Directory.Exists(path))
                 {
                     var fileProvider = new PhysicalFileProvider(path);
-
                     var fOptions = new DefaultFilesOptions
                     {
                         FileProvider = fileProvider,
@@ -61,8 +53,7 @@ namespace Zen.Web.Service.Extensions
 
                     app.UseDefaultFiles(
                         fOptions); // This will allow default (index.html, etc.) requests on the new mapping
-
-                    app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
+                    app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
                 }
                 else
                 {
@@ -76,28 +67,29 @@ namespace Zen.Web.Service.Extensions
                     {
                         var destination = "." + rootPrefix;
 
-                        if (Current.Configuration?.Development?.QualifiedServerName!= null)
-                            if (context.Request.Host.Host != Current.Configuration?.Development?.QualifiedServerName)
+                        var qsn = Base.Host.Variables.Get(Keys.WebQualifiedServerName, Defaults.WebQualifiedServerName);
+
+                        if (qsn != null)
+                            if (context.Request.Host.Host != qsn)
                             {
                                 var sourcePort = context.Request.Host.Port;
+                                var targetProtocol = "http:";
 
-                                var targetProtocol = "";
+                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Defaults.WebHttpPort);
+                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Defaults.WebHttpsPort);
 
-                                if (Base.Host.IsDevelopment)
+                                if (sourcePort == httpPort)
                                 {
-                                    var httpPort = Base.Host.Variables.GetValue(Host.Keys.WebHttpPort).ToType<int, object>();
-                                    var httpsPort = Base.Host.Variables.GetValue(Host.Keys.WebHttpsPort).ToType<int, object>();
-
-                                    if (sourcePort == httpPort)
-                                    {
-                                        sourcePort = httpsPort;
-                                        targetProtocol = "https:";
-                                    }
+                                    sourcePort = httpsPort;
+                                    targetProtocol = "https:";
                                 }
 
-                                var destinationHost = context.Request.Host.Port.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, sourcePort.Value) : new HostString(Current.Configuration.DevelopmentQualifiedServerName);
+                                var destinationHost = sourcePort.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, sourcePort.Value) : new HostString(qsn);
 
-                                destination = $"{targetProtocol}//" + destinationHost.ToString() + rootPrefix;
+                                destination = $"{targetProtocol}//{destinationHost}{rootPrefix}";
+
+                                Events.AddLog("Web root", destination);
+
                             }
 
                         Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}", Message.EContentType.StartupSequence);
@@ -111,10 +103,7 @@ namespace Zen.Web.Service.Extensions
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 
             //app

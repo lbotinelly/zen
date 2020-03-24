@@ -1,12 +1,12 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 
 namespace Zen.Web.Auth
 {
@@ -50,14 +50,17 @@ namespace Zen.Web.Auth
                     {
                         OnCreatingTicket = async context =>
                         {
-                            var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                            var request =
+                                new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
                             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+                            request.Headers.Authorization =
+                                new AuthenticationHeaderValue("Bearer", context.AccessToken);
 
-                            var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+                            var response = await context.Backchannel.SendAsync(request,
+                                HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
                             response.EnsureSuccessStatusCode();
 
-                            var user = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
+                            var user = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
 
                             context.RunClaimActions(user);
                         }
@@ -91,26 +94,15 @@ namespace Zen.Web.Auth
                             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", ctx.AccessToken);
 
                             var response = await ctx.Backchannel.SendAsync(request,
-                                                                           HttpCompletionOption.ResponseHeadersRead, ctx.HttpContext.RequestAborted);
+                                HttpCompletionOption.ResponseHeadersRead, ctx.HttpContext.RequestAborted);
                             response.EnsureSuccessStatusCode();
 
-                            var userInfo = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
+                            var userInfo = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
                             ctx.RunClaimActions(userInfo);
                             // Console.WriteLine($"User Info:\n{userInfo.ToString()}");
                         }
                     };
                 });
         }
-
-        //public void Configure(IApplicationBuilder app, IHostEnvironment env)
-        //{
-        //    if (env.IsDevelopment())
-        //    {
-        //        //app.UseDeveloperExceptionPage();
-        //    }
-
-        //    app.UseAuthentication();
-        //    //app.UseMvc();
-        //}
     }
 }
