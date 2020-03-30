@@ -8,10 +8,16 @@ using Zen.Web.Auth.Service.Extensions;
 namespace Zen.Web.Auth.Service
 {
     [Priority(Level = -98)]
-    public class ZenWebAuthAutoService : IZenAutoAddService, IZenAutoUseService
+    public class ZenWebAuthAutoService : IZenAutoUseService, IZenAutoAddService
     {
-        public void Add(IServiceCollection services) { services.AddZenWebAuth(); }
+        public void Use(IApplicationBuilder app, IHostEnvironment env = null)
+        {
+            app.UseZenWebAuth();
+        }
 
-        public void Use(IApplicationBuilder app, IHostEnvironment env = null) { app.UseZenWebAuth(null, env); }
+        public void Add(IServiceCollection services)
+        {
+            services.AddZenWebAuth();
+        }
     }
 }

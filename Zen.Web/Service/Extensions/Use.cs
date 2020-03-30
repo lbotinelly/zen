@@ -28,6 +28,7 @@ namespace Zen.Web.Service.Extensions
 
             var usePrefix = Base.Host.Variables.Get(Keys.WebUsePrefix, false);
 
+
             if (!usePrefix)
             {
                 // Default behavior: nothing to see here.
@@ -39,7 +40,8 @@ namespace Zen.Web.Service.Extensions
                 // The App code will be used as prefix for all requests, so let's move the root:
                 var rootPrefix = Base.Host.Variables.Get(Keys.WebRootPrefix, "");
                 Events.AddLog("Web RootPrefix", rootPrefix);
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"); // We're still using the default wwwroot folder
+                var path = Path.Combine(Directory.GetCurrentDirectory(),
+                    "wwwroot"); // We're still using the default wwwroot folder
                 Events.AddLog("Host path", path);
 
                 if (Directory.Exists(path))
@@ -53,7 +55,7 @@ namespace Zen.Web.Service.Extensions
 
                     app.UseDefaultFiles(
                         fOptions); // This will allow default (index.html, etc.) requests on the new mapping
-                    app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
+                    app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
                 }
                 else
                 {
@@ -67,13 +69,15 @@ namespace Zen.Web.Service.Extensions
                     {
                         var destination = "." + rootPrefix;
 
-                        var qsn = Base.Host.Variables.Get(Keys.WebQualifiedServerName, Defaults.WebQualifiedServerName);
+                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName,
+                            Defaults.WebQualifiedServerName);
 
-                        if (qsn != null)
-                            if (context.Request.Host.Host != qsn)
+                        if (qualifiedServerName != null)
+                            if (context.Request.Host.Host != qualifiedServerName)
                             {
                                 var sourcePort = context.Request.Host.Port;
-                                var targetProtocol = "http:";
+                                var targetProtocol =
+                                    ""; //If we omit the protocol, the client will use the one currently set.
 
                                 var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Defaults.WebHttpPort);
                                 var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Defaults.WebHttpsPort);
@@ -84,27 +88,35 @@ namespace Zen.Web.Service.Extensions
                                     targetProtocol = "https:";
                                 }
 
-                                var destinationHost = sourcePort.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, sourcePort.Value) : new HostString(qsn);
+                                var destinationHost = sourcePort.HasValue
+                                    ? new HostString(Current.Configuration.Development.QualifiedServerName,
+                                        sourcePort.Value)
+                                    : new HostString(qualifiedServerName);
 
                                 destination = $"{targetProtocol}//{destinationHost}{rootPrefix}";
 
                                 Events.AddLog("Web root", destination);
-
                             }
 
-                        Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}", Message.EContentType.StartupSequence);
+                        Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}",
+                            Message.EContentType.StartupSequence);
 
                         context.Response.Redirect(destination, false);
                         return Task.FromResult(0);
                     });
                 });
+
             }
+
 
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+            });
 
             //app
             ////    //.UseHttpsRedirection()
@@ -123,6 +135,21 @@ namespace Zen.Web.Service.Extensions
                 //    spa.UseAngularCliServer("start");
                 //});
             }
+
+
+            if (Base.Host.IsDevelopment)
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+
+            if (!Base.Host.IsContainer) app.UseHttpsRedirection();
+
+            app.UseEndpoints(endpoints => { endpoints.MapRazorPages(); });
 
             configuration.Invoke(builder);
         }

@@ -10,7 +10,7 @@ using Zen.Base.Extension;
 
 namespace Zen.Web.Auth.Controller
 {
-    [Route("framework/auth")]
+    [Route("auth")]
     public class AuthController : ControllerBase
     {
         [Authorize, HttpGet("signin")]

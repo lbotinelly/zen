@@ -1,84 +1,48 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base;
-using Zen.Web.Service;
+using Zen.Web.Auth.Identity;
 
 namespace Zen.Web.Auth.Service.Extensions
 {
     public static class Add
     {
-        public static Builder AddZenWebAuth(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
+        public static void AddZenWebAuth(this IServiceCollection services)
         {
-            services.ResolveSettingsPackage();
 
-            if (services == null) throw new ArgumentNullException(nameof(services));
 
-            configureOptions = configureOptions ?? (x => { });
+            //services.AddTransient<ApplicationSignInManager, ZenApplicationSignInManager>();
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            //services.AddTransient<UserManager<IdentityUser>, Zen.Web.Auth.Identity.ApplicationUserManager>();
+            //services.AddTransient<SignInManager<ApplicationUser>, ApplicationSignInManager>();
+            //services.AddTransient<IPasswordHasher<ApplicationUser>, ApplicationUserPasswordHarsher>();
+            services.AddTransient<IUserStore<IdentityUser>, IdentityUserStore>();
+            //services.AddTransient<IUserClaimsPrincipalFactory<ApplicationUser>, ZenUserClaimsPrincipalFactory>();
+            //services.AddTransient<IUserConfirmation<ApplicationUser>, ZenUserConfirmation>();
 
-            services
-                .AddIdentity<IdentityUser, IdentityRole>();
 
-            // Do we have Google stuff?
-            var googleAuthNSection = Configuration.Options.GetSection("Authentication:Google");
+            //services.AddTransient<RoleManager<ApplicationRole>, ApplicationRoleManager>();
+            services.AddTransient<IRoleStore<IdentityRole>, IdentityRoleStore>();
 
-            var googleClientId = googleAuthNSection["ClientId"];
-            var googleClientSecret = googleAuthNSection["ClientSecret"];
+            //services.AddTransient<ILookupNormalizer, UpperInvariantLookupNormalizer>();
+            //services.AddTransient<IdentityErrorDescriber, ZenIdentityErrorDescriber>();
 
-            if (googleClientId!= null)
+            //services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders();
+
+            services.AddDefaultIdentity<IdentityUser>(options =>
             {
-                Settings.IsAuthProvider = true;
+                options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedEmail = true;
+            }).AddDefaultTokenProviders(); ;
 
-                services
-                    .AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-                    })
-                    .AddGoogle(options =>
-                    {
-                        options.CallbackPath = "/api/auth/signin/google";
-                        options.ClientId = googleClientId;
-                        options.ClientSecret = googleClientSecret;
-                    });
-            }
-            else
-            {
-                services
-                    .AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    })
-                    .AddCookie(options =>
-                    {
-                        options.LoginPath = "/api/auth/signin";
-                        options.LogoutPath = "/api/auth/signout";
-                    });
-            }
 
-            services
-                .AddDistributedMemoryCache()
-                .AddSession(options =>
-                {
-                    options.IdleTimeout = TimeSpan.FromHours(6);
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.IsEssential = true;
-                });
+            services.AddRazorPages();
 
-            services.AddTransient<IEmailSender, EmailSender>();
 
-            var builder = new Builder(services);
-
-            if (configureOptions!= null) services.Configure(configureOptions);
-
-            return builder;
+            Instances.AuthenticationBuilder = services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(7); });
         }
     }
 }
