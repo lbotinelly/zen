@@ -4,13 +4,10 @@ using Zen.Web.Auth;
 
 namespace Zen.Provider.Microsoft.Authentication
 {
-    public static class MicrosoftAuthentication
+    public static class Settings
     {
-        internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection services)
+        internal static IServiceCollection Configure(this IServiceCollection services)
         {
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            // services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true);
-
             Instances.AuthenticationBuilder.AddMicrosoftAccount(options =>
             {
                 options.ClientId = Configuration.Options["Authentication:Microsoft:ClientId"];
