@@ -30,8 +30,8 @@ namespace Zen.Web.Auth.Service.Extensions
                 })
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Account/Unauthorized/";
-                    options.AccessDeniedPath = "/Account/Forbidden/";
+                    //options.LoginPath = "/Account/Unauthorized/";
+                    //options.AccessDeniedPath = "/Account/Forbidden/";
                     options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 });
 
