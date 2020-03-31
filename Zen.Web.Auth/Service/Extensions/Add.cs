@@ -24,9 +24,9 @@ namespace Zen.Web.Auth.Service.Extensions
             Instances.AuthenticationBuilder = services
                 .AddAuthentication(options =>
                 {
-                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 })
                 .AddCookie(options =>
                 {
