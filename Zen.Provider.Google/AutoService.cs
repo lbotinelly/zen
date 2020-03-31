@@ -2,13 +2,13 @@
 using Zen.Base.Module.Service;
 using Zen.Provider.Google.Authentication;
 
-namespace Zen.Provider.Google.Service
+namespace Zen.Provider.Google
 {
-    public class GoogleAutoService : IZenAutoAddService
+    public class AutoService : IZenAutoAddService
     {
         public void Add(IServiceCollection services)
         {
-            services.AddAuthenticationProvider();
+            services.Configure();
         }
     }
 }
