@@ -55,8 +55,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.Google", "Zen.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.GitHub", "Zen.Provider.GitHub\Zen.Provider.GitHub.csproj", "{F69E87A4-00D6-4E42-878A-DAC678A431A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.Amazon", "Zen.Provider.Amazon\Zen.Provider.Amazon.csproj", "{48319D4D-8F9F-433F-AFA6-94FE73A7AC4E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.Facebook", "Zen.Provider.Facebook\Zen.Provider.Facebook.csproj", "{2D4226DB-FA69-4557-A8B5-E5963D275C24}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample03-Web", "Samples\Sample03-Web\Sample03-Web.csproj", "{7C17C517-3519-457A-B78B-3A1A9EAFE95B}"
@@ -169,10 +167,6 @@ Global
 		{F69E87A4-00D6-4E42-878A-DAC678A431A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F69E87A4-00D6-4E42-878A-DAC678A431A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F69E87A4-00D6-4E42-878A-DAC678A431A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48319D4D-8F9F-433F-AFA6-94FE73A7AC4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48319D4D-8F9F-433F-AFA6-94FE73A7AC4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48319D4D-8F9F-433F-AFA6-94FE73A7AC4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48319D4D-8F9F-433F-AFA6-94FE73A7AC4E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D4226DB-FA69-4557-A8B5-E5963D275C24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D4226DB-FA69-4557-A8B5-E5963D275C24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D4226DB-FA69-4557-A8B5-E5963D275C24}.Release|Any CPU.ActiveCfg = Release|Any CPU
