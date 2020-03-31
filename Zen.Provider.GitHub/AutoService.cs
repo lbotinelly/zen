@@ -4,11 +4,11 @@ using Zen.Provider.GitHub.Authentication;
 
 namespace Zen.Provider.GitHub
 {
-    public class GitHubAutoService : IZenAutoAddService
+    public class AutoService : IZenAutoAddService
     {
         public void Add(IServiceCollection services)
         {
-            services.AddAuthenticationProvider();
+            services.Configure();
         }
     }
 }
