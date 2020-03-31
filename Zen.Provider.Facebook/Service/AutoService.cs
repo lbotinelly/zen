@@ -10,7 +10,7 @@ namespace Zen.Provider.Facebook.Service
     {
         public void Add(IServiceCollection services)
         {
-            services.ResolveSettingsPackage();
+            services.Configure();
         }
     }
 }

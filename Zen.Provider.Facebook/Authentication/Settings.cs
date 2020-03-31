@@ -4,9 +4,9 @@ using Zen.Web.Auth;
 
 namespace Zen.Provider.Facebook.Authentication
 {
-    public static class MicrosoftAuthentication
+    public static class Settings
     {
-        internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection services)
+        internal static IServiceCollection Configure(this IServiceCollection services)
         {
             Instances.AuthenticationBuilder.AddFacebook(options =>
             {
