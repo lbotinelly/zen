@@ -52,12 +52,20 @@ namespace Zen.Web.Auth.Identity
 
             var claimsIdentity = (ClaimsIdentity)externalLogin.Principal.Identity;
 
+            var claims = claimsIdentity.Claims.ToList();
+
+            var claimDict = new Dictionary<string,string>();
+
+            foreach (var claim in claims.Where(claim => !claimDict.ContainsKey(claim.Type)))
+                claimDict[claim.Type] = claim.Value;
+
+
             var entry = new LoginInfo
             {
                 Id = key,
                 IdentityUser = user,
                 Name = claimsIdentity.Name,
-                Claims = claimsIdentity.Claims.ToList().ToDictionary(i => i.Type, i => i.Value),
+                Claims = claimDict,
                 IsAuthenticated = claimsIdentity.IsAuthenticated,
                 Label = claimsIdentity.Label,
 
@@ -142,7 +150,7 @@ namespace Zen.Web.Auth.Identity
 
         public Task<IdentityUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(LoginInfo.Get(userId)?.IdentityUser);
         }
 
         public Task<IdentityUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
