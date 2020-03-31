@@ -6,6 +6,7 @@ namespace Zen.Web.Auth.Service.Extensions
     {
         public static void UseZenWebAuth(this IApplicationBuilder app)
         {
+            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
