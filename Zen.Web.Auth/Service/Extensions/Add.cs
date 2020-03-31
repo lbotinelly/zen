@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Web.Auth.Identity;
@@ -10,39 +11,41 @@ namespace Zen.Web.Auth.Service.Extensions
     {
         public static void AddZenWebAuth(this IServiceCollection services)
         {
-
-
-            //services.AddTransient<ApplicationSignInManager, ZenApplicationSignInManager>();
-
-            //services.AddTransient<UserManager<IdentityUser>, Zen.Web.Auth.Identity.ApplicationUserManager>();
-            //services.AddTransient<SignInManager<ApplicationUser>, ApplicationSignInManager>();
-            //services.AddTransient<IPasswordHasher<ApplicationUser>, ApplicationUserPasswordHarsher>();
             services.AddTransient<IUserStore<IdentityUser>, IdentityUserStore>();
-            //services.AddTransient<IUserClaimsPrincipalFactory<ApplicationUser>, ZenUserClaimsPrincipalFactory>();
-            //services.AddTransient<IUserConfirmation<ApplicationUser>, ZenUserConfirmation>();
-
-
-            //services.AddTransient<RoleManager<ApplicationRole>, ApplicationRoleManager>();
-            services.AddTransient<IRoleStore<IdentityRole>, IdentityRoleStore>();
-
-            //services.AddTransient<ILookupNormalizer, UpperInvariantLookupNormalizer>();
-            //services.AddTransient<IdentityErrorDescriber, ZenIdentityErrorDescriber>();
-
-            //services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders();
 
             services.AddDefaultIdentity<IdentityUser>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
-                options.SignIn.RequireConfirmedEmail = true;
-            }).AddDefaultTokenProviders(); ;
-
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+            }).AddDefaultTokenProviders();
 
             services.AddRazorPages();
 
-
             Instances.AuthenticationBuilder = services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options => { options.ExpireTimeSpan = TimeSpan.FromDays(7); });
+                .AddAuthentication(options =>
+                {
+                    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Account/Unauthorized/";
+                    options.AccessDeniedPath = "/Account/Forbidden/";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                });
+
+                services
+                .AddDistributedMemoryCache()
+                .AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromHours(12);
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.IsEssential = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                });
+
+            ;
         }
     }
 }
