@@ -1,22 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Deterministic>False</Deterministic>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.1.0</Version>
-    <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
-    <PackageIconUrl></PackageIconUrl>
-    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <AssemblyName>Zen.App</AssemblyName>
+    <RootNamespace>Zen.App</RootNamespace>
     <Description>Application abstration layer for Zen</Description>
-    <PackageTags>middleware orm dotnet core app webapp</PackageTags>
-    <LangVersion>7.2</LangVersion>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
-    <PackageIcon>zen-icon.png</PackageIcon>
     <Authors>Zen Development Team</Authors>
     <Company>Zen Development Team</Company>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.2</LangVersion>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

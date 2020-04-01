@@ -1,21 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AssemblyName>Zen.Module.Cloud.AWS</AssemblyName>
     <RootNamespace>Zen.Module.Cloud.AWS</RootNamespace>
-    <LangVersion>7.2</LangVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
-    <PackageTags>middleware orm dotnet core</PackageTags>
-    <PackageIcon>zen-icon.png</PackageIcon>
-    <PackageIconUrl />
+    <Description>AWS cloud resources for Zen.</Description>
     <Authors>Zen Development Team</Authors>
+    <Company>Zen Development Team</Company>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.2</LangVersion>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
