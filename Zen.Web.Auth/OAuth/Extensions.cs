@@ -38,7 +38,7 @@ namespace Zen.Web.Auth.OAuth
         {
             var model = new IdentityUser {Id = user.InternalId, Email = source.Claim(ClaimTypes.Email)};
             model.NormalizedEmail = model.Email.ToUpperInvariant();
-            model.UserName = source.Claim(ClaimTypes.Name);
+            model.UserName = source.Claim(ClaimTypes.GivenName);
             model.NormalizedUserName = model.UserName.ToUpperInvariant();
             model.EmailConfirmed = source.Claim(ZenClaimTypes.EmailConfirmed) == "true";
             return model;
