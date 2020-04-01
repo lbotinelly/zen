@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Zen.Base;
+using Zen.Base.Module.Log;
 using Zen.Web.Auth;
+using Zen.Web.Auth.OAuth;
 
 namespace Zen.Provider.Microsoft.Authentication
 {
@@ -8,12 +10,22 @@ namespace Zen.Provider.Microsoft.Authentication
     {
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
-            Instances.AuthenticationBuilder.AddMicrosoftAccount(options =>
-            {
-                options.ClientId = Configuration.Options["Authentication:Microsoft:ClientId"];
-                options.ClientSecret = Configuration.Options["Authentication:Microsoft:ClientSecret"];
-                options.CallbackPath = "/auth/signin/microsoft";
-            });
+            var cid = Configuration.Options["Authentication:Microsoft:ClientId"];
+            var cst = Configuration.Options["Authentication:Microsoft:ClientSecret"];
+
+            if (cid == null || cst == null)
+                Current.Log.KeyValuePair("Zen.Provider.Microsoft.Authentication", "Missing ClientId/ClientSecret", Message.EContentType.Warning);
+            else
+                Instances.AuthenticationBuilder.AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = cid;
+                    options.ClientSecret = cst;
+                    options.CallbackPath = "/auth/signin/microsoft";
+
+                    options.SaveTokens = true;
+
+                    options.Events = Pipeline.EventHandler;
+                });
 
             return services;
         }

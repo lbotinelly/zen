@@ -1,10 +1,11 @@
 ﻿using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base;
+using Zen.Base.Module.Log;
 using Zen.Web.Auth;
+using Zen.Web.Auth.Model;
+using Zen.Web.Auth.OAuth;
 
 namespace Zen.Provider.Google.Authentication
 {
@@ -12,34 +13,35 @@ namespace Zen.Provider.Google.Authentication
     {
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
-            Instances.AuthenticationBuilder.AddGoogle(options =>
-            {
-                options.ClientId = Configuration.Options["Authentication:Google:ClientId"];
-                options.ClientSecret = Configuration.Options["Authentication:Google:ClientSecret"];
-                options.CallbackPath = "/auth/signin/google";
+            var cid = Configuration.Options["Authentication:Google:ClientId"];
+            var cst = Configuration.Options["Authentication:Google:ClientSecret"];
 
-                options.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
-                options.ClaimActions.Clear();
-                options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-                options.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
-                options.ClaimActions.MapJsonKey("urn:google:profile", "link");
-                options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-                options.Events = new OAuthEvents
+            if (cid == null || cst == null)
+                Current.Log.KeyValuePair("Zen.Provider.Google.Authentication", "Missing ClientId/ClientSecret", Message.EContentType.Warning);
+            else
+                Instances.AuthenticationBuilder.AddGoogle(options =>
                 {
-                    OnCreatingTicket = async context =>
-                    {
-                        var firstName = context.Identity.FindFirst(ClaimTypes.GivenName).Value;
-                        var lastName = context.Identity.FindFirst(ClaimTypes.Surname)?.Value;
-                        var email = context.Identity.FindFirst(ClaimTypes.Email).Value;
+                    options.ClientId = cid;
+                    options.ClientSecret = cst;
+                    options.CallbackPath = "/auth/signin/google";
 
-                        //Todo: Add logic here to save info into database
+                    options.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
 
-                        await Task.FromResult(true);
-                    }
-                };
-            });
+                    options.ClaimActions.Clear();
+                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "email");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "name");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Webpage, "link");
+                    options.ClaimActions.MapJsonKey(ZenClaimTypes.ProfilePicture, "picture", "url");
+                    options.ClaimActions.MapJsonKey(ZenClaimTypes.Locale, "locale", "string");
+                    options.ClaimActions.MapJsonKey(ZenClaimTypes.EmailConfirmed, "email_confirmed");
+
+                    options.SaveTokens = true;
+
+                    options.Events = Pipeline.EventHandler;
+                });
 
             return services;
         }
