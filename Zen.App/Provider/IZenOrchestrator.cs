@@ -36,5 +36,6 @@ namespace Zen.App.Provider
         IPersonProfile GetProfile(IPerson person);
         IApplication GetApplicationById(string identifier);
         IPerson GetPersonByEmail(string email);
+        IPerson GetPersonByClaims(Dictionary<string, string> modelClaims);
     }
 }

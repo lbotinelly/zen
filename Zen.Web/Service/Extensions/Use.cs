@@ -55,7 +55,7 @@ namespace Zen.Web.Service.Extensions
 
                     app.UseDefaultFiles(
                         fOptions); // This will allow default (index.html, etc.) requests on the new mapping
-                    app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
+                    app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
                 }
                 else
                 {
@@ -105,37 +105,19 @@ namespace Zen.Web.Service.Extensions
                         return Task.FromResult(0);
                     });
                 });
-
             }
 
 
-
             app.UseRouting();
+
+            //UseAuthentication needs to be run between UseRouting and UseEndpoints. Sooo...
+            foreach (var function in Instances.BeforeUseEndpoints) function();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
             });
-
-            //app
-            ////    //.UseHttpsRedirection()
-            //    .UseMvc();
-
-            if (options.UseSpa)
-            {
-                // app.UseSpaStaticFiles();
-
-                //app.UseSpa(spa =>
-                //{
-                //    // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                //    // see https://go.microsoft.com/fwlink/?linkid=864501
-                //    spa.Options.SourcePath = "ClientApp";
-                //    //if (env?.IsDevelopment() == true)
-                //    spa.UseAngularCliServer("start");
-                //});
-            }
-
 
             if (Base.Host.IsDevelopment)
             {
@@ -148,8 +130,6 @@ namespace Zen.Web.Service.Extensions
             }
 
             if (!Base.Host.IsContainer) app.UseHttpsRedirection();
-
-            app.UseEndpoints(endpoints => { endpoints.MapRazorPages(); });
 
             configuration.Invoke(builder);
         }
