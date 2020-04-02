@@ -18,7 +18,7 @@ namespace Zen.Module.Cloud.Google.Communication.Push
 {
     public static class Helper
     {
-        private static readonly string FirebaseServerKey = ((GoogleAuth) Current.AuthProvider).ServerKey;
+        private static readonly string FirebaseServerKey = "";// ((GoogleAuth) Current.AuthProvider).ServerKey;
 
         private static string UrlTokenEncode(byte[] input)
         {
