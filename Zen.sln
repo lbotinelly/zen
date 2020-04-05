@@ -61,6 +61,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample03-Web", "Samples\Sam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample04-AuthenticatedWeb", "Samples\Sample04-AuthenticatedWeb\Sample04-AuthenticatedWeb.csproj", "{BD8493C4-6EB3-4F90-96C6-757EAF2B2D15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Provider.Steam", "Zen.Provider.Steam\Zen.Provider.Steam.csproj", "{2536EBDC-EF47-4055-AF7F-7AEF22C2D7E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,10 @@ Global
 		{BD8493C4-6EB3-4F90-96C6-757EAF2B2D15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD8493C4-6EB3-4F90-96C6-757EAF2B2D15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD8493C4-6EB3-4F90-96C6-757EAF2B2D15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2536EBDC-EF47-4055-AF7F-7AEF22C2D7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2536EBDC-EF47-4055-AF7F-7AEF22C2D7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2536EBDC-EF47-4055-AF7F-7AEF22C2D7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2536EBDC-EF47-4055-AF7F-7AEF22C2D7E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
