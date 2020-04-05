@@ -43,7 +43,7 @@ namespace Zen.Provider.GitHub.Authentication
 
                     options.SaveTokens = true;
 
-                    options.Events = Pipeline.EventHandler;
+                    options.Events = Pipeline.OAuthEventHandler;
                 });
 
             return services;

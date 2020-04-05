@@ -28,7 +28,7 @@ namespace Zen.Provider.Facebook.Authentication
 
                     options.SaveTokens = true;
 
-                    options.Events = Pipeline.EventHandler;
+                    options.Events = Pipeline.OAuthEventHandler;
 
                 });
 

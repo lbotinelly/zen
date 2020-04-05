@@ -40,7 +40,7 @@ namespace Zen.Provider.Google.Authentication
 
                     options.SaveTokens = true;
 
-                    options.Events = Pipeline.EventHandler;
+                    options.Events = Pipeline.OAuthEventHandler;
                 });
 
             return services;

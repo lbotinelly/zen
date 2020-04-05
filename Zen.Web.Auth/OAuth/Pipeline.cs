@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AspNet.Security.OpenId;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +15,7 @@ namespace Zen.Web.Auth.OAuth
 {
     public static class Pipeline
     {
-        public static OAuthEvents EventHandler = new OAuthEvents
+        public static OAuthEvents OAuthEventHandler = new OAuthEvents
         {
             OnCreatingTicket = async context =>
             {
@@ -57,9 +58,17 @@ namespace Zen.Web.Auth.OAuth
                 model.IdentityUser = ci.ToIdentityUser(model);
 
                 model.Save();
-
                 
                 await Task.FromResult(true);
+            }
+        };
+
+        public static OpenIdAuthenticationEvents OpenIdEventHandler = new OpenIdAuthenticationEvents()
+        {
+
+            OnAuthenticated = async context =>
+            {
+
             }
         };
     }
