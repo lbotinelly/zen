@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Zen.Base;
 using Zen.Base.Module.Log;
 using Zen.Web.Auth;
-using Zen.Web.Auth.OAuth;
+using Zen.Web.Auth.Extensions;
 
 namespace Zen.Provider.Microsoft.Authentication
 {
