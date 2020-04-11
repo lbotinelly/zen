@@ -426,7 +426,7 @@ namespace Zen.Base.Extension
             try { return JsonConvert.SerializeObject(obj, format, settings); } catch { return null; }
         }
 
-        public static object ToJObject(this object src) { return JObject.Parse(src.ToJson()); }
+        public static JObject ToJObject(this object src) { return JObject.Parse(src.ToJson()); }
 
         public static string CleanSqlFormatting(this string source)
         {
