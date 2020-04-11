@@ -4,11 +4,12 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
+using Zen.App.BaseAuth;
 using Zen.Web.Auth.Model;
 
-namespace Zen.Web.Auth.OAuth
+namespace Zen.Web.Auth.Extensions
 {
-    public static class Extensions
+    public static class OAuth
     {
         public static async Task<string> GetIdentityPayload(this OAuthCreatingTicketContext context)
         {
