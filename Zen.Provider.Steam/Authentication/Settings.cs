@@ -1,9 +1,10 @@
 ﻿using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
+using Zen.App.BaseAuth;
 using Zen.Base;
 using Zen.Base.Module.Log;
 using Zen.Web.Auth;
-using Zen.Web.Auth.OAuth;
+using Zen.Web.Auth.Extensions;
 
 namespace Zen.Provider.Steam.Authentication
 {
@@ -24,6 +25,13 @@ namespace Zen.Provider.Steam.Authentication
                     options.SaveTokens = true;
 
                     options.Events = Pipeline.OpenIdEventHandler;
+
+                    options.ClearClaimMap();
+                    options.MapClaimToJsonKey(ClaimTypes.Name, "response.players[0].realname");
+                    options.MapClaimToJsonKey(ClaimTypes.GivenName, "response.players[0].personaname");
+                    options.MapClaimToJsonKey(ClaimTypes.Webpage, "response.players[0].profileurl");
+                    options.MapClaimToJsonKey(ZenClaimTypes.ProfilePicture, "response.players[0].avatarfull");
+                    options.MapClaimToJsonKey(ZenClaimTypes.Locale, "response.players[0].loccountrycode");
                 });
 
             return services;
