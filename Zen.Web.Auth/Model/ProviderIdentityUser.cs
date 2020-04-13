@@ -16,5 +16,9 @@ namespace Zen.Web.Auth.Model
         public string ProviderKey { get; set; }
         public string InternalId { get; set; }
         public Dictionary<string, string> Claims { get; set; }
+        public string Name { get; set; }
+        public bool IsAuthenticated { get; set; }
+        public string Label { get; set; }
+        public string LoginProvider { get; set; }
     }
 }

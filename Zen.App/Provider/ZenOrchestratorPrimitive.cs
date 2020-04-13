@@ -234,9 +234,21 @@ namespace Zen.App.Provider
             var originalRepresentation = model.ToJson();
 
             // Update incoming fields
-            if (modelClaims.ContainsKey(ClaimTypes.NameIdentifier)) model.Locator = modelClaims[ClaimTypes.NameIdentifier];
-            if (modelClaims.ContainsKey(ClaimTypes.Email)) model.Email = modelClaims[ClaimTypes.Email];
-            if (modelClaims.ContainsKey(ClaimTypes.GivenName)) model.Name = modelClaims[ClaimTypes.GivenName];
+            if (modelClaims.ContainsKey(ClaimTypes.NameIdentifier))
+            {
+                model.Locator = modelClaims[ClaimTypes.NameIdentifier];
+            }
+
+            if (modelClaims.ContainsKey(ClaimTypes.Email))
+            {
+                model.Email = modelClaims[ClaimTypes.Email];
+                model.NormalizedEmail = model.Email.ToUpperInvariant();
+            }
+
+            if (modelClaims.ContainsKey(ClaimTypes.GivenName))
+            {
+                model.Name = modelClaims[ClaimTypes.GivenName];
+            }
 
             if (model.ToJson() != originalRepresentation)
                 model.Save(); // Create/update model if necessary

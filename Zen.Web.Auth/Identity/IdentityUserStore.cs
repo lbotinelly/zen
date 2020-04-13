@@ -17,22 +17,22 @@ namespace Zen.Web.Auth.Identity
     {
         public Task<IdentityUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken) => Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {normalizedEmail}.ToJson(), Message.EContentType.Info);
-                var probe = LoginInfo.Where(i => i.IdentityUser.NormalizedEmail == normalizedEmail).FirstOrDefault();
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { normalizedEmail }.ToJson(), Message.EContentType.Info);
+                var probe = ProviderIdentityUser.Where(i => i.IdentityUser.NormalizedEmail == normalizedEmail).FirstOrDefault();
                 return probe?.IdentityUser;
             }, cancellationToken);
 
         public Task<IdentityResult> CreateAsync(IdentityUser user, CancellationToken cancellationToken) => Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
                 return IdentityResult.Success;
             }, cancellationToken);
 
         public Task<IdentityResult> UpdateAsync(IdentityUser user, CancellationToken cancellationToken) => Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
 
-                var probe = LoginInfo.Where(i => i.IdentityUser.NormalizedEmail == user.NormalizedEmail).FirstOrDefault();
+                var probe = ProviderIdentityUser.Where(i => i.IdentityUser.NormalizedEmail == user.NormalizedEmail).FirstOrDefault();
 
                 if (probe == null) throw new KeyNotFoundException();
 
@@ -44,32 +44,43 @@ namespace Zen.Web.Auth.Identity
 
         public Task<IdentityUser> FindByIdAsync(string userId, CancellationToken cancellationToken) => Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {userId}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { userId }.ToJson(), Message.EContentType.Info);
 
-                return LoginInfo.Get(userId)?.IdentityUser;
+                return ProviderIdentityUser.Get(userId)?.IdentityUser;
             }, cancellationToken);
 
         public Task<IdentityUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken) => Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {normalizedUserName}.ToJson(), Message.EContentType.Info);
-                return LoginInfo.Where(i => i.IdentityUser.UserName == normalizedUserName).FirstOrDefault()?.IdentityUser;
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { normalizedUserName }.ToJson(), Message.EContentType.Info);
+                return ProviderIdentityUser.Where(i => i.IdentityUser.UserName == normalizedUserName).FirstOrDefault()?.IdentityUser;
+            }, cancellationToken);
+
+        public Task<IdentityUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken) =>
+            Task.Run(() =>
+            {
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { loginProvider, providerKey }.ToJson(), Message.EContentType.Info);
+
+                var key = Pipeline.StampValue(loginProvider, providerKey);
+                var probe = ProviderIdentityUser.Get(key);
+
+                return probe?.IdentityUser;
             }, cancellationToken);
 
         public Task AddLoginAsync(IdentityUser user, UserLoginInfo login, CancellationToken cancellationToken) => Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user, login}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user, login }.ToJson(), Message.EContentType.Info);
 
                 var key = login.StampValue();
 
-                var externalLogin = (ExternalLoginInfo) login;
-                var claimsIdentity = (ClaimsIdentity) externalLogin.Principal.Identity;
+                var externalLogin = (ExternalLoginInfo)login;
+                var claimsIdentity = (ClaimsIdentity)externalLogin.Principal.Identity;
                 var claims = claimsIdentity.Claims.ToList();
                 var claimDict = new Dictionary<string, string>();
 
                 foreach (var claim in claims.Where(claim => !claimDict.ContainsKey(claim.Type)))
                     claimDict[claim.Type] = claim.Value;
 
-                var entry = new LoginInfo
+                var entry = new ProviderIdentityUser
                 {
                     Id = key,
                     IdentityUser = user,
@@ -77,7 +88,6 @@ namespace Zen.Web.Auth.Identity
                     Claims = claimDict,
                     IsAuthenticated = claimsIdentity.IsAuthenticated,
                     Label = claimsIdentity.Label,
-
                     LoginProvider = login.LoginProvider,
                     ProviderKey = login.ProviderKey
                 };
@@ -92,26 +102,16 @@ namespace Zen.Web.Auth.Identity
         }
         public Task RemoveLoginAsync(IdentityUser user, string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {loginProvider, providerKey, user}.ToJson(), Message.EContentType.Info);
+            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { loginProvider, providerKey, user }.ToJson(), Message.EContentType.Info);
             throw new NotImplementedException();
         }
 
         public Task<IList<UserLoginInfo>> GetLoginsAsync(IdentityUser user, CancellationToken cancellationToken)
         {
-            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
             throw new NotImplementedException();
         }
 
-        public Task<IdentityUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken) =>
-            Task.Run(() =>
-            {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {loginProvider, providerKey}.ToJson(), Message.EContentType.Info);
-
-                var key = Pipeline.StampValue(loginProvider, providerKey);
-                var probe = LoginInfo.Get(key);
-
-                return probe?.IdentityUser;
-            }, cancellationToken);
 
         #region Silly getters and setters
 

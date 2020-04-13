@@ -36,6 +36,7 @@ namespace Zen.Web.Auth.Extensions
 
                 context.RunClaimActions(context.User);
                 context.Identity.Stamp();
+
                 context.Identity.ToLocalModel();
 
                 await Task.FromResult(true);
@@ -50,6 +51,7 @@ namespace Zen.Web.Auth.Extensions
 
                 context.RunClaimActions();
                 context.Identity.Stamp();
+
                 context.Identity.ToLocalModel();
 
                 await Task.FromResult(true);
@@ -84,9 +86,11 @@ namespace Zen.Web.Auth.Extensions
             model.ProviderName = ci.AuthenticationType;
             model.ProviderKey = ci.Claim(ClaimTypes.NameIdentifier);
 
-            model.Claims = ci.Claims.ToList()
-                .GroupBy(i => i.Type)
-                .ToDictionary(j => j.Key, j => j.Select(k => k.Value).Distinct().Last());
+            model.Claims =
+                ci.Claims
+                    .ToList()
+                    .GroupBy(i => i.Type)
+                    .ToDictionary(j => j.Key, j => j.Select(k => k.Value).Distinct().Last());
 
             foreach (var (key, value) in model.Claims) Base.Current.Log.KeyValuePair(key, value);
 
