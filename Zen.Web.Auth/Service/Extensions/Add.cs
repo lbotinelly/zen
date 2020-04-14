@@ -1,8 +1,12 @@
 ﻿using System;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Zen.Base;
+using Zen.Base.Extension;
+using Zen.Web.Auth.Configuration;
 using Zen.Web.Auth.Identity;
 
 namespace Zen.Web.Auth.Service.Extensions
@@ -12,6 +16,12 @@ namespace Zen.Web.Auth.Service.Extensions
         public static void AddZenWebAuth(this IServiceCollection services)
         {
             services.AddTransient<IUserStore<IdentityUser>, IdentityUserStore>();
+
+            Instances.Options = Base.Configuration.Options.GetSection("Authentication").Get<Options>();
+
+            Instances.Options?.Evaluate();
+
+            Events.AddLog("Zen.Web.Auth", $"Mode: {Instances.Options?.Mode}, Providers: {Instances.Options?.Provider?.Select(i => i.Key).ToJson()}");
 
             services.AddDefaultIdentity<IdentityUser>(options =>
             {
@@ -35,7 +45,7 @@ namespace Zen.Web.Auth.Service.Extensions
                     options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 });
 
-                services
+            services
                 .AddDistributedMemoryCache()
                 .AddSession(options =>
                 {
