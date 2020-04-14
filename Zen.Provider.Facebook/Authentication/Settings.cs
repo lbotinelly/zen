@@ -24,7 +24,7 @@ namespace Zen.Provider.Facebook.Authentication
                     options.AppSecret = ast;
                     options.CallbackPath = "/auth/signin/facebook";
 
-                    options.ClaimActions.Clear();
+                    //options.ClaimActions.Clear();
                     options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "name");
                     options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
                     options.ClaimActions.MapJsonKey(ClaimTypes.Surname, "last_name");
