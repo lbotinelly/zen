@@ -25,7 +25,7 @@ namespace Zen.Base.Extension
             Allow
         }
 
-        public static TV GetValue<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default)
+        public static TV Val<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default)
         {
             // https://stackoverflow.com/a/33223183/1845714
             return dict != null && dict.TryGetValue(key, out var value) ? value : defaultValue;
@@ -46,7 +46,7 @@ namespace Zen.Base.Extension
 
         public static TD GetValueAs<TK, TV, TD>(this IDictionary<TK, TV> dict, TK key, TD type)
         {
-            return dict.GetValue(key).ToType<TD, TV>();
+            return dict.Val(key).ToType<TD, TV>();
         }
 
         public static string ToByteSize(this long size)
