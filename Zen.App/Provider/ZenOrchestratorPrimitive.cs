@@ -79,10 +79,10 @@ namespace Zen.App.Provider
 
         public IApplication UpsertApplication(IApplication application)
         {
-            var temp = (Data<TA>) application;
+            var temp = (Data<TA>)application;
             temp.Save();
 
-            return (IApplication) temp;
+            return (IApplication)temp;
         }
 
         public List<IGroup> GetFullHierarchicalChain(IGroup referenceGroup, bool ignoreParentWhenAppOwned = true)
@@ -92,7 +92,7 @@ namespace Zen.App.Provider
 
             var cached = Base.Current.Cache[key];
 
-            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IGroup) i).ToList();
+            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IGroup)i).ToList();
 
             var chain = new List<IGroup>();
 
@@ -112,11 +112,11 @@ namespace Zen.App.Provider
 
         public List<IGroup> GroupsByApplication(string key)
         {
-            return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IGroup) i).ToList();
+            return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IGroup)i).ToList();
         }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
+        private static readonly char[] PermissionExpressionDelimiters = { ',', ';', '\n' };
 
         private const string IsAuthenticatedPermission = "$ISAUTHENTICATED";
 
@@ -169,12 +169,12 @@ namespace Zen.App.Provider
         {
             var set = keySet != null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
 
-            return set.Select(i => (IPerson) i).ToList();
+            return set.Select(i => (IPerson)i).ToList();
         }
 
         public void SavePerson(List<IPerson> people)
         {
-            Data<TP>.Save(people.Select(i => (TP) i));
+            Data<TP>.Save(people.Select(i => (TP)i));
         }
 
         public virtual string GetApiUri() => throw new NotImplementedException();
@@ -188,13 +188,11 @@ namespace Zen.App.Provider
         {
             if (keys == null) return null;
 
-            var buffer = new List<IPersonProfile>();
-
             var keySet = keys?.Split(',').ToList();
 
             var people = GetPeople(keySet);
 
-            foreach (var zenPerson in people) buffer.Add(GetProfile(zenPerson));
+            var buffer = people.Select(GetProfile).ToList();
 
             var orderedOutput = new Dictionary<string, IPersonProfile>();
             foreach (var key in keySet) orderedOutput[key] = buffer.FirstOrDefault(i => i.Locator == key);
@@ -213,7 +211,6 @@ namespace Zen.App.Provider
         public IApplication GetApplicationById(string identifier)
         {
             var probe = Data<TA>.Get(identifier);
-
             return probe;
         }
 
@@ -229,15 +226,12 @@ namespace Zen.App.Provider
 
             var id = modelClaims[ZenClaimTypes.Stamp];
 
-            var model = Model.Core.Person.Get(id) ?? new Person {Id = id};
+            var model = Model.Core.Person.Get(id) ?? new Person { Id = id };
 
             var originalRepresentation = model.ToJson();
 
             // Update incoming fields
-            if (modelClaims.ContainsKey(ClaimTypes.NameIdentifier))
-            {
-                model.Locator = modelClaims[ClaimTypes.NameIdentifier];
-            }
+            if (modelClaims.ContainsKey(ClaimTypes.NameIdentifier)) model.Locator = modelClaims[ClaimTypes.NameIdentifier];
 
             if (modelClaims.ContainsKey(ClaimTypes.Email))
             {
@@ -245,10 +239,7 @@ namespace Zen.App.Provider
                 model.NormalizedEmail = model.Email.ToUpperInvariant();
             }
 
-            if (modelClaims.ContainsKey(ClaimTypes.GivenName))
-            {
-                model.Name = modelClaims[ClaimTypes.GivenName];
-            }
+            if (modelClaims.ContainsKey(ClaimTypes.GivenName)) model.Name = modelClaims[ClaimTypes.GivenName];
 
             if (model.ToJson() != originalRepresentation)
                 model.Save(); // Create/update model if necessary
@@ -266,7 +257,7 @@ namespace Zen.App.Provider
 
             keys = keys.Distinct().ToList();
 
-            var permissions = Data<TPerm>.Get(keys).Select(i => (IPermission) i).ToList();
+            var permissions = Data<TPerm>.Get(keys).Select(i => (IPermission)i).ToList();
 
             return permissions;
         }
