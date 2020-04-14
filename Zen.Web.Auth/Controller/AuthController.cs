@@ -1,13 +1,15 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Zen.App.Provider;
 using Zen.Base.Extension;
+using Zen.Web.Auth.Configuration;
 
 // ReSharper disable InconsistentlySynchronizedField
 // ReSharper disable StaticMemberInGenericType
@@ -33,18 +35,16 @@ namespace Zen.Web.Auth.Controller
             var returnUrl = Request.Query["sourceUrl"].FirstOrDefault() ?? Url.Content("~/");
             var provider = Request.Query["provider"].FirstOrDefault() ?? "Google";
 
-            var gatewayUrl = $"gateway?returnUrl={System.Net.WebUtility.UrlEncode(returnUrl)}";
+            var postConfirmationUrl = $"confirm?returnUrl={WebUtility.UrlEncode(returnUrl)}";
 
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, gatewayUrl);
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, postConfirmationUrl);
             var challenge = new ChallengeResult(provider, properties);
 
             return challenge;
-
         }
 
-
-        [HttpGet("signin/gateway")]
-        public async Task<IActionResult> OnPostConfirmationAsync([FromQuery]string returnUrl = null)
+        [HttpGet("signin/confirm")]
+        public async Task<IActionResult> OnPostConfirmationAsync([FromQuery] string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             // Get the information about the user from the external login provider
@@ -52,32 +52,44 @@ namespace Zen.Web.Auth.Controller
 
             if (info == null) return Problem("Error loading external login information during confirmation.");
 
-            if (ModelState.IsValid)
-            {
-                var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (!ModelState.IsValid) return LocalRedirect(returnUrl);
 
-                var props = new AuthenticationProperties();
-                props.StoreTokens(info.AuthenticationTokens);
-                props.IsPersistent = true;
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
-                await _signInManager.SignInAsync(user, props);
+            var props = new AuthenticationProperties();
+            props.StoreTokens(info.AuthenticationTokens);
+            props.IsPersistent = true;
 
-                var person = App.Current.Orchestrator.SigninPersonByIdentity(User.Identity);
-                Base.Current.Log.Add(person.ToJson());
-            }
+            await _signInManager.SignInAsync(user, props);
 
-            return  LocalRedirect(returnUrl);
+            var person = App.Current.Orchestrator.SigninPersonByIdentity(info.Principal.Identity);
+            Base.Current.Log.Add(person.ToJson());
+
+            return LocalRedirect(returnUrl);
         }
 
         [HttpGet("signout")]
-        public IActionResult SignOut()
+        public async Task<IActionResult> SignOut()
         {
-            // Call the SignOut endpoint from the API, if in clientmode, or its own.
+            // Call the SignOut endpoint from the API, if in Client mode, or its own if in standalone.
 
-            Current.Context.Session.Clear();
+            if (Instances.Options.Mode == Options.EMode.StandAlone)
+            {
+                await _signInManager.SignOutAsync();
+                Current.Context.Session.Clear();
 
-            var url = App.Current.Orchestrator.GetApiUri() + "/framework/auth/signout";
-            return new RedirectResult(url);
+                return Ok();
+            }
+
+            try
+            {
+                return LocalRedirect(App.Current.Orchestrator.GetApiUri() + "/framework/auth/signout");
+            }
+            catch (Exception e)
+            {
+                Base.Current.Log.Add(e);
+                return Problem(e.Message);
+            }
         }
 
         [HttpGet("maintenance/start")]
