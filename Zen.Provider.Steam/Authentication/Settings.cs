@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Zen.App.BaseAuth;
 using Zen.Base;
+using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Web.Auth;
 using Zen.Web.Auth.Extensions;
@@ -10,16 +11,20 @@ namespace Zen.Provider.Steam.Authentication
 {
     public static class Settings
     {
+        private const string ProviderKey = "Steam";
+
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
-            var akey = Configuration.Options["Authentication:Steam:ApplicationKey"];
+            if (Instances.Options.WhitelistedProviders != null && !Instances.Options.WhitelistedProviders.Contains(ProviderKey)) return services;
 
-            if (akey == null)
+            var applicationKey = Instances.Options.Provider.Val(ProviderKey)?.Val("ApplicationKey");
+
+            if (applicationKey == null)
                 Current.Log.KeyValuePair("Zen.Provider.Steam.Authentication", "Missing ApplicationKey", Message.EContentType.Warning);
             else
                 Instances.AuthenticationBuilder.AddSteam(options =>
                 {
-                    options.ApplicationKey = akey;
+                    options.ApplicationKey = applicationKey;
                     options.CallbackPath = "/auth/signin/steam";
 
                     options.SaveTokens = true;
