@@ -72,12 +72,10 @@ namespace Zen.Web.Auth.Identity
 
                 var key = login.StampValue();
 
-                var externalLogin = (ExternalLoginInfo)login;
-                var claimsIdentity = (ClaimsIdentity)externalLogin.Principal.Identity;
-                var claims = claimsIdentity.Claims.ToList();
+                var claimsIdentity = (ClaimsIdentity) ((ExternalLoginInfo)login).Principal.Identity;
                 var claimDict = new Dictionary<string, string>();
 
-                foreach (var claim in claims.Where(claim => !claimDict.ContainsKey(claim.Type)))
+                foreach (var claim in claimsIdentity.Claims.ToList().Where(claim => !claimDict.ContainsKey(claim.Type)))
                     claimDict[claim.Type] = claim.Value;
 
                 var entry = new ProviderIdentityUser
