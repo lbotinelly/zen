@@ -271,11 +271,15 @@ namespace Zen.App.Provider
             return permissions;
         }
 
-        public virtual IPerson SigninPersonByIdentity(IIdentity userIdentity) => throw new NotImplementedException();
+        public virtual IPerson SigninPersonByIdentity(IIdentity userIdentity)
+        {
+            // Should have been handled by default auth layer.
+            return null;
+        }
 
         public virtual void SignInPerson(IPerson person)
         {
-            throw new NotImplementedException();
+            // Should have been handled by default auth layer.
         }
 
         public IPerson Person => Factory.Current;
