@@ -13,10 +13,10 @@ namespace Zen.Provider.Microsoft.Authentication
 
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
-            if (Instances.Options.WhitelistedProviders != null && !Instances.Options.WhitelistedProviders.Contains(ProviderKey)) return services;
+            if (Instances.Options?.WhitelistedProviders != null && !Instances.Options.WhitelistedProviders.Contains(ProviderKey) ) return services;
 
-            var cid = Instances.Options.Provider.Val(ProviderKey)?.Val("ClientId");
-            var cst = Instances.Options.Provider.Val(ProviderKey)?.Val("ClientSecret");
+            var cid = Instances.Options?.Provider.Val(ProviderKey)?.Val("ClientId");
+            var cst = Instances.Options?.Provider.Val(ProviderKey)?.Val("ClientSecret");
 
             if (cid == null || cst == null)
                 Current.Log.KeyValuePair("Zen.Provider.Microsoft.Authentication", "Missing ClientId/ClientSecret", Message.EContentType.Warning);
