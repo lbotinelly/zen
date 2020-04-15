@@ -7,7 +7,7 @@ namespace Zen.Web.Auth.Extensions
 {
     public static class Shared
     {
-        public static IdentityUser ToIdentityUser(this ClaimsIdentity source, ProviderIdentityUser user)
+        public static IdentityUser ToIdentityUser(this ClaimsIdentity source, Model.Identity user)
         {
             var model = new IdentityUser
             {

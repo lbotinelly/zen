@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Zen.App.BaseAuth;
-using Zen.Web.Auth.Model;
 
 namespace Zen.Web.Auth.Extensions
 {
@@ -27,7 +26,7 @@ namespace Zen.Web.Auth.Extensions
 
         public static string Claim(this ClaimsIdentity source, string key) => source.FindFirst(key)?.Value;
 
-        public static bool SyncWithLocalStore(this ProviderIdentityUser model)
+        public static bool SyncWithLocalStore(this Model.Identity model)
         {
             var localModel = App.Current.Orchestrator.GetPersonByClaims(model.Claims);
             model.InternalId = localModel.Id;
@@ -35,7 +34,7 @@ namespace Zen.Web.Auth.Extensions
             return true;
         }
 
-        public static IdentityUser ToIdentityUser(this ClaimsIdentity source, ProviderIdentityUser user)
+        public static IdentityUser ToIdentityUser(this ClaimsIdentity source, Model.Identity user)
         {
             var model = new IdentityUser {Id = user.InternalId, Email = source.Claim(ClaimTypes.Email)};
             model.NormalizedEmail = model.Email.ToUpperInvariant();

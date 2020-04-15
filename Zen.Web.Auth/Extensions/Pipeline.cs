@@ -11,7 +11,6 @@ using Zen.App.BaseAuth;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
-using Zen.Web.Auth.Model;
 
 namespace Zen.Web.Auth.Extensions
 {
@@ -77,11 +76,11 @@ namespace Zen.Web.Auth.Extensions
             source.AddClaim(new Claim(ZenClaimTypes.Stamp, source.StampValue()));
         }
 
-        public static ProviderIdentityUser ToLocalModel(this ClaimsIdentity ci)
+        public static Model.Identity ToLocalModel(this ClaimsIdentity ci)
         {
             var gid = ci.Claim(ZenClaimTypes.Stamp);
 
-            var model = ProviderIdentityUser.Get(gid) ?? new ProviderIdentityUser {Id = gid};
+            var model = Model.Identity.Get(gid) ?? new Model.Identity {Id = gid};
 
             model.ProviderName = ci.AuthenticationType;
             model.ProviderKey = ci.Claim(ClaimTypes.NameIdentifier);
