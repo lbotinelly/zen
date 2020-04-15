@@ -8,7 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj" />
-    <ProjectReference Include="..\..\Zen.Provider.Microsoft\Zen.Provider.Microsoft.csproj" />
     <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
 
