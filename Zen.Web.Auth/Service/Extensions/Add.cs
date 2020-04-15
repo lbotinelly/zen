@@ -29,7 +29,7 @@ namespace Zen.Web.Auth.Service.Extensions
                 options.SignIn.RequireConfirmedEmail = false;
             }).AddDefaultTokenProviders();
 
-            services.AddRazorPages();
+            // services.AddRazorPages();
 
             Instances.AuthenticationBuilder = services
                 .AddAuthentication(options =>
