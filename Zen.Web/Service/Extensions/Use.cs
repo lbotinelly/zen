@@ -28,7 +28,6 @@ namespace Zen.Web.Service.Extensions
 
             var usePrefix = Base.Host.Variables.Get(Keys.WebUsePrefix, false);
 
-
             if (!usePrefix)
             {
                 // Default behavior: nothing to see here.
@@ -106,7 +105,6 @@ namespace Zen.Web.Service.Extensions
                     });
                 });
             }
-
 
             app.UseRouting();
 
