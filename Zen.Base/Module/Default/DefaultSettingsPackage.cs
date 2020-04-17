@@ -24,7 +24,6 @@ namespace Zen.Base.Module.Default
         public void Initialize()
         {
             Log = new DefaultLogProvider();
-            Cache = new NullCacheProvider();
             Environment = new DefaultEnvironmentProvider();
             GlobalConnectionBundleType = null;
             WebApiCORSDomains = null;

@@ -39,7 +39,8 @@ namespace Zen.Web.Service.Extensions
                 // The App code will be used as prefix for all requests, so let's move the root:
                 var rootPrefix = Base.Host.Variables.Get(Keys.WebRootPrefix, "");
                 Events.AddLog("Web RootPrefix", rootPrefix);
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"); // We're still using the default wwwroot folder
+                var path = Path.Combine(Directory.GetCurrentDirectory(),
+                    "wwwroot"); // We're still using the default wwwroot folder
                 Events.AddLog("Host path", path);
 
                 if (Directory.Exists(path))
@@ -67,13 +68,15 @@ namespace Zen.Web.Service.Extensions
                     {
                         var destination = "." + rootPrefix;
 
-                        var qsn = Base.Host.Variables.Get(Keys.WebQualifiedServerName, Defaults.WebQualifiedServerName);
+                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName,
+                            Defaults.WebQualifiedServerName);
 
-                        if (qsn != null)
-                            if (context.Request.Host.Host != qsn)
+                        if (qualifiedServerName != null)
+                            if (context.Request.Host.Host != qualifiedServerName)
                             {
                                 var sourcePort = context.Request.Host.Port;
-                                var targetProtocol = "http:";
+                                var targetProtocol =
+                                    ""; //If we omit the protocol, the client will use the one currently set.
 
                                 var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Defaults.WebHttpPort);
                                 var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Defaults.WebHttpsPort);
@@ -84,15 +87,18 @@ namespace Zen.Web.Service.Extensions
                                     targetProtocol = "https:";
                                 }
 
-                                var destinationHost = sourcePort.HasValue ? new HostString(Current.Configuration.Development.QualifiedServerName, sourcePort.Value) : new HostString(qsn);
+                                var destinationHost = sourcePort.HasValue
+                                    ? new HostString(Current.Configuration.Development.QualifiedServerName,
+                                        sourcePort.Value)
+                                    : new HostString(qualifiedServerName);
 
                                 destination = $"{targetProtocol}//{destinationHost}{rootPrefix}";
 
                                 Events.AddLog("Web root", destination);
-
                             }
 
-                        Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}", Message.EContentType.StartupSequence);
+                        Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}",
+                            Message.EContentType.StartupSequence);
 
                         context.Response.Redirect(destination, false);
                         return Task.FromResult(0);
@@ -100,29 +106,28 @@ namespace Zen.Web.Service.Extensions
                 });
             }
 
-
             app.UseRouting();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            //UseAuthentication needs to be run between UseRouting and UseEndpoints. Sooo...
+            foreach (var function in Instances.BeforeUseEndpoints) function();
 
-
-            //app
-            ////    //.UseHttpsRedirection()
-            //    .UseMvc();
-
-            if (options.UseSpa)
+            app.UseEndpoints(endpoints =>
             {
-                // app.UseSpaStaticFiles();
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+            });
 
-                //app.UseSpa(spa =>
-                //{
-                //    // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                //    // see https://go.microsoft.com/fwlink/?linkid=864501
-                //    spa.Options.SourcePath = "ClientApp";
-                //    //if (env?.IsDevelopment() == true)
-                //    spa.UseAngularCliServer("start");
-                //});
+            if (Base.Host.IsDevelopment)
+            {
+                app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+
+            if (!Base.Host.IsContainer) app.UseHttpsRedirection();
 
             configuration.Invoke(builder);
         }

@@ -18,8 +18,7 @@ namespace Zen.Web.Service.Extensions
 {
     public static class Add
     {
-        public static ZenWebBuilder AddZenWeb(this IServiceCollection services,
-            Action<ZenWebConfigureOptions> configureOptions = null)
+        public static ZenWebBuilder AddZenWeb(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -51,8 +50,7 @@ namespace Zen.Web.Service.Extensions
             Base.Host.Variables[Keys.WebHttpPort] = ctxConfig?.HttpPort ?? Current.Configuration?.HttpPort ?? Defaults.WebHttpPort;
             Base.Host.Variables[Keys.WebHttpsPort] = ctxConfig?.HttpsPort ?? Current.Configuration?.HttpsPort ?? Defaults.WebHttpsPort;
 
-            Base.Host.Variables[Keys.WebQualifiedServerName] =
-                ctxConfig?.QualifiedServerName ?? Current.Configuration?.QualifiedServerName;
+            Base.Host.Variables[Keys.WebQualifiedServerName] = ctxConfig?.QualifiedServerName ?? Current.Configuration?.QualifiedServerName;
 
             services.Configure<FormOptions>(options => { options.MemoryBufferThreshold = int.MaxValue; });
 
@@ -103,6 +101,8 @@ namespace Zen.Web.Service.Extensions
 
             // .Net Core 3.0 requirement
             foreach (var entry in IoC.AssemblyLoadMap) mvc.AddApplicationPart(entry.Value).AddControllersAsServices();
+
+            services.AddRazorPages();
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 

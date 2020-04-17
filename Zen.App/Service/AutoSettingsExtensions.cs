@@ -18,7 +18,8 @@ namespace Zen.App.Service
             serviceCollection.AddZenProvider<IZenOrchestrator>("Orchestrator");
 
             //serviceCollection.AddZenProvider<IZenPreference>("Preferences Provider");
-            serviceCollection.AddSingleton(s => IoC.GetClassesByInterface<IZenPreference>(false).FirstOrDefault()?.CreateInstance<IZenPreference>());
+            serviceCollection.AddSingleton(s =>
+                IoC.GetClassesByInterface<IZenPreference>(false).FirstOrDefault()?.CreateInstance<IZenPreference>());
 
             return serviceCollection;
         }

@@ -31,7 +31,7 @@ namespace Zen.Base.Module.Data
             if (!(Configuration?.UseCaching == true && Current.Cache.OperationalStatus == EOperationalStatus.Operational)) return;
 
             var collectionKey = mutator?.KeyPrefix + Data<T>._cacheKeyBase;
-            Current.Cache.RemoveAll(collectionKey);
+            Current.Cache.RemoveAll();
         }
 
         internal static void TryFlushCachedModel(T model, Mutator mutator = null)

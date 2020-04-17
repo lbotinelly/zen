@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Principal;
+using Zen.App.BaseAuth;
 using Zen.App.Core.Application;
 using Zen.App.Core.Group;
 using Zen.App.Core.Person;
+using Zen.App.Model.Core;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
@@ -34,14 +37,14 @@ namespace Zen.App.Provider
         #region Implementation of IAppOrchestrator
 
         public virtual Dictionary<string, object> Settings { get; private set; }
-        public virtual IPerson GetPersonByLocator(string locator) { return Data<TP>.GetByLocator(locator); }
-        public virtual IEnumerable<IPerson> GetPeopleByLocators(IEnumerable<string> locators) { return Data<TP>.GetByLocator(locators); }
+        public virtual IPerson GetPersonByLocator(string locator) => Data<TP>.GetByLocator(locator);
+        public virtual IEnumerable<IPerson> GetPeopleByLocators(IEnumerable<string> locators) => Data<TP>.GetByLocator(locators);
 
         public virtual IGroup GetGroupByCode(string code, string name = null, IApplication application = null, IGroup parent = null, bool createIfNotFound = false)
         {
             var probe = Data<TG>.GetByCode(code);
 
-            if (probe!= null) return probe;
+            if (probe != null) return probe;
 
             if (!createIfNotFound) return null;
 
@@ -72,14 +75,14 @@ namespace Zen.App.Provider
             return probe;
         }
 
-        public IApplication GetNewApplication() { return Data<TA>.New(); }
+        public IApplication GetNewApplication() => Data<TA>.New();
 
         public IApplication UpsertApplication(IApplication application)
         {
-            var temp = (Data<TA>) application;
+            var temp = (Data<TA>)application;
             temp.Save();
 
-            return (IApplication) temp;
+            return (IApplication)temp;
         }
 
         public List<IGroup> GetFullHierarchicalChain(IGroup referenceGroup, bool ignoreParentWhenAppOwned = true)
@@ -87,13 +90,13 @@ namespace Zen.App.Provider
             var baseType = referenceGroup.GetType().FullName + ".Hierarchy:";
             var key = $"{baseType}{referenceGroup.Id}/{(ignoreParentWhenAppOwned ? "-app-isolated" : "")}";
 
-            var cached = Base.Current.Cache[key];
+            var cached = Base.Current.Cache.Get<List<TG>>(key);
 
-            if (cached!= null) return cached.FromJson<List<TG>>().Select(i => (IGroup) i).ToList();
+            if (cached != null) return cached.Select(i => (IGroup)i).ToList();
 
             var chain = new List<IGroup>();
 
-            if (referenceGroup.ParentId!= null)
+            if (referenceGroup.ParentId != null)
                 if (string.IsNullOrEmpty(referenceGroup.ApplicationId) || !ignoreParentWhenAppOwned)
                 {
                     var parent = Data<TG>.Get(referenceGroup.ParentId);
@@ -102,15 +105,18 @@ namespace Zen.App.Provider
 
             chain.Add(referenceGroup);
 
-            Base.Current.Cache[key] = chain.ToJson();
+            Base.Current.Cache.Set(chain, key);
 
             return chain;
         }
 
-        public List<IGroup> GroupsByApplication(string key) { return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IGroup) i).ToList(); }
+        public List<IGroup> GroupsByApplication(string key)
+        {
+            return Data<TG>.Where(i => i.ApplicationId == key).Select(i => (IGroup)i).ToList();
+        }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly char[] PermissionExpressionDelimiters = {',', ';', '\n'};
+        private static readonly char[] PermissionExpressionDelimiters = { ',', ';', '\n' };
 
         private const string IsAuthenticatedPermission = "$ISAUTHENTICATED";
 
@@ -119,7 +125,7 @@ namespace Zen.App.Provider
             if (string.IsNullOrEmpty(expression)) return true;
 
             if (expression == IsAuthenticatedPermission)
-                if (Person!= null)
+                if (Person != null)
                     return true;
 
             var permissionList = expression.Split(PermissionExpressionDelimiters, StringSplitOptions.RemoveEmptyEntries);
@@ -145,7 +151,7 @@ namespace Zen.App.Provider
 
             var probe = Data<TPerm>.Where(i => i.FullCode == fullCode).FirstOrDefault();
 
-            if (probe!= null) return probe;
+            if (probe != null) return probe;
 
             if (!createIfNotFound) return null;
 
@@ -161,16 +167,20 @@ namespace Zen.App.Provider
 
         public List<IPerson> GetPeople(IEnumerable<string> keySet = null)
         {
-            var set = keySet!= null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
+            var set = keySet != null ? Data<TP>.GetByLocator(keySet) : Data<TP>.All();
 
-            return set.Select(i => (IPerson) i).ToList();
+            return set.Select(i => (IPerson)i).ToList();
         }
 
-        public void SavePerson(List<IPerson> people) { Data<TP>.Save(people.Select(i => (TP) i)); }
-        public virtual string GetApiUri() { throw new NotImplementedException(); }
-        public virtual string GetResourceUri() { throw new NotImplementedException(); }
+        public void SavePerson(List<IPerson> people)
+        {
+            Data<TP>.Save(people.Select(i => (TP)i));
+        }
 
-        public virtual List<IPerson> PeopleByGroup(string key) { return Person.ByGroup(key); }
+        public virtual string GetApiUri() => throw new NotImplementedException();
+        public virtual string GetResourceUri() => throw new NotImplementedException();
+
+        public virtual List<IPerson> PeopleByGroup(string key) => Person.ByGroup(key);
 
         private readonly Type _defaultProfileType = IoC.GetClassesByInterface<IPersonProfile>(false).FirstOrDefault();
 
@@ -178,13 +188,11 @@ namespace Zen.App.Provider
         {
             if (keys == null) return null;
 
-            var buffer = new List<IPersonProfile>();
-
             var keySet = keys?.Split(',').ToList();
 
             var people = GetPeople(keySet);
 
-            foreach (var zenPerson in people) buffer.Add(GetProfile(zenPerson));
+            var buffer = people.Select(GetProfile).ToList();
 
             var orderedOutput = new Dictionary<string, IPersonProfile>();
             foreach (var key in keySet) orderedOutput[key] = buffer.FirstOrDefault(i => i.Locator == key);
@@ -203,7 +211,6 @@ namespace Zen.App.Provider
         public IApplication GetApplicationById(string identifier)
         {
             var probe = Data<TA>.Get(identifier);
-
             return probe;
         }
 
@@ -211,6 +218,33 @@ namespace Zen.App.Provider
         {
             email = email.ToLower().Trim();
             return Data<TP>.Where(i => i.Email.ToLower() == email).FirstOrDefault();
+        }
+
+        public IPerson GetPersonByClaims(Dictionary<string, string> modelClaims)
+        {
+            // Claims are just a bunch of strings mapped to declared ClaimTypes, so let's look for the obvious stuff.
+
+            var id = modelClaims[ZenClaimTypes.Stamp];
+
+            var model = Model.Core.Person.Get(id) ?? new Person { Id = id };
+
+            var originalRepresentation = model.ToJson();
+
+            // Update incoming fields
+            if (modelClaims.ContainsKey(ClaimTypes.NameIdentifier)) model.Locator = modelClaims[ClaimTypes.NameIdentifier];
+
+            if (modelClaims.ContainsKey(ClaimTypes.Email))
+            {
+                model.Email = modelClaims[ClaimTypes.Email];
+                model.NormalizedEmail = model.Email.ToUpperInvariant();
+            }
+
+            if (modelClaims.ContainsKey(ClaimTypes.GivenName)) model.Name = modelClaims[ClaimTypes.GivenName];
+
+            if (model.ToJson() != originalRepresentation)
+                model.Save(); // Create/update model if necessary
+
+            return model;
         }
 
         public virtual List<IPermission> GetPermissionsByPerson(IPerson person)
@@ -223,13 +257,21 @@ namespace Zen.App.Provider
 
             keys = keys.Distinct().ToList();
 
-            var permissions = Data<TPerm>.Get(keys).Select(i => (IPermission) i).ToList();
+            var permissions = Data<TPerm>.Get(keys).Select(i => (IPermission)i).ToList();
 
             return permissions;
         }
 
-        public virtual IPerson SigninPersonByIdentity(IIdentity userIdentity) { throw new NotImplementedException(); }
-        public virtual void SignInPerson(IPerson person) { throw new NotImplementedException(); }
+        public virtual IPerson SigninPersonByIdentity(IIdentity userIdentity)
+        {
+            // Should have been handled by default auth layer.
+            return null;
+        }
+
+        public virtual void SignInPerson(IPerson person)
+        {
+            // Should have been handled by default auth layer.
+        }
 
         public IPerson Person => Factory.Current;
         public virtual IApplication Application => _application;
@@ -238,7 +280,7 @@ namespace Zen.App.Provider
         {
             // Let's determine the current app.
 
-            if (_application!= null) return;
+            if (_application != null) return;
 
             _application = Core.Application.Factory.Current;
 

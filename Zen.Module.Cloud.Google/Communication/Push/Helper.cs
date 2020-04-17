@@ -18,7 +18,7 @@ namespace Zen.Module.Cloud.Google.Communication.Push
 {
     public static class Helper
     {
-        private static readonly string FirebaseServerKey = ((GoogleAuth) Current.AuthProvider).ServerKey;
+        private static readonly string FirebaseServerKey = "";// ((GoogleAuth) Current.AuthProvider).ServerKey;
 
         private static string UrlTokenEncode(byte[] input)
         {
@@ -176,8 +176,7 @@ namespace Zen.Module.Cloud.Google.Communication.Push
             return Convert.FromBase64String(s); // Standard base64 decoder
         }
 
-        public static bool SendNotification(EndpointEntry sub, byte[] data, int ttl = 0, ushort padding = 0,
-                                            bool randomisePadding = false)
+        public static bool SendNotification(EndpointEntry sub, byte[] data, int ttl = 0, ushort padding = 0, bool randomisePadding = false)
         {
             return SendNotification(sub.endpoint,
                                     data: data,

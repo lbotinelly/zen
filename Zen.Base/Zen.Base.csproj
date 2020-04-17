@@ -1,26 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AssemblyName>Zen.Base</AssemblyName>
     <RootNamespace>Zen.Base</RootNamespace>
-    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
-    <PackageTags>middleware orm dotnet core</PackageTags>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageIconUrl></PackageIconUrl>
     <Description>A fluid, seamless middleware.</Description>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <Authors>Zen Development Team</Authors>
+    <Company>Zen Development Team</Company>
     <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
-    <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.2</LangVersion>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <PackageIconUrl></PackageIconUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <PackageIcon>zen-icon.png</PackageIcon>    
-    <Version>0.0.1.0</Version>    
-    <Authors>Zen Development Team</Authors>    
-    <Company>Zen Development Team</Company>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,12 +40,12 @@
 
   <ItemGroup>
     <PackageReference Include="ByteSize" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />

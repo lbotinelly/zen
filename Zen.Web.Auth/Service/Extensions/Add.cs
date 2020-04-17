@@ -1,84 +1,61 @@
 ﻿using System;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base;
-using Zen.Web.Service;
+using Zen.Base.Extension;
+using Zen.Web.Auth.Configuration;
+using Zen.Web.Auth.Identity;
 
 namespace Zen.Web.Auth.Service.Extensions
 {
     public static class Add
     {
-        public static Builder AddZenWebAuth(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
+        public static void AddZenWebAuth(this IServiceCollection services)
         {
-            services.ResolveSettingsPackage();
+            services.AddTransient<IUserStore<IdentityUser>, IdentityUserStore>();
 
-            if (services == null) throw new ArgumentNullException(nameof(services));
+            Instances.Options = Base.Configuration.Options.GetSection("Authentication").Get<Options>();
 
-            configureOptions = configureOptions ?? (x => { });
+            Instances.Options?.Evaluate();
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            Events.AddLog("Zen.Web.Auth", $"Mode: {Instances.Options?.Mode}, Providers: {Instances.Options?.Provider?.Select(i => i.Key).ToJson()}");
 
-            services
-                .AddIdentity<IdentityUser, IdentityRole>();
-
-            // Do we have Google stuff?
-            var googleAuthNSection = Configuration.Options.GetSection("Authentication:Google");
-
-            var googleClientId = googleAuthNSection["ClientId"];
-            var googleClientSecret = googleAuthNSection["ClientSecret"];
-
-            if (googleClientId!= null)
+            services.AddDefaultIdentity<IdentityUser>(options =>
             {
-                Settings.IsAuthProvider = true;
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+            }).AddDefaultTokenProviders();
 
-                services
-                    .AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = GoogleDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-                    })
-                    .AddGoogle(options =>
-                    {
-                        options.CallbackPath = "/api/auth/signin/google";
-                        options.ClientId = googleClientId;
-                        options.ClientSecret = googleClientSecret;
-                    });
-            }
-            else
-            {
-                services
-                    .AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    })
-                    .AddCookie(options =>
-                    {
-                        options.LoginPath = "/api/auth/signin";
-                        options.LogoutPath = "/api/auth/signout";
-                    });
-            }
+            // services.AddRazorPages();
+
+            Instances.AuthenticationBuilder = services
+                .AddAuthentication(options =>
+                {
+                    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(options =>
+                {
+                    //options.LoginPath = "/Account/Unauthorized/";
+                    //options.AccessDeniedPath = "/Account/Forbidden/";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                });
 
             services
                 .AddDistributedMemoryCache()
                 .AddSession(options =>
                 {
-                    options.IdleTimeout = TimeSpan.FromHours(6);
+                    options.IdleTimeout = TimeSpan.FromHours(12);
                     options.Cookie.HttpOnly = true;
                     options.Cookie.IsEssential = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 });
 
-            services.AddTransient<IEmailSender, EmailSender>();
-
-            var builder = new Builder(services);
-
-            if (configureOptions!= null) services.Configure(configureOptions);
-
-            return builder;
+            ;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Zen.Base;
 using Zen.Base.Extension;
 
@@ -40,6 +41,16 @@ namespace Zen.Web.Host
 
                 var host = new WebHostBuilder() // Pretty standard pipeline,
                     .UseContentRoot(Directory.GetCurrentDirectory())
+                    .ConfigureLogging(logging =>
+                    {
+                        logging
+                            .AddFilter("Microsoft", LogLevel.Warning)
+                            .AddFilter("System", LogLevel.Warning)
+                            .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
+                            .ClearProviders()
+                            .AddConsole()
+                            .AddEventLog();
+                    })
                     .UseKestrel()
                     .UseStartup<T>()
                     .ConfigureKestrel((context, options) =>
@@ -54,12 +65,14 @@ namespace Zen.Web.Host
 
                         // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default dev cert created by VS.
                         if (hostCertificate == null) return;
-                        options.Listen(localAddress, httpsPort, listenOptions => { listenOptions.UseHttps(hostCertificate); });
+                        options.Listen(localAddress, httpsPort,
+                            listenOptions => { listenOptions.UseHttps(hostCertificate); });
                     })
                     .Build();
 
                 if (hostCertificate != null) // Log so we know what's going on.
-                    Base.Current.Log.KeyValuePair("Certificate", $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
+                    Base.Current.Log.KeyValuePair("Certificate",
+                        $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
 
                 host.Run();
                 return;
@@ -84,10 +97,13 @@ namespace Zen.Web.Host
 
             if (!Base.Host.IsProduction) return targetCertificate;
 
-            var certPath = $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
+            var certPath =
+                $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
 
             if (!Directory.Exists(certPath))
+            {
                 Log.Warn($"No physical certificate storage [{certPath}]");
+            }
             else
             {
                 var certFile = Directory.GetFiles(certPath).FirstOrDefault();

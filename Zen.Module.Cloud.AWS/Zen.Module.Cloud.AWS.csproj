@@ -1,29 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AssemblyName>Zen.Module.Cloud.AWS</AssemblyName>
     <RootNamespace>Zen.Module.Cloud.AWS</RootNamespace>
-    <LangVersion>7.2</LangVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
-    <PackageTags>middleware orm dotnet core</PackageTags>
-    <PackageIcon>zen-icon.png</PackageIcon>
-    <PackageIconUrl />
+    <Description>AWS cloud resources for Zen.</Description>
     <Authors>Zen Development Team</Authors>
+    <Company>Zen Development Team</Company>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.2</LangVersion>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.104.35" />
+    <PackageReference Include="AWSSDK.Core" Version="3.3.106.6" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.101" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.110.33" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.131" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.3.102.74" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.52" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.150" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.102.93" />
   </ItemGroup>
 
   <ItemGroup>

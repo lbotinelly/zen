@@ -1,29 +1,16 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Builder;
 
 namespace Zen.Web.Auth.Service.Extensions
 {
     public static class Use
     {
-        public static void UseZenWebAuth(this IApplicationBuilder app, Action<IBuilder> configuration = null, IHostEnvironment env = null)
+        public static void UseZenWebAuth(this IApplicationBuilder app)
         {
-            configuration = configuration ?? (x => { });
+            Web.Instances.BeforeUseEndpoints.Add(() => app.UseAuthentication());
+            Web.Instances.BeforeUseEndpoints.Add(() => app.UseAuthorization());
 
-            var optionsProvider = app.ApplicationServices.GetService<IOptions<Options>>();
-
-            var options = new Options(optionsProvider.Value);
-
-            var builder = new Builder(app, options);
-
-            app
-                .UseAuthentication();
-
+            app.UseCookiePolicy();
             app.UseSession();
-
-            configuration.Invoke(builder);
         }
     }
 }

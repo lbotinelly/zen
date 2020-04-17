@@ -11,9 +11,7 @@ namespace Zen.Base
     public static class Current
     {
         static Current() { Events.Start(); }
-
         public static Status.EState State { get; internal set; } = Status.State;
-
         public static ICacheProvider Cache => _cacheProvider.Value;
         public static IEnvironmentProvider Environment => _environmentProvider.Value;
         public static IEncryptionProvider Encryption => _IEncryptionProvider.Value;

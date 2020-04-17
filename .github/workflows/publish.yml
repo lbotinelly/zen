@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        zen-project: [Base,App,Storage,Media,Web,Service.Maintenance,Module.Cache.Redis,Module.Data.Relational,Module.Data.LiteDB,Module.Data.MongoDB,Module.Encryption.AES]
+        zen-project: [Base,App,Storage,Media,Web,Web.Auth,Service.Maintenance,Module.Cache.Memory,Module.Cache.Redis,Module.Data.Relational,Module.Data.LiteDB,Module.Data.MongoDB,Module.Encryption.AES]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2

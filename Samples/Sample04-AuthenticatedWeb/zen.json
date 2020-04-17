@@ -1,0 +1,23 @@
+{
+  "Authentication": {
+    "Mode": "StandAlone",
+    "Provider": {
+      "Facebook": {
+        "AppId": "219984252572602",
+        "AppSecret": "acf32ebbabc7e82d1ec8fc9ca1ae16d6"
+      },
+      "GitHub": {
+        "ClientId": "38842785fafa54eb939c",
+        "ClientSecret": "b672f33b30685ceea819121acee2b060e1d4acbe"
+      },
+      "Google": {
+        "ClientId": "430544352174-mkmeh6db1u3ten9fhi56hij52jmf7f0f.apps.googleusercontent.com",
+        "ClientSecret": "CLyEyaNyttKmsPyeF1_oChgn"
+      },
+      "Microsoft": {
+        "ClientId": "f16567ab-7850-4744-8b38-6c76db02399e",
+        "ClientSecret": "4a3mb:2Pm[WQJ?fjYyhb0?BVQpIcdB.H"
+      }
+    }
+  }
+}
