@@ -90,9 +90,9 @@ namespace Zen.App.Provider
             var baseType = referenceGroup.GetType().FullName + ".Hierarchy:";
             var key = $"{baseType}{referenceGroup.Id}/{(ignoreParentWhenAppOwned ? "-app-isolated" : "")}";
 
-            var cached = Base.Current.Cache[key];
+            var cached = Base.Current.Cache.Get<List<TG>>(key);
 
-            if (cached != null) return cached.FromJson<List<TG>>().Select(i => (IGroup)i).ToList();
+            if (cached != null) return cached.Select(i => (IGroup)i).ToList();
 
             var chain = new List<IGroup>();
 
@@ -105,7 +105,7 @@ namespace Zen.App.Provider
 
             chain.Add(referenceGroup);
 
-            Base.Current.Cache[key] = chain.ToJson();
+            Base.Current.Cache.Set(chain, key);
 
             return chain;
         }
