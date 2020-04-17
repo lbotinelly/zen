@@ -17,7 +17,7 @@ namespace Zen.Web.Auth.Identity
         public Task<IdentityUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {normalizedEmail}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { normalizedEmail }.ToJson(), Message.EContentType.Info);
                 var probe = Model.Identity.Where(i => i.IdentityUser.NormalizedEmail == normalizedEmail).FirstOrDefault();
                 return probe?.IdentityUser;
             }, cancellationToken);
@@ -25,14 +25,14 @@ namespace Zen.Web.Auth.Identity
         public Task<IdentityResult> CreateAsync(IdentityUser user, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
                 return IdentityResult.Success;
             }, cancellationToken);
 
         public Task<IdentityResult> UpdateAsync(IdentityUser user, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
 
                 var probe = Model.Identity.Where(i => i.IdentityUser.NormalizedEmail == user.NormalizedEmail).FirstOrDefault();
 
@@ -47,7 +47,7 @@ namespace Zen.Web.Auth.Identity
         public Task<IdentityUser> FindByIdAsync(string userId, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {userId}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { userId }.ToJson(), Message.EContentType.Info);
 
                 return Model.Identity.Get(userId)?.IdentityUser;
             }, cancellationToken);
@@ -55,20 +55,20 @@ namespace Zen.Web.Auth.Identity
         public Task<IdentityUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {normalizedUserName}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { normalizedUserName }.ToJson(), Message.EContentType.Info);
                 return Model.Identity.Where(i => i.IdentityUser.UserName == normalizedUserName).FirstOrDefault()?.IdentityUser;
             }, cancellationToken);
 
         public Task<IdentityResult> DeleteAsync(IdentityUser user, CancellationToken cancellationToken)
         {
-            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
             throw new NotImplementedException();
         }
 
         public Task<IdentityUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {loginProvider, providerKey}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { loginProvider, providerKey }.ToJson(), Message.EContentType.Info);
 
                 var key = Pipeline.StampValue(loginProvider, providerKey);
                 var probe = Model.Identity.Get(key);
@@ -79,11 +79,11 @@ namespace Zen.Web.Auth.Identity
         public Task AddLoginAsync(IdentityUser user, UserLoginInfo login, CancellationToken cancellationToken) =>
             Task.Run(() =>
             {
-                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user, login}.ToJson(), Message.EContentType.Info);
+                if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user, login }.ToJson(), Message.EContentType.Info);
 
                 var key = login.StampValue();
 
-                var claimsIdentity = (ClaimsIdentity) ((ExternalLoginInfo) login).Principal.Identity;
+                var claimsIdentity = (ClaimsIdentity)((ExternalLoginInfo)login).Principal.Identity;
                 var claimDict = new Dictionary<string, string>();
 
                 foreach (var claim in claimsIdentity.Claims.ToList().Where(claim => !claimDict.ContainsKey(claim.Type)))
@@ -106,13 +106,13 @@ namespace Zen.Web.Auth.Identity
 
         public Task RemoveLoginAsync(IdentityUser user, string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
-            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {loginProvider, providerKey, user}.ToJson(), Message.EContentType.Info);
+            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { loginProvider, providerKey, user }.ToJson(), Message.EContentType.Info);
             throw new NotImplementedException();
         }
 
         public Task<IList<UserLoginInfo>> GetLoginsAsync(IdentityUser user, CancellationToken cancellationToken)
         {
-            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new {user}.ToJson(), Message.EContentType.Info);
+            if (Base.Host.IsDevelopment) Base.Current.Log.KeyValuePair(MethodBase.GetCurrentMethod().Name, new { user }.ToJson(), Message.EContentType.Info);
             throw new NotImplementedException();
         }
 
