@@ -25,10 +25,8 @@ namespace Zen.Base.Service
             serviceCollection.AddSingleton(s => configurationPackage.Environment ?? IoC.GetClassesByInterface<IEnvironmentProvider>(false).FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.Log ?? IoC.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>());
 
-
-            var cacheType = configurationPackage.Cache != null ? configurationPackage.Cache.GetType() : IoC.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault();
-
-            serviceCollection.AddSingleton(typeof(ICacheProvider), cacheType);
+            // ICacheProvider may receive injection, so let's do this by type.
+            serviceCollection.AddSingleton(typeof(ICacheProvider), configurationPackage.Cache != null ? configurationPackage.Cache.GetType() : IoC.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault());
             serviceCollection.AddSingleton(s => configurationPackage.Encryption ?? IoC.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
             serviceCollection.AddSingleton(s => configurationPackage.GlobalConnectionBundleType ?? IoC.GetClassesByInterface<ConnectionBundlePrimitive>().FirstOrDefault());
 
