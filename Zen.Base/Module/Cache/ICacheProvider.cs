@@ -14,10 +14,10 @@ namespace Zen.Base.Module.Cache
         void Remove(string key);
         void RemoveAll();
 
-        void Set(object model, string fullKey = null);
+        void Set(object model, string fullKey = null, CacheOptions options = null);
         T Get<T>(string fullKey);
 
-        void SetNative(string key, string serializedModel);
+        void SetNative(string key, string serializedModel, CacheOptions options = null);
         string GetNative(string key);
     }
 }

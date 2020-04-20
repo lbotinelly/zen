@@ -9,7 +9,7 @@ namespace Zen.Base.Module.Cache
     {
         public abstract void Initialize();
 
-        public string this[string key]
+        public string this[string key, CacheOptions options = null]
         {
             get
             {
@@ -31,7 +31,7 @@ namespace Zen.Base.Module.Cache
 
                 try
                 {
-                    if (value != null) SetNative(key, value);
+                    if (value != null) SetNative(key, value, options);
                     else if (Contains(key)) Remove(key);
                 }
                 catch (Exception e)
@@ -54,10 +54,10 @@ namespace Zen.Base.Module.Cache
             return model.GetType().FullName + "#" + modelKey;
         }
 
-        public void Set(object model, string fullKey = null)
+        public void Set(object model, string fullKey = null, CacheOptions options = null)
         {
             if (fullKey == null) fullKey = ModelKey(model);
-            this[fullKey] = model.ToJson();
+            this[fullKey, options] = model.ToJson();
         }
 
         public T Get<T>(string fullKey)
@@ -66,7 +66,7 @@ namespace Zen.Base.Module.Cache
             return probe == null ? default : probe.FromJson<T>();
         }
 
-        public abstract void SetNative(string key, string serializedModel);
+        public abstract void SetNative(string key, string serializedModel, CacheOptions options = null);
         public abstract string GetNative(string key);
     }
 }

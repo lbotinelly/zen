@@ -11,7 +11,7 @@ using Zen.Base.Module.Log;
 namespace Zen.Module.Cache.Redis
 {
     [Priority(Level = -1)]
-    public class RedisCacheProvider : PrimitiveCacheProvider, IZenProvider
+    public class RedisCacheProvider : PrimitiveCacheProvider
     {
         public override IEnumerable<string> GetKeys(string oNamespace = null)
         {
@@ -52,7 +52,7 @@ namespace Zen.Module.Cache.Redis
             }
         }
 
-        public override void SetNative(string key, string serializedModel)
+        public override void SetNative(string key, string serializedModel, CacheOptions options = null)
         {
             if (OperationalStatus != EOperationalStatus.Operational) return;
 
@@ -60,9 +60,7 @@ namespace Zen.Module.Cache.Redis
             {
                 var db = _redis.GetDatabase(DatabaseIndex);
 
-                //if (cacheTimeOutSeconds == 0) db.StringSet(key, serializedModel);
-                //else 
-                db.StringSet(key, serializedModel, TimeSpan.FromSeconds(cacheTimeOutSeconds));
+                db.StringSet(key, serializedModel, options?.LifeTimeSpan );
             }
             catch (Exception e)
             {
@@ -153,8 +151,6 @@ namespace Zen.Module.Cache.Redis
 
         private static int DatabaseIndex { get; set; } = -1;
         internal string ServerName { get; private set; }
-
-        private int cacheTimeOutSeconds = 600;
 
         public void Connect()
         {
