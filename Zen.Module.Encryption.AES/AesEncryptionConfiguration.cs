@@ -17,15 +17,15 @@ namespace Zen.Module.Encryption.AES
 
         public interface IOptions
         {
-            string Key { get; set; }
-            string InitializationVector { get; set; }
+            string Key { get; }
+            string InitializationVector { get; }
         }
 
         [Priority(Level = -1)]
         public class Options : IOptions
         {
-            public string Key { get; set; }
-            public string InitializationVector { get; set; }
+            public string Key { get; internal set; }
+            public string InitializationVector { get; internal set; }
         }
     }
 }

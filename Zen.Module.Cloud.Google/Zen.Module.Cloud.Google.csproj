@@ -24,7 +24,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Auth\" />
+    <Compile Remove="Auth\**" />
+    <EmbeddedResource Remove="Auth\**" />
+    <None Remove="Auth\**" />
   </ItemGroup>
 
   <ItemGroup>
