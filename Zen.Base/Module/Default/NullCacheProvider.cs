@@ -21,10 +21,13 @@ namespace Zen.Base.Module.Default
         public void Remove(string key) { }
 
         public void RemoveAll() { }
-        public void Set(object model, string fullKey = null) { }
+
+        public void Set(object model, string fullKey = null, CacheOptions options = null) { }
 
         public T Get<T>(string fullKey) => default;
-        public void SetNative(string key, string serializedModel) { }
+
+        public void SetNative(string key, string serializedModel, CacheOptions options = null) { }
+
         public string GetNative(string key) => null;
     }
 }
