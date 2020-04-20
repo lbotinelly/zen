@@ -5,7 +5,7 @@ using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.Base.Module.Cache
 {
-    public abstract class PrimitiveCacheProvider : ICacheProvider
+    public abstract class CacheProviderPrimitive : ICacheProvider
     {
         public abstract void Initialize();
 

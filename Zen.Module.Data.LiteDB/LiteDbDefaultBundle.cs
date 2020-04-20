@@ -7,9 +7,8 @@ namespace Zen.Module.Data.LiteDB
     // ReSharper disable once UnusedMember.Global
     public class LiteDbDefaultBundle : ConnectionBundlePrimitive
     {
-        public LiteDbDefaultBundle()
-        {
-            AdapterType = typeof(LiteDbAdapter);
-        }
+        public LiteDbDefaultBundle() => AdapterType = typeof(LiteDbAdapter);
+
+        public override string Code { get; } = "LiteDbDefaultBundle";
     }
 }

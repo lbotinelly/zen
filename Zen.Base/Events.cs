@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Zen.Base.Extension;
+using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
 
@@ -60,7 +62,10 @@ namespace Zen.Base
             Current.Log.KeyValuePair("Environment", Current.Environment == null ? "(none)" : Current.Environment.ToString());
             Current.Log.KeyValuePair("Log", Current.Log == null ? "(none)" : Current.Log.ToString());
             Current.Log.KeyValuePair("Encryption", Current.Encryption == null ? "(none)" : Current.Encryption.ToString());
-            Current.Log.KeyValuePair("Global BundleType", Current.GlobalConnectionBundleType == null ? "(none)" : Current.GlobalConnectionBundleType.ToString());
+            Current.Log.KeyValuePair("Global BundleType",
+                Instances.ServiceProvider.GetService<IConnectionBundleProvider>()?.DefaultBundleType == null ?
+                    "(none)" :
+                    Instances.ServiceProvider.GetService<IConnectionBundleProvider>()?.DefaultBundleType.ToString());
 
             Current.Log.KeyValuePair("Base Directory", Host.BaseDirectory);
             Current.Log.KeyValuePair("Data Directory", Host.DataDirectory);
@@ -106,9 +111,9 @@ namespace Zen.Base
         {
             _doShutdown = true;
 
-            if (_workerThread!= null) return;
+            if (_workerThread != null) return;
 
-            _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
+            _workerThread = new Thread(() => Shutdown(seconds)) { IsBackground = false };
             _workerThread.Start();
         }
 

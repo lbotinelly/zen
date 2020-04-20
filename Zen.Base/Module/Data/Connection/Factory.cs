@@ -8,10 +8,10 @@ namespace Zen.Base.Module.Data.Connection
 {
     public static class Factory
     {
-        private static readonly Dictionary<ConnectionBundlePrimitive, CredentialSetPrimitive> Cache = new Dictionary<ConnectionBundlePrimitive, CredentialSetPrimitive>();
+        private static readonly Dictionary<IConnectionBundle, CredentialSetPrimitive> Cache = new Dictionary<IConnectionBundle, CredentialSetPrimitive>();
         private static readonly object Lock = new object();
 
-        public static CredentialSetPrimitive GetCredentialSetPerConnectionBundle(ConnectionBundlePrimitive pConn, Type pPrefCredSetType = null)
+        public static CredentialSetPrimitive GetCredentialSet(this IConnectionBundle pConn, Type pPrefCredSetType = null)
         {
             lock (Lock)
             {

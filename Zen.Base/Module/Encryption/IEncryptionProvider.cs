@@ -10,4 +10,6 @@ namespace Zen.Base.Module.Encryption
         string TryDecrypt(string pContent);
         string TryEncrypt(string pContent);
     }
+
+    public class EncryptionOptions { }
 }

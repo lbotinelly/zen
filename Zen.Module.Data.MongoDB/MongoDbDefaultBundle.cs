@@ -7,5 +7,6 @@ namespace Zen.Module.Data.MongoDB
     public class MongoDbDefaultBundle : ConnectionBundlePrimitive
     {
         public MongoDbDefaultBundle() { AdapterType = typeof(MongoDbAdapter); }
+        public override string Code { get; }
     }
 }

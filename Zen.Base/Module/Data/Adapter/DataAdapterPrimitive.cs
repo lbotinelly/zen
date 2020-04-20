@@ -9,7 +9,7 @@ namespace Zen.Base.Module.Data.Adapter
     public abstract class DataAdapterPrimitive : IInterceptor
     {
         public string ReferenceCollectionName;
-        public IConnectionBundlePrimitive SourceBundle;
+        public IConnectionBundle SourceBundle;
 
         #region Initialization
 

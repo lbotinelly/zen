@@ -24,7 +24,7 @@ namespace Zen.Base.Module.Data
 
         public DataAdapterPrimitive Adapter;
 
-        public ConnectionBundlePrimitive Bundle;
+        public IConnectionBundle Bundle;
 
         public Dictionary<string, string> ConnectionCypherKeys = null;
         public string ConnectionString;

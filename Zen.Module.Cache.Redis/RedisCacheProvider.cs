@@ -6,13 +6,21 @@ using Zen.Base;
 using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
+using Zen.Base.Module.Encryption;
+using Zen.Base.Module.Environment;
 using Zen.Base.Module.Log;
 
 namespace Zen.Module.Cache.Redis
 {
     [Priority(Level = -1)]
-    public class RedisCacheProvider : PrimitiveCacheProvider
+    public class RedisCacheProvider : CacheProviderPrimitive
     {
+        public RedisCacheProvider(IEnvironmentProvider environmentProvider, IEncryptionProvider encryptionProvider)
+        {
+            _environmentProvider = environmentProvider;
+            _encryptionProvider = encryptionProvider;
+        }
+
         public override IEnumerable<string> GetKeys(string oNamespace = null)
         {
             if (OperationalStatus != EOperationalStatus.Operational) return null;
@@ -138,7 +146,7 @@ namespace Zen.Module.Cache.Redis
                     {"STA", new RedisCacheConfiguration {DatabaseIndex = 5, ConnectionString = "localhost"}}
                 };
 
-            var probe = (RedisCacheConfiguration) EnvironmentConfiguration[Current.Environment.CurrentCode];
+            var probe = (RedisCacheConfiguration) EnvironmentConfiguration[_environmentProvider.CurrentCode];
             DatabaseIndex = probe.DatabaseIndex;
             _currentServer = probe.ConnectionString;
 
@@ -148,6 +156,9 @@ namespace Zen.Module.Cache.Redis
         private static ConnectionMultiplexer _redis;
 
         private static string _currentServer = "none";
+
+        private readonly IEnvironmentProvider _environmentProvider;
+        private readonly IEncryptionProvider _encryptionProvider;
 
         private static int DatabaseIndex { get; set; } = -1;
         internal string ServerName { get; private set; }
@@ -161,7 +172,7 @@ namespace Zen.Module.Cache.Redis
                 //The connection string may be encrypted. Try to decrypt it, but ignore if it fails.
                 try
                 {
-                    _currentServer = Current.Encryption.Decrypt(_currentServer);
+                    _currentServer = _encryptionProvider.Decrypt(_currentServer);
                 }
                 catch { }
 

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data;
@@ -15,6 +16,7 @@ using Zen.Base.Module.Data.CommonAttributes;
 using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Data.Pipeline;
 using Zen.Base.Module.Log;
+using Zen.Base.Module.Service;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StaticMemberInGenericType
@@ -64,7 +66,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.TypeQualifiedName = sourceType?.FullName;
 
                     if (Info<T>.Settings.TypeQualifiedName != Info<T>.Settings.TypeName)
-                        if (sourceType?.FullName!= null)
+                        if (sourceType?.FullName != null)
                             Info<T>.Settings.TypeNamespace = sourceType?.FullName.Substring(0, Info<T>.Settings.TypeQualifiedName.Length - Info<T>.Settings.TypeName.Length - 1);
 
                     Info<T>.Settings.StorageCollectionName = Info<T>.Configuration?.Label ?? Info<T>.Configuration?.SetName ?? Info<T>.Settings.TypeName;
@@ -73,7 +75,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.KeyField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
                     Info<T>.Settings.KeyProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(KeyAttribute), true));
 
-                    if (Info<T>.Settings.KeyField == null && Info<T>.Settings.KeyProperty == null && Info<T>.Configuration?.KeyName!= null)
+                    if (Info<T>.Settings.KeyField == null && Info<T>.Settings.KeyProperty == null && Info<T>.Configuration?.KeyName != null)
                     {
                         // A Key member name was provided. Does it really exist? Let's find out.
                         // (Some drivers need explicit key property declaration, like LiteDB.)
@@ -109,7 +111,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.DisplayField = typeof(T).GetFields().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true));
                     Info<T>.Settings.DisplayProperty = typeof(T).GetProperties().FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(DisplayAttribute), true));
 
-                    if (Info<T>.Settings.DisplayField == null && Info<T>.Settings.DisplayProperty == null && Info<T>.Configuration?.DisplayProperty!= null)
+                    if (Info<T>.Settings.DisplayField == null && Info<T>.Settings.DisplayProperty == null && Info<T>.Configuration?.DisplayProperty != null)
                     {
                         // A Display member name was provided. Does it really exist? Let's find out.
                         Info<T>.Settings.DisplayField = typeof(T).GetFields().FirstOrDefault(i => i.Name == Info<T>.Configuration.DisplayProperty);
@@ -123,7 +125,7 @@ namespace Zen.Base.Module
                         Info<T>.Settings.DisplayProperty?.Name;
 
                     if (!Info<T>.Settings.Silent)
-                        if (Info<T>.Settings.DisplayProperty?.Name!= null && Info<T>.Settings.DisplayMemberName == null)
+                        if (Info<T>.Settings.DisplayProperty?.Name != null && Info<T>.Settings.DisplayMemberName == null)
                             Current.Log.Warn<T>($"Mismatched DisplayMemberName: {Info<T>.Settings.DisplayMemberName}. Ignoring.");
 
                     // Member definitions
@@ -133,7 +135,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.Members = typeof(T).GetProperties()
                         .ToDictionary(i => i.Name, i => (MemberAttribute)Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute { Name = i.Name });
 
-                    // and add evential Fields.
+                    // and then add Fields.
                     var FieldDefinitions = typeof(T).GetFields()
                         .ToDictionary(i => i.Name, i => (MemberAttribute)Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute { Name = i.Name });
 
@@ -174,7 +176,7 @@ namespace Zen.Base.Module
                         Current.Environment?.Current?.Code;
 
                     Info<T>.Settings.State.Step = "Setting up Reference Bundle";
-                    var refBundle = Info<T>.Configuration?.ConnectionBundleType ?? Current.GlobalConnectionBundleType;
+                    var refBundle = Info<T>.Configuration?.ConnectionBundleType ?? Instances.ServiceProvider.GetService<IConnectionBundleProvider>().DefaultBundleType;
 
                     if (refBundle == null)
                     {
@@ -182,24 +184,24 @@ namespace Zen.Base.Module
                         return;
                     }
 
-                    var refType = (ConnectionBundlePrimitive)Activator.CreateInstance(refBundle);
+                    var connectionBundleInstance = refBundle.CreateInstance<IConnectionBundle>();
 
                     Info<T>.Settings.Adapter = GetDataAdapter();
 
                     if (Info<T>.Settings.Adapter == null)
                     {
-                        Info<T>.Settings.Bundle = refType;
-                        Info<T>.Settings.Bundle.Validate(ConnectionBundlePrimitive.EValidationScope.Database);
+                        Info<T>.Settings.Bundle = connectionBundleInstance;
+                        Info<T>.Settings.Bundle.Validate(EValidationScope.Database);
 
-                        if (refType.AdapterType == null)
+                        if (connectionBundleInstance.AdapterType == null)
                         {
                             Info<T>.Settings.State.Set<T>(Settings.EStatus.CriticalFailure, "No AdapterType defined on bundle");
                             return;
                         }
 
-                        Info<T>.Settings.Adapter = (DataAdapterPrimitive)Activator.CreateInstance(refType.AdapterType);
+                        Info<T>.Settings.Adapter = connectionBundleInstance.AdapterType.CreateInstance<DataAdapterPrimitive>();
 
-                        Info<T>.Settings.Adapter.SourceBundle = refType;
+                        Info<T>.Settings.Adapter.SourceBundle = connectionBundleInstance;
 
                         if (Info<T>.Settings.Adapter == null)
                         {
@@ -209,11 +211,10 @@ namespace Zen.Base.Module
 
                         Info<T>.Settings.State.Step = "Setting up CypherKeys";
                         Info<T>.Settings.ConnectionCypherKeys =
-                            Info<T>.Settings?.ConnectionCypherKeys ?? refType?.ConnectionCypherKeys;
+                            Info<T>.Settings?.ConnectionCypherKeys ?? connectionBundleInstance?.ConnectionCypherKeys;
 
                         Info<T>.Settings.State.Step = "Determining CredentialSets to use";
-                        Info<T>.Settings.CredentialSet =
-                            Factory.GetCredentialSetPerConnectionBundle(Info<T>.Settings.Bundle, Info<T>.Configuration?.CredentialSetType);
+                        Info<T>.Settings.CredentialSet = Info<T>.Settings.Bundle.GetCredentialSet(Info<T>.Configuration?.CredentialSetType);
 
                         //if (Info<T>.Settings.CredentialSet!= null)
                         //    Info<T>.Settings.Statistics["Settings.CredentialSet"] =
@@ -243,7 +244,7 @@ namespace Zen.Base.Module
 
                     if (!Info<T>.Settings.Silent)
                     {
-                        Events.AddLog($"{Info<T>.Settings.TypeQualifiedName}", $"Ready | {Info<T>.Settings.EnvironmentCode} + {refType.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
+                        Events.AddLog($"{Info<T>.Settings.TypeQualifiedName}", $"Ready | {Info<T>.Settings.EnvironmentCode} + {connectionBundleInstance.GetType().Name} + {Info<T>.Settings.Adapter.ReferenceCollectionName}");
 
                         var moreInfo = new List<string>();
 
@@ -269,7 +270,7 @@ namespace Zen.Base.Module
                     Info<T>.Settings.State.Stack = new StackTrace(e, true).FancyString();
 
                     var refEx = e;
-                    while (refEx.InnerException!= null)
+                    while (refEx.InnerException != null)
                     {
                         refEx = e.InnerException;
                         Info<T>.Settings.State.Description += " / " + refEx.Message;
@@ -320,7 +321,7 @@ namespace Zen.Base.Module
                 case EActionType.Insert:
                 case EActionType.Update:
                 case EActionType.Remove:
-                    if (Info<T>.Configuration!= null)
+                    if (Info<T>.Configuration != null)
                         if (Info<T>.Configuration.IsReadOnly)
                             throw new Exception("This model is set as read-only.");
                     break;
@@ -360,7 +361,7 @@ namespace Zen.Base.Module
             if (value.IsNumeric()) value = Convert.ToInt64(value);
 
             var refField = GetType().GetField(Info<T>.Settings.KeyMemberName);
-            if (refField!= null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
+            if (refField != null) refField.SetValue(oRef, Convert.ChangeType(value, refField.FieldType));
             {
                 var refProp = GetType().GetProperty(Info<T>.Settings.KeyMemberName);
                 refProp?.SetValue(oRef, Convert.ChangeType(value, refProp.PropertyType));
@@ -500,7 +501,7 @@ namespace Zen.Base.Module
 
             keyList = keyList.Distinct().ToList();
 
-            if (Info<T>.Settings.KeyMemberName!= null) return FetchSet(keyList).Values;
+            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keyList).Values;
 
             if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
             throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
@@ -776,7 +777,7 @@ namespace Zen.Base.Module
             foreach (var model in cachedSet) model.AfterGet();
 
             // Now we fill the map with the missing models that we sucessfully fetched.
-            foreach (var model in cachedSet.Where(model => model!= null))
+            foreach (var model in cachedSet.Where(model => model != null))
             {
                 var key = cacheKeyPrefix + model.GetDataKey();
                 fetchMap[key] = model;

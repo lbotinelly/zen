@@ -3,10 +3,12 @@ using System.Collections.Generic;
 
 namespace Zen.Base.Module.Data.Connection
 {
-    public interface IConnectionBundlePrimitive
+    public enum EValidationScope { Database }
+    public interface IConnectionBundle
     {
+        string Code { get; }
         Type AdapterType { get; set; }
         Dictionary<string, string> ConnectionCypherKeys { get; set; }
-        void Validate(ConnectionBundlePrimitive.EValidationScope scope);
+        void Validate(EValidationScope scope);
     }
 }

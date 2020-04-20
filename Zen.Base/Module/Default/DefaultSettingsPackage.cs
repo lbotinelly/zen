@@ -1,34 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using Zen.Base.Common;
-using Zen.Base.Module.Cache;
-using Zen.Base.Module.Encryption;
+﻿using Zen.Base.Common;
 using Zen.Base.Module.Environment;
 using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Default
 {
     [Priority(Level = -3)]
-    internal class DefaultSettingsPackage : IConfigurationPackage
+    internal class DefaultSettingsPackage : ConfigurationPackagePrimitive
     {
-        public ILogProvider Log { get; set; }
-        public ICacheProvider Cache { get; set; }
-        public IEnvironmentProvider Environment { get; set; }
-        public IEncryptionProvider Encryption { get; set; }
-        public Type GlobalConnectionBundleType { get; set; }
-        public string WebApiCORSDomains { get; set; }
-        public List<string> WebApiCORSDomainMasks { get; set; }
-
-        #region Implementation of IZenProvider
-
-        public void Initialize()
+        public  DefaultSettingsPackage()
         {
-            Log = new DefaultLogProvider();
-            Environment = new DefaultEnvironmentProvider();
-            GlobalConnectionBundleType = null;
-            WebApiCORSDomains = null;
+            SetPackage<ILogProvider>(typeof(DefaultLogProvider));
+            SetPackage<IEnvironmentProvider>(typeof(DefaultEnvironmentProvider));
         }
-
-        #endregion
     }
 }

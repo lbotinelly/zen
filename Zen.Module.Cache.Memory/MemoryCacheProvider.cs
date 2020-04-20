@@ -9,7 +9,7 @@ using Zen.Base.Module.Cache;
 namespace Zen.Module.Cache.Memory
 {
     [Priority(Level = -1)]
-    public class MemoryCacheProvider : PrimitiveCacheProvider
+    public class MemoryCacheProvider : CacheProviderPrimitive
     {
         private readonly IMemoryCache _memoryCache;
         private CancellationTokenSource _cts;
