@@ -6,7 +6,6 @@ namespace Zen.Base.Module.Default
     [Priority(Level = -2)]
     public class NullEncryptionProvider : EncryptionProviderPrimitive
     {
-        public override void Configure(params string[] oParms) { }
         public override string Decrypt(string pContent) { return pContent; }
 
         public override string Encrypt(string pContent) { return pContent; }

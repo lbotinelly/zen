@@ -19,5 +19,11 @@
         "ClientSecret": "4a3mb:2Pm[WQJ?fjYyhb0?BVQpIcdB.H"
       }
     }
+  },
+  "Encryption": {
+    "AES": {
+      "Key": "2314x# n07h1n9 15 und32 c0n7201#",
+      "InitializationVector": "57111 y0u2 w4732"
+    }
   }
 }

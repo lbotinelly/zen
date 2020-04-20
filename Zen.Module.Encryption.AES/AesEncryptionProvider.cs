@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Zen.Base;
 using Zen.Base.Common;
 using Zen.Base.Module.Encryption;
@@ -17,17 +17,8 @@ namespace Zen.Module.Encryption.AES
         private RijndaelManaged _aesAlg;
 
         private bool _isInitialized;
-        private string _rjiv;
-        private string _rjkey;
-
-        public override void Configure(params string[] oParms)
-        {
-            if (oParms.Length >= 1)
-                _rjkey = oParms[0];
-
-            if (oParms.Length >= 2)
-                _rjiv = oParms[1];
-        }
+        private readonly string _rjiv;
+        private readonly string _rjkey;
 
         public override void Initialize()
         {
@@ -37,9 +28,9 @@ namespace Zen.Module.Encryption.AES
 
         #region Instanced methods
 
-        public AesEncryptionProvider()
+        public AesEncryptionProvider(IOptions<AesEncryptionConfiguration.Options> options)
         {
-            Options = Configuration.Options.GetSection("Encryption:AES").Get<AesEncryptionOptions>();
+            Options = options.Value;
 
             _rjkey = Options?.Key ?? Strings.default_aes_key;
             // I know. Default key and vector for encryption, right? This is just a demo, though.
@@ -48,7 +39,7 @@ namespace Zen.Module.Encryption.AES
             //This class should be properly instanced via the constructor below:
         }
 
-        private AesEncryptionOptions Options { get; }
+        private AesEncryptionConfiguration.Options Options { get; }
 
         public AesEncryptionProvider(string key, string iv)
         {

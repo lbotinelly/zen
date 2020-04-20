@@ -2,7 +2,6 @@
     public abstract class EncryptionProviderPrimitive : IEncryptionProvider
     {
         public abstract void Initialize();
-        public abstract void Configure(params string[] oParms);
         public abstract string Decrypt(string pContent);
         public abstract string Encrypt(string pContent);
 

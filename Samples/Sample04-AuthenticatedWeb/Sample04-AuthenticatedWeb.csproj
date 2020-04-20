@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Cache.Memory\Zen.Module.Cache.Memory.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Facebook\Zen.Provider.Facebook.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.GitHub\Zen.Provider.GitHub.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Google\Zen.Provider.Google.csproj" />

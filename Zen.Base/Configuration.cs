@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -36,9 +37,18 @@ namespace Zen.Base
             serviceCollection.Configure<T>(c => SetOptions<T>(package, sectionCode));
         }
 
+        public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IEnumerable<IConfigurationPackage> packages, string sectionCode) where T : class where TU : class
+        {
+            var targetPackage = packages.FirstOrDefault(i => i.Provider.ContainsKey(typeof(T)));
+
+            serviceCollection.AddSingletonProvider<T, TU>(targetPackage, sectionCode);
+
+        }
+
+
         public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class where TU : class
         {
-            var targetProvider = package.Provider.ContainsKey(typeof(TU)) ? (Type)package.Provider[typeof(TU)] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
+            var targetProvider = package?.Provider?.ContainsKey(typeof(T)) == true ? (Type)package.Provider[typeof(T)] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
 
             if (targetProvider != null) serviceCollection.AddSingleton(typeof(T), targetProvider);
 

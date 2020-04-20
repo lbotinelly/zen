@@ -8,7 +8,5 @@ namespace Zen.Module.Data.LiteDB
     public class LiteDbDefaultBundle : ConnectionBundlePrimitive
     {
         public LiteDbDefaultBundle() => AdapterType = typeof(LiteDbAdapter);
-
-        public override string Code { get; } = "LiteDbDefaultBundle";
     }
 }

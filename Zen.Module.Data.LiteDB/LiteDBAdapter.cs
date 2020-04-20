@@ -31,7 +31,7 @@ namespace Zen.Module.Data.LiteDB
 
             _refType = typeof(T);
 
-            var statementsConnectionString = _statements.ConnectionString ?? Host.DataDirectory + Path.DirectorySeparatorChar + "lite.db";
+            var statementsConnectionString = _statements.ConnectionString ?? $"{Host.DataDirectory}{Path.DirectorySeparatorChar}lite.db";
             Database = Instances.GetDatabase(statementsConnectionString);
 
             _statements = Info<T>.Settings;

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Common;
 using Zen.Base.Extension;
@@ -17,14 +18,13 @@ namespace Zen.Base.Service
         {
             serviceCollection.AddOptions();
 
-            var configurationPackage = IoC.GetClassesByInterface<ConfigurationPackagePrimitive>(false).FirstOrDefault().CreateInstance<IConfigurationPackage>();
-            serviceCollection.AddSingleton(configurationPackage);
+            IEnumerable<IConfigurationPackage> configurationPackages = IoC.GetClassesByInterface<ConfigurationPackagePrimitive>(false).CreateInstances<IConfigurationPackage>().ToList();
 
-            serviceCollection.AddSingletonProvider<ILogProvider, LogOptions>(configurationPackage, "Log");
-            serviceCollection.AddSingletonProvider<IEnvironmentProvider, EnvironmentOptions>(configurationPackage, "Environment");
-            serviceCollection.AddSingletonProvider<ICacheProvider, CacheOptions>(configurationPackage, "Cache");
-            serviceCollection.AddSingletonProvider<IEncryptionProvider, EncryptionOptions>(configurationPackage, "Encryption");
-            serviceCollection.AddSingletonProvider<IConnectionBundleProvider, ConnectionBundleOptions>(configurationPackage, "ConnectionBundle");
+            serviceCollection.AddSingletonProvider<ILogProvider, LogOptions>(configurationPackages, "Log");
+            serviceCollection.AddSingletonProvider<IEnvironmentProvider, EnvironmentOptions>(configurationPackages, "Environment");
+            serviceCollection.AddSingletonProvider<ICacheProvider, CacheOptions>(configurationPackages, "Cache");
+            serviceCollection.AddSingletonProvider<IEncryptionProvider, EncryptionOptions>(configurationPackages, "Encryption");
+            serviceCollection.AddSingletonProvider<IConnectionBundleProvider, ConnectionBundleOptions>(configurationPackages, "ConnectionBundle");
 
             return serviceCollection;
         }
