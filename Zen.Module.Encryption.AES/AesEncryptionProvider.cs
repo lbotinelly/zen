@@ -2,13 +2,13 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Zen.Base;
 using Zen.Base.Common;
 using Zen.Base.Module.Encryption;
 
 namespace Zen.Module.Encryption.AES
 {
-
     [Priority(Level = -1)]
     public class AesEncryptionProvider : EncryptionProviderPrimitive
     {
@@ -20,16 +20,35 @@ namespace Zen.Module.Encryption.AES
         private string _rjiv;
         private string _rjkey;
 
+        public override void Configure(params string[] oParms)
+        {
+            if (oParms.Length >= 1)
+                _rjkey = oParms[0];
+
+            if (oParms.Length >= 2)
+                _rjiv = oParms[1];
+        }
+
+        public override void Initialize()
+        {
+            Events.StartupSequence.Actions.Add(InitSettings);
+            Events.ShutdownSequence.Actions.Add(Shutdown);
+        }
+
         #region Instanced methods
 
         public AesEncryptionProvider()
         {
-            _rjkey = Strings.default_aes_key;
+            Options = Configuration.Options.GetSection("Encryption:AES").Get<AesEncryptionOptions>();
+
+            _rjkey = Options?.Key ?? Strings.default_aes_key;
             // I know. Default key and vector for encryption, right? This is just a demo, though.
 
-            _rjiv = Strings.default_aes_vector;
+            _rjiv = Options?.InitializationVector ?? Strings.default_aes_vector;
             //This class should be properly instanced via the constructor below:
         }
+
+        private AesEncryptionOptions Options { get; }
 
         public AesEncryptionProvider(string key, string iv)
         {
@@ -63,6 +82,7 @@ namespace Zen.Module.Encryption.AES
                     }
                 }
             }
+
             return plaintext;
         }
 
@@ -112,21 +132,5 @@ namespace Zen.Module.Encryption.AES
         }
 
         #endregion
-
-        public override void Configure(params string[] oParms)
-        {
-            if (oParms.Length >= 1)
-                _rjkey = oParms[0];
-
-            if (oParms.Length >= 2)
-                _rjiv = oParms[1];
-        }
-
-        public override void Initialize()
-        {
-            Events.StartupSequence.Actions.Add(InitSettings);
-            Events.ShutdownSequence.Actions.Add(Shutdown);
-        }
-
     }
 }
