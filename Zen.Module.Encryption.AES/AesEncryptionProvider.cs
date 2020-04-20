@@ -13,12 +13,12 @@ namespace Zen.Module.Encryption.AES
     public class AesEncryptionProvider : EncryptionProviderPrimitive
     {
         private readonly object _lock = new object();
+        private readonly string _rjiv;
+        private readonly string _rjkey;
 
         private RijndaelManaged _aesAlg;
 
         private bool _isInitialized;
-        private readonly string _rjiv;
-        private readonly string _rjkey;
 
         public override void Initialize()
         {
