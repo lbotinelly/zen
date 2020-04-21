@@ -305,7 +305,7 @@ namespace Zen.Base.Module.Service
                             from target in item.GetTypes() // Get a list of all Types in the cached Assembly
                             where !target.IsInterface // that aren't interfaces
                             where !target.IsAbstract // and also not abstract (so it can be instantiated)
-                            where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), true).Any() // Must not be marked to be ignored
+                            where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
                             where targetType.IsAssignableFrom(target) // that can be assigned to the specified type
                             where targetType != target // (and obviously not the type itself)
                             select target;
