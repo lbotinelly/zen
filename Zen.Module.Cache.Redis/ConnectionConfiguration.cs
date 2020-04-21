@@ -2,7 +2,7 @@
 
 namespace Zen.Module.Cache.Redis
 {
-    public class RedisCacheConfiguration : ICacheConfiguration
+    public class ConnectionConfiguration : ICacheConfiguration
     {
         public string ConnectionString { get; set; }
         public int DatabaseIndex { get; set; }
