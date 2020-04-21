@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Zen.Base;
-using Zen.Base.Extension;
 
 namespace Zen.Web.Model.State
 {
@@ -18,9 +17,9 @@ namespace Zen.Web.Model.State
         private bool _isAvailable;
         private bool _isModified;
 
-        private ZenSession sourceModel = null;
-
         private IDictionary<string, byte[]> _store;
+
+        private ZenSession _sourceModel;
 
         public ZenDistributedSession(
             string sessionKey,
@@ -29,7 +28,7 @@ namespace Zen.Web.Model.State
             Func<bool> tryEstablishSession,
             bool isNewSessionKey)
         {
-            if (string.IsNullOrEmpty(sessionKey)) throw new ArgumentException(Strings.ArgumentCannotBeNullOrEmpty, nameof(sessionKey));
+            if (string.IsNullOrEmpty(sessionKey)) throw new ArgumentException(ConstantStrings.ArgumentCannotBeNullOrEmpty, nameof(sessionKey));
 
             Id = sessionKey;
             _idleTimeout = idleTimeout;
@@ -47,6 +46,7 @@ namespace Zen.Web.Model.State
                 return _isAvailable;
             }
         }
+
         public string Id { get; private set; }
 
         public IEnumerable<string> Keys
@@ -96,7 +96,7 @@ namespace Zen.Web.Model.State
         // This will throw if called directly and a failure occurs. The user is expected to handle the failures.
         public async Task LoadAsync(CancellationToken cancellationToken = default)
         {
-            if (sourceModel!= null)
+            if (_sourceModel != null)
             {
                 using (var timeout = new CancellationTokenSource(_ioTimeout))
                 {
@@ -142,13 +142,13 @@ namespace Zen.Web.Model.State
 
         private void Load()
         {
-            if (sourceModel!= null) return;
+            if (_sourceModel != null) return;
 
             try
             {
-                sourceModel = ZenSession.Get(Id) ?? new ZenSession() { Id = Id };
+                _sourceModel = ZenSession.Get(Id) ?? new ZenSession {Id = Id};
 
-                if (sourceModel!= null) FetchFromSourceModel();
+                if (_sourceModel != null) FetchFromSourceModel();
 
                 _isAvailable = true;
                 _isModified = false;
@@ -168,7 +168,7 @@ namespace Zen.Web.Model.State
         {
             try
             {
-                var session = ZenSession.Get(Id) ?? new ZenSession { Id = Id };
+                var session = ZenSession.Get(Id) ?? new ZenSession {Id = Id};
 
                 var mustSave = _isModified || session.LastUpdate?.AddSeconds(60) < DateTime.Now;
 
@@ -187,7 +187,7 @@ namespace Zen.Web.Model.State
 
         private void FetchFromSourceModel()
         {
-            _store = sourceModel?.Store ?? new ConcurrentDictionary<string, byte[]>();
+            _store = _sourceModel?.Store ?? new ConcurrentDictionary<string, byte[]>();
 
             // Want a nice stackOverflowException? Allow the next line to run. (loop on Log generation, because of attempted User resolution)
             // Base.Current.Log.Info<ZenDistributedSession>("Session Loaded"); 

@@ -10,7 +10,7 @@ namespace Zen.Web.Model.State {
 
         public ISession Create(string sessionKey, TimeSpan idleTimeout, TimeSpan ioTimeout, Func<bool> tryEstablishSession, bool isNewSessionKey)
         {
-            if (string.IsNullOrEmpty(sessionKey)) throw new ArgumentException(Strings.ArgumentCannotBeNullOrEmpty, nameof(sessionKey));
+            if (string.IsNullOrEmpty(sessionKey)) throw new ArgumentException(ConstantStrings.ArgumentCannotBeNullOrEmpty, nameof(sessionKey));
 
             if (tryEstablishSession == null) throw new ArgumentNullException(nameof(tryEstablishSession));
 

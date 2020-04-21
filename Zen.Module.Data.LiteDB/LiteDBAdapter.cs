@@ -49,7 +49,6 @@ namespace Zen.Module.Data.LiteDB
             return (ILiteCollection<T>)_Collection;
         }
 
-
         private void SetBaseCollectionName()
         {
             _collectionNamespace = _tabledata?.SetPrefix ?? _statements.TypeNamespace;
@@ -96,15 +95,9 @@ namespace Zen.Module.Data.LiteDB
             return modelBuffer.ToJson().FromJson<List<TU>>();
         }
 
-        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null)
-        {
-            return Query<T, TU>(mutator.ToQueryExpression());
-        }
+        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null) => Query<T, TU>(mutator.ToQueryExpression());
 
-        public override long Count<T>(Mutator mutator = null)
-        {
-            return Collection<T>().Count();
-        }
+        public override long Count<T>(Mutator mutator = null) => Collection<T>().Count();
 
         public override T Insert<T>(T model, Mutator mutator = null)
         {
@@ -112,10 +105,7 @@ namespace Zen.Module.Data.LiteDB
             return model;
         }
 
-        public override T Save<T>(T model, Mutator mutator = null)
-        {
-            return Upsert(model);
-        }
+        public override T Save<T>(T model, Mutator mutator = null) => Upsert(model);
 
         public override T Upsert<T>(T model, Mutator mutator = null)
         {
@@ -123,20 +113,11 @@ namespace Zen.Module.Data.LiteDB
             return model;
         }
 
-        public override void Remove<T>(string key, Mutator mutator = null)
-        {
-            Collection<T>().Delete(key);
-        }
+        public override void Remove<T>(string key, Mutator mutator = null) => Collection<T>().Delete(key);
 
-        public override void Remove<T>(T model, Mutator mutator = null)
-        {
-            Remove<T>(model.GetDataKey(), mutator);
-        }
+        public override void Remove<T>(T model, Mutator mutator = null) => Remove<T>(model.GetDataKey(), mutator);
 
-        public override void RemoveAll<T>(Mutator mutator = null)
-        {
-            Collection<T>().DeleteMany("1=1");
-        }
+        public override void RemoveAll<T>(Mutator mutator = null) => Collection<T>().DeleteMany("1=1");
 
         public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null)
         {
@@ -176,8 +157,7 @@ namespace Zen.Module.Data.LiteDB
             throw new NotImplementedException();
         }
 
-        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier,
-            bool flushDestination = false)
+        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
         {
             throw new NotImplementedException();
         }
@@ -187,8 +167,6 @@ namespace Zen.Module.Data.LiteDB
             return Collection<T>().Find(predicate);
         }
 
-        public override void Initialize<T>()
-        {
-        }
+        public override void Initialize<T>() { }
     }
 }

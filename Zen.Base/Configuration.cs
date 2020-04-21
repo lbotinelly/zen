@@ -28,7 +28,7 @@ namespace Zen.Base
 
         public static T SetOptions<T>(IConfigurationPackage package, string sectionCode) where T : class
         {
-            if (package?.Provider[typeof(T)] != null) return (T)package.Provider[typeof(T)];
+            if (package?.Provider[typeof(T)] != null) return (T) package.Provider[typeof(T)];
             return IoC.GetClassesByInterface<T>(false).FirstOrDefault()?.CreateInstance<T>() ?? Options.GetSection(sectionCode).Get<T>();
         }
 
@@ -42,17 +42,26 @@ namespace Zen.Base
             var targetPackage = packages.FirstOrDefault(i => i.Provider.ContainsKey(typeof(T)));
 
             serviceCollection.AddSingletonProvider<T, TU>(targetPackage, sectionCode);
-
         }
-
 
         public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class where TU : class
         {
-            var targetProvider = package?.Provider?.ContainsKey(typeof(T)) == true ? (Type)package.Provider[typeof(T)] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
+            var targetProvider = package?.Provider?.ContainsKey(typeof(T)) == true ? (Type) package.Provider[typeof(T)] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
 
             if (targetProvider != null) serviceCollection.AddSingleton(typeof(T), targetProvider);
 
             serviceCollection.SetOptions<TU>(package, sectionCode);
+        }
+
+        public static TInterface GetSettings<TInterface, TConcrete>(this TConcrete options, string sectionKey) where TInterface : class where TConcrete : TInterface
+        {
+            var configOptions =
+                IoC.GetClassesByInterface<TInterface>().FirstOrDefault()?.ToInstance<TInterface>() ??
+                Options.GetSection(sectionKey).Get<TConcrete>();
+
+            configOptions.CopyProperties(options);
+
+            return configOptions;
         }
     }
 }

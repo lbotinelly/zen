@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Zen.Base {
+namespace Zen.Module.Encryption.AES {
     using System;
     
     
@@ -19,27 +19,27 @@ namespace Zen.Base {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class Strings {
+    internal class ConstantStrings {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Strings() {
+        internal ConstantStrings() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Zen.Base.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Zen.Module.Encryption.AES.ConstantStrings", typeof(ConstantStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace Zen.Base {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,56 +61,20 @@ namespace Zen.Base {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Argument cannot be null or empty.
+        ///   Looks up a localized string similar to AES key must be 32 characters long.
         /// </summary>
-        public static string ArgumentCannotBeNullOrEmpty {
+        internal static string KeySizeException {
             get {
-                return ResourceManager.GetString("ArgumentCannotBeNullOrEmpty", resourceCulture);
+                return ResourceManager.GetString("KeySizeException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 2314x# n07h1n9 15 und32 c0n7201#.
+        ///   Looks up a localized string similar to AES vector must be 16 characters long.
         /// </summary>
-        public static string default_aes_key {
+        internal static string VectorSizeException {
             get {
-                return ResourceManager.GetString("default_aes_key", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to 57111 y0u2 w4732.
-        /// </summary>
-        public static string default_aes_vector {
-            get {
-                return ResourceManager.GetString("default_aes_vector", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An AES key must be 32 characters long..
-        /// </summary>
-        public static string encryption_aes_key_length_err {
-            get {
-                return ResourceManager.GetString("encryption_aes_key_length_err", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An AES vector must be 16 characters long..
-        /// </summary>
-        public static string encryption_aes_vector_length_err {
-            get {
-                return ResourceManager.GetString("encryption_aes_vector_length_err", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to zen_ver_core_2_2.
-        /// </summary>
-        public static string zen_ver {
-            get {
-                return ResourceManager.GetString("zen_ver", resourceCulture);
+                return ResourceManager.GetString("VectorSizeException", resourceCulture);
             }
         }
     }

@@ -117,24 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="default_aes_key" xml:space="preserve">
-    <value>2314x# n07h1n9 15 und32 c0n7201#</value>
-    <comment>Default AES key</comment>
+  <data name="KeySizeException" xml:space="preserve">
+    <value>AES key must be 32 characters long</value>
   </data>
-  <data name="default_aes_vector" xml:space="preserve">
-    <value>57111 y0u2 w4732</value>
-    <comment>Default AES vector</comment>
-  </data>
-  <data name="encryption_aes_key_length_err" xml:space="preserve">
-    <value>An AES key must be 32 characters long.</value>
-  </data>
-  <data name="encryption_aes_vector_length_err" xml:space="preserve">
-    <value>An AES vector must be 16 characters long.</value>
-  </data>
-  <data name="zen_ver" xml:space="preserve">
-    <value>zen_ver_core_2_2</value>
-  </data>
-  <data name="ArgumentCannotBeNullOrEmpty" xml:space="preserve">
-    <value>Argument cannot be null or empty</value>
+  <data name="VectorSizeException" xml:space="preserve">
+    <value>AES vector must be 16 characters long</value>
   </data>
 </root>

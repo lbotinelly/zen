@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using Zen.Base.Common;
+using Zen.Base.Module.Service;
 
 namespace Zen.Module.Encryption.AES
 {
@@ -21,11 +21,11 @@ namespace Zen.Module.Encryption.AES
             string InitializationVector { get; }
         }
 
-        [Priority(Level = -1)]
+        [IoCIgnore]
         public class Options : IOptions
         {
-            public string Key { get; internal set; }
-            public string InitializationVector { get; internal set; }
+            public string Key { get; set; }
+            public string InitializationVector { get; set; }
         }
     }
 }
