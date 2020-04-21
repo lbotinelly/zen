@@ -11,8 +11,6 @@ namespace Zen.Base.Module.Default
 
         public string Name { get; } = "No Cache";
         public string ModelKey(object model) => null;
-
-        public Dictionary<string, ICacheConfiguration> EnvironmentConfiguration { get; set; } = null;
         public EOperationalStatus OperationalStatus { get; } = EOperationalStatus.NonOperational;
         public IEnumerable<string> GetKeys(string oNamespace = null) => null;
 

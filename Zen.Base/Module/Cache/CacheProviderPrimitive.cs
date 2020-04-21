@@ -41,7 +41,6 @@ namespace Zen.Base.Module.Cache
             }
         }
 
-        public Dictionary<string, ICacheConfiguration> EnvironmentConfiguration { get; set; }
         public EOperationalStatus OperationalStatus { get; set; } = EOperationalStatus.Undefined;
         public abstract IEnumerable<string> GetKeys(string oNamespace = null);
         public abstract bool Contains(string key);

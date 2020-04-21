@@ -6,9 +6,8 @@ namespace Zen.Base.Module.Cache
     public interface ICacheProvider : IZenProvider
     {
         string Name { get; }
-        string ModelKey(object model);
-        Dictionary<string, ICacheConfiguration> EnvironmentConfiguration { get; set; }
         EOperationalStatus OperationalStatus { get; }
+        string ModelKey(object model);
         IEnumerable<string> GetKeys(string oNamespace = null);
         bool Contains(string key);
         void Remove(string key);
