@@ -12,11 +12,11 @@ namespace Zen.Module.Encryption.AES
     public class AesEncryptionProvider : EncryptionProviderPrimitive
     {
         private readonly RijndaelManaged _aesAlg;
-        private AesEncryptionConfiguration.Options Options { get; }
+        private Configuration.Options Options { get; }
         public override void Initialize() { }
 
-        public AesEncryptionProvider(IOptions<AesEncryptionConfiguration.Options> options) : this(options.Value) { }
-        public AesEncryptionProvider(AesEncryptionConfiguration.Options options)
+        public AesEncryptionProvider(IOptions<Configuration.Options> options) : this(options.Value) { }
+        public AesEncryptionProvider(Configuration.Options options)
         {
             Options = options;
 

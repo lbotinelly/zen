@@ -8,7 +8,7 @@ namespace Zen.Module.Encryption.AES
     {
         public void Add(IServiceCollection services)
         {
-            services.Configure<AesEncryptionConfiguration.Options>(options => options.GetSettings<AesEncryptionConfiguration.IOptions, AesEncryptionConfiguration.Options>("Encryption:AES"));
+            services.Configure<Configuration.Options>(options => options.GetSettings<Configuration.IOptions, Configuration.Options>("Encryption:AES"));
         }
     }
 }
