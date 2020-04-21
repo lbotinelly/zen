@@ -170,11 +170,7 @@ namespace Zen.Module.Cache.Redis
             try
             {
                 ServerName = _currentServer.Split(',')[0];
-
-
                 _currentServer = _encryptionProvider.TryDecrypt(_currentServer);
-
-
                 Events.AddLog("Redis server", _currentServer.SafeArray("password"));
 
                 _redis = ConnectionMultiplexer.Connect(_currentServer);
