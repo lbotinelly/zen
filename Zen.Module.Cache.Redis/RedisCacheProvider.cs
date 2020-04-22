@@ -54,9 +54,7 @@ namespace Zen.Module.Cache.Redis
 
             try
             {
-                var db = _redis.GetDatabase(DatabaseIndex);
-                var res = db.KeyExists(key);
-                return res;
+                return _redis.GetDatabase(DatabaseIndex).KeyExists(key);
             }
             catch (Exception)
             {
@@ -160,7 +158,7 @@ namespace Zen.Module.Cache.Redis
 
         private readonly IEnvironmentProvider _environmentProvider;
         private readonly IEncryptionProvider _encryptionProvider;
-        private Configuration.Options _options;
+        private readonly Configuration.Options _options;
 
         private static int DatabaseIndex { get; set; } = -1;
         internal string ServerName { get; private set; }
@@ -174,12 +172,14 @@ namespace Zen.Module.Cache.Redis
                 Events.AddLog("Redis server", _currentServer.SafeArray("password"));
 
                 _redis = ConnectionMultiplexer.Connect(_currentServer);
+
                 OperationalStatus = EOperationalStatus.Operational;
 
             }
             catch (Exception e)
             {
                 OperationalStatus = EOperationalStatus.NonOperational;
+
                 Events.AddLog("REDIS server", "Unavailable - running on direct database mode");
                 Current.Log.KeyValuePair("REDIS server", "Unavailable - running on direct database mode", Message.EContentType.Warning);
                 Current.Log.Add(e);
