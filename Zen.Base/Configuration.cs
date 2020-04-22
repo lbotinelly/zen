@@ -26,23 +26,17 @@ namespace Zen.Base
 
         public static IConfigurationRoot Options { get; }
 
-        public static T SetOptions<T>(IConfigurationPackage package, string sectionCode) where T : class
-        {
-            if (package?.Provider[typeof(T)] != null) return (T) package.Provider[typeof(T)];
-            return IoC.GetClassesByInterface<T>(false).FirstOrDefault()?.CreateInstance<T>() ?? Options.GetSection(sectionCode).Get<T>();
-        }
+        public static T SetOptions<T>(IConfigurationPackage package, string sectionCode) where T : class =>
+            package?.Provider[typeof(T)] != null
+                ? (T) package.Provider[typeof(T)]
+                : IoC.GetClassesByInterface<T>(false).FirstOrDefault()?.CreateInstance<T>() ??
+                  Options.GetSection(sectionCode).Get<T>();
 
-        public static void SetOptions<T>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class
-        {
+        public static void SetOptions<T>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class => 
             serviceCollection.Configure<T>(c => SetOptions<T>(package, sectionCode));
-        }
 
-        public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IEnumerable<IConfigurationPackage> packages, string sectionCode) where T : class where TU : class
-        {
-            var targetPackage = packages.FirstOrDefault(i => i.Provider.ContainsKey(typeof(T)));
-
-            serviceCollection.AddSingletonProvider<T, TU>(targetPackage, sectionCode);
-        }
+        public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IEnumerable<IConfigurationPackage> packages, string sectionCode) where T : class where TU : class => 
+            serviceCollection.AddSingletonProvider<T, TU>(packages.FirstOrDefault(i => i.Provider.ContainsKey(typeof(T))), sectionCode);
 
         public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class where TU : class
         {
