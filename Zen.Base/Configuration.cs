@@ -32,17 +32,21 @@ namespace Zen.Base
                 : IoC.GetClassesByInterface<T>(false).FirstOrDefault()?.CreateInstance<T>() ??
                   Options.GetSection(sectionCode).Get<T>();
 
-        public static void SetOptions<T>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class => 
-            serviceCollection.Configure<T>(c => SetOptions<T>(package, sectionCode));
+        public static void SetOptions<T>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class => serviceCollection.Configure<T>(c => SetOptions<T>(package, sectionCode));
 
-        public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IEnumerable<IConfigurationPackage> packages, string sectionCode) where T : class where TU : class => 
-            serviceCollection.AddSingletonProvider<T, TU>(packages.FirstOrDefault(i => i.Provider.ContainsKey(typeof(T))), sectionCode);
+        public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IEnumerable<IConfigurationPackage> packages, string sectionCode) where T : class where TU : class => serviceCollection.AddSingletonProvider<T, TU>(packages.FirstOrDefault(i => i.Provider.ContainsKey(typeof(T))), sectionCode);
 
         public static void AddSingletonProvider<T, TU>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class where TU : class
         {
-            var targetProvider = package?.Provider?.ContainsKey(typeof(T)) == true ? (Type) package.Provider[typeof(T)] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
+            var targetType = typeof(T);
 
-            if (targetProvider != null) serviceCollection.AddSingleton(typeof(T), targetProvider);
+            var targetProvider = package?.Provider?.ContainsKey(targetType) == true ? (Type) package.Provider[targetType] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
+
+            if (targetProvider != null)
+            {
+                serviceCollection.AddSingleton(typeof(T), targetProvider);
+                Status.Providers.Add(targetType);
+            }
 
             serviceCollection.SetOptions<TU>(package, sectionCode);
         }
