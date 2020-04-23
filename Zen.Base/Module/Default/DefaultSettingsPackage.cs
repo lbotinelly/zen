@@ -7,10 +7,11 @@ namespace Zen.Base.Module.Default
     [Priority(Level = -3)]
     internal class DefaultSettingsPackage : ConfigurationPackagePrimitive
     {
-        public  DefaultSettingsPackage()
+        public DefaultSettingsPackage()
         {
             SetPackage<ILogProvider>(typeof(DefaultLogProvider));
             SetPackage<IEnvironmentProvider>(typeof(DefaultEnvironmentProvider));
+            OperationalStatus = EOperationalStatus.Operational;
         }
     }
 }

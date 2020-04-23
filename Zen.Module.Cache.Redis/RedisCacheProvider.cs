@@ -135,8 +135,7 @@ namespace Zen.Module.Cache.Redis
                 Current.Log.Add($"REDIS: {e.Message}", Message.EContentType.Exception);
             }
         }
-
-        public override string Name { get; } = "Redis";
+        public override string GetState() => $"{OperationalStatus} | {_descriptor}";
 
         #region driver-specific implementation
 
@@ -159,6 +158,7 @@ namespace Zen.Module.Cache.Redis
         private readonly IEnvironmentProvider _environmentProvider;
         private readonly IEncryptionProvider _encryptionProvider;
         private readonly Configuration.Options _options;
+        private string _descriptor;
 
         private static int DatabaseIndex { get; set; } = -1;
         internal string ServerName { get; private set; }
@@ -169,7 +169,9 @@ namespace Zen.Module.Cache.Redis
             {
                 ServerName = _currentServer.Split(',')[0];
                 _currentServer = _encryptionProvider.TryDecrypt(_currentServer);
-                Events.AddLog("Redis server", _currentServer.SafeArray("password"));
+                _descriptor = _currentServer.SafeArray("password");
+
+                Events.AddLog("Redis server", _descriptor);
 
                 _redis = ConnectionMultiplexer.Connect(_currentServer);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module.Data.CommonAttributes;
 
@@ -46,7 +47,7 @@ namespace Zen.Base.Module.Cache
         public abstract bool Contains(string key);
         public abstract void Remove(string key);
         public abstract void RemoveAll();
-        public abstract string Name { get; }
+        public abstract string GetState();
         public string ModelKey(object model)
         {
             var modelKey = model is IDataId id ? id.Id : model.GetHashCode().ToString();

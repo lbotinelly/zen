@@ -7,8 +7,8 @@ namespace Zen.Base.Module.Default
     [Priority(Level = -2)]
     public class NullCacheProvider : ICacheProvider
     {
+        public virtual string GetState() => $"{OperationalStatus}";
         public void Initialize() { }
-
         public string Name { get; } = "No Cache";
         public string ModelKey(object model) => null;
         public EOperationalStatus OperationalStatus { get; } = EOperationalStatus.NonOperational;

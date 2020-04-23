@@ -15,14 +15,13 @@ namespace Zen.Module.Cache.Memory
         private CancellationTokenSource _cts;
         private MemoryCacheEntryOptions _mceo;
         public MemoryCacheProvider(IMemoryCache memoryCache) => _memoryCache = memoryCache;
-
-        public override string Name { get; } = "In-memory cache";
-
         public override void Initialize()
         {
             InitializeResetToken();
             OperationalStatus = EOperationalStatus.Operational;
         }
+
+        public override string GetState() => $"{OperationalStatus}";
 
         public override IEnumerable<string> GetKeys(string oNamespace) => throw new NotImplementedException();
 

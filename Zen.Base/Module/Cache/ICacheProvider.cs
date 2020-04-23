@@ -5,8 +5,6 @@ namespace Zen.Base.Module.Cache
 {
     public interface ICacheProvider : IZenProvider
     {
-        string Name { get; }
-        EOperationalStatus OperationalStatus { get; }
         string ModelKey(object model);
         IEnumerable<string> GetKeys(string oNamespace = null);
         bool Contains(string key);
