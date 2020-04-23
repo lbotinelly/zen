@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Zen.Base.Common;
 using Zen.Base.Extension;
 
 namespace Zen.Base.Module.Cache
@@ -10,7 +11,7 @@ namespace Zen.Base.Module.Cache
         {
             if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return default;
             var serializedModel = Current.Cache.Get<T>(typeof(T).CacheKey(key));
-            return serializedModel == null ? default(T) : serializedModel;
+            return serializedModel == null ? default : serializedModel;
         }
 
         public static List<T> FetchSet<T>(Func<string, List<T>> method, string key)
@@ -19,7 +20,7 @@ namespace Zen.Base.Module.Cache
 
             var cacheKey = typeof(T).CacheKey(key);
             var cacheModel = Current.Cache.Get<List<T>>(cacheKey);
-            if (cacheModel!= null) return cacheModel;
+            if (cacheModel != null) return cacheModel;
 
             cacheModel = method(key);
 
@@ -42,7 +43,7 @@ namespace Zen.Base.Module.Cache
 
             var cacheModel = Current.Cache.Get<T>(cacheKey);
 
-            if (cacheModel!= null) return cacheModel;
+            if (cacheModel != null) return cacheModel;
 
             cacheModel = method(key);
 
@@ -50,6 +51,7 @@ namespace Zen.Base.Module.Cache
 
             return cacheModel;
         }
+
         public static T FetchModel<T, TU>(Func<TU, T> method, TU parameter, string key, string baseType = null)
         {
             if (Current.Cache.OperationalStatus != EOperationalStatus.Operational) return method(parameter);
@@ -58,7 +60,7 @@ namespace Zen.Base.Module.Cache
 
             var cacheModel = Current.Cache.Get<T>(cacheKey);
 
-            if (cacheModel!= null) return cacheModel;
+            if (cacheModel != null) return cacheModel;
 
             cacheModel = method(parameter);
 
@@ -72,7 +74,10 @@ namespace Zen.Base.Module.Cache
             Current.Cache.Set(model, typeof(T).CacheKey(key));
         }
 
-        public static void FlushModel<T>() { FlushModel<T>("s"); }
+        public static void FlushModel<T>()
+        {
+            FlushModel<T>("s");
+        }
 
         public static void FlushModel<T>(string key, string fullNameAlias = null)
         {
@@ -107,9 +112,13 @@ namespace Zen.Base.Module.Cache
                             throw new ArgumentOutOfRangeException("Invalid cache source - list contains primitive type. Specify nameSpace.");
                         else
                             cacheKey = typeof(T).GetGenericArguments()[0].CacheKey("s");
-                } catch { }
+                }
+                catch { }
             }
-            else { cacheKey = nameSpace + ":s"; }
+            else
+            {
+                cacheKey = nameSpace + ":s";
+            }
 
             Current.Cache.Remove(cacheKey);
         }
@@ -130,17 +139,20 @@ namespace Zen.Base.Module.Cache
                     else
                         cacheKey = typeof(T).GetGenericArguments()[0].CacheKey("s");
             }
-            else { cacheKey = nameSpace + ":s"; }
+            else
+            {
+                cacheKey = nameSpace + ":s";
+            }
 
             if (singletonLock == null) singletonLock = new object();
 
             var cacheModel = Current.Cache.Get<T>(cacheKey);
-            if (cacheModel!= null) return cacheModel;
+            if (cacheModel != null) return cacheModel;
 
             lock (singletonLock)
             {
                 cacheModel = Current.Cache.Get<T>(cacheKey);
-                if (cacheModel!= null) return cacheModel;
+                if (cacheModel != null) return cacheModel;
 
                 var ret = method();
 
