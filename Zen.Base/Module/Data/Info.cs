@@ -1,4 +1,5 @@
 ﻿using System;
+using Zen.Base.Common;
 using Zen.Base.Module.Cache;
 
 // ReSharper disable InconsistentNaming

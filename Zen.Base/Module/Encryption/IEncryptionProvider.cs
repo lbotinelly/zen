@@ -8,7 +8,5 @@ namespace Zen.Base.Module.Encryption
         string Encrypt(string pContent);
         string TryDecrypt(string pContent);
         string TryEncrypt(string pContent);
-
-        
     }
 }

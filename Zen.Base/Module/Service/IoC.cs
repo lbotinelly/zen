@@ -24,7 +24,7 @@ namespace Zen.Base.Module.Service
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        private static readonly List<string> IgnoreList = new List<string> {"System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle"};
+        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle" };
 
         static IoC()
         {
@@ -72,8 +72,7 @@ namespace Zen.Base.Module.Service
             }
 
             Base.Log.KeyValuePair("Assembly Loader", $"{AssemblyLoadMap.Count} assemblies registered", Message.EContentType.StartupSequence);
-
-            foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap)) Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
+            // foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap)) Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
         }
 
         public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class
@@ -233,20 +232,20 @@ namespace Zen.Base.Module.Service
                 try
                 {
                     foreach (var asy in AssemblyLoadMap.Values.ToList())
-                    foreach (var st in asy.GetTypes())
-                    {
-                        if (st.BaseType == null) continue;
-                        if (!st.BaseType.IsGenericType) continue;
-                        if (st == refType) continue;
-
-                        try
+                        foreach (var st in asy.GetTypes())
                         {
-                            foreach (var gta in st.BaseType.GenericTypeArguments)
-                                if (gta == refType)
-                                    classCol.Add(st);
+                            if (st.BaseType == null) continue;
+                            if (!st.BaseType.IsGenericType) continue;
+                            if (st == refType) continue;
+
+                            try
+                            {
+                                foreach (var gta in st.BaseType.GenericTypeArguments)
+                                    if (gta == refType)
+                                        classCol.Add(st);
+                            }
+                            catch { }
                         }
-                        catch { }
-                    }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
                 }
@@ -326,7 +325,7 @@ namespace Zen.Base.Module.Service
                 }
 
                 var typesByPriorityLevelMap = globalTypeList
-                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute) i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
                     .OrderBy(i => -i.Key);
 
                 var typesByPriorityLevel = typesByPriorityLevelMap

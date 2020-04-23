@@ -24,7 +24,7 @@ namespace Zen.Module.Cache.Redis
         }
 
         [Priority(Level = -99)]
-        public class AutoOptions : IOptions
+        public class AutoOptions : IOptions  // If nothing else is defined, AutoOptions kicks in.
         {
             public AutoOptions()
             {
