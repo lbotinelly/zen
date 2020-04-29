@@ -4,41 +4,30 @@
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AssemblyName>Zen.Module.Data.Relational</AssemblyName>
-    <RootNamespace>Zen.Module.Data.Relational</RootNamespace>
+    <AssemblyName>Zen.Module.Data.MySql</AssemblyName>
+    <RootNamespace>Zen.Module.Data.MySql</RootNamespace>
     <Version>0.0.1.0</Version>
-    <Description>Baseline module for relational database adapters for Zen</Description>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <Description>MySql adapter for Zen</Description>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl></PackageIconUrl>
     <LangVersion>7.1</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageTags>middleware orm dotnet core</PackageTags>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <PackageIcon>zen-icon.png</PackageIcon>
     <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.35" />
-    <PackageReference Include="Dapper.Contrib" Version="2.0.35" />
-    <PackageReference Include="Dapper.FluentMap" Version="1.8.0" />
-    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.35" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Module.Data.Relational\Zen.Module.Data.Relational.csproj" />
     <ProjectReference Include="..\Zen.Pebble.Database\Zen.Pebble.Database.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE.txt">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
     <None Include="..\static\res\zen-icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -46,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Builder\" />
+    <PackageReference Include="MySqlConnector" Version="0.64.1" />
   </ItemGroup>
 
 </Project>

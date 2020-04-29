@@ -2,46 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Zen.Pebble.Database.Common;
 
-namespace Zen.Module.Data.Relational.Builder
+namespace Zen.Pebble.Database.Renders
 {
-    // http://ryanohs.com/2016/04/generating-sql-from-expression-trees-part-2/
-
-    public class WherePart
+    public abstract class WherePartPrimitive<T> : IWherePart where T : IWherePart, new()
     {
-        public string Sql { get; set; }
+        public string Statement { get; set; }
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
-
         public string ParameterFormat { get; set; }
 
-        public static WherePart IsSql(string sql, Dictionary<string, object> parameters = null)
-        {
-            return new WherePart
+        public IWherePart IsSql(string sql, Dictionary<string, object> parameters = null) =>
+            new T
             {
                 Parameters = parameters ?? new Dictionary<string, object>(),
-                Sql = sql
+                Statement = sql
             };
-        }
 
-        public static WherePart IsParameter(int count, object value)
-        {
-            return new WherePart
+        public IWherePart IsParameter(int count, object value) =>
+            new T
             {
                 Parameters = {{count.ToString(), value}},
-                Sql = $"@{count}"
+                Statement = $"@{count}"
             };
-        }
 
-        public static WherePart IsParameter(string field, object value)
-        {
-            return new WherePart
+        public IWherePart IsParameter(string field, object value) =>
+            new T
             {
                 Parameters = {{field, value}},
-                Sql = field
+                Statement = field
             };
-        }
 
-        public static WherePart IsCollection(ref int countStart, IEnumerable values)
+        public IWherePart IsCollection(ref int countStart, IEnumerable values)
         {
             var parameters = new Dictionary<string, object>();
             var sql = new StringBuilder("(");
@@ -53,29 +45,27 @@ namespace Zen.Module.Data.Relational.Builder
             }
 
             if (sql.Length == 1) sql.Append("null,");
-            sql[sql.Length - 1] = ')';
-            return new WherePart
+            sql[^1] = ')';
+            return new T
             {
                 Parameters = parameters,
-                Sql = sql.ToString()
+                Statement = sql.ToString()
             };
         }
 
-        public static WherePart Concat(string @operator, WherePart operand)
-        {
-            return new WherePart
+        public IWherePart Concat(string @operator, IWherePart operand) =>
+            new T
             {
                 Parameters = operand.Parameters,
-                Sql = $"({@operator} {operand.Sql})"
+                Statement = $"( {@operator.Format("", operand.Statement).Trim()} )"
             };
-        }
 
-        public static WherePart Concat(WherePart left, string @operator, WherePart right)
+        public IWherePart Concat(IWherePart left, string @operator, IWherePart right)
         {
-            return new WherePart
+            return new T
             {
                 Parameters = left.Parameters.Union(right.Parameters).ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
-                Sql = $"({left.Sql} {@operator} {right.Sql})"
+                Statement = $"( {@operator.Format(left.Statement, right.Statement).Trim()} )"
             };
         }
     }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Zen.Pebble.Database.Common;
+using Zen.Pebble.Database.Renders;
 
-namespace Zen.Pebble.Database.Renders.Oracle
+namespace Zen.Module.Data.MySql.Statement
 {
-    public class OracleWherePart : IWherePart
+    public class OracleWherePart : WherePartPrimitive<OracleWherePart>
     {
         public string Statement { get; set; }
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();

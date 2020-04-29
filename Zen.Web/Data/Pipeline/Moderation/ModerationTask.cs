@@ -24,7 +24,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
         public string Rationale { get; set; }
         public string Action { get; set; }
         public string GetStorageCollectionName() { return $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}"; }
-        public new static DataAdapterPrimitive GetDataAdapter() { return Info<T>.Settings.Adapter; }
+        public new static DataAdapterPrimitive<T> GetDataAdapter() => Info<T>.Settings.Adapter;
 
         public List<ModerationHeader> GetModerationTasksById(string id)
         {

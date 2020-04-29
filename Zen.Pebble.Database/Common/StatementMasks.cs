@@ -1,4 +1,4 @@
-﻿namespace Zen.Module.Data.Relational.Builder
+﻿namespace Zen.Pebble.Database.Common
 {
     public class StatementMasks
     {

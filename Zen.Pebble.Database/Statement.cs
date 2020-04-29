@@ -7,24 +7,25 @@ using Zen.Pebble.Database.Common;
 
 namespace Zen.Pebble.Database
 {
-    public abstract class StatementRender<T, TU, TV> where T : IStatementFragments where TU : IWherePart
+    public class StatementRender<TModel, TFragments, TWherePart> where TFragments : IStatementFragments where TWherePart : IWherePart
     {
         private readonly ModelDescriptor _modelDescriptor;
 
-        protected StatementRender(ModelDescriptor modelDefinition = null)
+        public StatementRender(ModelDescriptor modelDefinition = null)
         {
-            Fragments = (IStatementFragments) typeof(T).CreateInstance();
-            WherePart = (IWherePart) typeof(TU).CreateInstance();
+            Fragments = (IStatementFragments) typeof(TFragments).CreateInstance();
+            WherePart = (IWherePart) typeof(TWherePart).CreateInstance();
 
-            _modelDescriptor = modelDefinition ?? typeof(TV).ToModelDescriptor();
+            _modelDescriptor = modelDefinition ?? typeof(TModel).ToModelDescriptor();
         }
 
         public IStatementFragments Fragments { get; set; }
         public IWherePart WherePart { get; set; }
 
         private IStatementRender<IStatementFragments, IWherePart> _Render { get; set; }
+        public StatementMasks Masks { get; set; }
 
-        public IWherePart Render(Expression<Func<TV, bool>> expression)
+        public IWherePart Render(Expression<Func<TModel, bool>> expression)
         {
             var i = 0;
             return Recurse(ref i, expression.Body, true);
@@ -33,16 +34,16 @@ namespace Zen.Pebble.Database
         private IWherePart Recurse(ref int i, Expression expression, bool isUnary = false, string prefix = null, string postfix = null)
         {switch (expression)
             {
-                case UnaryExpression _:
-                    var unary = (UnaryExpression) expression;
+                case UnaryExpression unaryExpression:
+                    var unary = unaryExpression;
                     return WherePart.Concat(NodeTypeToString(unary.NodeType), Recurse(ref i, unary.Operand, true));
 
-                case BinaryExpression _:
-                    var body = (BinaryExpression) expression;
+                case BinaryExpression binaryExpression:
+                    var body = binaryExpression;
                     return WherePart.Concat(Recurse(ref i, body.Left), NodeTypeToString(body.NodeType), Recurse(ref i, body.Right));
 
-                case ConstantExpression _:
-                    var constant = (ConstantExpression) expression;
+                case ConstantExpression constantExpression:
+                    var constant = constantExpression;
                     var value = constant.Value;
                     if (value is int) return WherePart.IsSql(value.ToString());
                     if (value is string) value = prefix + (string) value + postfix;
@@ -57,8 +58,8 @@ namespace Zen.Pebble.Database
                     return constantResponse;
                 // return WherePart.IsParameter(i++, value);
 
-                case MemberExpression _:
-                    var member = (MemberExpression) expression;
+                case MemberExpression memberExpression:
+                    var member = memberExpression;
                     var parametrizedName = "";
 
                     IWherePart response = null;
@@ -67,8 +68,8 @@ namespace Zen.Pebble.Database
 
                     switch (member.Member)
                     {
-                        case PropertyInfo _:
-                            var property = (PropertyInfo) member.Member;
+                        case PropertyInfo info:
+                            var property = info;
                             var colName = _modelDescriptor.Members[property.Name].TargetName;
                             if (member.Type == typeof(bool))
                             {
@@ -114,8 +115,8 @@ namespace Zen.Pebble.Database
 
                     return response;
 
-                case MethodCallExpression _:
-                    var methodCall = (MethodCallExpression) expression;
+                case MethodCallExpression callExpression:
+                    var methodCall = callExpression;
                     // LIKE queries:
                     if (methodCall.Method == typeof(string).GetMethod("Contains", new[] {typeof(string)})) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], prefix: "%", postfix: "%"));
                     if (methodCall.Method == typeof(string).GetMethod("StartsWith", new[] {typeof(string)})) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], postfix: "%"));
