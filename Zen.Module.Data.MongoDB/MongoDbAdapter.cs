@@ -13,6 +13,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
@@ -23,13 +24,13 @@ using Zen.Module.Data.MongoDB.Serialization;
 
 namespace Zen.Module.Data.MongoDB
 {
-    public class MongoDbAdapter : DataAdapterPrimitive
+    public class MongoDbAdapter<T> : DataAdapterPrimitive<T> where T : Data<T>
     {
         private static readonly List<Type> TypeCache = new List<Type>();
         private IMongoClient _client;
         private string _keyMember;
         private Type _refType;
-        private Settings _statements;
+        private Settings<T> _statements;
         private DataConfigAttribute _tabledata;
         public IMongoDatabase Database;
 
@@ -43,7 +44,7 @@ namespace Zen.Module.Data.MongoDB
             }
         }
 
-        public override void Setup<T>(Settings statements)
+        public override void Setup(Settings<T> statements)
         {
             _statements = statements;
 
@@ -93,7 +94,7 @@ namespace Zen.Module.Data.MongoDB
             SetBaseCollectionName();
         }
 
-        public override void Initialize<T>()
+        public override void Initialize()
         {
             // Not really necessary.
         }
@@ -166,7 +167,7 @@ namespace Zen.Module.Data.MongoDB
             catch (Exception e) { Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message); }
         }
 
-        private void ClassMapInitializer(BsonClassMap<MongoDbAdapter> cm)
+        private void ClassMapInitializer(BsonClassMap<MongoDbAdapter<T>> cm)
         {
             cm.AutoMap();
             cm.MapIdMember(c => c.Key);
@@ -176,7 +177,7 @@ namespace Zen.Module.Data.MongoDB
 
         #region Interceptor calls
 
-        public override T Get<T>(string key, Mutator mutator = null)
+        public override T Get(string key, Mutator mutator = null)
         {
             try
             {
@@ -201,7 +202,7 @@ namespace Zen.Module.Data.MongoDB
             }
             catch (FormatException e)
             {
-                if (TryRegisterByException(e)) return Get<T>(key, mutator);
+                if (TryRegisterByException(e)) return Get(key, mutator);
                 throw;
             }
             catch (Exception e)
@@ -211,7 +212,7 @@ namespace Zen.Module.Data.MongoDB
             }
         }
 
-        public override IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null)
+        public override IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.In("_id", keys);
             var col = Collection(mutator).Find(filter).ToList();
@@ -219,15 +220,15 @@ namespace Zen.Module.Data.MongoDB
             return res;
         }
 
-        public override IEnumerable<T> Query<T>(string statement) { return Query<T>(statement.ToModifier()); }
+        public override IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()); }
 
-        public override IEnumerable<T> Query<T>(Mutator mutator = null)
+        public override IEnumerable<T> Query(Mutator mutator = null)
         {
 
-            return Query<T, T>(mutator);
+            return Query<T>(mutator);
         }
 
-        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null)
+        public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
             try { return Collection<T>(mutator).AsQueryable().Where(predicate).ToList(); }
             catch (FormatException e)
@@ -256,9 +257,9 @@ namespace Zen.Module.Data.MongoDB
             return false;
         }
 
-        public override IEnumerable<TU> Query<T, TU>(string statement) { return Query<T, TU>(statement.ToModifier()); }
+        public override IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
 
-        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null)
+        public override IEnumerable<TU> Query<TU>(Mutator mutator = null)
         {
             try
             {
@@ -273,18 +274,18 @@ namespace Zen.Module.Data.MongoDB
             }
             catch (FormatException e)
             {
-                if (TryRegisterByException(e)) return Query<T, TU>(mutator);
+                if (TryRegisterByException(e)) return Query<TU>(mutator);
                 throw;
             }
         }
 
-        public override long Count<T>(Mutator mutator = null) { return Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument()); }
+        public override long Count(Mutator mutator = null) { return Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument()); }
 
-        public override T Insert<T>(T model, Mutator mutator = null) { return Upsert(model, mutator); }
+        public override T Insert(T model, Mutator mutator = null) { return Upsert(model, mutator); }
 
-        public override T Save<T>(T model, Mutator mutator = null) { return Upsert(model, mutator); }
+        public override T Save(T model, Mutator mutator = null) { return Upsert(model, mutator); }
 
-        public override T Upsert<T>(T obj, Mutator mutator = null)
+        public override T Upsert(T obj, Mutator mutator = null)
         {
             string id = null;
             var isNew = false;
@@ -305,7 +306,7 @@ namespace Zen.Module.Data.MongoDB
 
                 lock (StaticLock<T>.Lock)
                 {
-                    var probe = isNew ? null : Get<T>(id, mutator);
+                    var probe = isNew ? null : Get(id, mutator);
                     var document = BsonSerializer.Deserialize<BsonDocument>(obj.ToJson());
                     if (probe == null) { targetCollection.InsertOne(document); }
                     else
@@ -356,11 +357,11 @@ namespace Zen.Module.Data.MongoDB
             return collection;
         }
 
-        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) { return BulkUpsert(models, mutator); }
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
 
-        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) { return BulkUpsert(models, mutator); }
+        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
 
-        public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null)
+        public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
         {
             var c = 0;
 
@@ -406,29 +407,29 @@ namespace Zen.Module.Data.MongoDB
             }
         }
 
-        public override void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null)
+        public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.In("_id", keys);
             Collection(mutator).DeleteMany(filter);
         }
 
-        public override void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) { BulkRemove<T>(models.Select(i => i.GetDataKey()), mutator); }
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i => i.GetDataKey()), mutator);
 
-        public override void Remove<T>(string locator, Mutator mutator = null)
+        public override void Remove(string locator, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", locator);
             Collection(mutator).DeleteOne(filter);
         }
 
-        public override void Remove<T>(T model, Mutator mutator = null) { Remove<T>(model.GetDataKey(), mutator); }
+        public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
 
-        public override void RemoveAll<T>(Mutator mutator = null) { Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty); }
+        public override void RemoveAll(Mutator mutator = null) { Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty); }
 
-        public override void DropSet<T>(string setName) { Database.DropCollection(GetCollectionName(setName)); }
+        public override void DropSet(string setName) { Database.DropCollection(GetCollectionName(setName)); }
 
-        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
         {
-            if (flushDestination) DropSet<T>(targetSetIdentifier);
+            if (flushDestination) DropSet(targetSetIdentifier);
 
             var sourceName = GetCollectionName(sourceSetIdentifier);
             var targetName = GetCollectionName(targetSetIdentifier);

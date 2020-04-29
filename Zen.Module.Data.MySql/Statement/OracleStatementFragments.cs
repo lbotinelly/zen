@@ -1,6 +1,6 @@
 ﻿using Zen.Pebble.Database.Renders.Relational;
 
-namespace Zen.Pebble.Database.Renders.Oracle
+namespace Zen.Module.Data.MySql.Statement
 {
     public class OracleStatementFragments : RelationalStatementFragments
     {

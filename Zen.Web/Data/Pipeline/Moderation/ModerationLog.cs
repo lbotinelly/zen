@@ -26,7 +26,7 @@ namespace Zen.Web.Data.Pipeline.Moderation
         public string Action { get; set; }
         public string GetStorageCollectionName() { return $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}"; }
 
-        public new static DataAdapterPrimitive GetDataAdapter() { return Info<T>.Settings.Adapter; }
+        public new static DataAdapterPrimitive<T> GetDataAdapter() { return Info<T>.Settings.Adapter; }
 
         public List<ModerationHeader> GetModerationLogsById(string id) { return Where(i => i.SourceId == id).ToJson().FromJson<List<ModerationHeader>>(); }
 

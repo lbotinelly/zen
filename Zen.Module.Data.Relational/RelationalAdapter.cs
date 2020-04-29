@@ -9,18 +9,23 @@ using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
-using Zen.Module.Data.Relational.Builder;
+using Zen.Module.Data.Relational.Common;
 using Zen.Module.Data.Relational.Mapper;
+using Zen.Pebble.Database;
+using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Relational
 {
-    public abstract class RelationalAdapter : DataAdapterPrimitive, IRelationalStatements
+    public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : 
+        DataAdapterPrimitive<T>, IRelationalStatements 
+        where T : Data<T> 
+        where TStatementFragments : IStatementFragments 
+        where TWherePart : IWherePart
     {
-        public StatementMasks Masks = null;
         public Dictionary<string, string> MemberMap = new Dictionary<string, string>();
-        public StatementBuilder StatementBuilder = null;
+        public abstract StatementMasks Masks { get; }
 
-        public void Map<T>() where T : Data<T>
+        public void Map()
         {
             var cat = new ColumnAttributeTypeMapper<T>();
             SqlMapper.SetTypeMap(typeof(T), cat);
@@ -29,37 +34,31 @@ namespace Zen.Module.Data.Relational
                 (from pInfo in typeof(T).GetProperties()
                     let p1 = pInfo.GetCustomAttributes(false).OfType<ColumnAttribute>().ToList()
                     let field = p1.Count != 0 ? p1[0].Name ?? pInfo.Name : pInfo.Name
-                    let length = p1.Count != 0 ? (p1[0].Length != 0 ? p1[0].Length : 0) : 0
+                    let length = p1.Count != 0 ? p1[0].Length != 0 ? p1[0].Length : 0 : 0
                     let serializable = p1.Count != 0 && p1[0].Serialized
                     select new KeyValuePair<string, MemberDescriptor>(pInfo.Name, new MemberDescriptor {Field = field, Length = length, Serializable = serializable})
                 ).ToDictionary(x => x.Key, x => x.Value);
 
             MemberMap = MemberDescriptors.Select(i => new KeyValuePair<string, string>(i.Key, i.Value.Field)).ToDictionary(i => i.Key, i => i.Value);
 
-            var mapEntry = MemberDescriptors.FirstOrDefault(p => p.Value.Field.ToLower().Equals(Info<T>.Settings.KeyMemberName.ToLower()));
+            var (key, value) = MemberDescriptors.FirstOrDefault(p => p.Value.Field.ToLower().Equals(Info<T>.Settings.KeyMemberName.ToLower()));
 
-            KeyMember = mapEntry.Key;
-            KeyColumn = mapEntry.Value.Field;
+            KeyMember = key;
+            KeyColumn = value.Field;
         }
 
-        public virtual void PrepareCachedStatements<T>() where T : Data<T>
+        public virtual void PrepareStatements()
         {
-            var setName = Info<T>.Configuration.SetName;
+            var setName = Configuration.SetName;
 
             // "SELECT COUNT(*) FROM {0}"
             Statements.RowCount = Statements.RowCount.format(setName);
 
             // "SELECT * FROM {0} WHERE {1} = {2}"
-            Statements.GetSingleByIdentifier =
-                Statements.GetSingleByIdentifier.format(setName, KeyColumn,
-                                                        Masks.InlineParameter.format(
-                                                            Masks.Parameter.format(KeyColumn)));
+            Statements.GetSingleByIdentifier = Statements.GetSingleByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(KeyColumn)));
 
             // "SELECT * FROM {0} WHERE {1} IN ({2})"
-            Statements.GetManyByIdentifier =
-                Statements.GetManyByIdentifier.format(setName, KeyColumn,
-                                                      Masks.InlineParameter.format(
-                                                          Masks.Parameter.format(Masks.Keywords.Keyset)));
+            Statements.GetManyByIdentifier = Statements.GetManyByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(Masks.Keywords.Keyset)));
 
             // "SELECT * FROM {0}"
             Statements.GetAll = Statements.GetAll.format(setName);
@@ -70,25 +69,28 @@ namespace Zen.Module.Data.Relational
 
         #region Custom Members
 
-        public T1 QuerySingleValue<T, T1>(string statement) where T : Data<T>
+        public T1 QuerySingleValue<T1>(string statement)
         {
-            using (var conn = GetConnection<T>())
+            using (var conn = GetConnection())
             {
                 var ret = conn.Query<T1>(statement).FirstOrDefault();
                 return ret;
             }
         }
 
-        public void Execute<T>(string statement) where T : Data<T>
+        public void Execute(string statement)
         {
-            using (var conn = GetConnection<T>()) { conn.Execute(statement); }
+            using (var conn = GetConnection())
+            {
+                conn.Execute(statement);
+            }
         }
 
-        public List<TU> RawQuery<T, TU>(string statement, object parameters) where T : Data<T>
+        public List<TU> RawQuery<TU>(string statement, object parameters)
         {
             try
             {
-                using (var conn = GetConnection<T>())
+                using (var conn = GetConnection())
                 {
                     conn.Open();
 
@@ -101,16 +103,20 @@ namespace Zen.Module.Data.Relational
 
                     return ret;
                 }
-            } catch (Exception e) { throw new DataException(Info<T>.Settings.TypeQualifiedName + " RelationalAdapter: Error while issuing statements to the database.", e); }
+            }
+            catch (Exception e)
+            {
+                throw new DataException(Info<T>.Settings.TypeQualifiedName + " RelationalAdapter: Error while issuing statements to the database.", e);
+            }
         }
 
-        public List<TU> AdapterQuery<T, TU>(string statement, Mutator mutator = null) where T : Data<T>
+        public List<TU> AdapterQuery<TU>(string statement, Mutator mutator = null)
         {
             if (mutator == null) mutator = new Mutator {Transform = new QueryTransform {Statement = statement}};
 
             var builder = mutator.ToSqlBuilderTemplate();
 
-            return RawQuery<T, TU>(builder.RawSql, builder.Parameters);
+            return RawQuery<TU>(builder.RawSql, builder.Parameters);
         }
 
         #endregion
@@ -123,39 +129,86 @@ namespace Zen.Module.Data.Relational
         public virtual RelationalStatements Statements { get; } = new RelationalStatements();
         public Dictionary<string, MemberDescriptor> MemberDescriptors { get; set; } = new Dictionary<string, MemberDescriptor>();
 
-        public class MemberDescriptor
-        {
-            public string Field;
-            public long Length;
-            public bool Serializable;
-        }
-
         public string KeyMember { get; set; }
         public string KeyColumn { get; set; }
         public Dictionary<string, KeyValuePair<string, string>> SchemaElements { get; set; }
 
-        public virtual DbConnection GetConnection<T>() where T : Data<T> { return null; }
-        public virtual void RenderSchemaEntityNames<T>() where T : Data<T> { }
-        public virtual void ValidateSchema<T>() where T : Data<T> { }
+        public virtual DbConnection GetConnection() => null;
+        public virtual void RenderSchemaEntityNames() { }
+        public virtual void ValidateSchema() { }
 
         #endregion
 
         #region Overrides of DataAdapterPrimitive
 
-        public override void Setup<T>(Settings settings) { }
-        public override void Initialize<T>() { }
 
-        public override long Count<T>(Mutator mutator = null) { return QuerySingleValue<T, long>(Statements.RowCount); }
+        public override void Initialize()
+        {
+            StatementRender = new StatementRender<T, TStatementFragments, TWherePart> {Masks = Masks};
+            Configuration = Info<T>.Configuration;
+            Settings = Info<T>.Settings;
 
-        public override T Get<T>(string key, Mutator mutator = null)
+            Map();
+            RenderSchemaEntityNames();
+            ValidateSchema();
+            PrepareStatements();
+
+            ReferenceCollectionName = Configuration.SetPrefix + Configuration.SetName;
+        }
+
+        public StatementRender<T, TStatementFragments, TWherePart> StatementRender;
+
+        public Settings<T> Settings { get; private set; }
+
+        public DataConfigAttribute Configuration { get; private set; }
+
+        public override long Count(Mutator mutator = null) => QuerySingleValue<long>(Statements.RowCount);
+        public override T Insert(T model, Mutator mutator = null) => throw new NotImplementedException();
+        public override T Save(T model, Mutator mutator = null) => throw new NotImplementedException();
+        public override T Upsert(T model, Mutator mutator = null) => throw new NotImplementedException();
+        public override void Remove(string key, Mutator mutator = null)
+        {
+            throw new NotImplementedException();
+        }
+        public override void Remove(T model, Mutator mutator = null)
+        {
+            throw new NotImplementedException();
+        }
+        public override void RemoveAll(Mutator mutator = null)
+        {
+            throw new NotImplementedException();
+        }
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
+        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
+        public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
+        public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null)
+        {
+            throw new NotImplementedException();
+        }
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DropSet(string setName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override T Get(string key, Mutator mutator = null)
         {
             var statement = Statements.GetSingleByIdentifier;
             var parameter = new Dictionary<string, object> {{Masks.Parameter.format(KeyColumn), key}};
 
-            return RawQuery<T, T>(statement, parameter).FirstOrDefault();
+            return RawQuery<T>(statement, parameter).FirstOrDefault();
         }
 
-        public override IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null)
+        public override IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null)
         {
             var keySet = keys as string[] ?? keys.ToArray();
 
@@ -163,36 +216,22 @@ namespace Zen.Module.Data.Relational
 
             var statement = Statements.GetManyByIdentifier;
             var parameter = new Dictionary<string, object> {{Masks.Parameter.format(Masks.Keywords.Keyset), keySet.ToArray()}};
-            return RawQuery<T, T>(statement, parameter);
+            return RawQuery<T>(statement, parameter);
         }
 
-        public override IEnumerable<T> Query<T>(string statement) { throw new NotImplementedException(); }
+        public override IEnumerable<T> Query(string statement) => throw new NotImplementedException();
 
-        public override IEnumerable<T> Query<T>(Mutator mutator = null) { return Query<T>(Statements.GetAll); }
-        public override IEnumerable<TU> Query<T, TU>(string statement) { throw new NotImplementedException(); }
+        public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(Statements.GetAll);
+        public override IEnumerable<TU> Query<TU>(string statement) => throw new NotImplementedException();
 
-        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null) { return AdapterQuery<T, TU>(Statements.GetAll, mutator); }
+        public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => AdapterQuery<TU>(Statements.GetAll, mutator);
 
-        public override T Insert<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override T Save<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override T Upsert<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void Remove<T>(string key, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void Remove<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void RemoveAll<T>(Mutator mutator = null) { throw new NotImplementedException(); }
-
-        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-
-        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null)
+        public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            var parts = StatementBuilder.ToSql(predicate, MemberDescriptors);
+            var parts = StatementRender.Render(predicate);
+            var statement = Statements.AllFields.format(parts.Statement);
 
-            var statement = Statements.AllFields.format(parts.Sql);
-
-            return RawQuery<T, T>(statement, parts.Parameters);
+            return RawQuery<T>(statement, parts.Parameters);
         }
 
         #endregion
