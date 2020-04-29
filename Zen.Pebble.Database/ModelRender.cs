@@ -7,32 +7,36 @@ using Zen.Pebble.Database.Common;
 
 namespace Zen.Pebble.Database
 {
-    public class StatementRender<TModel, TFragments, TWherePart> where TFragments : IStatementFragments where TWherePart : IWherePart
+    public class ModelRender<T, TFragments, TWherePart> : IModelRender<T, TFragments, TWherePart>
+        where TWherePart : IWherePart
+        where TFragments : IStatementFragments
     {
         private readonly ModelDescriptor _modelDescriptor;
 
-        public StatementRender(ModelDescriptor modelDefinition = null)
+        protected ModelRender(ModelDescriptor modelDefinition = null)
         {
-            Fragments = (IStatementFragments) typeof(TFragments).CreateInstance();
-            WherePart = (IWherePart) typeof(TWherePart).CreateInstance();
+            Fragments = (IStatementFragments)typeof(TFragments).CreateInstance();
+            WherePart = (IWherePart)typeof(TWherePart).CreateInstance();
 
-            _modelDescriptor = modelDefinition ?? typeof(TModel).ToModelDescriptor();
+            _modelDescriptor = modelDefinition ?? typeof(T).ToModelDescriptor();
         }
+
+        public ModelRender() { }
 
         public IStatementFragments Fragments { get; set; }
         public IWherePart WherePart { get; set; }
 
-        private IStatementRender<IStatementFragments, IWherePart> _Render { get; set; }
         public StatementMasks Masks { get; set; }
 
-        public IWherePart Render(Expression<Func<TModel, bool>> expression)
+        public IWherePart Render(Expression<Func<T, bool>> expression)
         {
             var i = 0;
             return Recurse(ref i, expression.Body, true);
         }
 
         private IWherePart Recurse(ref int i, Expression expression, bool isUnary = false, string prefix = null, string postfix = null)
-        {switch (expression)
+        {
+            switch (expression)
             {
                 case UnaryExpression unaryExpression:
                     var unary = unaryExpression;
@@ -46,7 +50,7 @@ namespace Zen.Pebble.Database
                     var constant = constantExpression;
                     var value = constant.Value;
                     if (value is int) return WherePart.IsSql(value.ToString());
-                    if (value is string) value = prefix + (string) value + postfix;
+                    if (value is string) value = prefix + (string)value + postfix;
                     if (value is bool && isUnary) return WherePart.Concat(WherePart.IsParameter(i++, value), "=", WherePart.IsSql("1"));
 
                     i++;
@@ -87,11 +91,8 @@ namespace Zen.Pebble.Database
                             }
                             else
                             {
-                                if (valueSet.HasValue)
-                                {
-                                    response = WherePart.IsSql(Fragments.Column.Format(colName));
-                                }
-                                else { response = WherePart.IsSql(Fragments.Column.Format(colName)); }
+                                if (valueSet.HasValue) response = WherePart.IsSql(Fragments.Column.Format(colName));
+                                else response = WherePart.IsSql(Fragments.Column.Format(colName));
                             }
 
                             break;
@@ -118,9 +119,9 @@ namespace Zen.Pebble.Database
                 case MethodCallExpression callExpression:
                     var methodCall = callExpression;
                     // LIKE queries:
-                    if (methodCall.Method == typeof(string).GetMethod("Contains", new[] {typeof(string)})) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], prefix: "%", postfix: "%"));
-                    if (methodCall.Method == typeof(string).GetMethod("StartsWith", new[] {typeof(string)})) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], postfix: "%"));
-                    if (methodCall.Method == typeof(string).GetMethod("EndsWith", new[] {typeof(string)})) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], prefix: "%"));
+                    if (methodCall.Method == typeof(string).GetMethod("Contains", new[] { typeof(string) })) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], prefix: "%", postfix: "%"));
+                    if (methodCall.Method == typeof(string).GetMethod("StartsWith", new[] { typeof(string) })) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], postfix: "%"));
+                    if (methodCall.Method == typeof(string).GetMethod("EndsWith", new[] { typeof(string) })) return WherePart.Concat(Recurse(ref i, methodCall.Object), "LIKE", Recurse(ref i, methodCall.Arguments[0], prefix: "%"));
                     // IN queries:
                     if (methodCall.Method.Name == "Contains")
                     {
@@ -138,7 +139,7 @@ namespace Zen.Pebble.Database
                         }
                         else { throw new Exception("Unsupported method call: " + methodCall.Method.Name); }
 
-                        var values = (IEnumerable) GetValue(collection);
+                        var values = (IEnumerable)GetValue(collection);
                         return WherePart.Concat(Recurse(ref i, property), "IN", WherePart.IsCollection(ref i, values));
                     }
 
@@ -164,7 +165,8 @@ namespace Zen.Pebble.Database
                 var compiled = lambda.Compile();
                 response.Value = compiled.DynamicInvoke();
                 response.HasValue = true;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 // This means that this expression needs to be parsed into Container.Member format.
             }
@@ -183,7 +185,8 @@ namespace Zen.Pebble.Database
             {
                 var compiled = lambda.Compile();
                 response = compiled.DynamicInvoke();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 // This means that this expression needs to be parsed into Container.Member format.
             }

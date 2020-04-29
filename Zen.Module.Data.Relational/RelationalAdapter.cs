@@ -16,11 +16,9 @@ using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Relational
 {
-    public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : 
-        DataAdapterPrimitive<T>, IRelationalStatements 
-        where T : Data<T> 
-        where TStatementFragments : IStatementFragments 
-        where TWherePart : IWherePart
+    public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : DataAdapterPrimitive<T>, IRelationalStatements where T : Data<T>
+    where TStatementFragments : IStatementFragments
+    where TWherePart : IWherePart
     {
         public Dictionary<string, string> MemberMap = new Dictionary<string, string>();
         public abstract StatementMasks Masks { get; }
@@ -32,11 +30,11 @@ namespace Zen.Module.Data.Relational
 
             MemberDescriptors =
                 (from pInfo in typeof(T).GetProperties()
-                    let p1 = pInfo.GetCustomAttributes(false).OfType<ColumnAttribute>().ToList()
-                    let field = p1.Count != 0 ? p1[0].Name ?? pInfo.Name : pInfo.Name
-                    let length = p1.Count != 0 ? p1[0].Length != 0 ? p1[0].Length : 0 : 0
-                    let serializable = p1.Count != 0 && p1[0].Serialized
-                    select new KeyValuePair<string, MemberDescriptor>(pInfo.Name, new MemberDescriptor {Field = field, Length = length, Serializable = serializable})
+                 let p1 = pInfo.GetCustomAttributes(false).OfType<ColumnAttribute>().ToList()
+                 let field = p1.Count != 0 ? p1[0].Name ?? pInfo.Name : pInfo.Name
+                 let length = p1.Count != 0 ? p1[0].Length != 0 ? p1[0].Length : 0 : 0
+                 let serializable = p1.Count != 0 && p1[0].Serialized
+                 select new KeyValuePair<string, MemberDescriptor>(pInfo.Name, new MemberDescriptor { Field = field, Length = length, Serializable = serializable })
                 ).ToDictionary(x => x.Key, x => x.Value);
 
             MemberMap = MemberDescriptors.Select(i => new KeyValuePair<string, string>(i.Key, i.Value.Field)).ToDictionary(i => i.Key, i => i.Value);
@@ -95,7 +93,7 @@ namespace Zen.Module.Data.Relational
                     conn.Open();
 
                     var o = conn.Query(statement, parameters)
-                        .Select(a => (IDictionary<string, object>) a)
+                        .Select(a => (IDictionary<string, object>)a)
                         .ToList();
                     conn.Close();
 
@@ -112,7 +110,7 @@ namespace Zen.Module.Data.Relational
 
         public List<TU> AdapterQuery<TU>(string statement, Mutator mutator = null)
         {
-            if (mutator == null) mutator = new Mutator {Transform = new QueryTransform {Statement = statement}};
+            if (mutator == null) mutator = new Mutator { Transform = new QueryTransform { Statement = statement } };
 
             var builder = mutator.ToSqlBuilderTemplate();
 
@@ -144,7 +142,7 @@ namespace Zen.Module.Data.Relational
 
         public override void Initialize()
         {
-            StatementRender = new StatementRender<T, TStatementFragments, TWherePart> {Masks = Masks};
+            ModelRender = new ModelRender<T, TStatementFragments, TWherePart> { Masks = Masks };
             Configuration = Info<T>.Configuration;
             Settings = Info<T>.Settings;
 
@@ -156,7 +154,7 @@ namespace Zen.Module.Data.Relational
             ReferenceCollectionName = Configuration.SetPrefix + Configuration.SetName;
         }
 
-        public StatementRender<T, TStatementFragments, TWherePart> StatementRender;
+        public ModelRender<T, TStatementFragments, TWherePart> ModelRender { get; set; }
 
         public Settings<T> Settings { get; private set; }
 
@@ -203,7 +201,7 @@ namespace Zen.Module.Data.Relational
         public override T Get(string key, Mutator mutator = null)
         {
             var statement = Statements.GetSingleByIdentifier;
-            var parameter = new Dictionary<string, object> {{Masks.Parameter.format(KeyColumn), key}};
+            var parameter = new Dictionary<string, object> { { Masks.Parameter.format(KeyColumn), key } };
 
             return RawQuery<T>(statement, parameter).FirstOrDefault();
         }
@@ -215,7 +213,7 @@ namespace Zen.Module.Data.Relational
             if (!keySet.Any()) return new List<T>();
 
             var statement = Statements.GetManyByIdentifier;
-            var parameter = new Dictionary<string, object> {{Masks.Parameter.format(Masks.Keywords.Keyset), keySet.ToArray()}};
+            var parameter = new Dictionary<string, object> { { Masks.Parameter.format(Masks.Keywords.Keyset), keySet.ToArray() } };
             return RawQuery<T>(statement, parameter);
         }
 
@@ -228,7 +226,7 @@ namespace Zen.Module.Data.Relational
 
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            var parts = StatementRender.Render(predicate);
+            var parts = ModelRender.Render(predicate);
             var statement = Statements.AllFields.format(parts.Statement);
 
             return RawQuery<T>(statement, parts.Parameters);

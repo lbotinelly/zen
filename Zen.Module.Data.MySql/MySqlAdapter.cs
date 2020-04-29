@@ -300,5 +300,11 @@ namespace Zen.Module.Data.MySql
             }
         }
         #endregion
+
+        #region Overrides of DataAdapterPrimitive<T>
+
+        public override void Setup(Settings<T> settings) {  }
+
+        #endregion
     }
 }

@@ -7,50 +7,47 @@ using System.Text;
 using Oracle.ManagedDataAccess.Client;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Module;
 using Zen.Base.Module.Data;
+using Zen.Module.Data.Oracle.Statement;
 using Zen.Module.Data.Relational;
 using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Oracle
 {
-    public class OracleAdapter : RelationalAdapter
+    public class OracleAdapter<T> : RelationalAdapter<T, OracleStatementFragments, OracleWherePart>
+        
+        where T : Data<T>
+
     {
+
+        public override StatementMasks Masks { get; } = new StatementMasks
+        {
+            Column = "{0}",
+            InlineParameter = ":{0}",
+            Parameter = "u_{0}",
+            Values =
+            {
+                True = 1,
+                False = 0
+            }
+        };
+
         #region Overrides of RelationalAdapter
 
-        public override DbConnection GetConnection<T>()
+        public override DbConnection GetConnection()
         {
             var cn = Info<T>.Settings.ConnectionString;
             return new OracleConnection(cn);
         }
 
-        public override void Initialize<T>()
-        {
-            Masks = new StatementMasks
-            {
-                Column = "{0}",
-                InlineParameter = ":{0}",
-                Parameter = "u_{0}",
-                Values =
-                {
-                    True = 1,
-                    False = 0
-                }
-            };
+        public override void Setup(Settings<T> settings) {  }
 
-            StatementBuilder = new StatementBuilder {Masks = Masks};
+     
+        public override void DropSet(string setName) { throw new NotImplementedException(); }
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) { throw new NotImplementedException(); }
 
-            Map<T>();
-            RenderSchemaEntityNames<T>();
-            ValidateSchema<T>();
-            PrepareStatements<T>();
-
-            ReferenceCollectionName = Info<T>.Configuration.SetPrefix + Info<T>.Configuration.SetName;
-        }
-
-        public override void DropSet<T>(string setName) { throw new NotImplementedException(); }
-        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) { throw new NotImplementedException(); }
-
-        public override void RenderSchemaEntityNames<T>()
+        public override void RenderSchemaEntityNames()
         {
             var tn = Info<T>.Settings.StorageCollectionName;
 
@@ -76,7 +73,7 @@ namespace Zen.Module.Data.Oracle
             SchemaElements = res;
         }
 
-        public override void ValidateSchema<T>()
+        public override void ValidateSchema()
         {
             if (Info<T>.Configuration.IsReadOnly) return;
 
@@ -85,7 +82,7 @@ namespace Zen.Module.Data.Oracle
             {
                 var tn = SchemaElements["Table"].Value;
 
-                var tableCount = QuerySingleValue<T, int>("SELECT COUNT(*) FROM ALL_TABLES WHERE table_name = '" + tn + "'");
+                var tableCount = QuerySingleValue<int>("SELECT COUNT(*) FROM ALL_TABLES WHERE table_name = '" + tn + "'");
 
                 if (tableCount != 0) return;
 
@@ -195,17 +192,17 @@ namespace Zen.Module.Data.Oracle
                 try
                 {
                     Current.Log.Add<T>("Creating table " + tn);
-                    Execute<T>(tableRender.ToString());
+                    Execute(tableRender.ToString());
                 } catch (Exception e) { Current.Log.Add(e); }
 
                 if (KeyColumn!= null)
                 {
-                    try { Execute<T>("DROP SEQUENCE " + seqName); } catch { }
+                    try { Execute("DROP SEQUENCE " + seqName); } catch { }
 
                     try
                     {
                         Current.Log.Add<T>("Creating Sequence " + seqName);
-                        Execute<T>("CREATE SEQUENCE " + seqName);
+                        Execute("CREATE SEQUENCE " + seqName);
                     } catch (Exception) { }
 
                     //Primary Key
@@ -215,7 +212,7 @@ namespace Zen.Module.Data.Oracle
                     try
                     {
                         Current.Log.Add<T>("Adding Primary Key constraint " + pkName + " (" + KeyColumn + ")");
-                        Execute<T>(pkStat);
+                        Execute(pkStat);
                     } catch (Exception e) { Current.Log.Add(e); }
                 }
                 //Trigger
@@ -240,7 +237,7 @@ namespace Zen.Module.Data.Oracle
                 try
                 {
                     Current.Log.Add<T>("Adding BI Trigger " + SchemaElements["BeforeInsertTrigger"].Value);
-                    Execute<T>(
+                    Execute(
                         string.Format(trigStat,
                                       SchemaElements["BeforeInsertTrigger"].Value, tn, seqName,
                                       KeyColumn));
@@ -258,7 +255,7 @@ namespace Zen.Module.Data.Oracle
                 {
                     Current.Log.Add<T>("Adding BU Trigger " + SchemaElements["BeforeUpdateTrigger"].Value);
 
-                    Execute<T>(string.Format(trigStat,
+                    Execute(string.Format(trigStat,
                                              SchemaElements["BeforeUpdateTrigger"].Value, tn, seqName,
                                              KeyColumn));
                 } catch (Exception e) { Current.Log.Add(e); }
@@ -274,7 +271,7 @@ namespace Zen.Module.Data.Oracle
                     SchemaElements["BeforeUpdateTrigger"].Value
                     + ".'" + ocfld;
 
-                try { Execute<T>(commentStat); } catch { }
+                try { Execute(commentStat); } catch { }
 
                 //'Event' hook for post-schema initialization procedure:
                 try

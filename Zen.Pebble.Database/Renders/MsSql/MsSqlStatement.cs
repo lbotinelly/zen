@@ -1,4 +1,4 @@
 ﻿namespace Zen.Pebble.Database.Renders.MsSql
 {
-    public class MsSqlStatement<T> : StatementRender< MsSqlStatementFragments, MsSqlWherePart, T> { }
+    public class MsSqlStatement<T> : ModelRender<T, MsSqlStatementFragments, MsSqlWherePart> { }
 }
