@@ -14,6 +14,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -255,7 +256,12 @@ namespace Zen.Base.Extension
         }
 
         // ReSharper disable once InconsistentNaming
-        public static string ToISODateString(this DateTime obj) { return $"ISODate(\"{obj:o}\")"; }
+        public static string ToISODateString(this DateTime obj, bool includeLocalTimezone = true)
+        {
+            return !includeLocalTimezone
+                ? $"ISODate(\"{obj:o}\")"
+                : $"ISODate(\"{obj:o}{TimeZoneInfo.Local.BaseUtcOffset.Hours}:00\")";
+        }
 
         // ReSharper disable once InconsistentNaming
         public static string ToRawDateHash(this DateTime obj) { return obj.ToString("yyyyMMddHHmmss"); }
@@ -396,9 +402,14 @@ namespace Zen.Base.Extension
             var doc = new XmlDocument();
             doc.LoadXml(source);
 
-            var json = JsonConvert.SerializeXmlNode(doc);
+            var json = JsonConvert.SerializeXmlNode(doc, Formatting.Indented);
 
             return json;
+        }
+
+        public static string ToJson(this XElement source)
+        {
+            return source.ToString().XmlToJson();
         }
 
         public static List<T> ToList<T>(this IEnumerator<T> e)
