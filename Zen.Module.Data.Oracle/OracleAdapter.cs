@@ -15,12 +15,8 @@ using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Oracle
 {
-    public class OracleAdapter<T> : RelationalAdapter<T, OracleStatementFragments, OracleWherePart>
-        
-        where T : Data<T>
-
+    public class OracleAdapter<T> : RelationalAdapter<T, OracleStatementFragments, OracleWherePart> where T : Data<T>
     {
-
         public override StatementMasks Masks { get; } = new StatementMasks
         {
             Column = "{0}",
@@ -41,11 +37,17 @@ namespace Zen.Module.Data.Oracle
             return new OracleConnection(cn);
         }
 
-        public override void Setup(Settings<T> settings) {  }
+        public override void Setup(Settings<T> settings) { }
 
-     
-        public override void DropSet(string setName) { throw new NotImplementedException(); }
-        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) { throw new NotImplementedException(); }
+        public override void DropSet(string setName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
+        {
+            throw new NotImplementedException();
+        }
 
         public override void RenderSchemaEntityNames()
         {
@@ -127,7 +129,7 @@ namespace Zen.Module.Data.Oracle
                         if (typeof(IList).IsAssignableFrom(pType)) continue;
                         if (typeof(IDictionary).IsAssignableFrom(pType)) continue;
 
-                        if (pType.BaseType!= null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
+                        if (pType.BaseType != null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
 
                         var isNullable = false;
 
@@ -135,7 +137,7 @@ namespace Zen.Module.Data.Oracle
 
                         var nullProbe = Nullable.GetUnderlyingType(pType);
 
-                        if (nullProbe!= null)
+                        if (nullProbe != null)
                         {
                             isNullable = true;
                             pType = nullProbe;
@@ -160,10 +162,10 @@ namespace Zen.Module.Data.Oracle
                         if (bMustSkip) continue;
 
                         if (string.Equals(pSourceName, KeyColumn,
-                                          StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
+                            StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
 
                         if (string.Equals(pSourceName, KeyMember,
-                                          StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
+                            StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
 
                         //Rendering
 
@@ -193,17 +195,26 @@ namespace Zen.Module.Data.Oracle
                 {
                     Current.Log.Add<T>("Creating table " + tn);
                     Execute(tableRender.ToString());
-                } catch (Exception e) { Current.Log.Add(e); }
-
-                if (KeyColumn!= null)
+                }
+                catch (Exception e)
                 {
-                    try { Execute("DROP SEQUENCE " + seqName); } catch { }
+                    Current.Log.Add(e);
+                }
+
+                if (KeyColumn != null)
+                {
+                    try
+                    {
+                        Execute("DROP SEQUENCE " + seqName);
+                    }
+                    catch { }
 
                     try
                     {
                         Current.Log.Add<T>("Creating Sequence " + seqName);
                         Execute("CREATE SEQUENCE " + seqName);
-                    } catch (Exception) { }
+                    }
+                    catch (Exception) { }
 
                     //Primary Key
                     var pkName = tn + "_PK";
@@ -213,7 +224,11 @@ namespace Zen.Module.Data.Oracle
                     {
                         Current.Log.Add<T>("Adding Primary Key constraint " + pkName + " (" + KeyColumn + ")");
                         Execute(pkStat);
-                    } catch (Exception e) { Current.Log.Add(e); }
+                    }
+                    catch (Exception e)
+                    {
+                        Current.Log.Add(e);
+                    }
                 }
                 //Trigger
 
@@ -223,7 +238,7 @@ namespace Zen.Module.Data.Oracle
                 FOR EACH ROW
                 BEGIN
                 " +
-                    (KeyColumn!= null
+                    (KeyColumn != null
                         ? @"IF :new.{3} is null 
                     THEN       
                         SELECT {2}.NEXTVAL INTO :new.{3} FROM dual;
@@ -239,9 +254,13 @@ namespace Zen.Module.Data.Oracle
                     Current.Log.Add<T>("Adding BI Trigger " + SchemaElements["BeforeInsertTrigger"].Value);
                     Execute(
                         string.Format(trigStat,
-                                      SchemaElements["BeforeInsertTrigger"].Value, tn, seqName,
-                                      KeyColumn));
-                } catch (Exception e) { Current.Log.Add(e); }
+                            SchemaElements["BeforeInsertTrigger"].Value, tn, seqName,
+                            KeyColumn));
+                }
+                catch (Exception e)
+                {
+                    Current.Log.Add(e);
+                }
 
                 trigStat =
                     @"CREATE OR REPLACE TRIGGER {0}
@@ -256,9 +275,13 @@ namespace Zen.Module.Data.Oracle
                     Current.Log.Add<T>("Adding BU Trigger " + SchemaElements["BeforeUpdateTrigger"].Value);
 
                     Execute(string.Format(trigStat,
-                                             SchemaElements["BeforeUpdateTrigger"].Value, tn, seqName,
-                                             KeyColumn));
-                } catch (Exception e) { Current.Log.Add(e); }
+                        SchemaElements["BeforeUpdateTrigger"].Value, tn, seqName,
+                        KeyColumn));
+                }
+                catch (Exception e)
+                {
+                    Current.Log.Add(e);
+                }
 
                 var ocfld = ";";
                 var commentStat =
@@ -271,15 +294,21 @@ namespace Zen.Module.Data.Oracle
                     SchemaElements["BeforeUpdateTrigger"].Value
                     + ".'" + ocfld;
 
-                try { Execute(commentStat); } catch { }
+                try
+                {
+                    Execute(commentStat);
+                }
+                catch { }
 
                 //'Event' hook for post-schema initialization procedure:
                 try
                 {
                     typeof(T).GetMethod("OnSchemaInitialization", BindingFlags.Public | BindingFlags.Static)
                         .Invoke(null, null);
-                } catch { }
-            } catch (Exception e)
+                }
+                catch { }
+            }
+            catch (Exception e)
             {
                 Current.Log.Warn<T>("Schema render Error: " + e.Message);
                 Current.Log.Add(e);
