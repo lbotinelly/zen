@@ -25,7 +25,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.35" />
-    <PackageReference Include="Dapper.FluentMap" Version="1.8.0" />
+    <PackageReference Include="Dapper.FluentMap" Version="1.8.1" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.35" />
   </ItemGroup>
 
@@ -47,6 +47,10 @@
 
   <ItemGroup>
     <Folder Include="Builder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.1.91" />
   </ItemGroup>
 
 </Project>

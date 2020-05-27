@@ -24,11 +24,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.106.12" />
+    <PackageReference Include="AWSSDK.Core" Version="3.3.107.2" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.101" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.110.58" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.156" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.3.102.99" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.111.3" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.174" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.102.117" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,6 +46,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.1.91" />
   </ItemGroup>
 
 </Project>

@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl></PackageIconUrl>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>8</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <PackageTags>middleware orm dotnet core</PackageTags>
@@ -35,7 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySqlConnector" Version="0.64.1" />
+    <PackageReference Include="MySqlConnector" Version="0.66.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.1.91" />
   </ItemGroup>
 
 </Project>
