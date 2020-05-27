@@ -15,7 +15,7 @@ using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.MySql
 {
-    public class MySqlAdapter<T> : RelationalAdapter<T, OracleStatementFragments, OracleWherePart> where T : Data<T>
+    public class MySqlAdapter<T> : RelationalAdapter<T, MySqlStatementFragments, MySqlWherePart> where T : Data<T>
     {
         #region Overrides of RelationalAdapter
 
