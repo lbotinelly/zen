@@ -23,11 +23,20 @@ namespace Zen.Web.Auth.Service.Extensions
 
             Events.AddLog("Zen.Web.Auth", $"Mode: {Instances.Options?.Mode}, Providers: {Instances.Options?.Provider?.Select(i => i.Key).ToJson()}");
 
-            services.AddDefaultIdentity<IdentityUser>(options =>
+            try
             {
-                options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedEmail = false;
-            }).AddDefaultTokenProviders();
+                services.AddDefaultIdentity<IdentityUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.SignIn.RequireConfirmedEmail = false;
+                }).AddDefaultTokenProviders();
+
+            }
+            catch (Exception e)
+            {
+                Base.Current.Log.Add(e);
+            }
+
 
             // services.AddRazorPages();
 
