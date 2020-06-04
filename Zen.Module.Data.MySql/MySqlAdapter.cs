@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using MySql.Data.MySqlClient;
 using Zen.Base;
@@ -11,12 +13,25 @@ using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Module.Data.MySql.Statement;
 using Zen.Module.Data.Relational;
+using Zen.Module.Data.Relational.Common;
 using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.MySql
 {
     public class MySqlAdapter<T> : RelationalAdapter<T, MySqlStatementFragments, MySqlWherePart> where T : Data<T>
     {
+        private Configuration.IOptions _options;
+        private bool _useAdmin;
+
+        #region Overrides of DataAdapterPrimitive<T>
+
+        public override void Setup(Settings<T> settings)
+        {
+            _options = new Configuration.Options().GetSettings<Configuration.IOptions, Configuration.Options>("Database:MySQL");
+        }
+
+        #endregion
+
         #region Overrides of RelationalAdapter
 
         public override StatementMasks Masks { get; } = new StatementMasks
@@ -28,33 +43,55 @@ namespace Zen.Module.Data.MySql
             {
                 True = 1,
                 False = 0
+            },
+            MaximumTextSize = 65535,
+            TextOverflowType = "TEXT",
+            EnumType = "INT",
+            FieldDelimiter = '`',
+            TypeMap = new Dictionary<Type, StatementMasks.TypeMapEntry>
+            {
+                {typeof(int), new StatementMasks.TypeMapEntry("INT")},
+                {typeof(long), new StatementMasks.TypeMapEntry("BIGINT")},
+                {typeof(bool), new StatementMasks.TypeMapEntry("BIT(1)", "0")},
+                {typeof(DateTime), new StatementMasks.TypeMapEntry("TIMESTAMP")},
+                {typeof(object), new StatementMasks.TypeMapEntry("BLOB")}
             }
         };
 
-        public override DbConnection GetConnection() => new MySqlConnection(Settings.ConnectionString);
+        public override DbConnection GetConnection() => new MySqlConnection(_useAdmin ? _options.AdministrativeConnectionString : Settings.ConnectionString);
 
         public override void RenderSchemaEntityNames()
         {
-            var tn = Settings.StorageCollectionName;
+            var collectionName = Settings.StorageCollectionName;
+            if (collectionName == null) return;
 
-            if (tn == null) return;
+            var tableName = Configuration.SetName ?? Settings.TypeNamespace.ToGuid().ToShortGuid() + Masks.Markers.Spacer + collectionName;
+            Settings.StorageCollectionName = tableName;
+            Settings.ConnectionString ??= _options.ConnectionString;
 
-            var trigBaseName = "TRG_" + tn.Replace("TBL_", "");
-            if (trigBaseName.Length > 27) trigBaseName = trigBaseName.Substring(0, 27); // Oracle Schema object naming limitation
+            var keyField = Settings.Members[Settings.KeyMemberName].Name;
 
-            var res = new Dictionary<string, KeyValuePair<string, string>>
+            var res = new Dictionary<string, Dictionary<string, KeyValuePair<string, string>>>
             {
-                {"Sequence", new KeyValuePair<string, string>("SEQUENCE", "SEQ_" + tn.Replace("TBL_", ""))},
-                {"Table", new KeyValuePair<string, string>("TABLE", tn)},
                 {
-                    "BeforeInsertTrigger",
-                    new KeyValuePair<string, string>("TRIGGER", trigBaseName + "_BI")
+                    Categories.Table,
+                    new Dictionary<string, KeyValuePair<string, string>>() {{Keys.Schema, new KeyValuePair<string,string>(Keys.Name, tableName)} }
+
                 },
                 {
-                    "BeforeUpdateTrigger",
-                    new KeyValuePair<string, string>("TRIGGER", trigBaseName + "_BU")
-                }
+                    Categories.Trigger,
+                    new Dictionary<string, KeyValuePair<string, string>>() {{Keys.Schema, new KeyValuePair<string,string>(tableName + "_BI",
+                        $"CREATE TRIGGER `{tableName}_BI` BEFORE INSERT ON `{tableName}` FOR EACH ROW begin SET new.{keyField} = uuid(); end") } }
+
+                },
             };
+
+
+
+
+
+
+
 
             SchemaElements = res;
         }
@@ -66,43 +103,61 @@ namespace Zen.Module.Data.MySql
             //First step - check if the table is there.
             try
             {
-                var tn = SchemaElements["Table"].Value;
+                var tableName = SchemaElements[Categories.Table][Keys.Schema].Value;
 
-                var tableCount = QuerySingleValue<int>("SELECT COUNT(*) FROM ALL_TABLES WHERE table_name = '" + tn + "'");
+                try
+                {
+                    var tableCount = QuerySingleValue<int>("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '" + tableName + "'");
+                    if (tableCount != 0) return;
+                }
+                catch (MySqlException e)
+                {
+                    if (!_options.AttempSchemaSetup) throw;
 
-                if (tableCount != 0) return;
+                    // if (e.Message.Contains("is not allowed") || e.Message.Contains("denied")) // Let's try Admin mode.
+                    try
+                    {
+
+                        // Extract host address.
+                        //var host = e.Message.Split('\'')[1];
+                        var host = "localhost";
+
+                        _useAdmin = true;
+                        // Let's create a default database and user.
+                        Execute("CREATE DATABASE IF NOT EXISTS Zen;");
+                        Execute("SET GLOBAL log_bin_trust_function_creators = 1;");
+                        Execute($"CREATE USER IF NOT EXISTS 'zenMaster'@'{host}' IDENTIFIED BY 'ExtremelyWeakPassword';");
+                        Execute($"GRANT ALL PRIVILEGES ON Zen.* TO 'zenMaster'@'{host}' WITH GRANT OPTION;");
+                        Execute("FLUSH PRIVILEGES;");
+                        _useAdmin = false;
+                    }
+                    catch (Exception exception)
+                    {
+                        _useAdmin = false;
+                        Console.WriteLine(exception);
+                        throw;
+                    }
+                }
 
                 Current.Log.Add("Initializing schema");
 
                 //Create sequence.
-                var seqName = SchemaElements["Sequence"].Value;
-
-                if (seqName.Length > 30) seqName = seqName.Substring(0, 30);
-
                 var tableRender = new StringBuilder();
 
-                tableRender.Append("CREATE TABLE " + tn + "(");
+                tableRender.AppendLine("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+
 
                 var isFirst = true;
 
-                //bool isRCTSFound = false;
-                //bool isRUTSFound = false;
-
-                foreach (var prop in typeof(T).GetProperties())
+                foreach (var member in Settings.Members)
                 {
-                    var pType = prop.PropertyType;
+                    var pType = member.Value.Type;
+                    long size = member.Value.Size ?? 255;
 
-                    var pSourceName = prop.Name;
+                    var pSourceName = member.Value.Name;
 
-                    long size = 255;
-
-                    if (MemberDescriptors.ContainsKey(pSourceName))
-                    {
-                        size = MemberDescriptors[pSourceName].Length;
-                        if (size == 0) size = 255;
-                    }
-
-                    var pDestinyType = "VARCHAR2(" + size + ")";
+                    var pDestinyType = "";
+                    var defaultDestinyType = "VARCHAR (255)";
                     var pNullableSpec = "";
 
                     if (pType.IsPrimitiveType())
@@ -127,29 +182,21 @@ namespace Zen.Module.Data.MySql
                             pType = nullProbe;
                         }
 
-                        if (pType == typeof(long)) pDestinyType = "NUMBER (20)";
-                        if (pType == typeof(int)) pDestinyType = "NUMBER (20)";
-                        if (pType == typeof(DateTime)) pDestinyType = "TIMESTAMP";
-                        if (pType == typeof(bool)) pDestinyType = "NUMBER (1) DEFAULT 0";
-                        if (pType == typeof(object)) pDestinyType = "BLOB";
-                        if (size > 4000) pDestinyType = "BLOB";
-                        if (pType.IsEnum) pDestinyType = "NUMBER (10)";
+                        var typeProbe = Masks.TypeMap.FirstOrDefault(i => pType == i.Key);
+
+                        if (typeProbe.Key != null)
+                        {
+                            pDestinyType = (typeProbe.Value.Name + (typeProbe.Value.DefaultValue != null ? " DEFAULT " + typeProbe.Value.DefaultValue : "")).Trim();
+                        }
+                        else
+                        {
+                            pDestinyType = defaultDestinyType;
+                        }
+
+                        if (size > Masks.MaximumTextSize) pDestinyType = Masks.TextOverflowType;
+                        if (pType.IsEnum) pDestinyType = Masks.EnumType;
 
                         if (pType == typeof(string)) isNullable = true;
-
-                        if (MemberDescriptors.ContainsKey(pSourceName)) pSourceName = MemberDescriptors[pSourceName].Field;
-
-                        var bMustSkip =
-                            pSourceName.ToLower().Equals("rcts") ||
-                            pSourceName.ToLower().Equals("ruts");
-
-                        if (bMustSkip) continue;
-
-                        if (string.Equals(pSourceName, KeyColumn,
-                            StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
-
-                        if (string.Equals(pSourceName, KeyMember,
-                            StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
 
                         //Rendering
 
@@ -157,140 +204,43 @@ namespace Zen.Module.Data.MySql
                     }
                     else
                     {
-                        pDestinyType = "CLOB";
+                        pDestinyType = Masks.TextOverflowType;
                         pNullableSpec = "";
                     }
 
-                    if (!isFirst) tableRender.Append(", ");
+                    if (!isFirst) tableRender.Append(", " + Environment.NewLine);
                     else isFirst = false;
 
-                    tableRender.Append(pSourceName + " " + pDestinyType + pNullableSpec);
+                    tableRender.Append($"{Masks.FieldDelimiter}{pSourceName}{Masks.FieldDelimiter} {pDestinyType}{pNullableSpec}");
                 }
 
-                //if (!isRCTSFound) tableRender.Append(", RCTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
-                //if (!isRUTSFound) tableRender.Append(", RUTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
+                // Finally the PK.
 
-                tableRender.Append(", RCTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
-                tableRender.Append(", RUTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
+                tableRender.AppendLine($"{Environment.NewLine}, PRIMARY KEY(`{Settings.Members[Settings.KeyMemberName].Name}`)");
 
-                tableRender.Append(")");
+                tableRender.AppendLine(");");
 
                 try
                 {
-                    Current.Log.Add("Creating table " + tn);
-                    Execute(tableRender.ToString());
+                    var rendered = tableRender.ToString();
+
+                    Current.Log.Add("Creating table " + tableName);
+                    Execute(rendered);
+
+                    foreach (var (key, value) in SchemaElements[Categories.Trigger].Values)
+                    {
+                        Current.Log.Add($"Creating {Categories.Trigger} {key}");
+                        Execute(value);
+                    }
+
                 }
                 catch (Exception e)
                 {
                     Current.Log.Add(e);
                 }
-
-                if (KeyColumn != null)
-                {
-                    try
-                    {
-                        Execute("DROP SEQUENCE " + seqName);
-                    }
-                    catch { }
-
-                    try
-                    {
-                        Current.Log.Add("Creating Sequence " + seqName);
-                        Execute("CREATE SEQUENCE " + seqName);
-                    }
-                    catch (Exception) { }
-
-                    //Primary Key
-                    var pkName = tn + "_PK";
-                    var pkStat = $"ALTER TABLE {tn} ADD (CONSTRAINT {pkName} PRIMARY KEY ({KeyColumn}))";
-
-                    try
-                    {
-                        Current.Log.Add("Adding Primary Key constraint " + pkName + " (" + KeyColumn + ")");
-                        Execute(pkStat);
-                    }
-                    catch (Exception e)
-                    {
-                        Current.Log.Add(e);
-                    }
-                }
-                //Trigger
-
-                var trigStat =
-                    @"CREATE OR REPLACE TRIGGER {0}
-                BEFORE INSERT ON {1}
-                FOR EACH ROW
-                BEGIN
-                " +
-                    (KeyColumn != null
-                        ? @"IF :new.{3} is null 
-                    THEN       
-                        SELECT {2}.NEXTVAL INTO :new.{3} FROM dual;
-                    END IF;"
-                        : "")
-                    + @"  
-                :new.RCTS := CURRENT_TIMESTAMP;
-                :new.RUTS := CURRENT_TIMESTAMP;
-                END;";
-
-                try
-                {
-                    Current.Log.Add("Adding BI Trigger " + SchemaElements["BeforeInsertTrigger"].Value);
-                    Execute(
-                        string.Format(trigStat,
-                            SchemaElements["BeforeInsertTrigger"].Value, tn, seqName,
-                            KeyColumn));
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add(e);
-                }
-
-                trigStat =
-                    @"CREATE OR REPLACE TRIGGER {0}
-                BEFORE UPDATE ON {1}
-                FOR EACH ROW
-                BEGIN
-                :new.RUTS := CURRENT_TIMESTAMP;
-                END;";
-
-                try
-                {
-                    Current.Log.Add("Adding BU Trigger " + SchemaElements["BeforeUpdateTrigger"].Value);
-
-                    Execute(string.Format(trigStat,
-                        SchemaElements["BeforeUpdateTrigger"].Value, tn, seqName,
-                        KeyColumn));
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add(e);
-                }
-
-                var ocfld = ";";
-                var commentStat =
-                    "COMMENT ON TABLE " + tn + " IS 'Auto-generated table for Entity " + typeof(T).FullName + ". " +
-                    "Supporting structures - " +
-                    " Sequence: " + seqName + "; " +
-                    " Triggers: " +
-                    SchemaElements["BeforeInsertTrigger"].Value
-                    + ", " +
-                    SchemaElements["BeforeUpdateTrigger"].Value
-                    + ".'" + ocfld;
-
-                try
-                {
-                    Execute(commentStat);
-                }
-                catch { }
 
                 //'Event' hook for post-schema initialization procedure:
-                try
-                {
-                    typeof(T).GetMethod("OnSchemaInitialization", BindingFlags.Public | BindingFlags.Static)
-                        .Invoke(null, null);
-                }
-                catch { }
+                typeof(T).GetMethod("OnSchemaInitialization", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, null);
             }
             catch (Exception e)
             {
@@ -299,11 +249,6 @@ namespace Zen.Module.Data.MySql
                 throw;
             }
         }
-        #endregion
-
-        #region Overrides of DataAdapterPrimitive<T>
-
-        public override void Setup(Settings<T> settings) {  }
 
         #endregion
     }
