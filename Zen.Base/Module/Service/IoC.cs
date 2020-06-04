@@ -18,13 +18,13 @@ namespace Zen.Base.Module.Service
 
         public static readonly ConcurrentDictionary<string, Assembly> AssemblyLoadMap = new ConcurrentDictionary<string, Assembly>();
         private static readonly ConcurrentDictionary<string, string> AssemblyPathMap = new ConcurrentDictionary<string, string>();
-        private static readonly ConcurrentDictionary<Type, List<Type>> TypeResolutionMap = new ConcurrentDictionary<Type, List<Type>>();
+        private static readonly ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>> TypeResolutionMap = new ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>>();
 
         public static readonly Dictionary<Type, List<Type>> GetGenericsByBaseClassCache = new Dictionary<Type, List<Type>>();
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle" };
+        private static readonly List<string> IgnoreList = new List<string> {"System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle"};
 
         static IoC()
         {
@@ -232,20 +232,20 @@ namespace Zen.Base.Module.Service
                 try
                 {
                     foreach (var asy in AssemblyLoadMap.Values.ToList())
-                        foreach (var st in asy.GetTypes())
-                        {
-                            if (st.BaseType == null) continue;
-                            if (!st.BaseType.IsGenericType) continue;
-                            if (st == refType) continue;
+                    foreach (var st in asy.GetTypes())
+                    {
+                        if (st.BaseType == null) continue;
+                        if (!st.BaseType.IsGenericType) continue;
+                        if (st == refType) continue;
 
-                            try
-                            {
-                                foreach (var gta in st.BaseType.GenericTypeArguments)
-                                    if (gta == refType)
-                                        classCol.Add(st);
-                            }
-                            catch { }
+                        try
+                        {
+                            foreach (var gta in st.BaseType.GenericTypeArguments)
+                                if (gta == refType)
+                                    classCol.Add(st);
                         }
+                        catch { }
+                    }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
                 }
@@ -262,12 +262,11 @@ namespace Zen.Base.Module.Service
         ///     Gets a list of classes by implemented interface/base class.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="excludeCoreNullDefinitions">
-        ///     if set to <c>true</c> it ignores all core null providers, retuning only
-        ///     external providers.
+        /// <param name="excludeFallback">
+        ///     if set to <c>true</c> it ignores fallback providers, retuning only defined providers.
         /// </param>
         /// <returns>The list of classes.</returns>
-        public static List<Type> GetClassesByInterface<T>(bool excludeCoreNullDefinitions = true) => GetClassesByInterface(typeof(T), excludeCoreNullDefinitions);
+        public static List<Type> GetClassesByInterface<T>(bool excludeFallback = false) => GetClassesByInterface(typeof(T), excludeFallback);
 
         public static IServiceCollection AddZenProvider<T>(this IServiceCollection serviceCollection, string descriptor = null) where T : class
         {
@@ -282,57 +281,56 @@ namespace Zen.Base.Module.Service
             return serviceCollection;
         }
 
-        public static List<Type> GetClassesByInterface(Type targetType, bool excludeCoreNullDefinitions = true)
+        public static List<Type> GetClassesByInterface(Type targetType, bool excludeFallback = true)
         {
             lock (Lock)
             {
-                if (TypeResolutionMap.ContainsKey(targetType)) return TypeResolutionMap[targetType];
-
-                //Modules.Log.System.Add("Scanning for " + type);
-
-                var currentExecutingAssembly = Assembly.GetExecutingAssembly();
-
-                var globalTypeList = new List<Type>();
-
-                foreach (var item in AssemblyLoadMap.Values)
+                if (!TypeResolutionMap.ContainsKey(targetType))
                 {
-                    if (excludeCoreNullDefinitions && item == currentExecutingAssembly) continue;
+                    //Modules.Log.System.Add("Scanning for " + type);
 
-                    try
-                    {
-                        var partialTypeList =
-                            from target in item.GetTypes() // Get a list of all Types in the cached Assembly
-                            where !target.IsInterface // that aren't interfaces
-                            where !target.IsAbstract // and also not abstract (so it can be instantiated)
-                            where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
-                            where targetType.IsAssignableFrom(target) // that can be assigned to the specified type
-                            where targetType != target // (and obviously not the type itself)
-                            select target;
+                    var currentExecutingAssembly = Assembly.GetExecutingAssembly();
 
-                        globalTypeList.AddRange(partialTypeList);
-                    }
-                    catch (Exception e)
-                    {
-                        if (e is ReflectionTypeLoadException)
+                    var globalTypeList = new List<Type>();
+
+                    foreach (var item in AssemblyLoadMap.Values)
+                        try
                         {
-                            var typeLoadException = e as ReflectionTypeLoadException;
-                            var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
+                            var partialTypeList =
+                                from target in item.GetTypes() // Get a list of all Types in the cached Assembly
+                                where !target.IsInterface // that aren't interfaces
+                                where !target.IsAbstract // and also not abstract (so it can be instantiated)
+                                where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
+                                where targetType.IsAssignableFrom(target) // that can be assigned to the specified type
+                                where targetType != target // (and obviously not the type itself)
+                                select target;
+
+                            globalTypeList.AddRange(partialTypeList);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is ReflectionTypeLoadException)
+                            {
+                                var typeLoadException = e as ReflectionTypeLoadException;
+                                var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
+                            }
+
+                            // Well, this loading can fail by a (long) variety of reasons. 
+                            // It's not a real problem not to catch exceptions here. 
                         }
 
-                        // Well, this loading can fail by a (long) variety of reasons. 
-                        // It's not a real problem not to catch exceptions here. 
-                    }
+                    var typesByPriorityLevelMap = globalTypeList
+                        .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute) i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                        .OrderBy(i => -i.Key).ToList();
+
+                    TypeResolutionMap.TryAdd(targetType, typesByPriorityLevelMap); // Caching results, so similar queries will return from cache
                 }
 
-                var typesByPriorityLevelMap = globalTypeList
-                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
-                    .OrderBy(i => -i.Key);
+                var typeListCache= !excludeFallback ? TypeResolutionMap[targetType] : TypeResolutionMap[targetType].Where(i => i.Key > -1).ToList();
 
-                var typesByPriorityLevel = typesByPriorityLevelMap
+                var typesByPriorityLevel = typeListCache
                     .Select(i => i.Value)
                     .ToList();
-
-                TypeResolutionMap.TryAdd(targetType, typesByPriorityLevel); // Caching results, so similar queries will return from cache
 
                 return typesByPriorityLevel;
             }
