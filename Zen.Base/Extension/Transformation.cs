@@ -132,6 +132,8 @@ namespace Zen.Base.Extension
 
         public static void CopyProperties<T>(this T source, T destination)
         {
+            if (source == null) return;
+
             // https://stackoverflow.com/a/7262846/1845714
 
             // Iterate the Properties of the destination instance and  
@@ -399,7 +401,7 @@ namespace Zen.Base.Extension
         }
 
         // https://weblogs.asp.net/haithamkhedre/generate-guid-from-any-string-using-c
-        public static Guid StringToGuid(this string value)
+        public static Guid ToGuid(this string value)
         {
             // Create a new instance of the MD5CryptoServiceProvider object.
             var md5Hasher = MD5.Create();
