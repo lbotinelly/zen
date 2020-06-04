@@ -29,7 +29,7 @@ namespace Zen.Base
         public static T SetOptions<T>(IConfigurationPackage package, string sectionCode) where T : class =>
             package?.Provider[typeof(T)] != null
                 ? (T) package.Provider[typeof(T)]
-                : IoC.GetClassesByInterface<T>(false).FirstOrDefault()?.CreateInstance<T>() ??
+                : IoC.GetClassesByInterface<T>().FirstOrDefault()?.CreateInstance<T>() ??
                   Options.GetSection(sectionCode).Get<T>();
 
         public static void SetOptions<T>(this IServiceCollection serviceCollection, IConfigurationPackage package, string sectionCode) where T : class => serviceCollection.Configure<T>(c => SetOptions<T>(package, sectionCode));
@@ -40,7 +40,7 @@ namespace Zen.Base
         {
             var targetType = typeof(T);
 
-            var targetProvider = package?.Provider?.ContainsKey(targetType) == true ? (Type) package.Provider[targetType] : IoC.GetClassesByInterface<T>(false).FirstOrDefault();
+            var targetProvider = package?.Provider?.ContainsKey(targetType) == true ? (Type) package.Provider[targetType] : IoC.GetClassesByInterface<T>().FirstOrDefault();
 
             if (targetProvider != null)
             {
@@ -53,9 +53,9 @@ namespace Zen.Base
 
         public static TInterface GetSettings<TInterface, TConcrete>(this TConcrete options, string sectionKey) where TInterface : class where TConcrete : TInterface
         {
-            var configOptions =
-                IoC.GetClassesByInterface<TInterface>().FirstOrDefault()?.ToInstance<TInterface>() ??
-                Options.GetSection(sectionKey).Get<TConcrete>();
+            var configOptions = (IoC.GetClassesByInterface<TInterface>(true).FirstOrDefault()?.ToInstance<TInterface>() ?? // Any concrete defined type?
+                                 Options.GetSection(sectionKey).Get<TConcrete>()) ?? // Any described option in Config?
+                                IoC.GetClassesByInterface<TInterface>().FirstOrDefault()?.ToInstance<TInterface>(); // Load from Fallback.
 
             configOptions.CopyProperties(options);
 
