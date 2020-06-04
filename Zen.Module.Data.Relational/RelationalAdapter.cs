@@ -15,11 +15,14 @@ using Zen.Pebble.Database;
 using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Relational
+
+
 {
     public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : DataAdapterPrimitive<T>, IRelationalStatements where T : Data<T>
     where TStatementFragments : IStatementFragments
     where TWherePart : IWherePart
     {
+
         public Dictionary<string, string> MemberMap = new Dictionary<string, string>();
         public abstract StatementMasks Masks { get; }
 
@@ -27,22 +30,6 @@ namespace Zen.Module.Data.Relational
         {
             var cat = new ColumnAttributeTypeMapper<T>();
             SqlMapper.SetTypeMap(typeof(T), cat);
-
-            MemberDescriptors =
-                (from pInfo in typeof(T).GetProperties()
-                 let p1 = pInfo.GetCustomAttributes(false).OfType<ColumnAttribute>().ToList()
-                 let field = p1.Count != 0 ? p1[0].Name ?? pInfo.Name : pInfo.Name
-                 let length = p1.Count != 0 ? p1[0].Length != 0 ? p1[0].Length : 0 : 0
-                 let serializable = p1.Count != 0 && p1[0].Serialized
-                 select new KeyValuePair<string, MemberDescriptor>(pInfo.Name, new MemberDescriptor { Field = field, Length = length, Serializable = serializable })
-                ).ToDictionary(x => x.Key, x => x.Value);
-
-            MemberMap = MemberDescriptors.Select(i => new KeyValuePair<string, string>(i.Key, i.Value.Field)).ToDictionary(i => i.Key, i => i.Value);
-
-            var (key, value) = MemberDescriptors.FirstOrDefault(p => p.Value.Field.ToLower().Equals(Info<T>.Settings.KeyMemberName.ToLower()));
-
-            KeyMember = key;
-            KeyColumn = value.Field;
         }
 
         public virtual void PrepareStatements()
@@ -56,7 +43,7 @@ namespace Zen.Module.Data.Relational
             Statements.GetSingleByIdentifier = Statements.GetSingleByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(KeyColumn)));
 
             // "SELECT * FROM {0} WHERE {1} IN ({2})"
-            Statements.GetManyByIdentifier = Statements.GetManyByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(Masks.Keywords.Keyset)));
+            Statements.GetManyByIdentifier = Statements.GetManyByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(Masks.Markers.KeySet)));
 
             // "SELECT * FROM {0}"
             Statements.GetAll = Statements.GetAll.format(setName);
@@ -125,11 +112,9 @@ namespace Zen.Module.Data.Relational
         public virtual bool UseNumericPrimaryKeyOnly { get; } = false;
         public virtual bool UseOutputParameterForInsertedKeyExtraction { get; } = false;
         public virtual RelationalStatements Statements { get; } = new RelationalStatements();
-        public Dictionary<string, MemberDescriptor> MemberDescriptors { get; set; } = new Dictionary<string, MemberDescriptor>();
-
         public string KeyMember { get; set; }
         public string KeyColumn { get; set; }
-        public Dictionary<string, KeyValuePair<string, string>> SchemaElements { get; set; }
+        public Dictionary<string, Dictionary<string, KeyValuePair<string, string>>> SchemaElements { get; set; }
 
         public virtual DbConnection GetConnection() => null;
         public virtual void RenderSchemaEntityNames() { }
@@ -213,7 +198,7 @@ namespace Zen.Module.Data.Relational
             if (!keySet.Any()) return new List<T>();
 
             var statement = Statements.GetManyByIdentifier;
-            var parameter = new Dictionary<string, object> { { Masks.Parameter.format(Masks.Keywords.Keyset), keySet.ToArray() } };
+            var parameter = new Dictionary<string, object> { { Masks.Parameter.format(Masks.Markers.KeySet), keySet.ToArray() } };
             return RawQuery<T>(statement, parameter);
         }
 
