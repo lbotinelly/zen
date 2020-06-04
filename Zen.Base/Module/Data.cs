@@ -138,14 +138,28 @@ namespace Zen.Base.Module
 
                     // Start with properties...
 
-                    _settings.Members = typeof(T).GetProperties()
-                        .ToDictionary(i => i.Name, i => (MemberAttribute)Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute { Name = i.Name });
+                    var memberMap = new Dictionary<string, MemberAttribute>();
+                    foreach (var property in typeof(T).GetProperties())
+                    {
+                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(property, typeof(MemberAttribute)) ?? new MemberAttribute { Name = property.Name };
+                        targetMember.Interface = EMemberType.Property;
+                        targetMember.Type = property.PropertyType;
+                        memberMap.Add(property.Name, targetMember);
+                    }
 
                     // and then add Fields.
-                    var FieldDefinitions = typeof(T).GetFields()
-                        .ToDictionary(i => i.Name, i => (MemberAttribute)Attribute.GetCustomAttribute(i, typeof(MemberAttribute)) ?? new MemberAttribute { Name = i.Name });
 
-                    foreach (var f in FieldDefinitions) _settings.Members.Add(f.Key, f.Value);
+                    foreach (var field in typeof(T).GetFields())
+                    {
+
+                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(field, typeof(MemberAttribute)) ?? new MemberAttribute { Name = field.Name };
+                        targetMember.Interface = EMemberType.Field;
+                        targetMember.Type = field.FieldType;
+
+                        memberMap.Add(field.Name, targetMember);
+                    }
+
+                    _settings.Members = memberMap;
 
                     // Do we have any pipelines defined?
 
