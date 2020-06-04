@@ -79,7 +79,7 @@ namespace Zen.Pebble.Database
                             {
                                 parametrizedName = Fragments.ParametrizedValue.Format(colName);
 
-                                response = WherePart.IsSql($"{colName} {Fragments.Keywords.Equality} {Fragments.InlineValue.Format(parametrizedName)}");
+                                response = WherePart.IsSql($"{colName} {Fragments.Markers.Equality} {Fragments.InlineValue.Format(parametrizedName)}");
                                 response.Parameters.Add(parametrizedName, Fragments.Values.True);
                             }
                             else if (member.Expression is ConstantExpression)
