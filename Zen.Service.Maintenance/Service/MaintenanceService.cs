@@ -53,7 +53,7 @@ namespace Zen.Service.Maintenance.Service
 
                 i.Description = i.Setup?.Name;
 
-                i.Id = $"{i.Type.FullName} | {i.Description}".StringToGuid().ToString();
+                i.Id = $"{i.Type.FullName} | {i.Description}".ToGuid().ToString();
             }
 
             preList.Sort((a, b) => b.Priority.Level - a.Priority.Level);
