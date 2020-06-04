@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -39,7 +41,7 @@ namespace Zen.Web.Host
 
                 var hostCertificate = GetCertificate();
 
-                var host = new WebHostBuilder() // Pretty standard pipeline,
+                var hostBuilder = new WebHostBuilder() // Pretty standard pipeline,
                     .UseContentRoot(Directory.GetCurrentDirectory())
                     .ConfigureLogging(logging =>
                     {
@@ -67,8 +69,9 @@ namespace Zen.Web.Host
                         if (hostCertificate == null) return;
                         options.Listen(localAddress, httpsPort,
                             listenOptions => { listenOptions.UseHttps(hostCertificate); });
-                    })
-                    .Build();
+                    });
+
+                var host = hostBuilder.Build();
 
                 if (hostCertificate != null) // Log so we know what's going on.
                     Base.Current.Log.KeyValuePair("Certificate",
