@@ -6,16 +6,14 @@
     <RootNamespace>Sample04_AuthenticatedWeb</RootNamespace>
   </PropertyGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.4" />
   </ItemGroup>
 
-
   <ItemGroup>
     <ProjectReference Include="..\..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Cache.Memory\Zen.Module.Cache.Memory.csproj" />
-    <ProjectReference Include="..\..\Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Data.MySql\Zen.Module.Data.MySql.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Facebook\Zen.Provider.Facebook.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.GitHub\Zen.Provider.GitHub.csproj" />
@@ -25,7 +23,6 @@
     <ProjectReference Include="..\..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
     <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.1.91" />
