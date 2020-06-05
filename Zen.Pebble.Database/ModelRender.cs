@@ -13,16 +13,15 @@ namespace Zen.Pebble.Database
     {
         private readonly ModelDescriptor _modelDescriptor;
 
-        protected ModelRender(ModelDescriptor modelDefinition = null)
+        public ModelRender(ModelDescriptor modelDefinition = null, StatementMasks masks = null)
         {
             Fragments = (IStatementFragments)typeof(TFragments).CreateInstance();
             WherePart = (IWherePart)typeof(TWherePart).CreateInstance();
 
             _modelDescriptor = modelDefinition ?? typeof(T).ToModelDescriptor();
+            Masks = masks;
         }
-
-        public ModelRender() { }
-
+        
         public IStatementFragments Fragments { get; set; }
         public IWherePart WherePart { get; set; }
 
