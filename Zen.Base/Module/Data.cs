@@ -137,22 +137,22 @@ namespace Zen.Base.Module
                     // Member definitions
 
                     // Start with properties...
-
                     var memberMap = new Dictionary<string, MemberAttribute>();
                     foreach (var property in typeof(T).GetProperties())
                     {
-                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(property, typeof(MemberAttribute)) ?? new MemberAttribute { Name = property.Name };
+                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(property, typeof(MemberAttribute)) ?? new MemberAttribute { TargetName = property.Name };
+                        targetMember.SourceName = property.Name;
                         targetMember.Interface = EMemberType.Property;
                         targetMember.Type = property.PropertyType;
+
                         memberMap.Add(property.Name, targetMember);
                     }
 
                     // and then add Fields.
-
                     foreach (var field in typeof(T).GetFields())
                     {
-
-                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(field, typeof(MemberAttribute)) ?? new MemberAttribute { Name = field.Name };
+                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(field, typeof(MemberAttribute)) ?? new MemberAttribute { TargetName = field.Name };
+                        targetMember.SourceName = field.Name;
                         targetMember.Interface = EMemberType.Field;
                         targetMember.Type = field.FieldType;
 
