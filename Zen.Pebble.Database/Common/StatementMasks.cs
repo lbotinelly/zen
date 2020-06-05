@@ -7,15 +7,13 @@ namespace Zen.Pebble.Database.Common
     {
         public string Parameter { get; set; } = "{0}";
         public string InlineParameter { get; set; } = "{0}";
-        public string Column { get; set; } = "[{0}]";
-
         public MarkerSet Markers { get; set; } = new MarkerSet();
         public ValueSet Values { get; set; } = new ValueSet();
         public string EnumType { get; set; }
         public int MaximumTextSize { get; set; }
         public string TextOverflowType { get; set; }
         public char FieldDelimiter { get; set; }
-
+        public int DefaultTextSize { get; set; }
         public class MarkerSet
         {
             public string KeySet = "keyset";
