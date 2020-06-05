@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Dapper;
 
@@ -17,8 +16,8 @@ namespace Zen.Module.Data.Relational.Mapper
                         {
                             return prop.GetCustomAttributes(false)
                                 .OfType<ColumnAttribute>()
-                                .Where(attr => attr.Name!= null)
-                                .Any(attr => string.Equals(attr.Name, columnName, StringComparison.OrdinalIgnoreCase));
+                                .Where(attr => attr.TargetName != null)
+                                .Any(attr => string.Equals(attr.TargetName, columnName, StringComparison.OrdinalIgnoreCase));
                         });
                 }),
                 new DefaultTypeMap(typeof(T))

@@ -9,6 +9,7 @@ using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
+using Zen.Base.Module.Log;
 using Zen.Module.Data.Relational.Common;
 using Zen.Module.Data.Relational.Mapper;
 using Zen.Pebble.Database;
@@ -34,7 +35,7 @@ namespace Zen.Module.Data.Relational
 
         public virtual void PrepareStatements()
         {
-            var setName = Configuration.SetName;
+            var setName = Settings.StorageCollectionName;
 
             // "SELECT COUNT(*) FROM {0}"
             Statements.RowCount = Statements.RowCount.format(setName);
@@ -42,13 +43,16 @@ namespace Zen.Module.Data.Relational
             // "SELECT * FROM {0} WHERE {1} = {2}"
             Statements.GetSingleByIdentifier = Statements.GetSingleByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(KeyColumn)));
 
-            // "SELECT * FROM {0} WHERE {1} IN ({2})"
+            // from: "SELECT * FROM {0} WHERE {1} IN ({2})"
+            // from: "SELECT * FROM TABLE WHERE ID IN ({0})"
             Statements.GetManyByIdentifier = Statements.GetManyByIdentifier.format(setName, KeyColumn, Masks.InlineParameter.format(Masks.Parameter.format(Masks.Markers.KeySet)));
 
-            // "SELECT * FROM {0}"
+            // from: "SELECT * FROM {0}"
+            // to  : "SELECT * FROM TABLE"
             Statements.GetAll = Statements.GetAll.format(setName);
 
-            // "SELECT * FROM {0} WHERE {1}"
+            // from: "SELECT * FROM {0} WHERE {1}"
+            // to  : "SELECT * FROM TABLE WHERE {0}"
             Statements.AllFields = Statements.AllFields.format(setName, "{0}");
         }
 
@@ -65,10 +69,7 @@ namespace Zen.Module.Data.Relational
 
         public void Execute(string statement)
         {
-            using (var conn = GetConnection())
-            {
-                conn.Execute(statement);
-            }
+            using (var conn = GetConnection()) conn.Execute(statement);
         }
 
         public List<TU> RawQuery<TU>(string statement, object parameters)
@@ -115,7 +116,6 @@ namespace Zen.Module.Data.Relational
         public string KeyMember { get; set; }
         public string KeyColumn { get; set; }
         public Dictionary<string, Dictionary<string, KeyValuePair<string, string>>> SchemaElements { get; set; }
-
         public virtual DbConnection GetConnection() => null;
         public virtual void RenderSchemaEntityNames() { }
         public virtual void ValidateSchema() { }
@@ -127,61 +127,39 @@ namespace Zen.Module.Data.Relational
 
         public override void Initialize()
         {
-            ModelRender = new ModelRender<T, TStatementFragments, TWherePart> { Masks = Masks };
             Configuration = Info<T>.Configuration;
             Settings = Info<T>.Settings;
 
             Map();
             RenderSchemaEntityNames();
             ValidateSchema();
+
+            KeyColumn = Settings.Members[Settings.KeyMemberName].TargetName;
+
+            ModelRender = new ModelRender<T, TStatementFragments, TWherePart>(Extensions.ToModelDescriptor<T>(), Masks);
+
             PrepareStatements();
 
             ReferenceCollectionName = Configuration.SetPrefix + Configuration.SetName;
         }
 
         public ModelRender<T, TStatementFragments, TWherePart> ModelRender { get; set; }
-
         public Settings<T> Settings { get; private set; }
-
         public DataConfigAttribute Configuration { get; private set; }
-
         public override long Count(Mutator mutator = null) => QuerySingleValue<long>(Statements.RowCount);
         public override T Insert(T model, Mutator mutator = null) => throw new NotImplementedException();
         public override T Save(T model, Mutator mutator = null) => throw new NotImplementedException();
         public override T Upsert(T model, Mutator mutator = null) => throw new NotImplementedException();
-        public override void Remove(string key, Mutator mutator = null)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Remove(T model, Mutator mutator = null)
-        {
-            throw new NotImplementedException();
-        }
-        public override void RemoveAll(Mutator mutator = null)
-        {
-            throw new NotImplementedException();
-        }
+        public override void Remove(string key, Mutator mutator = null) => throw new NotImplementedException();
+        public override void Remove(T model, Mutator mutator = null) => throw new NotImplementedException();
+        public override void RemoveAll(Mutator mutator = null) => throw new NotImplementedException();
         public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
         public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
         public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
-        public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null)
-        {
-            throw new NotImplementedException();
-        }
-        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DropSet(string setName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
-        {
-            throw new NotImplementedException();
-        }
+        public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null) => throw new NotImplementedException();
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => throw new NotImplementedException();
+        public override void DropSet(string setName) => throw new NotImplementedException();
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) => throw new NotImplementedException();
 
         public override T Get(string key, Mutator mutator = null)
         {
@@ -203,20 +181,18 @@ namespace Zen.Module.Data.Relational
         }
 
         public override IEnumerable<T> Query(string statement) => throw new NotImplementedException();
-
         public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(Statements.GetAll);
         public override IEnumerable<TU> Query<TU>(string statement) => throw new NotImplementedException();
-
         public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => AdapterQuery<TU>(Statements.GetAll, mutator);
-
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
             var parts = ModelRender.Render(predicate);
             var statement = Statements.AllFields.format(parts.Statement);
 
+            Base.Current.Log.Add(statement, Message.EContentType.Debug);
+
             return RawQuery<T>(statement, parts.Parameters);
         }
-
         #endregion
     }
 }

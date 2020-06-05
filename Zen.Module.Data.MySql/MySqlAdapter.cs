@@ -36,14 +36,9 @@ namespace Zen.Module.Data.MySql
 
         public override StatementMasks Masks { get; } = new StatementMasks
         {
-            Column = "{0}",
-            InlineParameter = ":{0}",
-            Parameter = "u_{0}",
-            Values =
-            {
-                True = 1,
-                False = 0
-            },
+            Parameter = "@p{0}",
+            Values = { True = 1, False = 0 },
+            DefaultTextSize = 255,
             MaximumTextSize = 65535,
             TextOverflowType = "TEXT",
             EnumType = "INT",
@@ -65,11 +60,11 @@ namespace Zen.Module.Data.MySql
             var collectionName = Settings.StorageCollectionName;
             if (collectionName == null) return;
 
-            var tableName = Configuration.SetName ?? Settings.TypeNamespace.ToGuid().ToShortGuid() + Masks.Markers.Spacer + collectionName;
+            var tableName = Configuration.SetName ?? collectionName + Masks.Markers.Spacer + Settings.TypeNamespace.ToGuid().ToShortGuid();
             Settings.StorageCollectionName = tableName;
             Settings.ConnectionString ??= _options.ConnectionString;
 
-            var keyField = Settings.Members[Settings.KeyMemberName].Name;
+            var keyField = Settings.Members[Settings.KeyMemberName].TargetName;
 
             var res = new Dictionary<string, Dictionary<string, KeyValuePair<string, string>>>
             {
@@ -85,13 +80,6 @@ namespace Zen.Module.Data.MySql
 
                 },
             };
-
-
-
-
-
-
-
 
             SchemaElements = res;
         }
@@ -117,18 +105,13 @@ namespace Zen.Module.Data.MySql
                     // if (e.Message.Contains("is not allowed") || e.Message.Contains("denied")) // Let's try Admin mode.
                     try
                     {
-
-                        // Extract host address.
-                        //var host = e.Message.Split('\'')[1];
-                        var host = "localhost";
-
                         _useAdmin = true;
                         // Let's create a default database and user.
-                        Execute("CREATE DATABASE IF NOT EXISTS Zen;");
-                        Execute("SET GLOBAL log_bin_trust_function_creators = 1;");
-                        Execute($"CREATE USER IF NOT EXISTS 'zenMaster'@'{host}' IDENTIFIED BY 'ExtremelyWeakPassword';");
-                        Execute($"GRANT ALL PRIVILEGES ON Zen.* TO 'zenMaster'@'{host}' WITH GRANT OPTION;");
-                        Execute("FLUSH PRIVILEGES;");
+                        Execute("CREATE DATABASE IF NOT EXISTS Zen");
+                        Execute("SET GLOBAL log_bin_trust_function_creators = 1");
+                        Execute($"CREATE USER IF NOT EXISTS 'zenMaster'@'localhost' IDENTIFIED BY 'ExtremelyWeakPassword'");
+                        Execute($"GRANT ALL PRIVILEGES ON Zen.* TO 'zenMaster'@'localhost' WITH GRANT OPTION");
+                        Execute("FLUSH PRIVILEGES");
                         _useAdmin = false;
                     }
                     catch (Exception exception)
@@ -146,18 +129,17 @@ namespace Zen.Module.Data.MySql
 
                 tableRender.AppendLine("CREATE TABLE IF NOT EXISTS " + tableName + " (");
 
-
                 var isFirst = true;
 
-                foreach (var member in Settings.Members)
+                foreach (var (name, memberDescriptor) in Settings.Members)
                 {
-                    var pType = member.Value.Type;
-                    long size = member.Value.Size ?? 255;
+                    var pType = memberDescriptor.Type;
+                    long size = memberDescriptor.Size ?? Masks.DefaultTextSize;
 
-                    var pSourceName = member.Value.Name;
+                    var pSourceName = memberDescriptor.TargetName;
 
                     var pDestinyType = "";
-                    var defaultDestinyType = "VARCHAR (255)";
+                    var defaultDestinyType = $"VARCHAR ({Masks.DefaultTextSize})";
                     var pNullableSpec = "";
 
                     if (pType.IsPrimitiveType())
@@ -182,16 +164,9 @@ namespace Zen.Module.Data.MySql
                             pType = nullProbe;
                         }
 
-                        var typeProbe = Masks.TypeMap.FirstOrDefault(i => pType == i.Key);
+                        var (key, value) = Masks.TypeMap.FirstOrDefault(i => pType == i.Key);
 
-                        if (typeProbe.Key != null)
-                        {
-                            pDestinyType = (typeProbe.Value.Name + (typeProbe.Value.DefaultValue != null ? " DEFAULT " + typeProbe.Value.DefaultValue : "")).Trim();
-                        }
-                        else
-                        {
-                            pDestinyType = defaultDestinyType;
-                        }
+                        pDestinyType = key != null ? (value.Name + (value.DefaultValue != null ? " DEFAULT " + value.DefaultValue : "")).Trim() : defaultDestinyType;
 
                         if (size > Masks.MaximumTextSize) pDestinyType = Masks.TextOverflowType;
                         if (pType.IsEnum) pDestinyType = Masks.EnumType;
@@ -216,27 +191,19 @@ namespace Zen.Module.Data.MySql
 
                 // Finally the PK.
 
-                tableRender.AppendLine($"{Environment.NewLine}, PRIMARY KEY(`{Settings.Members[Settings.KeyMemberName].Name}`)");
+                tableRender.AppendLine($"{Environment.NewLine}, PRIMARY KEY(`{Settings.Members[Settings.KeyMemberName].TargetName}`)");
 
                 tableRender.AppendLine(");");
 
-                try
+                var rendered = tableRender.ToString();
+
+                Current.Log.Add("Creating table " + tableName);
+                Execute(rendered);
+
+                foreach (var (name, creationStatement) in SchemaElements[Categories.Trigger].Values)
                 {
-                    var rendered = tableRender.ToString();
-
-                    Current.Log.Add("Creating table " + tableName);
-                    Execute(rendered);
-
-                    foreach (var (key, value) in SchemaElements[Categories.Trigger].Values)
-                    {
-                        Current.Log.Add($"Creating {Categories.Trigger} {key}");
-                        Execute(value);
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Current.Log.Add(e);
+                    Current.Log.Add($"Creating {Categories.Trigger} {name}");
+                    Execute(creationStatement);
                 }
 
                 //'Event' hook for post-schema initialization procedure:
