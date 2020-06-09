@@ -234,7 +234,7 @@ namespace Zen.Service.Maintenance.Service
 
                             tk.LastResult = task.Result;
                             tk.Success = task.Result.Status == Result.EResultStatus.Success;
-                            tk.Elapsed = sw.Elapsed;
+                            tk.Elapsed = sw.Elapsed.ToString();
                             tk.LastMessage = tk.LastResult?.Message;
                         }
 
