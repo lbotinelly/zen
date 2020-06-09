@@ -66,6 +66,7 @@ namespace Zen.Base.Module.Data
         public string TypeNamespace { get; set; }
         public Dictionary<string, MemberAttribute> Members { get; set; }
         public string FriendlyName { get; set; }
+        public string StorageKeyMemberName { get; set; }
         public Lazy<T> GetInstancedModifier() => new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null));
 
 
