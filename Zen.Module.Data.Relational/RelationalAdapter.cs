@@ -45,8 +45,12 @@ namespace Zen.Module.Data.Relational
 
         public void Map()
         {
-            var cat = new ColumnAttributeTypeMapper<T>();
-            SqlMapper.SetTypeMap(typeof(T), cat);
+            SqlMapper.SetTypeMap(typeof(T), new ColumnAttributeTypeMapper<T>());
+
+            // For each of the custom type members, map it as a Json object:
+
+            foreach (var memberAttribute in Settings.Members.Where(memberAttribute => !memberAttribute.Value.Type.IsBasicType())) 
+                SqlMapper.AddTypeHandler(memberAttribute.Value.Type, new JsonObjectTypeHandler());
         }
 
         public virtual void PrepareStatements()
