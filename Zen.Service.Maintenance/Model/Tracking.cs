@@ -18,7 +18,7 @@ namespace Zen.Service.Maintenance.Model
         public bool Success { get; set; }
         public bool RunOnce { get; set; }
         public string LastMessage { get; set; }
-        public TimeSpan Elapsed { get; set; }
+        public string Elapsed { get; set; }
         public string InstanceIdentifier { get; set; }
 
         public bool CanRun()
