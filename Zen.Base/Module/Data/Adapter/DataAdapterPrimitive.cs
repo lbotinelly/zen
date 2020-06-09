@@ -73,6 +73,7 @@ namespace Zen.Base.Module.Data.Adapter
         public abstract IEnumerable<TU> Query<TU>(Mutator mutator = null);
 
         public abstract long Count(Mutator mutator = null);
+        public abstract bool KeyExists(string key, Mutator mutator = null);
 
         public abstract T Insert(T model, Mutator mutator = null);
         public abstract T Save(T model, Mutator mutator = null);

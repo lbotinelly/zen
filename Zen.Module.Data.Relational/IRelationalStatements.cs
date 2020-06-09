@@ -11,7 +11,7 @@ namespace Zen.Module.Data.Relational
         RelationalStatements Statements { get; }
         string KeyMember { get; set; }
         string KeyColumn { get; set; }
-        Dictionary<string, Dictionary<string, KeyValuePair<string, string>>> SchemaElements { get; set; }
+        Dictionary<string, Dictionary<string, string>> SchemaElements { get; set; }
 
         DbConnection GetConnection();
         void RenderSchemaEntityNames();
