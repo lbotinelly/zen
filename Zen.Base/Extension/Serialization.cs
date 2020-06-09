@@ -300,8 +300,8 @@ namespace Zen.Base.Extension
                     typeof(string),
                     typeof(decimal),
                     typeof(DateTime),
-                    typeof(DateTimeOffset),
-                    typeof(TimeSpan),
+                    // typeof(DateTimeOffset),
+                    // typeof(TimeSpan),
                     typeof(Guid)
                 }.Contains(type) ||
                 Convert.GetTypeCode(type) != TypeCode.Object;
