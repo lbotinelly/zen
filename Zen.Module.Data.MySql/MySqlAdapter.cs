@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Text;
 using MySql.Data.MySqlClient;
 using Zen.Base;
@@ -28,6 +27,7 @@ namespace Zen.Module.Data.MySql
         public override void Setup(Settings<T> settings)
         {
             _options = new Configuration.Options().GetSettings<Configuration.IOptions, Configuration.Options>("Database:MySQL");
+            Statements.InsertModel = "INSERT INTO {StorageCollectionName} ({InlineFieldSet}) VALUES ({InlineParameterSet})";
         }
 
         #endregion
@@ -36,21 +36,31 @@ namespace Zen.Module.Data.MySql
 
         public override StatementMasks Masks { get; } = new StatementMasks
         {
-            Parameter = "@p{0}",
-            Values = { True = 1, False = 0 },
+            ParameterPrefix = "@p",
+            BooleanValues = { True = 1, False = 0 },
             DefaultTextSize = 255,
             MaximumTextSize = 65535,
             TextOverflowType = "TEXT",
             EnumType = "INT",
-            FieldDelimiter = '`',
-            TypeMap = new Dictionary<Type, StatementMasks.TypeMapEntry>
+            FieldDelimiter = '`'
+        };
+
+        public override Dictionary<Type, TypeDefinition> TypeDefinitionMap { get; } = new Dictionary<Type, TypeDefinition>
+        {
+            {typeof(int), new TypeDefinition("INT") {InlineAutoSchema = "AUTO_INCREMENT"}},
+            {typeof(long), new TypeDefinition("BIGINT") {InlineAutoSchema = "AUTO_INCREMENT"}},
+            {typeof(bool), new TypeDefinition("TINYINT(1)", "0")},
+            {typeof(DateTime), new TypeDefinition("TIMESTAMP")},
             {
-                {typeof(int), new StatementMasks.TypeMapEntry("INT")},
-                {typeof(long), new StatementMasks.TypeMapEntry("BIGINT")},
-                {typeof(bool), new StatementMasks.TypeMapEntry("BIT(1)", "0")},
-                {typeof(DateTime), new StatementMasks.TypeMapEntry("TIMESTAMP")},
-                {typeof(object), new StatementMasks.TypeMapEntry("BLOB")}
-            }
+                typeof(string), new TypeDefinition("VARCHAR({DefaultTextSize})")
+                {
+                    DiscreteAutoSchema = new List<string>
+                    {
+                        "CREATE TRIGGER `{StorageCollectionName}_BI` BEFORE INSERT ON `{StorageCollectionName}` FOR EACH ROW begin IF new.{StorageKeyMemberName} IS NULL THEN SET new.{StorageKeyMemberName} = uuid(); END IF; end"
+                    }
+                }
+            },
+            {typeof(object), new TypeDefinition("BLOB")}
         };
 
         public override DbConnection GetConnection() => new MySqlConnection(_useAdmin ? _options.AdministrativeConnectionString : Settings.ConnectionString);
@@ -64,22 +74,34 @@ namespace Zen.Module.Data.MySql
             Settings.StorageCollectionName = tableName;
             Settings.ConnectionString ??= _options.ConnectionString;
 
-            var keyField = Settings.Members[Settings.KeyMemberName].TargetName;
+            Settings.StorageKeyMemberName = Settings.Members[Settings.KeyMemberName].TargetName;
 
-            var res = new Dictionary<string, Dictionary<string, KeyValuePair<string, string>>>
+
+            var settingsDict = Settings.ToPropertyDictionary();
+
+            var res = new Dictionary<string, Dictionary<string, string>>
             {
                 {
                     Categories.Table,
-                    new Dictionary<string, KeyValuePair<string, string>>() {{Keys.Schema, new KeyValuePair<string,string>(Keys.Name, tableName)} }
-
-                },
-                {
-                    Categories.Trigger,
-                    new Dictionary<string, KeyValuePair<string, string>>() {{Keys.Schema, new KeyValuePair<string,string>(tableName + "_BI",
-                        $"CREATE TRIGGER `{tableName}_BI` BEFORE INSERT ON `{tableName}` FOR EACH ROW begin SET new.{keyField} = uuid(); end") } }
-
-                },
+                    new Dictionary<string, string> {{Keys.Name, tableName}}
+                }
             };
+
+            if (TypeDefinitionMap.ContainsKey(Settings.Members[Settings.KeyMemberName].Type))
+            {
+                var discreteKeySchema = TypeDefinitionMap[Settings.Members[Settings.KeyMemberName].Type]?.DiscreteAutoSchema;
+
+                if (discreteKeySchema != null)
+                    foreach (var keySchema in discreteKeySchema)
+                    {
+                        var renderedKeySchema = settingsDict.ReplaceIn(keySchema);
+
+                        if (!res.ContainsKey(Categories.Trigger)) res.Add(Categories.Trigger, new Dictionary<string, string>());
+                        if (res[Categories.Trigger] == null) res[Categories.Trigger] = new Dictionary<string, string>();
+
+                        res[Categories.Trigger].Add(renderedKeySchema.Md5Hash(), renderedKeySchema);
+                    }
+            }
 
             SchemaElements = res;
         }
@@ -91,7 +113,7 @@ namespace Zen.Module.Data.MySql
             //First step - check if the table is there.
             try
             {
-                var tableName = SchemaElements[Categories.Table][Keys.Schema].Value;
+                var tableName = SchemaElements[Categories.Table][Keys.Name];
 
                 try
                 {
@@ -109,8 +131,8 @@ namespace Zen.Module.Data.MySql
                         // Let's create a default database and user.
                         Execute("CREATE DATABASE IF NOT EXISTS Zen");
                         Execute("SET GLOBAL log_bin_trust_function_creators = 1");
-                        Execute($"CREATE USER IF NOT EXISTS 'zenMaster'@'localhost' IDENTIFIED BY 'ExtremelyWeakPassword'");
-                        Execute($"GRANT ALL PRIVILEGES ON Zen.* TO 'zenMaster'@'localhost' WITH GRANT OPTION");
+                        Execute("CREATE USER IF NOT EXISTS 'zenMaster'@'localhost' IDENTIFIED BY 'ExtremelyWeakPassword'");
+                        Execute("GRANT ALL PRIVILEGES ON Zen.* TO 'zenMaster'@'localhost' WITH GRANT OPTION");
                         Execute("FLUSH PRIVILEGES");
                         _useAdmin = false;
                     }
@@ -123,6 +145,8 @@ namespace Zen.Module.Data.MySql
                 }
 
                 Current.Log.Add("Initializing schema");
+
+                var maskKeys = Masks.ToPropertyDictionary();
 
                 //Create sequence.
                 var tableRender = new StringBuilder();
@@ -139,6 +163,7 @@ namespace Zen.Module.Data.MySql
                     var pSourceName = memberDescriptor.TargetName;
 
                     var pDestinyType = "";
+                    var pAutoSchema = "";
                     var defaultDestinyType = $"VARCHAR ({Masks.DefaultTextSize})";
                     var pNullableSpec = "";
 
@@ -152,30 +177,32 @@ namespace Zen.Module.Data.MySql
 
                         if (pType.BaseType != null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
 
-                        var isNullable = false;
+                        var isNullable = pType.IsNullable();
 
-                        //Check if it's a nullable type.
+                        if (Settings.StorageKeyMemberName == memberDescriptor.SourceName) isNullable = false;
 
-                        var nullProbe = Nullable.GetUnderlyingType(pType);
+                        var (key, value) = TypeDefinitionMap.FirstOrDefault(i => pType == i.Key);
 
-                        if (nullProbe != null)
+                        if (key != null)
                         {
-                            isNullable = true;
-                            pType = nullProbe;
+                            pDestinyType = value.Name;
+                            if (value.DefaultValue != null) pDestinyType += " DEFAULT " + value.DefaultValue;
+
+                            if (name == Settings.KeyMemberName)
+                                if (value.InlineAutoSchema != null) pAutoSchema = value.InlineAutoSchema;
+
                         }
-
-                        var (key, value) = Masks.TypeMap.FirstOrDefault(i => pType == i.Key);
-
-                        pDestinyType = key != null ? (value.Name + (value.DefaultValue != null ? " DEFAULT " + value.DefaultValue : "")).Trim() : defaultDestinyType;
+                        else
+                        {
+                            pDestinyType = defaultDestinyType;
+                        }
 
                         if (size > Masks.MaximumTextSize) pDestinyType = Masks.TextOverflowType;
                         if (pType.IsEnum) pDestinyType = Masks.EnumType;
 
-                        if (pType == typeof(string)) isNullable = true;
-
                         //Rendering
 
-                        if (!isNullable) pNullableSpec = " NOT NULL";
+                        if (!isNullable) pNullableSpec = "NOT NULL";
                     }
                     else
                     {
@@ -186,7 +213,7 @@ namespace Zen.Module.Data.MySql
                     if (!isFirst) tableRender.Append(", " + Environment.NewLine);
                     else isFirst = false;
 
-                    tableRender.Append($"{Masks.FieldDelimiter}{pSourceName}{Masks.FieldDelimiter} {pDestinyType}{pNullableSpec}");
+                    tableRender.Append($"{Masks.FieldDelimiter}{pSourceName}{Masks.FieldDelimiter} {pDestinyType} {pNullableSpec} {pAutoSchema}");
                 }
 
                 // Finally the PK.
@@ -197,10 +224,16 @@ namespace Zen.Module.Data.MySql
 
                 var rendered = tableRender.ToString();
 
-                Current.Log.Add("Creating table " + tableName);
-                Execute(rendered);
+                rendered = maskKeys.ReplaceIn(rendered);
 
-                foreach (var (name, creationStatement) in SchemaElements[Categories.Trigger].Values)
+                Current.Log.Add("Creating table " + tableName);
+
+                Current.Log.Add("---");
+                Current.Log.Add(rendered);
+                Execute(rendered);
+                Current.Log.Add("---");
+
+                foreach (var (name, creationStatement) in SchemaElements[Categories.Trigger])
                 {
                     Current.Log.Add($"Creating {Categories.Trigger} {name}");
                     Execute(creationStatement);
