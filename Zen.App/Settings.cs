@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Zen.App.Core.Application;
 using Zen.Base;
-using Application = Zen.App.Model.Core.Application;
 
 namespace Zen.App
 {
