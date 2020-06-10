@@ -827,10 +827,15 @@ namespace Zen.Base.Module
                 return _isNew.Value;
             }
 
+            if (!Info<T>.Settings.Adapter.KeyExists(key, mutator))
+            {
+                _isNew = true;
+                return _isNew.Value;
+            }
+
             originalModel = Get(key, mutator, true);
 
             _isNew = originalModel == null;
-
             return _isNew.Value;
         }
 
