@@ -35,9 +35,9 @@ namespace Zen.Module.Data.Relational
             {
                 if (Masks.BooleanValues != null)
                     if (i.Value is bool)
-                        res[i.Key] = (bool) i.Value ? Masks.BooleanValues.True : Masks.BooleanValues.False;
+                        res[i.Key] = (bool)i.Value ? Masks.BooleanValues.True : Masks.BooleanValues.False;
 
-                if (i.Value is Enum) res[i.Key] = (int) i.Value;
+                if (i.Value is Enum) res[i.Key] = (int)i.Value;
             }
 
             return res;
@@ -49,7 +49,7 @@ namespace Zen.Module.Data.Relational
 
             // For each of the custom type members, map it as a Json object:
 
-            foreach (var memberAttribute in Settings.Members.Where(memberAttribute => !memberAttribute.Value.Type.IsBasicType())) 
+            foreach (var memberAttribute in Settings.Members.Where(memberAttribute => !memberAttribute.Value.Type.IsBasicType()))
                 SqlMapper.AddTypeHandler(memberAttribute.Value.Type, new JsonObjectTypeHandler());
         }
 
@@ -145,7 +145,7 @@ namespace Zen.Module.Data.Relational
 
             using (var conn = GetConnection())
             {
-                return (TE) conn.ExecuteScalar(statement, parameters);
+                return (TE)conn.ExecuteScalar(statement, parameters);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Zen.Module.Data.Relational
                     conn.Open();
 
                     var o = conn.Query(statement, parameters)
-                        .Select(a => (IDictionary<string, object>) a)
+                        .Select(a => (IDictionary<string, object>)a)
                         .ToList();
                     conn.Close();
 
@@ -180,12 +180,30 @@ namespace Zen.Module.Data.Relational
 
         public List<TU> AdapterQuery<TU>(string statement, Mutator mutator = null)
         {
-            if (mutator == null) mutator = new Mutator {Transform = new QueryTransform {Statement = statement}};
-            var builder = mutator.ToSqlBuilderTemplate();
-
+            mutator = mutator.SetStatement(statement);
+            var builder = mutator.ToSqlBuilderTemplate(Settings, Masks);
             var sql = builder.RawSql;
 
+            if (mutator.Transform?.Pagination?.Size > 0)
+            {
+                sql = AddPaginationWrapper(sql, mutator.Transform.Pagination);
+            }
+
             return RawQuery<TU>(sql, builder.Parameters);
+        }
+
+        public virtual string AddPaginationWrapper(string sql, Pagination pagination)
+        {
+            var parameters = new
+            {
+                pagination.Size,
+                pagination.Index,
+                StartPosition = pagination.Index * pagination.Size,
+                EndPosition = ((pagination.Index + 1) * pagination.Size) - 1,
+                OriginalQuery = sql
+            }.ToPropertyDictionary();
+
+            return parameters.ReplaceIn(Statements.PaginationWrapper);
         }
 
         #endregion
@@ -248,7 +266,7 @@ namespace Zen.Module.Data.Relational
         public override void Remove(string key, Mutator mutator = null) => Execute(Statements.RemoveModel, KeyParameter(key));
         public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
         public override void RemoveAll(Mutator mutator = null) => Execute(Statements.DropSet);
-        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null)=> BulkUpsert(models, mutator);
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
         public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
         public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
         {
@@ -263,12 +281,12 @@ namespace Zen.Module.Data.Relational
             if (!keySet.Any()) return;
 
             var statement = Statements.RemoveSetByIdentifiers;
-            var parameter = new Dictionary<string, object> {{Statements.ParametrizedKeyField, keySet.ToArray()}};
+            var parameter = new Dictionary<string, object> { { Statements.ParametrizedKeyField, keySet.ToArray() } };
 
             Execute(statement, parameter);
         }
 
-        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i=> i.GetDataKey()).ToList(), mutator);
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i => i.GetDataKey()).ToList(), mutator);
         public override void DropSet(string setName) => throw new NotSupportedException("Set operations not supported by Relational adapters");
         public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) => throw new NotSupportedException("Set operations not supported by Relational adapters");
         public override T Get(string key, Mutator mutator = null)
@@ -277,7 +295,7 @@ namespace Zen.Module.Data.Relational
             return a.FirstOrDefault();
         }
 
-        private Dictionary<string, object> KeyParameter(string key) => new Dictionary<string, object> {{Statements.ParametrizedKeyField, key}};
+        private Dictionary<string, object> KeyParameter(string key) => new Dictionary<string, object> { { Statements.ParametrizedKeyField, key } };
 
         public override IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null)
         {
@@ -286,7 +304,7 @@ namespace Zen.Module.Data.Relational
             if (!keySet.Any()) return new List<T>();
 
             var statement = Statements.GetSetByIdentifiers;
-            var parameter = new Dictionary<string, object> {{Statements.ParametrizedKeyField, keySet.ToArray()}};
+            var parameter = new Dictionary<string, object> { { Statements.ParametrizedKeyField, keySet.ToArray() } };
 
             return RawQuery<T>(statement, parameter);
         }
