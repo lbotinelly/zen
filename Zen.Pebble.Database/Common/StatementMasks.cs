@@ -9,7 +9,8 @@
         public string EnumType { get; set; }
         public int MaximumTextSize { get; set; }
         public string TextOverflowType { get; set; }
-        public char FieldDelimiter { get; set; }
+        public char LeftFieldDelimiter { get; set; }
+        public char RightFieldDelimiter { get; set; }
         public int DefaultTextSize { get; set; }
         public string SetParameterName { get; set; } = "parmset";
 

@@ -42,7 +42,8 @@ namespace Zen.Module.Data.MySql
             MaximumTextSize = 65535,
             TextOverflowType = "TEXT",
             EnumType = "INT",
-            FieldDelimiter = '`'
+            LeftFieldDelimiter = '`',
+            RightFieldDelimiter = '`',
         };
 
         public override Dictionary<Type, TypeDefinition> TypeDefinitionMap { get; } = new Dictionary<Type, TypeDefinition>
@@ -117,7 +118,7 @@ namespace Zen.Module.Data.MySql
 
                 try
                 {
-                    var tableCount = QuerySingleValue<int>("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '" + tableName + "'");
+                    var tableCount = QuerySingleValue<int>($"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{tableName}'");
                     if (tableCount != 0) return;
                 }
                 catch (MySqlException e)
@@ -213,7 +214,7 @@ namespace Zen.Module.Data.MySql
                     if (!isFirst) tableRender.Append(", " + Environment.NewLine);
                     else isFirst = false;
 
-                    tableRender.Append($"{Masks.FieldDelimiter}{pSourceName}{Masks.FieldDelimiter} {pDestinyType} {pNullableSpec} {pAutoSchema}");
+                    tableRender.Append($"{Masks.LeftFieldDelimiter}{pSourceName}{Masks.RightFieldDelimiter} {pDestinyType} {pNullableSpec} {pAutoSchema}");
                 }
 
                 // Finally the PK.
