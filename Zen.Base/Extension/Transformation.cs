@@ -541,6 +541,14 @@ namespace Zen.Base.Extension
             return result;
         }
 
+        public static IDictionary<string, object> AddPrefix(this Dictionary<string, object> source, string memberPrefix)
+        {
+            var ret = new Dictionary<string, object>();
+            foreach (var (key, value) in source) ret.Add(memberPrefix + key, value);
+            return ret;
+        }
+
+
         public static IDictionary<string, object> ToPropertyDictionary(this object obj, string memberPrefix = null)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
