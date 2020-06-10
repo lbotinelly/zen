@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <PackageIconUrl></PackageIconUrl>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <PackageTags>middleware orm dotnet core</PackageTags>
