@@ -28,6 +28,7 @@ namespace Zen.Module.Data.MySql
         {
             _options = new Configuration.Options().GetSettings<Configuration.IOptions, Configuration.Options>("Database:MySQL");
             Statements.InsertModel = "INSERT INTO {StorageCollectionName} ({InlineFieldSet}) VALUES ({InlineParameterSet})";
+            Statements.PaginationWrapper = "{OriginalQuery} LIMIT {StartPosition}, {Size}";
         }
 
         #endregion
