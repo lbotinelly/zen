@@ -713,13 +713,8 @@ namespace Zen.Base.Extension
             return false;
         }
 
-        public static string ProperCase(this string str)
-        {
-            var words = str.Split(' ');
-            for (var i = 0; i < words.Length; i++) words[i] = words[i].Substring(0, 1).ToUpper() + words[i].ToLower().Substring(1, words[i].Length - 1);
-
-            return string.Join(" ", words);
-        }
+        public static string ProperCase(this string str) => ToTitleCase(str);
+        public static string ToTitleCase(this string str) => new CultureInfo("en-US", false).TextInfo.ToTitleCase(str);
 
         public static string ToString(this JValue val) => val.ToObject<string>();
 
