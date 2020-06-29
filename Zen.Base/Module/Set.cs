@@ -9,9 +9,10 @@ namespace Zen.Base.Module
     {
         private readonly Dictionary<string, T> _cache = new Dictionary<string, T>();
 
-        public T Fetch(string key)
+        public T Fetch(string key, bool ignoreCache = false)
         {
-            if (_cache.ContainsKey(key)) return _cache[key];
+            if (!ignoreCache)
+                if (_cache.ContainsKey(key)) return _cache[key];
 
             var probe = Data<T>.Get(key);
 
