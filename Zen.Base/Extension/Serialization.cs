@@ -262,6 +262,7 @@ namespace Zen.Base.Extension
                 ? $"ISODate(\"{obj:o}\")"
                 : $"ISODate(\"{obj:o}{TimeZoneInfo.Local.BaseUtcOffset.Hours}:00\")";
         }
+        public static string ToISOString(this DateTime obj) => $"{obj:o}";
 
         // ReSharper disable once InconsistentNaming
         public static string ToRawDateHash(this DateTime obj) { return obj.ToString("yyyyMMddHHmmss"); }
@@ -421,6 +422,8 @@ namespace Zen.Base.Extension
             }
             return list;
         }
+
+        public static int Years(this TimeSpan source) => (new DateTime(1, 1, 1) + source).Year - 1;
 
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
