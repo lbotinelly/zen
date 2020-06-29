@@ -99,6 +99,11 @@ namespace Zen.Module.Data.LiteDB
         public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => Query<TU>(mutator.ToQueryExpression());
 
         public override long Count(Mutator mutator = null) => Collection().Count();
+        public override bool KeyExists(string key, Mutator mutator = null)
+        {
+            if (Get(key) != null) return true;
+            return false;
+        }
 
         public override T Insert(T model, Mutator mutator = null)
         {
