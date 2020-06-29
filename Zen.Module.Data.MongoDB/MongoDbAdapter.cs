@@ -53,35 +53,15 @@ namespace Zen.Module.Data.MongoDB
             _refType = typeof(T);
 
             // There's probably a better way (I hope) but for now...
-            try
-            {
-                BsonSerializer.RegisterSerializer(typeof(DateTime), DateTimeSerializer.LocalInstance);
-            }
-            catch { }
+            try { BsonSerializer.RegisterSerializer(typeof(DateTime), DateTimeSerializer.LocalInstance); } catch { }
 
-            try
-            {
-                BsonSerializer.RegisterSerializer(typeof(JObject), new JObjectSerializer());
-            }
-            catch { }
+            try { BsonSerializer.RegisterSerializer(typeof(JObject), new JObjectSerializer()); } catch { }
 
-            try
-            {
-                BsonSerializer.RegisterSerializer(typeof(JValue), new JValueSerializer());
-            }
-            catch { }
+            try { BsonSerializer.RegisterSerializer(typeof(JValue), new JValueSerializer()); } catch { }
 
-            try
-            {
-                BsonSerializer.RegisterSerializer(typeof(JArray), new JArraySerializer());
-            }
-            catch { }
+            try { BsonSerializer.RegisterSerializer(typeof(JArray), new JArraySerializer()); } catch { }
 
-            try
-            {
-                BsonTypeMapper.RegisterCustomTypeMapper(typeof(JObject), new JObjectMapper());
-            }
-            catch { }
+            try { BsonTypeMapper.RegisterCustomTypeMapper(typeof(JObject), new JObjectMapper()); } catch { }
 
             _client = Instances.GetClient(statementsConnectionString);
             var server = _client.Settings.Servers.FirstOrDefault()?.Host;
@@ -160,11 +140,7 @@ namespace Zen.Module.Data.MongoDB
                 if (mapId) classMap.MapIdProperty(Key);
 
                 BsonClassMap.RegisterClassMap(classMap);
-            }
-            catch (Exception e)
-            {
-                Log.KeyValuePair(type.FullName, e.Message, Message.EContentType.Warning);
-            }
+            } catch (Exception e) { Log.KeyValuePair(type.FullName, e.Message, Message.EContentType.Warning); }
         }
 
         private void RegisterGenericChain(Type type)
@@ -186,11 +162,7 @@ namespace Zen.Module.Data.MongoDB
 
                     type = type.BaseType;
                 }
-            }
-            catch (Exception e)
-            {
-                Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message);
-            }
+            } catch (Exception e) { Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message); }
         }
 
         private void ClassMapInitializer(BsonClassMap<MongoDbAdapter<T>> cm)
@@ -225,13 +197,11 @@ namespace Zen.Module.Data.MongoDB
                 }
 
                 return model == null ? null : BsonSerializer.Deserialize<T>(model);
-            }
-            catch (FormatException e)
+            } catch (FormatException e)
             {
                 if (TryRegisterByException(e)) return Get(key, mutator);
                 throw;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Current.Log.Add($"{Database.Client.Settings.Credential.Username}@{Database.DatabaseNamespace} - {Collection(mutator).CollectionNamespace}:{key} {e.Message}", Message.EContentType.Warning);
                 throw;
@@ -246,17 +216,13 @@ namespace Zen.Module.Data.MongoDB
             return res;
         }
 
-        public override IEnumerable<T> Query(string statement) => Query<T>(statement.ToModifier());
+        public override IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()); }
 
-        public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(mutator);
+        public override IEnumerable<T> Query(Mutator mutator = null) { return Query<T>(mutator); }
 
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            try
-            {
-                return Collection<T>(mutator).AsQueryable().Where(predicate).ToList();
-            }
-            catch (FormatException e)
+            try { return Collection<T>(mutator).AsQueryable().Where(predicate).ToList(); } catch (FormatException e)
             {
                 if (TryRegisterByException(e)) return Where(predicate, mutator);
 
@@ -276,13 +242,12 @@ namespace Zen.Module.Data.MongoDB
                 RegisterBsonType(probe, false);
 
                 return true;
-            }
-            catch (Exception e) { }
+            } catch (Exception e) { }
 
             return false;
         }
 
-        public override IEnumerable<TU> Query<TU>(string statement) => Query<TU>(statement.ToModifier());
+        public override IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
 
         public override IEnumerable<TU> Query<TU>(Mutator mutator = null)
         {
@@ -295,21 +260,20 @@ namespace Zen.Module.Data.MongoDB
 
                 var res = colRes.Result.AsParallel().Select(v => BsonSerializer.Deserialize<TU>(v)).ToList();
                 return res;
-            }
-            catch (FormatException e)
+            } catch (FormatException e)
             {
                 if (TryRegisterByException(e)) return Query<TU>(mutator);
                 throw;
             }
         }
 
-        public override long Count(Mutator mutator = null) => Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument());
+        public override long Count(Mutator mutator = null) { return Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument()); }
 
-        public override bool KeyExists(string key, Mutator mutator = null) => Get(key, mutator) == null;
+        public override bool KeyExists(string key, Mutator mutator = null) { return Get(key, mutator) == null; }
 
-        public override T Insert(T model, Mutator mutator = null) => Upsert(model, mutator);
+        public override T Insert(T model, Mutator mutator = null) { return Upsert(model, mutator); }
 
-        public override T Save(T model, Mutator mutator = null) => Upsert(model, mutator);
+        public override T Save(T model, Mutator mutator = null) { return Upsert(model, mutator); }
 
         public override T Upsert(T obj, Mutator mutator = null)
         {
@@ -334,10 +298,7 @@ namespace Zen.Module.Data.MongoDB
                 {
                     var probe = isNew ? null : Get(id, mutator);
                     var document = BsonSerializer.Deserialize<BsonDocument>(obj.ToJson());
-                    if (probe == null)
-                    {
-                        targetCollection.InsertOne(document);
-                    }
+                    if (probe == null) { targetCollection.InsertOne(document); }
                     else
                     {
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
@@ -346,8 +307,7 @@ namespace Zen.Module.Data.MongoDB
                 }
 
                 return obj;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Current.Log.Warn<T>($"{Database.Client.Settings?.Credential?.Username}@{Database?.DatabaseNamespace} - {Collection(mutator).CollectionNamespace}:{id} {e.Message}");
                 Current.Log.Warn<T>($"{obj.ToJson()}");
@@ -369,9 +329,12 @@ namespace Zen.Module.Data.MongoDB
 
                 _collectionCache[referenceCode] = Database.GetCollection<BsonDocument>(GetCollectionName(referenceCode));
 
-                var indexOptions = new CreateIndexOptions {Unique = false, Name = "fullTextSearch", Background = true};
-                var model = new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Text("$**"), indexOptions);
-                _collectionCache[referenceCode].Indexes.CreateOne(model);
+                try
+                {
+                    var indexOptions = new CreateIndexOptions {Unique = false, Name = "fullTextSearch", Background = true};
+                    var model = new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Text("$**"), indexOptions);
+                    _collectionCache[referenceCode].Indexes.CreateOne(model);
+                } catch (Exception e) { Current.Log.Info<T>(e.Message); }
 
                 return _collectionCache[referenceCode];
             }
@@ -386,9 +349,9 @@ namespace Zen.Module.Data.MongoDB
             return collection;
         }
 
-        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) { return BulkUpsert(models, mutator); }
 
-        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
+        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) { return BulkUpsert(models, mutator); }
 
         public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
         {
@@ -426,8 +389,7 @@ namespace Zen.Module.Data.MongoDB
                 Collection(mutator).BulkWrite(replacementBuffer.ToArray());
 
                 return returnModelBuffer;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Current.Log.Warn<T>($"{Collection(mutator).CollectionNamespace}:BulkSave {c}/{enumerable.Count} items: {e.Message}");
                 Current.Log.Warn<T>($"{current.ToJson()}");
@@ -442,7 +404,7 @@ namespace Zen.Module.Data.MongoDB
             Collection(mutator).DeleteMany(filter);
         }
 
-        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i => i.GetDataKey()), mutator);
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) { BulkRemove(models.Select(i => i.GetDataKey()), mutator); }
 
         public override void Remove(string locator, Mutator mutator = null)
         {
@@ -450,17 +412,11 @@ namespace Zen.Module.Data.MongoDB
             Collection(mutator).DeleteOne(filter);
         }
 
-        public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
+        public override void Remove(T model, Mutator mutator = null) { Remove(model.GetDataKey(), mutator); }
 
-        public override void RemoveAll(Mutator mutator = null)
-        {
-            Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty);
-        }
+        public override void RemoveAll(Mutator mutator = null) { Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty); }
 
-        public override void DropSet(string setName)
-        {
-            Database.DropCollection(GetCollectionName(setName));
-        }
+        public override void DropSet(string setName) { Database.DropCollection(GetCollectionName(setName)); }
 
         public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
         {
