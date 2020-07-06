@@ -21,7 +21,10 @@ namespace Zen.Module.Data.MongoDB
 
                 if (Clients.ContainsKey(key)) return Clients[key];
 
-                var client = new MongoClient(connectionString);
+                // MongoDB Atlas .NET driver on Windows OCSP advisory
+                var settings = MongoClientSettings.FromConnectionString(connectionString);
+                settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+                var client = new MongoClient(settings);
 
                 Clients[key] = client;
 
@@ -29,7 +32,7 @@ namespace Zen.Module.Data.MongoDB
 
                 try { serverSuffix = client.Settings.Servers.FirstOrDefault()?.Host; } catch (Exception) { serverSuffix = client.Settings.Server.Host; }
 
-                if (serverSuffix!= null) serverSuffix = "@" + serverSuffix;
+                if (serverSuffix != null) serverSuffix = "@" + serverSuffix;
 
                 var credentialInfo = $"{client.Settings?.Credential?.Identity?.Username ?? "(anonymous)"}{serverSuffix}";
 
