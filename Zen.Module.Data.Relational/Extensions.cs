@@ -91,7 +91,6 @@ namespace Zen.Module.Data.Relational
         }
 
         public static Dictionary<string, ModelDescriptor.MemberDescriptor> ToModelDescriptorMembers(this Dictionary<string, MemberAttribute> source) => source.ToDictionary(i => i.Key, i => i.Value.ToMemberDescriptor());
-
         public static ModelDescriptor.MemberDescriptor ToMemberDescriptor(this MemberAttribute source)
         {
             var ret = new ModelDescriptor.MemberDescriptor
