@@ -28,6 +28,7 @@ namespace Zen.Storage.Model
         public string MimeType { get; set; }
         public long FileSize { get; set; }
         public DateTime Creation { get; set; }
+        public EStorageEntityType Type { get; set; } = EStorageEntityType.Item;
         public TagCollection Tags { get; set; }
         public AudienceDefinition Audience { get; set; }
         public IFileDescriptor GetNewInstance() => new ZenFile();
