@@ -17,9 +17,10 @@ namespace Zen.Storage.Provider.File
         public virtual string Name { get; }
         public virtual string GetState() => $"{OperationalStatus}";
 
-        public virtual void ResolveStorage() { }
+        public virtual IFileStorage ResolveStorage() { return this; }
         public virtual Task<Stream> Fetch(IFileDescriptor definition) => null;
         public virtual Task<string> Store(IFileDescriptor definition, Stream source) => null;
         public virtual Task<bool> Exists(IFileDescriptor definition) => Task.FromResult(false);
+        public virtual Task<List<IStorageEntityDescriptor>> Collection(string referencePath = null) => null;
     }
 }

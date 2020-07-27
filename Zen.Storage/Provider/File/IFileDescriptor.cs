@@ -5,16 +5,28 @@ using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.Storage.Provider.File
 {
-    public interface IFileDescriptor : IDataId, IDataLocator
+    public interface IFileDescriptor : IStorageEntityDescriptor, IDataId, IDataLocator
     {
-        string StorageName { get; set; }
         string OriginalName { get; set; }
-        string StoragePath { get; set; }
         string MimeType { get; set; }
         long FileSize { get; set; }
-        DateTime Creation { get; set; }
         TagCollection Tags { get; set; }
         AudienceDefinition Audience { get; set; }
         IFileDescriptor GetNewInstance();
+    }
+
+    public enum EStorageEntityType
+    {
+        Undefined,
+        Collection,
+        Item
+    }
+
+    public interface IStorageEntityDescriptor
+    {
+        string StorageName { get; set; }
+        string StoragePath { get; set; }
+        DateTime Creation { get; set; }
+        EStorageEntityType Type { get; set; }
     }
 }
