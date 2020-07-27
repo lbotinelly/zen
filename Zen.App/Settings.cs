@@ -26,7 +26,6 @@ namespace Zen.App
 
             return settings;
         }
-
         public class ApplicationSection
         {
             public bool Active;
