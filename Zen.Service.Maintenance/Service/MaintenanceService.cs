@@ -203,6 +203,8 @@ namespace Zen.Service.Maintenance.Service
                     }
                     catch (Exception e)
                     {
+                        Current.Log.Add(e);
+
                         if (task != null)
                         {
                             task.Result.Status = Result.EResultStatus.Failed;
