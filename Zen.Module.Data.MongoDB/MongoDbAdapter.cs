@@ -269,7 +269,7 @@ namespace Zen.Module.Data.MongoDB
 
         public override long Count(Mutator mutator = null) { return Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument()); }
 
-        public override bool KeyExists(string key, Mutator mutator = null) { return Get(key, mutator) == null; }
+        public override bool KeyExists(string key, Mutator mutator = null) { return Get(key, mutator) != null; }
 
         public override T Insert(T model, Mutator mutator = null) { return Upsert(model, mutator); }
 
