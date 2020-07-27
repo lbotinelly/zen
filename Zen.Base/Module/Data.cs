@@ -838,7 +838,9 @@ namespace Zen.Base.Module
                 return _isNew.Value;
             }
 
-            if (!Info<T>.Settings.Adapter.KeyExists(key, mutator))
+            var keyExists = Info<T>.Settings.Adapter.KeyExists(key, mutator);
+
+            if (!keyExists)
             {
                 _isNew = true;
                 return _isNew.Value;
