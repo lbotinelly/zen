@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Dapper;
@@ -17,27 +18,28 @@ using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Relational
 {
-    public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : DataAdapterPrimitive<T>, IRelationalStatements where T : Data<T>
+    public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : DataAdapterPrimitive<T>, IRelationalStatements
+        where T : Data<T>
         where TStatementFragments : IStatementFragments
         where TWherePart : IWherePart
     {
         public Dictionary<string, string> MemberMap = new Dictionary<string, string>();
         public abstract StatementMasks Masks { get; }
-
         public abstract Dictionary<Type, TypeDefinition> TypeDefinitionMap { get; }
-
-        public IDictionary<string, object> ToParameters(object source)
+        public IDictionary<string, object> ToRawParameters(object source) => ToRawParameters(new Dictionary<string, object>(source.ToPropertyDictionary(Masks.ParameterPrefix)));
+        public IDictionary<string, object> ToRawParameters(Dictionary<string, object> probe)
         {
-            var res = source.ToPropertyDictionary(Masks.ParameterPrefix);
-            var probe = new Dictionary<string, object>(res);
+            var res = new Dictionary<string, object>();
 
-            foreach (var i in probe)
+            foreach (var (key, value) in probe)
             {
-                if (Masks.BooleanValues != null)
-                    if (i.Value is bool)
-                        res[i.Key] = (bool)i.Value ? Masks.BooleanValues.True : Masks.BooleanValues.False;
+                res[key] = value;
 
-                if (i.Value is Enum) res[i.Key] = (int)i.Value;
+                if (Masks.BooleanValues != null)
+                    if (value is bool)
+                        res[key] = (bool)value ? Masks.BooleanValues.True : Masks.BooleanValues.False;
+
+                if (value is Enum) res[key] = (int)value;
             }
 
             return res;
@@ -49,10 +51,10 @@ namespace Zen.Module.Data.Relational
 
             // For each of the custom type members, map it as a Json object:
 
-            foreach (var memberAttribute in Settings.Members.Where(memberAttribute => !memberAttribute.Value.Type.IsBasicType()))
-                SqlMapper.AddTypeHandler(memberAttribute.Value.Type, new JsonObjectTypeHandler());
+            foreach (var memberAttribute in Settings.Members.Where(memberAttribute => !memberAttribute.Value.Type.IsBasicType())) SqlMapper.AddTypeHandler(memberAttribute.Value.Type, new JsonObjectTypeHandler());
         }
 
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
         public virtual void PrepareStatements()
         {
             var membersSansKey = Settings.Members.Where(i => i.Key != Settings.KeyMemberName).ToList();
@@ -90,10 +92,11 @@ namespace Zen.Module.Data.Relational
             Statements.InsertModel = preCol.ReplaceIn(Statements.InsertModel);
             Statements.UpdateModel = preCol.ReplaceIn(Statements.UpdateModel);
             Statements.RemoveModel = preCol.ReplaceIn(Statements.RemoveModel);
-            Statements.GetModelByIdentifier = preCol.ReplaceIn(Statements.GetModelByIdentifier);
 
+            Statements.GetModelByIdentifier = preCol.ReplaceIn(Statements.GetModelByIdentifier);
             Statements.GetSetByIdentifiers = preCol.ReplaceIn(Statements.GetSetByIdentifiers);
             Statements.RemoveSetByIdentifiers = preCol.ReplaceIn(Statements.RemoveSetByIdentifiers);
+
             Statements.GetSetByWhere = preCol.ReplaceIn(Statements.GetSetByWhere);
             Statements.GetSetComplete = preCol.ReplaceIn(Statements.GetSetComplete);
         }
@@ -113,7 +116,6 @@ namespace Zen.Module.Data.Relational
         }
 
         #region Custom Members
-
         public T1 QuerySingleValue<T1>(string statement)
         {
             using (var conn = GetConnection())
@@ -127,34 +129,21 @@ namespace Zen.Module.Data.Relational
         {
             Current.Log.Add("Execute: " + statement, Message.EContentType.Debug);
 
-            if (parameters != null)
-                Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
+            if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
 
-            using (var conn = GetConnection())
-            {
-                conn.Execute(statement, parameters);
-            }
+            using (var conn = GetConnection()) { conn.Execute(statement, parameters); }
         }
 
         public TE ExecuteScalar<TE>(string statement, object parameters = null)
         {
             Current.Log.Add("ExecuteScalar: " + statement, Message.EContentType.Debug);
 
-            if (parameters != null)
-                Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
+            if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
 
-            using (var conn = GetConnection())
-            {
-                return (TE)conn.ExecuteScalar(statement, parameters);
-            }
+            using (var conn = GetConnection()) { return (TE)conn.ExecuteScalar(statement, parameters); }
         }
-
         public List<TU> RawQuery<TU>(string statement, object parameters)
         {
-            Current.Log.Add("RawQuery: " + statement, Message.EContentType.Debug);
-
-            if (parameters != null)
-                Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
 
             try
             {
@@ -163,7 +152,7 @@ namespace Zen.Module.Data.Relational
                     conn.Open();
 
                     var o = conn.Query(statement, parameters)
-                        .Select(a => (IDictionary<string, object>)a)
+                        .Select(a => (IDictionary<string, object>) a)
                         .ToList();
                     conn.Close();
 
@@ -171,27 +160,24 @@ namespace Zen.Module.Data.Relational
 
                     return ret;
                 }
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
+                Current.Log.Add(statement, Message.EContentType.Exception);
+                if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Exception);
+
                 throw new DataException(Info<T>.Settings.TypeQualifiedName + " RelationalAdapter: Error while issuing statements to the database.", e);
             }
         }
-
         public List<TU> AdapterQuery<TU>(string statement, Mutator mutator = null)
         {
             mutator = mutator.SetStatement(statement);
             var builder = mutator.ToSqlBuilderTemplate(Settings, Masks);
             var sql = builder.RawSql;
 
-            if (mutator.Transform?.Pagination?.Size > 0)
-            {
-                sql = AddPaginationWrapper(sql, mutator.Transform.Pagination);
-            }
+            if (mutator.Transform?.Pagination?.Size > 0) sql = AddPaginationWrapper(sql, mutator.Transform.Pagination);
 
             return RawQuery<TU>(sql, builder.Parameters);
         }
-
         public virtual string AddPaginationWrapper(string sql, Pagination pagination)
         {
             var parameters = new
@@ -199,17 +185,15 @@ namespace Zen.Module.Data.Relational
                 pagination.Size,
                 pagination.Index,
                 StartPosition = pagination.Index * pagination.Size,
-                EndPosition = ((pagination.Index + 1) * pagination.Size) - 1,
+                EndPosition = (pagination.Index + 1) * pagination.Size - 1,
                 OriginalQuery = sql
             }.ToPropertyDictionary();
 
             return parameters.ReplaceIn(Statements.PaginationWrapper);
         }
-
         #endregion
 
         #region Implementation of IRelationalStatements
-
         public virtual bool UseIndependentStatementsForKeyExtraction { get; } = false;
         public virtual bool UseNumericPrimaryKeyOnly { get; } = false;
         public virtual bool UseOutputParameterForInsertedKeyExtraction { get; } = false;
@@ -217,14 +201,12 @@ namespace Zen.Module.Data.Relational
         public string KeyMember { get; set; }
         public string KeyColumn { get; set; }
         public Dictionary<string, Dictionary<string, string>> SchemaElements { get; set; }
-        public virtual DbConnection GetConnection() => null;
+        public virtual DbConnection GetConnection() { return null; }
         public virtual void RenderSchemaEntityNames() { }
         public virtual void ValidateSchema() { }
-
         #endregion
 
         #region Overrides of DataAdapterPrimitive
-
         public override void Initialize()
         {
             Configuration = Info<T>.Configuration;
@@ -242,39 +224,37 @@ namespace Zen.Module.Data.Relational
 
             ReferenceCollectionName = Configuration.SetPrefix + Configuration.SetName;
         }
-
         public ModelRender<T, TStatementFragments, TWherePart> ModelRender { get; set; }
         public Settings<T> Settings { get; private set; }
         public DataConfigAttribute Configuration { get; private set; }
         public override long Count(Mutator mutator = null) => QuerySingleValue<long>(Statements.RowCount);
-
         public override T Insert(T model, Mutator mutator = null)
         {
             if (model == null) return null;
-            Execute(Statements.InsertModel, ToParameters(model));
+            Execute(Statements.InsertModel, ToRawParameters(model));
             return Get(model.GetDataKey(), mutator);
         }
         public override T Save(T model, Mutator mutator = null)
         {
             if (model == null) return null;
-            Execute(Statements.UpdateModel, ToParameters(model));
+            Execute(Statements.UpdateModel, ToRawParameters(model));
             return Get(model.GetDataKey(), mutator);
         }
-
         public override bool KeyExists(string key, Mutator mutator = null) => ExecuteScalar<long>(Statements.CheckKey, KeyParameter(key)) > 0;
+        // ReSharper disable once IdentifierTypo
         public override T Upsert(T model, Mutator mutator = null) => !KeyExists(model.GetDataKey()) ? Insert(model, mutator) : Save(model, mutator);
         public override void Remove(string key, Mutator mutator = null) => Execute(Statements.RemoveModel, KeyParameter(key));
         public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
         public override void RemoveAll(Mutator mutator = null) => Execute(Statements.DropSet);
         public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
         public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
+
         public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
         {
             models = models.ToList();
             foreach (var model in models) model.Save();
             return models;
         }
-
         public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null)
         {
             var keySet = keys as string[] ?? keys.ToArray();
@@ -285,16 +265,10 @@ namespace Zen.Module.Data.Relational
 
             Execute(statement, parameter);
         }
-
         public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i => i.GetDataKey()).ToList(), mutator);
         public override void DropSet(string setName) => throw new NotSupportedException("Set operations not supported by Relational adapters");
         public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) => throw new NotSupportedException("Set operations not supported by Relational adapters");
-        public override T Get(string key, Mutator mutator = null)
-        {
-            var a = RawQuery<T>(Statements.GetModelByIdentifier, KeyParameter(key));
-            return a.FirstOrDefault();
-        }
-
+        public override T Get(string key, Mutator mutator = null) => RawQuery<T>(Statements.GetModelByIdentifier, KeyParameter(key)).FirstOrDefault();
         private Dictionary<string, object> KeyParameter(string key) => new Dictionary<string, object> { { Statements.ParametrizedKeyField, key } };
 
         public override IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null)
@@ -308,19 +282,18 @@ namespace Zen.Module.Data.Relational
 
             return RawQuery<T>(statement, parameter);
         }
-
         public override IEnumerable<T> Query(string statement) => RawQuery<T>(statement, null);
         public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(Statements.GetSetComplete);
         public override IEnumerable<TU> Query<TU>(string statement) => AdapterQuery<TU>(Statements.GetSetComplete);
         public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => AdapterQuery<TU>(Statements.GetSetComplete, mutator);
-
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
             var parts = ModelRender.Render(predicate);
             var statement = Statements.GetSetByWhere.format(parts.Statement);
-            return RawQuery<T>(statement, ModelRender.Render(predicate).Parameters);
-        }
+            var parameters = ToRawParameters(ModelRender.Render(predicate).Parameters);
 
+            return RawQuery<T>(statement, parameters);
+        }
         #endregion
     }
 }
