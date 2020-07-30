@@ -15,7 +15,11 @@ namespace Zen.Base.Module.Log
         }
 
 
-        public static void Click(this ConcurrentDictionary<string, long> source, string tag) { source[tag]++; }
+        public static void Click(this ConcurrentDictionary<string, long> source, string tag)
+        {
+            if (!source.ContainsKey(tag)) source.TryAdd(tag, 0);
+            source[tag]++;
+        }
 
         public static void Click<T>(this ConcurrentDictionary<string, long> source, string tag, IEnumerable<T> collection) { source.Click(tag, collection.Count()); }
 
