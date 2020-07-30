@@ -12,8 +12,8 @@
 
         public string GetSetComplete = "SELECT {InlineFieldSet} FROM {StorageCollectionName}";
         public string GetSetByWhere = "SELECT {InlineFieldSet} FROM {StorageCollectionName} WHERE ({0})";
-        public string GetSetByIdentifiers = "SELECT {InlineFieldSet} FROM {StorageCollectionName} WHERE {StorageKeyMemberName} IN ({ParameterPrefix}{SetParameterName})";
-        public string RemoveSetByIdentifiers = "DELETE FROM {StorageCollectionName} WHERE {StorageKeyMemberName} IN ({ParameterPrefix}{SetParameterName})";
+        public string GetSetByIdentifiers = "SELECT {InlineFieldSet} FROM {StorageCollectionName} WHERE ( {StorageKeyMemberName} IN {ParameterPrefix}{KeyMemberName} )";
+        public string RemoveSetByIdentifiers = "DELETE FROM {StorageCollectionName} WHERE ( {StorageKeyMemberName} IN {ParameterPrefix}{KeyMemberName} )";
 
         public string RowCount = "SELECT COUNT(*) FROM {StorageCollectionName}";
         public string CheckKey = "SELECT COUNT(*) FROM {StorageCollectionName} WHERE {StorageKeyMemberName} = {ParameterPrefix}{KeyMemberName}";
