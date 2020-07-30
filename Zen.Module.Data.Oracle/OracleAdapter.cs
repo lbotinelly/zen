@@ -24,7 +24,7 @@ namespace Zen.Module.Data.Oracle
 
         public override StatementMasks Masks { get; } = new StatementMasks
         {
-            ParameterPrefix = "@u_",
+            ParameterPrefix = ":u_",
             BooleanValues = { True = 1, False = 0 },
             DefaultTextSize = 255,
             MaximumTextSize = 65535,
