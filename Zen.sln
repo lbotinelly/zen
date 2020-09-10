@@ -67,6 +67,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Cache.Memory", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.MySql", "Zen.Module.Data.MySql\Zen.Module.Data.MySql.csproj", "{BCA3A17D-EDAD-44ED-9A73-1C1DBF89C40B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Web.GraphQL", "Zen.Web.GraphQL\Zen.Web.GraphQL.csproj", "{CEBDD711-57DA-458A-B8F4-A55CAFCA307B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -197,6 +199,10 @@ Global
 		{BCA3A17D-EDAD-44ED-9A73-1C1DBF89C40B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCA3A17D-EDAD-44ED-9A73-1C1DBF89C40B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCA3A17D-EDAD-44ED-9A73-1C1DBF89C40B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEBDD711-57DA-458A-B8F4-A55CAFCA307B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEBDD711-57DA-458A-B8F4-A55CAFCA307B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEBDD711-57DA-458A-B8F4-A55CAFCA307B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEBDD711-57DA-458A-B8F4-A55CAFCA307B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

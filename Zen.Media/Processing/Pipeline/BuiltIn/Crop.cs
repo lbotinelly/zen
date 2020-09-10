@@ -1,7 +1,6 @@
 ﻿using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 
 namespace Zen.Media.Processing.Pipeline.BuiltIn
 {

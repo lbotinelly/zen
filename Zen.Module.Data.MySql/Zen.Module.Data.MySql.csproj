@@ -35,11 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MySqlConnector" Version="0.66.0" />
+    <PackageReference Include="MySqlConnector" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.1.91" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
   </ItemGroup>
 
 </Project>

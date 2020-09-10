@@ -18,7 +18,7 @@ namespace Zen.Module.Data.LiteDB
     {
         private readonly string _collectionPrefix = "";
         private readonly string _collectionPrefixSeparator = "#";
-        private ILiteCollection<BsonDocument> _collection;
+        private ILiteCollection<T> _collection;
         private string _collectionName = "";
         private string _collectionNamespace = "";
         private Type _refType;
@@ -42,12 +42,12 @@ namespace Zen.Module.Data.LiteDB
 
             SetBaseCollectionName();
 
-             _collection = Database.GetCollection(ReferenceCollectionName);
+             _collection = Database.GetCollection<T>(ReferenceCollectionName);
         }
 
         private ILiteCollection<T> Collection()
         {
-            return (ILiteCollection<T>) _collection;
+            return _collection;
         }
 
         private void SetBaseCollectionName()

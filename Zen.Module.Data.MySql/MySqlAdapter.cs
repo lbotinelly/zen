@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using MySql.Data.MySqlClient;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
