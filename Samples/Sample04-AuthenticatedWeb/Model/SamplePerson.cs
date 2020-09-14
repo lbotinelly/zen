@@ -4,9 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using Bogus;
 using Bogus.DataSets;
 using Zen.Base.Module;
+using Zen.Web.GraphQL.Attribute;
 
 namespace Sample04_AuthenticatedWeb.Model
 {
+    [GraphQl]
     public class SamplePerson : Data<SamplePerson>
     {
         [Key] public string Id { get; set; } = Guid.NewGuid().ToString();
