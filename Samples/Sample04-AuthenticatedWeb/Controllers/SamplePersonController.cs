@@ -12,6 +12,9 @@ namespace Sample04_AuthenticatedWeb.Controllers
     public class SamplePersonController : DataController<SamplePerson>
     {
         [HttpGet("generate")]
-        public List<SamplePerson> Generate() => SamplePerson.Generate().Save().Success;
+        public List<SamplePerson> Generate()
+        {
+            return SamplePerson.Generate().Save().Success;
+        }
     }
 }
