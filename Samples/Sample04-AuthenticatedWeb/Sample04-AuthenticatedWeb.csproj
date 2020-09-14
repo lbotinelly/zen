@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\Zen.Provider.Microsoft\Zen.Provider.Microsoft.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Steam\Zen.Provider.Steam.csproj" />
     <ProjectReference Include="..\..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
+    <ProjectReference Include="..\..\Zen.Web.GraphQL\Zen.Web.GraphQL.csproj" />
     <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
 
