@@ -19,6 +19,7 @@ namespace Zen.Base.Module.Service
         public static readonly ConcurrentDictionary<string, Assembly> AssemblyLoadMap = new ConcurrentDictionary<string, Assembly>();
         private static readonly ConcurrentDictionary<string, string> AssemblyPathMap = new ConcurrentDictionary<string, string>();
         private static readonly ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>> TypeResolutionMap = new ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>>();
+        private static readonly ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>> AttributeResolutionMap = new ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>>();
 
         public static readonly Dictionary<Type, List<Type>> GetGenericsByBaseClassCache = new Dictionary<Type, List<Type>>();
 
@@ -270,13 +271,22 @@ namespace Zen.Base.Module.Service
 
         public static IServiceCollection AddZenProvider<T>(this IServiceCollection serviceCollection, string descriptor = null) where T : class
         {
-            var types = GetClassesByInterface<T>(false).FirstOrDefault();
-            if (types == null) return serviceCollection;
+            var targetType = GetClassesByInterface<T>(false).FirstOrDefault();
+            if (targetType == null) return serviceCollection;
 
-            var probe = types.CreateInstance<T>();
+            var isInstantiable = targetType.GetConstructor(Type.EmptyTypes) != null;
 
-            serviceCollection.AddSingleton(s => probe);
-            Events.AddLog(descriptor, probe.ToString());
+            if (isInstantiable)
+            {
+                var probe = targetType.CreateInstance<T>();
+
+                serviceCollection.AddSingleton(s => probe);
+                Events.AddLog(descriptor, probe.ToString());
+            }
+            else
+            {
+                serviceCollection.AddSingleton(typeof(T), targetType);
+            }
 
             return serviceCollection;
         }
@@ -296,12 +306,15 @@ namespace Zen.Base.Module.Service
                     foreach (var item in AssemblyLoadMap.Values)
                         try
                         {
+
+
+
                             var partialTypeList =
                                 from target in item.GetTypes() // Get a list of all Types in the cached Assembly
                                 where !target.IsInterface // that aren't interfaces
                                 where !target.IsAbstract // and also not abstract (so it can be instantiated)
                                 where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
-                                where targetType.IsAssignableFrom(target) // that can be assigned to the specified type
+                                where !targetType.IsInterface ? targetType.IsAssignableFrom(target): target.GetInterfaces().Contains(targetType) // that can be assigned to the specified type
                                 where targetType != target // (and obviously not the type itself)
                                 select target;
 
@@ -320,19 +333,76 @@ namespace Zen.Base.Module.Service
                         }
 
                     var typesByPriorityLevelMap = globalTypeList
-                        .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute) i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                        .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
                         .OrderBy(i => -i.Key).ToList();
 
                     TypeResolutionMap.TryAdd(targetType, typesByPriorityLevelMap); // Caching results, so similar queries will return from cache
                 }
 
-                var typeListCache= !excludeFallback ? TypeResolutionMap[targetType] : TypeResolutionMap[targetType].Where(i => i.Key > -1).ToList();
+                var typeListCache = !excludeFallback ? TypeResolutionMap[targetType] : TypeResolutionMap[targetType].Where(i => i.Key > -1).ToList();
 
                 var typesByPriorityLevel = typeListCache
                     .Select(i => i.Value)
                     .ToList();
 
                 return typesByPriorityLevel;
+            }
+        }
+
+        public static Dictionary<Type, T> GetClassesByAttribute<T>()
+        {
+            var targetAttribute = typeof(T);
+
+            lock (Lock)
+            {
+                if (!AttributeResolutionMap.ContainsKey(targetAttribute))
+                {
+                    //Modules.Log.System.Add("Scanning for " + type);
+
+                    var currentExecutingAssembly = Assembly.GetExecutingAssembly();
+
+                    var attributedTypes = new List<Type>();
+
+                    foreach (var item in AssemblyLoadMap.Values)
+                        try
+                        {
+                            var partialTypeList =
+                                from target in item.GetTypes() // Get a list of all Types in the cached Assembly
+                                where !target.IsInterface // that aren't interfaces
+                                where !target.IsAbstract // and also not abstract (so it can be instantiated)
+                                where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
+                                where target.GetCustomAttributes(targetAttribute, false).Any() // Must have attribute of specified type
+                                select target;
+
+                            attributedTypes.AddRange(partialTypeList);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is ReflectionTypeLoadException)
+                            {
+                                var typeLoadException = e as ReflectionTypeLoadException;
+                                var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
+                            }
+
+                            // Well, this loading can fail by a (long) variety of reasons. 
+                            // It's not a real problem not to catch exceptions here. 
+                        }
+
+                    var typesByPriorityLevelMap = attributedTypes
+                        .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                        .OrderBy(i => -i.Key).ToList();
+
+                    AttributeResolutionMap.TryAdd(targetAttribute, typesByPriorityLevelMap); // Caching results, so similar queries will return from cache
+                }
+
+                var typeListCache = AttributeResolutionMap[targetAttribute].ToList();
+
+                var typesWithAttribute = typeListCache
+                        .ToDictionary(i =>
+                                i.Value, i => (T)i.Value.GetCustomAttributes(targetAttribute).Select(j=> (object)j).FirstOrDefault())
+                    ;
+
+                return typesWithAttribute;
             }
         }
     }
