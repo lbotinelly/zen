@@ -20,8 +20,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\LICENSE.txt" Link="LICENSE.txt">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+    </None>
+    <None Include="..\static\res\zen-icon.png" Link="zen-icon.png">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EntityGraphQL" Version="0.64.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
   </ItemGroup>
 
   <ItemGroup>
