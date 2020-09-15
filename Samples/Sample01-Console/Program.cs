@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Zen.Base.Extension;
+using Zen.Base.Module.Data.LINQ;
 
 namespace Sample01_Console
 {
@@ -19,6 +20,14 @@ namespace Sample01_Console
             }
 
             Console.WriteLine($"Current record count: {Model.Person.Count()}");
+
+            var query = from person in new DataContext<Model.Person>()
+                        where person.Name != null
+                        select person;
+
+            var results = query.ToList();
+
+            Console.WriteLine($"LINQ query count: {results.Count()}");
         }
     }
 }
