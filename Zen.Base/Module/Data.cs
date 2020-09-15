@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -303,9 +304,7 @@ namespace Zen.Base.Module
         public static string GetName() => Info<T>.Settings.FriendlyName;
 
         #region Overrides of Object
-
         public override string ToString() => $"{GetDataKey()} : {GetDataDisplay() ?? this.ToJson()}";
-
         #endregion
 
         public static T New() => (T) Activator.CreateInstance(typeof(T));
