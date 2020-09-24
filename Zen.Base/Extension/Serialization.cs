@@ -703,6 +703,7 @@ namespace Zen.Base.Extension
         private static Func<TSource, TTarget> BuildCreator()
         {
             var sourceParameter = Expression.Parameter(typeof(TSource), "source");
+
             var bindings = new List<MemberBinding>();
             foreach (var sourceProperty in typeof(TSource).GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
