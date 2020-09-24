@@ -7,32 +7,34 @@ namespace Zen.Base.Module.Data.LINQ
     {
         internal static object Execute(Expression expression, bool isEnumerable)
         {
-            return Data<T>.Where(expression.GetLambda<T>());
+            return Data<T>.Where(expression.AsLambda<T>());
         }
     }
 
     public static class Utils
     {
-        public static Expression<Func<T, bool>> GetLambda<T>(this Expression expression)
+        public static Expression<Func<T, bool>> AsLambda<T>(this Expression expression)
         {
+            // Strict call on Typecast
             switch (expression)
             {
-                case MethodCallExpression callExpression:
-                    return callExpression.GetLambda<T>();
+                case MethodCallExpression methodCallExpression:
+                    return methodCallExpression.AsLambda<T>();
                 case UnaryExpression unaryExpression:
-                    return unaryExpression.GetLambda<T>();
+                    return unaryExpression.AsLambda<T>();
                 default:
                     return null;
             }
         }
 
-        public static Expression<Func<T, bool>> GetLambda<T>(this MethodCallExpression expression)
+        public static Expression<Func<T, bool>> AsLambda<T>(this MethodCallExpression expression)
         {
+            // Extract the unary expression from the arguments
             var unaryExpression = (UnaryExpression) expression.Arguments[1];
-            return unaryExpression.GetLambda<T>();
+            return unaryExpression.AsLambda<T>();
         }
 
-        public static Expression<Func<T, bool>> GetLambda<T>(this UnaryExpression expression)
+        public static Expression<Func<T, bool>> AsLambda<T>(this UnaryExpression expression)
         {
             return (Expression<Func<T, bool>>) expression.Operand;
         }
