@@ -425,6 +425,13 @@ namespace Zen.Base.Extension
 
         public static int Years(this TimeSpan source) => (new DateTime(1, 1, 1) + source).Year - 1;
 
+        public static string ContentToString(this Stream source)
+        {
+            var reader = new StreamReader(source);
+            source.Position = 0;
+            return reader.ReadToEnd();
+        }
+
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
