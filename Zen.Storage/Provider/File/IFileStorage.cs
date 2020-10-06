@@ -12,6 +12,6 @@ namespace Zen.Storage.Provider.File
         Task<Stream> Fetch(IFileDescriptor definition);
         Task<string> Store(IFileDescriptor definition, Stream source);
         Task<bool> Exists(IFileDescriptor definition);
-        Task<List<IStorageEntityDescriptor>> Collection(string referencePath = null);
+        Task<Dictionary<string, IStorageEntityDescriptor>> Collection(string referencePath = null);
     }
 }
