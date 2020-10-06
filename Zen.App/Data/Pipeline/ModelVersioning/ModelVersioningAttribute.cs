@@ -67,13 +67,11 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
 
                     var delta = serializedModel.Length - serializedSource.Length;
 
-                    var plural = Math.Abs(delta) > 1 ? "s" : "";
+                    if (delta > 0) versionModel.Summary = $"+{Math.Abs(delta)}";
+                    if (delta < 0) versionModel.Summary = $"-{Math.Abs(delta)}";
+                    if (delta == 0) versionModel.Summary = "!=";
 
-                    if (delta > 0) versionModel.Summary = $"{Math.Abs(delta)} character{plural} added";
-                    if (delta < 0) versionModel.Summary = $"{Math.Abs(delta)} character{plural} removed";
-                    if (delta == 0) versionModel.Summary = "Value changed, same size";
-
-                    if (diffExpression!= null) versionModel.Summary += ", modified: " + diffExpression;
+                    if (diffExpression!= null) versionModel.Summary += " | " + diffExpression;
                 }
             } catch (Exception) { }
 
