@@ -7,12 +7,13 @@ namespace Zen.Base.Module
 {
     public sealed class Set<T> where T : Data<T>
     {
-        private readonly Dictionary<string, T> _cache = new Dictionary<string, T>();
+        internal Dictionary<string, T> Cache = new Dictionary<string, T>();
 
         public T Fetch(string key, bool ignoreCache = false)
         {
             if (!ignoreCache)
-                if (_cache.ContainsKey(key)) return _cache[key];
+                if (Cache.ContainsKey(key))
+                    return Cache[key];
 
             var probe = Data<T>.Get(key);
 
@@ -22,15 +23,20 @@ namespace Zen.Base.Module
                 probe.SetDataKey(key);
             }
 
-            _cache[probe.GetDataKey()] = probe;
+            Cache[probe.GetDataKey()] = probe;
             return probe;
         }
 
         public List<T> Save()
         {
-            var tempSet = _cache.Values.ToList();
+            var tempSet = Cache.Values.ToList();
             tempSet.Save();
             return tempSet;
         }
+    }
+
+    public static class Extensions
+    {
+        public static Set<T> ToSet<T>(this IEnumerable<T> source) where T : Data<T> { return new Set<T> {Cache = source.ToDictionary(i => i.GetDataKey(), i => i)}; }
     }
 }
