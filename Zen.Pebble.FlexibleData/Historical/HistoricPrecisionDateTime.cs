@@ -16,7 +16,37 @@ namespace Zen.Pebble.FlexibleData.Historical
             Day
         }
 
-        public HistoricDateTime() { }
+        public HistoricDateTime()
+        {
+        }
+
+        public HistoricDateTime(System.DateTime? date)
+        {
+            if (date == null) return;
+
+            Value = date;
+            Precision = EDatePrecision.Day;
+
+            var precisionBoundaryProbe = Value.Value;
+
+            if (precisionBoundaryProbe.Day != 1) return;
+            Precision = EDatePrecision.Month;
+
+            if (precisionBoundaryProbe.Month != 1) return;
+            Precision = EDatePrecision.Year;
+
+            if (precisionBoundaryProbe.Year % 10 != 0) return;
+            Precision = EDatePrecision.Decade;
+
+            if (precisionBoundaryProbe.Year % 100 != 0) return;
+            Precision = EDatePrecision.Century;
+
+            if (precisionBoundaryProbe.Year % 1000 != 0) return;
+            Precision = EDatePrecision.Millennium;
+        }
+
+        public System.DateTime? Value { get; set; }
+        public EDatePrecision? Precision { get; set; }
 
         private string AddOrdinal(int num)
         {
@@ -52,13 +82,13 @@ namespace Zen.Pebble.FlexibleData.Historical
             switch (Precision)
             {
                 case EDatePrecision.Millennium:
-                    return AddOrdinal((int)Math.Floor((decimal)Value.Value.Year / 1000) + 1) + " millennium";
+                    return AddOrdinal((int) Math.Floor((decimal) Value.Value.Year / 1000) + 1) + " millennium";
 
                 case EDatePrecision.Century:
-                    return Math.Floor((decimal)Value.Value.Year / 100).ToString(CultureInfo.InvariantCulture) + "00s";
+                    return Math.Floor((decimal) Value.Value.Year / 100).ToString(CultureInfo.InvariantCulture) + "00s";
 
                 case EDatePrecision.Decade:
-                    return Math.Floor((decimal)Value.Value.Year / 10).ToString(CultureInfo.InvariantCulture) + "0s";
+                    return Math.Floor((decimal) Value.Value.Year / 10).ToString(CultureInfo.InvariantCulture) + "0s";
                 case EDatePrecision.Year:
                     return Value.Value.ToString("yyyy");
 
@@ -74,42 +104,19 @@ namespace Zen.Pebble.FlexibleData.Historical
 
                 default: return base.ToString();
             }
-
         }
 
         #endregion
 
-        public HistoricDateTime(System.DateTime? date)
+        public static implicit operator HistoricDateTime(System.DateTime source)
         {
-            if (date == null) return;
-
-            Value = date;
-            Precision = EDatePrecision.Day;
-
-            var precisionBoundaryProbe = Value.Value;
-
-            if (precisionBoundaryProbe.Day != 1) return;
-            Precision = EDatePrecision.Month;
-
-            if (precisionBoundaryProbe.Month != 1) return;
-            Precision = EDatePrecision.Year;
-
-            if (precisionBoundaryProbe.Year % 10 != 0) return;
-            Precision = EDatePrecision.Decade;
-
-            if (precisionBoundaryProbe.Year % 100 != 0) return;
-            Precision = EDatePrecision.Century;
-
-            if (precisionBoundaryProbe.Year % 1000 != 0) return;
-            Precision = EDatePrecision.Millennium;
+            return new HistoricDateTime {Value = source, Precision = EDatePrecision.Day};
         }
 
-        public System.DateTime? Value { get; set; }
-        public EDatePrecision? Precision { get; set; }
-
-        public static implicit operator HistoricDateTime(System.DateTime source) => new HistoricDateTime { Value = source, Precision = EDatePrecision.Day };
-
-        public static implicit operator HistoricDateTime(string source) => string.IsNullOrEmpty(source) ? null : new HistoricDateTime(TryParse(source));
+        public static implicit operator HistoricDateTime(string source)
+        {
+            return string.IsNullOrEmpty(source) ? null : new HistoricDateTime(TryParse(source));
+        }
 
         private static System.DateTime? TryParse(string source)
         {
