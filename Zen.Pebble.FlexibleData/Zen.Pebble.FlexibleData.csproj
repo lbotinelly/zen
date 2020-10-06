@@ -26,7 +26,15 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< Updated upstream
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
+=======
+    <ProjectReference Include="..\Zen.Pebble.Geo\Zen.Pebble.Geo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.1.91" />
+>>>>>>> Stashed changes
   </ItemGroup>
 
 </Project>

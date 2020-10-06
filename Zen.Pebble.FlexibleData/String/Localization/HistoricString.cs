@@ -9,18 +9,16 @@ using Zen.Pebble.FlexibleData.String.Localization.Interface;
 
 namespace Zen.Pebble.FlexibleData.String.Localization
 {
-    public class HistoricPrecisionString : VariantTemporalMap<string, string>, IScoped<string, string>
+    public class HistoricString : VariantTemporalMap<string, string>, IScoped<string, string>
     {
         private CultureInfo _culture = CultureInfo.CurrentCulture;
-        public HistoricPrecisionString() { }
+        public HistoricString() { }
 
-
-        public HistoricPrecisionString(string source, string culture = null, string comments = null)
+        public HistoricString(string source, string culture = null, string comments = null)
         {
             _culture = culture.ToCultureInfo() ?? CultureInfo.CurrentCulture;
             SetVariant(source, culture, comments);
         }
-
 
         public string Value
         {
@@ -43,7 +41,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
         public override string ToString()
         {
             string tmp = null;
-            if (Value!= null) tmp = $"{Value}";
+            if (Value != null) tmp = $"{Value}";
 
             if (!(Variants?.Count > 0)) return tmp ?? base.ToString();
 
@@ -52,7 +50,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
             return tmp;
         }
 
-        public HistoricPrecisionString SetVariant(string value, string culture = null, string comments = null, string boundaryId = null, System.DateTime? startDate = null, System.DateTime? endDate = null)
+        public HistoricString SetVariant(string value, string culture = null, string comments = null, string periodId = null, System.DateTime? startDate = null, System.DateTime? endDate = null)
         {
             if (value == null) return null;
 
@@ -66,17 +64,25 @@ namespace Zen.Pebble.FlexibleData.String.Localization
 
             var cultureProbe = culture.ToCultureInfo()?.Name ?? _culture.Name;
 
-            if (!Variants.ContainsKey(cultureProbe)) Variants[cultureProbe] = new HistoricCultureString { Variants = new List<TemporalCommented<string>>() };
+            if (!Variants.ContainsKey(cultureProbe)) Variants[cultureProbe] = new HistoricCultureString {Variants = new List<TemporalCommented<string>>()};
 
             // Detect target Boundary
 
-            CommentedTemporalString targetEntry = null;
+            TemporalCommented<string> targetEntry = null;
 
-            if (boundaryId!= null) { targetEntry = (CommentedTemporalString)Variants[cultureProbe].Variants.FirstOrDefault(i => i.Boundaries?.BoundaryId.Equals(boundaryId) == true); }
+            if (periodId != null) { targetEntry = Variants[cultureProbe].Variants.FirstOrDefault(i => i.Period?.PeriodId.Equals(periodId) == true); }
             else
             {
-                targetEntry = new CommentedTemporalString(value, comments, startDate, endDate);
-                Variants[cultureProbe].Variants.Add(targetEntry);
+                targetEntry = Variants[cultureProbe].Variants.FirstOrDefault(i => i.Value?.Equals(value) == true);
+
+                if (targetEntry == null)
+                {
+                    targetEntry = new TemporalCommented<string> {Comments = comments, Value = value, Period = 
+                        startDate == null && endDate == null ? 
+                            null: 
+                            new HistoricPeriod(startDate, endDate)};
+                    Variants[cultureProbe].Variants.Add(targetEntry);
+                }
             }
 
             if (targetEntry == null) return this;
@@ -84,17 +90,16 @@ namespace Zen.Pebble.FlexibleData.String.Localization
             targetEntry.Value = value;
             targetEntry.Comments = comments;
 
-            if (startDate!= null || endDate!= null) targetEntry.Boundaries = new HistoricDateTimeBoundary(startDate, endDate);
+            if (startDate != null || endDate != null) targetEntry.Period = new HistoricPeriod(startDate, endDate);
 
             return this;
         }
 
-        public static implicit operator HistoricPrecisionString(string source) => string.IsNullOrEmpty(source) ? null : new HistoricPrecisionString(source);
-        public static implicit operator string(HistoricPrecisionString source) => source.Value;
+        public static implicit operator HistoricString(string source) { return string.IsNullOrEmpty(source) ? null : new HistoricString(source); }
+
+        public static implicit operator string(HistoricString source) { return source.Value; }
 
         #region Implementation of IVariantTemporalMap<string,string>
-
-
 
         #endregion
     }
