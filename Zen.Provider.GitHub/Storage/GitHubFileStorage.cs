@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 using Zen.Base;
@@ -15,11 +17,25 @@ namespace Zen.Provider.GitHub.Storage
     [FileSystemFileStorage(Descriptor = "GitHub File Storage")]
     public abstract class GitHubFileStorage : FileStoragePrimitive
     {
+        #region Overrides of FileStoragePrimitive
+
+        public override Task<Stream> Fetch(IFileDescriptor definition)
+        {
+            var fullPath = Path.Combine(definition.StoragePath, definition.StorageName);
+            using var fileStream = File.OpenRead(fullPath);
+
+            Stream castBuffer = fileStream;
+
+            return Task.FromResult(castBuffer);
+        }
+
+        #endregion
+
         internal GitHubFileStorageConfigurationAttribute Configuration;
 
         protected GitHubFileStorage()
         {
-            Configuration = GetType().GetCustomAttributes(typeof(GitHubFileStorageConfigurationAttribute), false).Select(i => (GitHubFileStorageConfigurationAttribute) i).FirstOrDefault() ?? new GitHubFileStorageConfigurationAttribute();
+            Configuration = GetType().GetCustomAttributes(typeof(GitHubFileStorageConfigurationAttribute), false).Select(i => (GitHubFileStorageConfigurationAttribute)i).FirstOrDefault() ?? new GitHubFileStorageConfigurationAttribute();
             if (Configuration.ClientName == null) Configuration.ClientName = Host.ApplicationAssemblyName;
 
             LocalStoragePath = Path.Combine(Host.BaseDirectory, "cache", "git", (GetType().FullName + Configuration.Repository).Md5Hash());
@@ -32,7 +48,7 @@ namespace Zen.Provider.GitHub.Storage
             var mustClone = false;
 
             Log.KeyValuePair(GetType().Name, $"Cloning: {Configuration.Url}", Message.EContentType.MoreInfo);
-            Log.KeyValuePair(GetType().Name, $"To     : {LocalStoragePath}", Message.EContentType.MoreInfo);
+            Log.Info(LocalStoragePath);
 
             try
             {
@@ -49,25 +65,28 @@ namespace Zen.Provider.GitHub.Storage
                     {
                         var remote = localRepo.Network.Remotes.FirstOrDefault();
                         if (remote != null)
-                        {
-                            Log.KeyValuePair(GetType().Name, "Remote repo has pending changes.", Message.EContentType.MoreInfo);
-
                             try
                             {
-                                string logMessage = null;
+                                var pullOptions = new PullOptions { MergeOptions = new MergeOptions { FastForwardStrategy = FastForwardStrategy.Default } };
 
-                                var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-                                Commands.Fetch(localRepo, remote.Name, refSpecs, null, logMessage);
+                                var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification).ToList();
+                                Commands.Fetch(localRepo, remote.Name, refSpecs, null, null);
 
-                                Log.KeyValuePair(GetType().Name, logMessage?? "Fetch finished.", Message.EContentType.MoreInfo);
-                            } catch (Exception e) { Log.Add(e); }
-                        }
+                                var mergeResult = Commands.Pull(localRepo, new Signature(Host.ApplicationAssemblyName, "none@none.com", DateTimeOffset.Now), pullOptions);
+
+                                if (mergeResult.Status == MergeStatus.UpToDate) Log.KeyValuePair(GetType().Name, "Repository is up-to-date", Message.EContentType.MoreInfo);
+                                else Log.KeyValuePair(GetType().Name, mergeResult?.Commit?.Message.Replace("\n", " | ") ?? "Fetch/Pull finished.", Message.EContentType.MoreInfo);
+
+                            }
+                            catch (Exception e) { Log.Add(e); }
                     }
-                } catch (RepositoryNotFoundException e)
+                }
+                catch (RepositoryNotFoundException e)
                 {
                     Log.KeyValuePair(GetType().Name, "Local repo not found. Attempting to create.", Message.EContentType.Maintenance);
                     mustClone = true;
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
                     throw;
@@ -83,8 +102,10 @@ namespace Zen.Provider.GitHub.Storage
                         Repository.Clone(Configuration.Url, LocalStoragePath);
 
                         Log.KeyValuePair("Status", "Success", Message.EContentType.MoreInfo);
-                    } catch (Exception e) { Console.WriteLine(e); }
-            } catch (Exception e) { Console.WriteLine(e); }
+                    }
+                    catch (Exception e) { Console.WriteLine(e); }
+            }
+            catch (Exception e) { Console.WriteLine(e); }
         }
 
         public override IFileStorage ResolveStorage()
@@ -96,7 +117,7 @@ namespace Zen.Provider.GitHub.Storage
 
         #region Overrides of FileStoragePrimitive
 
-        public override Task<List<IStorageEntityDescriptor>> Collection(string referencePath = null)
+        public override Task<Dictionary<string, IStorageEntityDescriptor>> Collection(string referencePath = null)
         {
             var path = Path.Join(LocalStoragePath, referencePath);
 
@@ -104,17 +125,17 @@ namespace Zen.Provider.GitHub.Storage
 
             res.AddRange(Directory.GetDirectories(path, "*.*", SearchOption.TopDirectoryOnly)
                              .Select(dir => new DirectoryInfo(dir))
-                             .Select(dirInfo => new GitHubDirectoryDescriptor {StorageName = dirInfo.Name, StoragePath = dirInfo.Parent?.FullName, Creation = dirInfo.CreationTime})
+                             .Select(dirInfo => new GitHubDirectoryDescriptor { StorageName = dirInfo.Name, StoragePath = dirInfo.Parent?.FullName, Creation = dirInfo.CreationTime })
                              .Cast<IStorageEntityDescriptor>()
                              .ToList());
 
             res.AddRange(Directory.GetFiles(path, "*.*", SearchOption.TopDirectoryOnly)
                              .Select(file => new FileInfo(file))
-                             .Select(fileInfo => new GitHubFileDescriptor {FileSize = fileInfo.Length, StorageName = fileInfo.Name, StoragePath = fileInfo.DirectoryName, Creation = fileInfo.CreationTime})
+                             .Select(fileInfo => new GitHubFileDescriptor { FileSize = fileInfo.Length, StorageName = fileInfo.Name, StoragePath = fileInfo.DirectoryName, Creation = fileInfo.CreationTime })
                              .Cast<IStorageEntityDescriptor>()
                              .ToList());
 
-            return Task.FromResult(res);
+            return Task.FromResult(res.ToDictionary(i=> i.StorageName, i=> i));
         }
 
         #endregion
