@@ -510,7 +510,7 @@ namespace Zen.Base.Module
             return CacheFactory.FetchModel<T>(fullKey) ?? FetchModel(key, mutator);
         }
 
-        public static IEnumerable<T> Get(IEnumerable<string> keys)
+        public static Dictionary<string, T> GetMap(IEnumerable<string> keys)
         {
             ValidateState(EActionType.Read);
 
@@ -518,15 +518,17 @@ namespace Zen.Base.Module
 
             var keyList = keys.ToList();
 
-            if (!keyList.Any()) return new List<T>();
+            if (!keyList.Any()) return new Dictionary<string, T>();
 
             keyList = keyList.Distinct().ToList();
 
-            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keyList).Values;
+            if (Info<T>.Settings.KeyMemberName != null) return FetchSet(keyList);
 
             if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
             throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
         }
+
+        public static IEnumerable<T> Get(IEnumerable<string> keys) => GetMap(keys)?.Values;
 
         private static readonly object _bulkSaveLock = new object();
 
