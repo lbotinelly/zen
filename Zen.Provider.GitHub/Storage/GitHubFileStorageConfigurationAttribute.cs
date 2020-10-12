@@ -10,5 +10,6 @@ namespace Zen.Provider.GitHub.Storage {
         public string Url;
         public string Token;
         public string BasePath;
+        public bool UseSystemTempSpace;
     }
 }
