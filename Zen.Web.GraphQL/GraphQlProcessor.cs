@@ -1,10 +1,7 @@
-﻿using System;
-using EntityGraphQL.Schema;
+﻿using EntityGraphQL.Schema;
 using Microsoft.Extensions.Options;
 using Zen.Base;
 using Zen.Base.Common;
-using Zen.Base.Module;
-using Zen.Base.Module.Data.LINQ;
 using Zen.Base.Module.Service;
 using Zen.Web.GraphQL.Attribute;
 using Zen.Web.GraphQL.Common;
@@ -42,7 +39,6 @@ namespace Zen.Web.GraphQL
 
             foreach (var (model, attribute) in queryableTypes)
             {
-
                 var name = attribute?.Alias ??
                            (_options.TypeNameResolution == Configuration.ETypeNameResolution.FullName
                                ? model.FullName
