@@ -5,11 +5,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Xml;
+using System.Xml.Serialization;
 using ByteSizeLib;
 using Newtonsoft.Json.Linq;
 using Zen.Base.Common;
@@ -39,6 +42,38 @@ namespace Zen.Base.Extension
             "System.Runtime.ExceptionServices",
             "CommonLanguageRuntimeLibrary"
         };
+
+        public static T XmlToType<T>(this string path)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+
+            using var reader = new StreamReader(path);
+            return (T)serializer.Deserialize(reader);
+        }
+
+        public static T XmlToType<T>(this Stream path)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+
+            using var reader = new StreamReader(path);
+            return (T)serializer.Deserialize(reader);
+        }
+
+        private static T ConvertTo<T>(this XmlNode node) where T : class
+        {
+            var stm = new MemoryStream();
+
+            var stw = new StreamWriter(stm);
+            stw.Write(node.OuterXml);
+            stw.Flush();
+
+            stm.Position = 0;
+
+            var ser = new XmlSerializer(typeof(T));
+            var result = ser.Deserialize(stm) as T;
+
+            return result;
+        }
 
         // https://stackoverflow.com/a/33223183/1845714
         public static TV Val<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default) => dict != null && dict.TryGetValue(key, out var value) ? value : defaultValue;
