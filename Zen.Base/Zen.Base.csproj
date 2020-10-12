@@ -7,7 +7,7 @@
     <Company>Zen Development Team</Company>
     <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>latest</LangVersion>
     <PackageIcon>zen-icon.png</PackageIcon>
     <PackageIconUrl></PackageIconUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
