@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Zen.Base.Extension;
+using Zen.Base.Module;
 
 namespace Zen.Pebble.CrossModelMap.Change
 {
@@ -12,6 +13,8 @@ namespace Zen.Pebble.CrossModelMap.Change
         public Func<T, string> ChecksumFunction { get; } = arg => arg.ToJson().Sha512Hash();
 
         public ChangeTrackerConfiguration Configuration { get; set; } = new ChangeTrackerConfiguration();
+
+        public Dictionary<string, ChangeEntry<T>> Changes { get; private set; }
 
         public ChangeTracker<T> Identifier(Func<T, string> function)
         {
@@ -62,6 +65,7 @@ namespace Zen.Pebble.CrossModelMap.Change
                 };
             }
 
+            Changes = outputSet;
 
             return outputSet;
         }
@@ -70,6 +74,36 @@ namespace Zen.Pebble.CrossModelMap.Change
         {
             action.Invoke(Configuration);
             return this;
+        }
+
+        public void ProcessChanges<TU>(Func<ChangeTracker<T>, T, TU> function) where TU : Data<TU>
+        {
+            ProcessChanges(Changes, function);
+        }
+
+        public void ProcessChanges<TU>(Dictionary<string, ChangeEntry<T>> changes,
+            Func<ChangeTracker<T>, T, TU> function)
+            where TU : Data<TU>
+        {
+            foreach (var (key, value) in changes)
+                try
+                {
+                    // First use the simple Map iteration.
+
+
+                    //Then, if present, use the function.
+                    if (function != null)
+                    {
+                        var result = function(this, value.Model);
+                    }
+
+                    value.Result = ChangeEntry<T>.EResult.Success;
+                }
+                catch (Exception e)
+                {
+                    value.Result = ChangeEntry<T>.EResult.Fail;
+                    value.ResultMessage = e.Message;
+                }
         }
 
         public class ChangeTrackerConfiguration
