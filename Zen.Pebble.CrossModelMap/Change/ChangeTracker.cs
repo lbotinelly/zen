@@ -7,9 +7,11 @@ namespace Zen.Pebble.CrossModelMap.Change
 {
     public class ChangeTracker<T>
     {
-        public Func<T, string> IdentifierMethod { get; set; }
+        public Func<T, string> IdentifierMethod { get; private set; }
 
-        public Func<T, string> ChecksumFunction { get; set; } = arg => arg.ToJson().Sha512Hash();
+        public Func<T, string> ChecksumFunction { get; } = arg => arg.ToJson().Sha512Hash();
+
+        public ChangeTrackerConfiguration Configuration { get; set; } = new ChangeTrackerConfiguration();
 
         public ChangeTracker<T> Identifier(Func<T, string> function)
         {
@@ -33,11 +35,12 @@ namespace Zen.Pebble.CrossModelMap.Change
 
             var modelEntries = ChangeEntry<T>.GetMap(modelIdentifiers);
 
-            var currentEntries = modelEntries.Where(i => i.Value != null).ToDictionary(i=> i.Key, i=> i.Value);
+            var currentEntries = modelEntries.Where(i => i.Value != null).ToDictionary(i => i.Key, i => i.Value);
             var modelEntriesKeys = currentEntries.Keys.ToList();
 
 
-            foreach (var recordedChange in currentEntries.Where(recordedChange => recordedChange.Value.Checksum != ChecksumFunction(sourceSetMap[recordedChange.Key])))
+            foreach (var recordedChange in currentEntries.Where(recordedChange =>
+                recordedChange.Value.Checksum != ChecksumFunction(sourceSetMap[recordedChange.Key])))
             {
                 outputSet[recordedChange.Key] = recordedChange.Value;
                 outputSet[recordedChange.Key].Type = ChangeEntry<T>.EType.Update;
@@ -52,13 +55,28 @@ namespace Zen.Pebble.CrossModelMap.Change
 
                 outputSet[newEntry] = new ChangeEntry<T>
                 {
-                    Checksum = ChecksumFunction(targetModel), Model = targetModel, Type = ChangeEntry<T>.EType.New,
+                    Checksum = ChecksumFunction(targetModel),
+                    Model = targetModel,
+                    Type = ChangeEntry<T>.EType.New,
                     Id = newEntry
                 };
             }
 
 
             return outputSet;
+        }
+
+        public ChangeTracker<T> Configure(Action<ChangeTrackerConfiguration> action)
+        {
+            action.Invoke(Configuration);
+            return this;
+        }
+
+        public class ChangeTrackerConfiguration
+        {
+            public TimeSpan? StaleRecordTimespan { get; set; } = TimeSpan.MaxValue;
+            public string Set { get; set; }
+            public string Collection { get; set; }
         }
     }
 }
