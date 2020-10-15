@@ -14,6 +14,11 @@ namespace Zen.Pebble.CrossModelMap.Change
             New,
             Update
         }
+        public enum EResult
+        {
+            Success,
+            Fail
+        }
 
         private const string CollectionSuffix = "changeEntry";
         private static readonly Dictionary<Type, string> NameMap = new Dictionary<Type, string>();
@@ -29,6 +34,8 @@ namespace Zen.Pebble.CrossModelMap.Change
         public string Checksum { get; set; }
         public DateTime Timestamp { get; private set; } = DateTime.Now;
         public T Model { get; set; }
+        public EResult Result { get; set; }
+        public string ResultMessage { get; set; }
 
         public string GetStorageCollectionName()
         {
