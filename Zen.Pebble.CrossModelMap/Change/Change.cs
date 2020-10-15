@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data.Connection;
 
@@ -17,25 +16,11 @@ namespace Zen.Pebble.CrossModelMap.Change
         }
 
         private const string CollectionSuffix = "changeEntry";
-        private static Dictionary<Type, string> _nameMap = new Dictionary<Type, string>();
+        private static readonly Dictionary<Type, string> NameMap = new Dictionary<Type, string>();
 
         public ChangeEntry()
         {
-
-            var sourceType = typeof(T);
-            var referenceType = typeof(T);
-
-            if (_nameMap.ContainsKey(sourceType)) return;
-
-            var invalidChars = "_+".ToCharArray();
-
-            while (referenceType?.IsGenericType == true)
-                referenceType = referenceType.GenericTypeArguments.FirstOrDefault();
-
-            var name = invalidChars.Aggregate(referenceType?.FullName, (current, invalidChar) => current.Replace(invalidChar, '.'));
-
-            _nameMap[sourceType] = name;
-
+            EvaluateConfiguration();
         }
 
 
@@ -47,12 +32,34 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public string GetStorageCollectionName()
         {
-            return $"{_nameMap[typeof(T)]}#{CollectionSuffix}";
+            return $"{NameMap[typeof(T)]}#{CollectionSuffix}";
+        }
+
+        private void EvaluateConfiguration()
+        {
+            var invalidChars = "_+".ToCharArray();
+
+            var sourceType = typeof(T);
+            var referenceType = typeof(T);
+
+            if (NameMap.ContainsKey(sourceType)) return;
+
+            while (referenceType?.IsGenericType == true)
+                referenceType = referenceType.GenericTypeArguments.FirstOrDefault();
+
+
+            NameMap[sourceType] = invalidChars.Aggregate(referenceType?.Name,
+                (current, invalidChar) => current.Replace(invalidChar, '.'));
         }
 
         public override void BeforeSave()
         {
             Timestamp = DateTime.Now;
+        }
+
+        public class ChangeEntryConfiguration
+        {
+            public string StorageName { get; set; }
         }
     }
 }
