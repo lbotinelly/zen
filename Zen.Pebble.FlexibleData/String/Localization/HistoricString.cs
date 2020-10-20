@@ -98,9 +98,5 @@ namespace Zen.Pebble.FlexibleData.String.Localization
         public static implicit operator HistoricString(string source) { return string.IsNullOrEmpty(source) ? null : new HistoricString(source); }
 
         public static implicit operator string(HistoricString source) { return source.Value; }
-
-        #region Implementation of IVariantTemporalMap<string,string>
-
-        #endregion
     }
 }
