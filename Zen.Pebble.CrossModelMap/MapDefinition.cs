@@ -2,8 +2,8 @@
 
 namespace Zen.Pebble.CrossModelMap
 {
-    public class MapDefinition<T1, T2>
+    public class MapDefinition
     {
-        public List<KeyMap> KeyMaps { get; set; }
+        public Dictionary<string, KeyMapConfiguration> KeyMaps { get; set; }
     }
 }
