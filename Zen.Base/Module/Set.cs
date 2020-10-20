@@ -5,26 +5,46 @@ using Zen.Base.Module.Data;
 
 namespace Zen.Base.Module
 {
-    public sealed class Set<T> where T : Data<T>
+    public sealed class Set<T> : ISetSave where T : Data<T>
     {
         internal Dictionary<string, T> Cache = new Dictionary<string, T>();
 
-        public T Fetch(string key, bool ignoreCache = false)
+        #region Overrides of Object
+
+        public override string ToString()
         {
-            if (!ignoreCache)
-                if (Cache.ContainsKey(key))
-                    return Cache[key];
+            return $"{typeof(T).Name}: {Cache.Count} items";
+        }
 
-            var probe = Data<T>.Get(key);
+        #endregion
 
-            if (probe == null)
+        public void Commit()
+        {
+            Save();
+        }
+
+        public T Fetch(string identifier, bool ignoreCache = false)
+        {
+            T model = null;
+
+            if (identifier != null)
             {
-                probe = typeof(T).CreateInstance<T>();
-                probe.SetDataKey(key);
+
+                if (!ignoreCache)
+                    if (Cache.ContainsKey(identifier))
+                        return Cache[identifier];
+                model = Data<T>.Get(identifier);
             }
 
-            Cache[probe.GetDataKey()] = probe;
-            return probe;
+
+            if (model == null)
+            {
+                model = typeof(T).CreateInstance<T>();
+                if (identifier != null) model.SetDataKey(identifier);
+            }
+
+            Cache[model.GetDataKey()] = model;
+            return model;
         }
 
         public List<T> Save()
@@ -33,10 +53,5 @@ namespace Zen.Base.Module
             tempSet.Save();
             return tempSet;
         }
-    }
-
-    public static class Extensions
-    {
-        public static Set<T> ToSet<T>(this IEnumerable<T> source) where T : Data<T> { return new Set<T> {Cache = source.ToDictionary(i => i.GetDataKey(), i => i)}; }
     }
 }
