@@ -46,6 +46,18 @@ namespace Zen.Provider.GitHub.Storage
             return Task.FromResult(castBuffer);
         }
 
+        public override async Task<string> Store(IFileDescriptor definition, Stream source)
+        {
+            var fullPath = Path.Combine(LocalStoragePath, definition.StoragePath.Replace("/", "\\"), definition.StorageName);
+            await using var fs = File.OpenWrite(fullPath);
+            
+            source.Seek(0, SeekOrigin.Begin);
+            await source.CopyToAsync(fs);
+            fs.Close();
+
+            return fullPath;
+        }
+
         #endregion
 
         public void CheckStatus(bool forceUpdate = false)
