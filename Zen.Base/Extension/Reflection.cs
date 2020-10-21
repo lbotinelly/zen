@@ -198,6 +198,7 @@ namespace Zen.Base.Extension
         public static object GetMemberValue(this object o, string member)
         {
             if (member == null) return null;
+            if (o == null) return null;
 
             var targetType = o.GetType();
 
