@@ -18,27 +18,43 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public ChangeTrackerConfiguration Configuration { get; set; } = new ChangeTrackerConfiguration();
 
+        public void ClearChangeTrack()
+        {
+            ChangeEntry<T>.RemoveAll();
+        }
+
         public Dictionary<string, ChangeEntry<T>> Changes { get; private set; }
 
-        public Func<T, TU> ResolveTargetModelFunc { get; set; } = arg => null;
+        public Func<T, TU> TransformAction { get; set; }
+        private Action<(T sourceData, TU targetModel)> ComplexTransformAction { get; set; }
 
-        public ChangeTracker<T, TU> ContentTypeHandler(Action<string, string, object, ContentTypeHandlerResult> action)
+
+        public Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)>
+            ConvertToModelTypeAction
+        { get; set; }
+
+        public ChangeTracker<T, TU> ComplexTransform(Action<(T sourceData, TU targetModel)> function)
         {
-            ContentTypeHandlerAction = action;
+            ComplexTransformAction = function;
             return this;
         }
 
-        public Action<string, string, object, ContentTypeHandlerResult> ContentTypeHandlerAction { get; set; }
-        
-        public ChangeTracker<T, TU> SourceValueHandler(Func<T, string, string> function)
+        public ChangeTracker<T, TU> ConvertToModelType(
+            Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)> action)
+        {
+            ConvertToModelTypeAction = action;
+            return this;
+        }
+
+        public ChangeTracker<T, TU> SourceDataByPath(Func<T, string, string> function)
         {
             SourceValueHandlerFunc = function;
             return this;
         }
 
-        public ChangeTracker<T, TU> ResolveTargetModel(Func<T, TU> function)
+        public ChangeTracker<T, TU> Transform(Func<T, TU> function)
         {
-            ResolveTargetModelFunc = function;
+            TransformAction = function;
             return this;
         }
 
@@ -48,17 +64,26 @@ namespace Zen.Pebble.CrossModelMap.Change
             return this;
         }
 
-        public virtual void Process()
-        {
-        }
-
-
         public string GetIdentifier(T model)
         {
             return IdentifierFunc(model);
         }
 
-        public Dictionary<string, ChangeEntry<T>> GetChanges(IEnumerable<T> modelCollection)
+        public void Run()
+        {
+            Start();
+
+            ProcessChanges();
+
+            Changes.Save();
+            DataSets.Save();
+        }
+
+        public virtual void Start()
+        {
+        }
+
+        public Dictionary<string, ChangeEntry<T>> FetchChanges(IEnumerable<T> modelCollection)
         {
             var sourceSetMap = modelCollection.ToList().ToDictionary(GetIdentifier, i => i);
 
@@ -107,30 +132,24 @@ namespace Zen.Pebble.CrossModelMap.Change
             return this;
         }
 
-        public void ProcessChanges(Func<ChangeTracker<T, TU>, T, TU> function)
+        public void ProcessChanges()
         {
-            ProcessChanges(Changes, function);
+            ProcessChanges(Changes);
         }
 
-        public void ProcessChanges(Dictionary<string, ChangeEntry<T>> changes,
-            Func<ChangeTracker<T, TU>, T, TU> function)
+        public void ProcessChanges(Dictionary<string, ChangeEntry<T>> changes)
         {
-            foreach (var (key, value) in changes)
+            foreach (var value in changes.Values)
                 try
                 {
                     // First resolve the target record.
-                    var model = ResolveTargetModelFunc(value.Model);
+                    var targetModel = TransformAction(value.Model);
 
                     // First use the simple Map iteration.
+                    ApplyMappedData(targetModel, value);
 
-                    ApplyValuesByMap(model, key, value);
-
-
-                    //Then, if present, use the function.
-                    if (function != null)
-                    {
-                        var result = function(this, value.Model);
-                    }
+                    //If defined, use the complex transformation function
+                    ComplexTransformAction?.Invoke((value.Model, targetModel ));
 
                     value.Result = ChangeEntry<T>.EResult.Success;
                 }
@@ -142,24 +161,33 @@ namespace Zen.Pebble.CrossModelMap.Change
         }
 
 
-        private TU ApplyValuesByMap(TU model, string key, ChangeEntry<T> value)
+        private void ApplyMappedData(TU model, ChangeEntry<T> value)
         {
-            foreach (var (k, v) in Configuration.MemberMapping.KeyMaps)
+            foreach (var (key, definition) in Configuration.MemberMapping.KeyMaps)
             {
-                var sourceValue = SourceValueHandlerFunc(value.Model, k);
-                var destinationValue = model.GetMemberValue(v.Target);
+                var sourceValue = SourceValueHandlerFunc(value.Model, key);
 
-                var result = new ContentTypeHandlerResult();
+                if (string.IsNullOrEmpty(sourceValue) && definition.AternateSources?.Count > 0)
+                {
+                    foreach (var altSource in definition.AternateSources)
+                    {
+                        sourceValue = SourceValueHandlerFunc(value.Model, altSource);
+                        if (sourceValue != null) break;
+                    }
+                }
 
-                ContentTypeHandlerAction.Invoke(v.Handler, sourceValue, destinationValue, result);
+                 
+                var destinationValue = model.GetMemberValue(definition.Target);
 
-                if (result.Success) model.SetMemberValue(v.Target, result.Value);
+                var result = new ConvertToModelTypeResult();
+
+                ConvertToModelTypeAction.Invoke((definition.Handler, sourceValue, destinationValue, result));
+
+                if (result.Success) model.SetMemberValue(definition.Target, result.Value);
             }
-
-            return model;
         }
 
-        public class ContentTypeHandlerResult
+        public class ConvertToModelTypeResult
         {
             public bool Success = false;
             public object Value { get; set; }
