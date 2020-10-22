@@ -12,9 +12,15 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
 
         public HistoricPeriod(System.DateTime? startDate, System.DateTime? endDate = null)
         {
-            if (startDate!= null) Start = new HistoricDateTime(startDate);
+            if (startDate != null) Start = new HistoricDateTime(startDate);
 
-            if (endDate!= null) End = new HistoricDateTime(endDate);
+            if (endDate != null) End = new HistoricDateTime(endDate);
+        }
+
+        public HistoricPeriod(string startDate, string endDate = null)
+        {
+            if (startDate != null) Start = startDate;
+            if (endDate != null) End = endDate;
         }
 
         public string PeriodId { get => _periodId ??= Guid.NewGuid().ToString(); set => _periodId = value; }
