@@ -39,6 +39,15 @@ namespace Zen.Pebble.CrossModelMap.Change
             return this;
         }
 
+        public ChangeTracker<T, TU> OnCommit(Action action)
+        {
+            OnCommitAction = action;
+            return this;
+
+        }
+
+        public Action OnCommitAction { get; set; }
+
         public ChangeTracker<T, TU> ConvertToModelType(
             Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)> action)
         {
@@ -77,6 +86,8 @@ namespace Zen.Pebble.CrossModelMap.Change
 
             Changes.Save();
             DataSets.Save();
+
+            OnCommitAction?.Invoke();
         }
 
         public virtual void Start()
@@ -175,7 +186,6 @@ namespace Zen.Pebble.CrossModelMap.Change
                         if (sourceValue != null) break;
                     }
                 }
-
                  
                 var destinationValue = model.GetMemberValue(definition.Target);
 
