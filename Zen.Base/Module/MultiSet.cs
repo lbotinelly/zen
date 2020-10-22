@@ -7,11 +7,7 @@ namespace Zen.Base.Module
     {
         private readonly Dictionary<Type, object> _setMap = new Dictionary<Type, object>();
 
-        public T Fetch<T>(string identifier) where T : Data<T>
-        {
-            var set = GetSet<T>();
-            return set.Fetch(identifier);
-        }
+        public T Fetch<T>(string identifier) where T : Data<T> => GetSet<T>().Fetch(identifier);
 
         public void Save()
         {
