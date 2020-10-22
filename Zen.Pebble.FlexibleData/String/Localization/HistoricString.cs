@@ -50,7 +50,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
             return tmp;
         }
 
-        public HistoricString SetVariant(string value, string culture = null, string comments = null, string periodId = null, System.DateTime? startDate = null, System.DateTime? endDate = null)
+        public HistoricString SetVariant(string value, string culture = null, string comments = null, string periodId = null, string startDate = null, string endDate = null)
         {
             if (value == null) return null;
 
