@@ -24,7 +24,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Auth\" />
+    <Compile Remove="Auth\**" />
+    <EmbeddedResource Remove="Auth\**" />
+    <None Remove="Auth\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,6 +48,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
   </ItemGroup>
 
 </Project>

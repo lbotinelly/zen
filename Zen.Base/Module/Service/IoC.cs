@@ -18,13 +18,14 @@ namespace Zen.Base.Module.Service
 
         public static readonly ConcurrentDictionary<string, Assembly> AssemblyLoadMap = new ConcurrentDictionary<string, Assembly>();
         private static readonly ConcurrentDictionary<string, string> AssemblyPathMap = new ConcurrentDictionary<string, string>();
-        private static readonly ConcurrentDictionary<Type, List<Type>> TypeResolutionMap = new ConcurrentDictionary<Type, List<Type>>();
+        private static readonly ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>> TypeResolutionMap = new ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>>();
+        private static readonly ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>> AttributeResolutionMap = new ConcurrentDictionary<Type, List<KeyValuePair<int, Type>>>();
 
         public static readonly Dictionary<Type, List<Type>> GetGenericsByBaseClassCache = new Dictionary<Type, List<Type>>();
 
         private static readonly object GetGenericsByBaseClassLock = new object();
 
-        private static readonly List<string> IgnoreList = new List<string> { "System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle" };
+        private static readonly List<string> IgnoreList = new List<string> {"System.", "Microsoft.", "mscorlib", "netstandard", "Serilog.", "ByteSize", "AWSSDK.", "StackExchange.", "SixLabors.", "BouncyCastle.", "MongoDB.", "Dapper", "SharpCompress", "Remotion", "Markdig", "Westwind", "Serilog", "DnsClient", "Oracle"};
 
         static IoC()
         {
@@ -34,7 +35,7 @@ namespace Zen.Base.Module.Service
 
             var self = Assembly.GetEntryAssembly();
 
-            if (self!= null) RegisterAssembly(self);
+            if (self != null) RegisterAssembly(self);
 
             // 1st cycle: Local (base directory) assemblies
 
@@ -43,11 +44,11 @@ namespace Zen.Base.Module.Service
             //2nd cycle: Directories/assemblies referenced by system
 
             //    First by process-specific variables...
-            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Process));
+            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(ConstantStrings.zen_ver, EnvironmentVariableTarget.Process));
             //    then by user-specific variables...
-            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.User));
+            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(ConstantStrings.zen_ver, EnvironmentVariableTarget.User));
             //    and finally system-wide variables.
-            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(Strings.zen_ver, EnvironmentVariableTarget.Machine));
+            LoadAssembliesFromDirectory(System.Environment.GetEnvironmentVariable(ConstantStrings.zen_ver, EnvironmentVariableTarget.Machine));
 
             //Now try to load:
 
@@ -61,17 +62,29 @@ namespace Zen.Base.Module.Service
                 //var modList = AssemblyCache.Select(i => i.Value.ToString().Split(',')[0]).ToJson();
 
                 foreach (var item in AssemblyLoadMap)
-                    try { item.Value.GetTypes(); } catch (Exception e) { Base.Log.Add("Error while loading " + item.Key, e); }
+                    try
+                    {
+                        item.Value.GetTypes();
+                    }
+                    catch (Exception e)
+                    {
+                        Base.Log.Add("Error while loading " + item.Key, e);
+                    }
             }
 
             Base.Log.KeyValuePair("Assembly Loader", $"{AssemblyLoadMap.Count} assemblies registered", Message.EContentType.StartupSequence);
-
-            foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap)) Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
+            // foreach (var assembly in new SortedDictionary<string, Assembly>(AssemblyLoadMap)) Base.Log.KeyValuePair(assembly.Key, assembly.Value.Location);
         }
 
-        public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class { return GetClassesByInterface<T>(excludeCoreNullDefinitions).Select(i => i.CreateInstance<T>()).ToList(); }
+        public static List<T> GetInstances<T>(bool excludeCoreNullDefinitions = true) where T : class
+        {
+            return GetClassesByInterface<T>(excludeCoreNullDefinitions).Select(i => i.CreateInstance<T>()).ToList();
+        }
 
-        private static Assembly GetAssemblyByName(string name) { return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name); }
+        private static Assembly GetAssemblyByName(string name)
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == name);
+        }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
@@ -107,7 +120,10 @@ namespace Zen.Base.Module.Service
                 else
                 {
                     //It's a file: Load it directly.
-                    lock (Lock) { LoadAssembly(path); }
+                    lock (Lock)
+                    {
+                        LoadAssembly(path);
+                    }
                 }
             }
         }
@@ -148,9 +164,7 @@ namespace Zen.Base.Module.Service
 
                 AssemblyPathMap.TryAdd(p, physicalPath);
 
-                var assy = Assembly.LoadFrom(physicalPath);
-
-                RegisterAssembly(assy);
+                RegisterAssembly(Assembly.LoadFrom(physicalPath));
             }
             catch (Exception e)
             {
@@ -165,9 +179,10 @@ namespace Zen.Base.Module.Service
             }
         }
 
-        public static List<Type> TypeByName(string typeName) => AssemblyLoadMap.Values.ToList()
-            .SelectMany(i => i.GetTypes().Where(j => !j.IsInterface && !j.IsAbstract && (j.Name.Equals(typeName) || j.FullName?.Equals(typeName) == true)))
-            .ToList();
+        public static List<Type> TypeByName(string typeName) =>
+            AssemblyLoadMap.Values.ToList()
+                .SelectMany(i => i.GetTypes().Where(j => !j.IsInterface && !j.IsAbstract && (j.Name.Equals(typeName) || j.FullName?.Equals(typeName) == true)))
+                .ToList();
 
         public static List<Type> GetClassesByBaseClass(Type refType, bool limitToMainAssembly = false)
         {
@@ -179,16 +194,15 @@ namespace Zen.Base.Module.Service
 
                 if (limitToMainAssembly) assySource.Add(Host.ApplicationAssembly);
                 else
-                    lock (Lock) { assySource = AssemblyLoadMap.Values.ToList(); }
+                    lock (Lock)
+                    {
+                        assySource = AssemblyLoadMap.Values.ToList();
+                    }
 
                 foreach (var asy in assySource)
-                    classCol.AddRange(asy
-                                          .GetTypes()
-                                          .Where(type => type.BaseType!= null)
-                                          .Where(
-                                              type =>
-                                                  type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == refType
-                                                  || type.BaseType == refType));
+                    classCol.AddRange(asy.GetTypes()
+                        .Where(type => type.BaseType != null)
+                        .Where(type => type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == refType || type.BaseType == refType));
 
                 return classCol;
             }
@@ -219,20 +233,20 @@ namespace Zen.Base.Module.Service
                 try
                 {
                     foreach (var asy in AssemblyLoadMap.Values.ToList())
-                        foreach (var st in asy.GetTypes())
-                        {
-                            if (st.BaseType == null) continue;
-                            if (!st.BaseType.IsGenericType) continue;
-                            if (st == refType) continue;
+                    foreach (var st in asy.GetTypes())
+                    {
+                        if (st.BaseType == null) continue;
+                        if (!st.BaseType.IsGenericType) continue;
+                        if (st == refType) continue;
 
-                            try
-                            {
-                                foreach (var gta in st.BaseType.GenericTypeArguments)
-                                    if (gta == refType)
-                                        classCol.Add(st);
-                            }
-                            catch { }
+                        try
+                        {
+                            foreach (var gta in st.BaseType.GenericTypeArguments)
+                                if (gta == refType)
+                                    classCol.Add(st);
                         }
+                        catch { }
+                    }
 
                     GetGenericsByBaseClassCache.Add(refType, classCol);
                 }
@@ -249,81 +263,146 @@ namespace Zen.Base.Module.Service
         ///     Gets a list of classes by implemented interface/base class.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="excludeCoreNullDefinitions">
-        ///     if set to <c>true</c> it ignores all core null providers, retuning only
-        ///     external providers.
+        /// <param name="excludeFallback">
+        ///     if set to <c>true</c> it ignores fallback providers, retuning only defined providers.
         /// </param>
         /// <returns>The list of classes.</returns>
-        public static List<Type> GetClassesByInterface<T>(bool excludeCoreNullDefinitions = true) { return GetClassesByInterface(typeof(T), excludeCoreNullDefinitions); }
+        public static List<Type> GetClassesByInterface<T>(bool excludeFallback = false) => GetClassesByInterface(typeof(T), excludeFallback);
 
         public static IServiceCollection AddZenProvider<T>(this IServiceCollection serviceCollection, string descriptor = null) where T : class
         {
-            var types = GetClassesByInterface<T>(false).FirstOrDefault();
-            if (types == null) return serviceCollection;
+            var targetType = GetClassesByInterface<T>(false).FirstOrDefault();
+            if (targetType == null) return serviceCollection;
 
-            var probe = types.CreateInstance<T>();
+            var isInstantiable = targetType.GetConstructor(Type.EmptyTypes) != null;
 
-            serviceCollection.AddSingleton(s => probe);
-            Events.AddLog(descriptor, probe.ToString());
+            if (isInstantiable)
+            {
+                var probe = targetType.CreateInstance<T>();
+
+                serviceCollection.AddSingleton(s => probe);
+                Events.AddLog(descriptor, probe.ToString());
+            }
+            else
+            {
+                serviceCollection.AddSingleton(typeof(T), targetType);
+            }
 
             return serviceCollection;
         }
 
-        public static List<Type> GetClassesByInterface(Type targetType, bool excludeCoreNullDefinitions = true)
+        public static List<Type> GetClassesByInterface(Type targetType, bool excludeFallback = true)
         {
             lock (Lock)
             {
-                if (TypeResolutionMap.ContainsKey(targetType)) return TypeResolutionMap[targetType];
-
-                //Modules.Log.System.Add("Scanning for " + type);
-
-                var currentExecutingAssembly = Assembly.GetExecutingAssembly();
-
-                var globalTypeList = new List<Type>();
-
-                foreach (var item in AssemblyLoadMap.Values)
+                if (!TypeResolutionMap.ContainsKey(targetType))
                 {
-                    if (excludeCoreNullDefinitions && item == currentExecutingAssembly) continue;
+                    //Modules.Log.System.Add("Scanning for " + type);
 
-                    try
-                    {
-                        var partialTypeList =
-                            from target in item.GetTypes() // Get a list of all Types in the cached Assembly
-                            where !target.IsInterface // that aren't interfaces
-                            where !target.IsAbstract // and also not abstract (so it can be instantiated)
-                            where targetType.IsAssignableFrom(target) // that can be assigned to the specified type
-                            where targetType != target // (and obviously not the type itself)
-                            select target;
+                    var currentExecutingAssembly = Assembly.GetExecutingAssembly();
 
-                        globalTypeList.AddRange(partialTypeList);
-                    }
-                    catch (Exception e)
-                    {
-                        if (e is ReflectionTypeLoadException)
+                    var globalTypeList = new List<Type>();
+
+                    foreach (var item in AssemblyLoadMap.Values)
+                        try
                         {
-                            var typeLoadException = e as ReflectionTypeLoadException;
-                            var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
 
-                            //if (loaderExceptions.Count > 0) Modules.Log.System.Add("    Fail " + item + ": " + loaderExceptions[0].Message);
-                            //else Modules.Log.System.Add("    Fail " + item + ": Undefined.");
+
+
+                            var partialTypeList =
+                                from target in item.GetTypes() // Get a list of all Types in the cached Assembly
+                                where !target.IsInterface // that aren't interfaces
+                                where !target.IsAbstract // and also not abstract (so it can be instantiated)
+                                where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
+                                where !targetType.IsInterface ? targetType.IsAssignableFrom(target): target.GetInterfaces().Contains(targetType) // that can be assigned to the specified type
+                                where targetType != target // (and obviously not the type itself)
+                                select target;
+
+                            globalTypeList.AddRange(partialTypeList);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is ReflectionTypeLoadException)
+                            {
+                                var typeLoadException = e as ReflectionTypeLoadException;
+                                var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
+                            }
+
+                            // Well, this loading can fail by a (long) variety of reasons. 
+                            // It's not a real problem not to catch exceptions here. 
                         }
 
-                        // Well, this loading can fail by a (long) variety of reasons. 
-                        // It's not a real problem not to catch exceptions here. 
-                    }
+                    var typesByPriorityLevelMap = globalTypeList
+                        .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                        .OrderBy(i => -i.Key).ToList();
+
+                    TypeResolutionMap.TryAdd(targetType, typesByPriorityLevelMap); // Caching results, so similar queries will return from cache
                 }
 
-                var typesByPriorityLevelMap = globalTypeList
-                    .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
-                    .OrderBy(i => -i.Key);
+                var typeListCache = !excludeFallback ? TypeResolutionMap[targetType] : TypeResolutionMap[targetType].Where(i => i.Key > -1).ToList();
 
-                var typesByPriorityLevel = typesByPriorityLevelMap
+                var typesByPriorityLevel = typeListCache
                     .Select(i => i.Value)
                     .ToList();
 
-                TypeResolutionMap.TryAdd(targetType, typesByPriorityLevel); // Caching results, so similar queries will return from cache
-
                 return typesByPriorityLevel;
+            }
+        }
+
+        public static Dictionary<Type, T> GetClassesByAttribute<T>()
+        {
+            var targetAttribute = typeof(T);
+
+            lock (Lock)
+            {
+                if (!AttributeResolutionMap.ContainsKey(targetAttribute))
+                {
+                    //Modules.Log.System.Add("Scanning for " + type);
+
+                    var currentExecutingAssembly = Assembly.GetExecutingAssembly();
+
+                    var attributedTypes = new List<Type>();
+
+                    foreach (var item in AssemblyLoadMap.Values)
+                        try
+                        {
+                            var partialTypeList =
+                                from target in item.GetTypes() // Get a list of all Types in the cached Assembly
+                                where !target.IsInterface // that aren't interfaces
+                                where !target.IsAbstract // and also not abstract (so it can be instantiated)
+                                where !target.GetCustomAttributes(typeof(IoCIgnoreAttribute), false).Any() // Must not be marked to be ignored
+                                where target.GetCustomAttributes(targetAttribute, false).Any() // Must have attribute of specified type
+                                select target;
+
+                            attributedTypes.AddRange(partialTypeList);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is ReflectionTypeLoadException)
+                            {
+                                var typeLoadException = e as ReflectionTypeLoadException;
+                                var loaderExceptions = typeLoadException.LoaderExceptions.ToList();
+                            }
+
+                            // Well, this loading can fail by a (long) variety of reasons. 
+                            // It's not a real problem not to catch exceptions here. 
+                        }
+
+                    var typesByPriorityLevelMap = attributedTypes
+                        .Select(i => new KeyValuePair<int, Type>(((PriorityAttribute)i.GetCustomAttributes(typeof(PriorityAttribute), true).FirstOrDefault() ?? new PriorityAttribute()).Level, i))
+                        .OrderBy(i => -i.Key).ToList();
+
+                    AttributeResolutionMap.TryAdd(targetAttribute, typesByPriorityLevelMap); // Caching results, so similar queries will return from cache
+                }
+
+                var typeListCache = AttributeResolutionMap[targetAttribute].ToList();
+
+                var typesWithAttribute = typeListCache
+                        .ToDictionary(i =>
+                                i.Value, i => (T)i.Value.GetCustomAttributes(targetAttribute).Select(j=> (object)j).FirstOrDefault())
+                    ;
+
+                return typesWithAttribute;
             }
         }
     }

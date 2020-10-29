@@ -20,6 +20,8 @@ namespace Zen.Storage.Provider.Configuration
 
         #region Implementation of IZenProvider
 
+        public EOperationalStatus OperationalStatus { get; set; } = EOperationalStatus.Undefined;
+
         public void Initialize()
         {
             // Let's resolve who can get us some sweet, sweet config data.
@@ -45,6 +47,9 @@ namespace Zen.Storage.Provider.Configuration
 
             Provider.Load().CopyPropertiesTo(this);
         }
+
+        public virtual string Name { get; }
+        public virtual string GetState() => $"{OperationalStatus}";
 
         #endregion
 

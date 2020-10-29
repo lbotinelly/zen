@@ -1,10 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
 using Zen.Base.Module.Data.Connection;
-using Zen.Base.Module.Default;
 using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
 using Zen.Base.Module.Log;
@@ -18,17 +18,13 @@ namespace Zen.Base.Service
         {
             serviceCollection.AddOptions();
 
-            var configurationPackage = (IoC.GetClassesByInterface<IConfigurationPackage>(false).FirstOrDefault() ?? typeof(DefaultSettingsPackage)).CreateInstance<IConfigurationPackage>();
+            IEnumerable<IConfigurationPackage> configurationPackages = IoC.GetClassesByInterface<ConfigurationPackagePrimitive>(false).CreateInstances<IConfigurationPackage>().ToList();
 
-            serviceCollection.AddSingleton(configurationPackage);
-
-            serviceCollection.AddSingleton(s => configurationPackage.Environment ?? IoC.GetClassesByInterface<IEnvironmentProvider>(false).FirstOrDefault()?.CreateInstance<IEnvironmentProvider>());
-            serviceCollection.AddSingleton(s => configurationPackage.Log ?? IoC.GetClassesByInterface<ILogProvider>(false).FirstOrDefault()?.CreateInstance<ILogProvider>());
-
-            // ICacheProvider may receive injection, so let's do this by type.
-            serviceCollection.AddSingleton(typeof(ICacheProvider), configurationPackage.Cache != null ? configurationPackage.Cache.GetType() : IoC.GetClassesByInterface<ICacheProvider>(false).FirstOrDefault());
-            serviceCollection.AddSingleton(s => configurationPackage.Encryption ?? IoC.GetClassesByInterface<IEncryptionProvider>(false).FirstOrDefault()?.CreateInstance<IEncryptionProvider>());
-            serviceCollection.AddSingleton(s => configurationPackage.GlobalConnectionBundleType ?? IoC.GetClassesByInterface<ConnectionBundlePrimitive>().FirstOrDefault());
+            serviceCollection.AddSingletonProvider<ILogProvider, LogOptions>(configurationPackages, "Log");
+            serviceCollection.AddSingletonProvider<IEnvironmentProvider, EnvironmentOptions>(configurationPackages, "Environment");
+            serviceCollection.AddSingletonProvider<ICacheProvider, CacheOptions>(configurationPackages, "Cache");
+            serviceCollection.AddSingletonProvider<IEncryptionProvider, EncryptionOptions>(configurationPackages, "Encryption");
+            serviceCollection.AddSingletonProvider<IConnectionBundleProvider, ConnectionBundleOptions>(configurationPackages, "ConnectionBundle");
 
             return serviceCollection;
         }

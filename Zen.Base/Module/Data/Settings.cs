@@ -10,21 +10,29 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Data
 {
-    public class Settings
+    public enum EDataStatus
     {
-        public enum EStatus
-        {
-            Undefined,
-            Initializing,
-            Operational,
-            RecoverableFailure,
-            CriticalFailure,
-            ShuttingDown
-        }
+        Undefined,
+        Initializing,
+        Operational,
+        RecoverableFailure,
+        CriticalFailure,
+        ShuttingDown
+    }
 
-        public DataAdapterPrimitive Adapter;
+    public class PipelineQueueHandler
+    {
+        public List<IAfterActionPipeline> After = null;
+        public List<IBeforeActionPipeline> Before = null;
+    }
 
-        public ConnectionBundlePrimitive Bundle;
+
+    public class Settings<T> where T:Data<T>
+    {
+
+        public DataAdapterPrimitive<T> Adapter;
+
+        public IConnectionBundle Bundle;
 
         public Dictionary<string, string> ConnectionCypherKeys = null;
         public string ConnectionString;
@@ -58,22 +66,17 @@ namespace Zen.Base.Module.Data
         public string TypeNamespace { get; set; }
         public Dictionary<string, MemberAttribute> Members { get; set; }
         public string FriendlyName { get; set; }
+        public string StorageKeyMemberName { get; set; }
+        public Lazy<T> GetInstancedModifier() => new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null));
 
-        public Lazy<T> GetInstancedModifier<T>() where T : Data<T> { return new Lazy<T>(() => (T)Activator.CreateInstance(typeof(T), null)); }
-
-        public class PipelineQueueHandler
-        {
-            public List<IAfterActionPipeline> After = null;
-            public List<IBeforeActionPipeline> Before = null;
-        }
 
         public class DataState
         {
-            private EStatus _status;
+            private EDataStatus _status;
             private string _step;
             public Dictionary<DateTime, string> Events = new Dictionary<DateTime, string>();
-            public DataState() { Status = EStatus.Undefined; }
-            public EStatus Status
+            public DataState() { Status = EDataStatus.Undefined; }
+            public EDataStatus Status
             {
                 get => _status;
                 set
@@ -101,7 +104,7 @@ namespace Zen.Base.Module.Data
             }
             protected internal string Stack { get; internal set; }
 
-            public void Set<T>(EStatus status, string msg) where T : Data<T>
+            public void Set(EDataStatus status, string msg) 
             {
                 Status = status;
                 Description = msg;
@@ -110,22 +113,22 @@ namespace Zen.Base.Module.Data
 
                 switch (status)
                 {
-                    case EStatus.Undefined:
+                    case EDataStatus.Undefined:
                         targetType = Message.EContentType.Undefined;
                         break;
-                    case EStatus.Initializing:
+                    case EDataStatus.Initializing:
                         targetType = Message.EContentType.StartupSequence;
                         break;
-                    case EStatus.Operational:
+                    case EDataStatus.Operational:
                         targetType = Message.EContentType.Info;
                         break;
-                    case EStatus.RecoverableFailure:
+                    case EDataStatus.RecoverableFailure:
                         targetType = Message.EContentType.Warning;
                         break;
-                    case EStatus.CriticalFailure:
+                    case EDataStatus.CriticalFailure:
                         targetType = Message.EContentType.Critical;
                         break;
-                    case EStatus.ShuttingDown:
+                    case EDataStatus.ShuttingDown:
                         targetType = Message.EContentType.ShutdownSequence;
                         break;
                     default: throw new ArgumentOutOfRangeException(nameof(status), status, null);

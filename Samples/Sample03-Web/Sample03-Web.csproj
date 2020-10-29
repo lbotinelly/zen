@@ -11,4 +11,8 @@
     <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
+  </ItemGroup>
+
 </Project>

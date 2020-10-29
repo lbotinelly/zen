@@ -198,6 +198,7 @@ namespace Zen.Base.Extension
         public static object GetMemberValue(this object o, string member)
         {
             if (member == null) return null;
+            if (o == null) return null;
 
             var targetType = o.GetType();
 
@@ -337,11 +338,29 @@ namespace Zen.Base.Extension
 
         public static T CreateInstance<T>(this Type typeRef)
         {
-            try { return (T) Activator.CreateInstance(typeRef); } catch (Exception e)
+            try { return (T)Activator.CreateInstance(typeRef); }
+            catch (Exception e)
             {
                 var referenceException = e;
 
-                while (referenceException.InnerException!= null) referenceException = referenceException.InnerException;
+                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
+
+                throw referenceException;
+            }
+        }
+
+        public static T CreateGenericInstance<TU, T>(this Type typeRef)
+        {
+            try
+            {
+                var genericTypeRef = typeRef.MakeGenericType(typeof(TU));
+                return (T)Activator.CreateInstance(genericTypeRef);
+            }
+            catch (Exception e)
+            {
+                var referenceException = e;
+
+                while (referenceException.InnerException != null) referenceException = referenceException.InnerException;
 
                 throw referenceException;
             }

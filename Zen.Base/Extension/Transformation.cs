@@ -5,11 +5,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Xml;
+using System.Xml.Serialization;
 using ByteSizeLib;
 using Newtonsoft.Json.Linq;
 using Zen.Base.Common;
@@ -23,40 +26,6 @@ namespace Zen.Base.Extension
         {
             Remove,
             Allow
-        }
-
-        public static TV Val<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default)
-        {
-            // https://stackoverflow.com/a/33223183/1845714
-            return dict != null && dict.TryGetValue(key, out var value) ? value : defaultValue;
-        }
-
-        public static TO Get<TK, TV, TO>(this IDictionary<TK, TV> dict, TK key, TO defaultValue = default)
-        {
-            // https://stackoverflow.com/a/33223183/1845714
-            return dict != null && dict.TryGetValue(key, out var value) ? (TO)(object)value : defaultValue;
-        }
-
-        public static TO Get<TO, TK, TV>(this IDictionary<TK, TV> dict, TK key)
-        {
-            TO defaultValue = default;
-            // https://stackoverflow.com/a/33223183/1845714
-            return dict != null && dict.TryGetValue(key, out var value) ? (TO)(object)value : defaultValue;
-        }
-
-        public static TD GetValueAs<TK, TV, TD>(this IDictionary<TK, TV> dict, TK key, TD type)
-        {
-            return dict.Val(key).ToType<TD, TV>();
-        }
-
-        public static string ToByteSize(this long size)
-        {
-            return ByteSize.FromBytes(size).ToString();
-        }
-
-        public static string ToByteSize(this int size)
-        {
-            return ByteSize.FromBytes(size).ToString();
         }
 
         private static readonly Random Rnd = new Random();
@@ -73,6 +42,57 @@ namespace Zen.Base.Extension
             "System.Runtime.ExceptionServices",
             "CommonLanguageRuntimeLibrary"
         };
+
+        public static T XmlToType<T>(this string path)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+
+            using var reader = new StreamReader(path);
+            return (T)serializer.Deserialize(reader);
+        }
+
+        public static T XmlToType<T>(this Stream path)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+
+            using var reader = new StreamReader(path);
+            return (T)serializer.Deserialize(reader);
+        }
+
+        private static T ConvertTo<T>(this XmlNode node) where T : class
+        {
+            var stm = new MemoryStream();
+
+            var stw = new StreamWriter(stm);
+            stw.Write(node.OuterXml);
+            stw.Flush();
+
+            stm.Position = 0;
+
+            var ser = new XmlSerializer(typeof(T));
+            var result = ser.Deserialize(stm) as T;
+
+            return result;
+        }
+
+        // https://stackoverflow.com/a/33223183/1845714
+        public static TV Val<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defaultValue = default) => dict != null && dict.TryGetValue(key, out var value) ? value : defaultValue;
+
+        // https://stackoverflow.com/a/33223183/1845714
+        public static TO Get<TK, TV, TO>(this IDictionary<TK, TV> dict, TK key, TO defaultValue = default) => dict != null && dict.TryGetValue(key, out var value) ? (TO)(object)value : defaultValue;
+
+        public static TO Get<TO, TK, TV>(this IDictionary<TK, TV> dict, TK key)
+        {
+            TO defaultValue = default;
+            // https://stackoverflow.com/a/33223183/1845714
+            return dict != null && dict.TryGetValue(key, out var value) ? (TO)(object)value : defaultValue;
+        }
+
+        public static TD GetValueAs<TK, TV, TD>(this IDictionary<TK, TV> dict, TK key, TD type) => dict.Val(key).ToType<TD, TV>();
+
+        public static string ToByteSize(this long size) => ByteSize.FromBytes(size).ToString();
+
+        public static string ToByteSize(this int size) => ByteSize.FromBytes(size).ToString();
 
         public static Dictionary<TU, List<T>> DistributeEvenly<T, TU>(this IEnumerable<T> source, IEnumerable<TU> containers)
         {
@@ -105,33 +125,29 @@ namespace Zen.Base.Extension
                     yield return element;
         }
 
-        public static string FileWildcardToRegex(string pattern) { return "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$"; }
+        public static string FileWildcardToRegex(string pattern) => "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$";
 
-
-        public static T ToType<T>(this object value)
-        {
-            // https://stackoverflow.com/a/1833128/1845714
-            return (T)ChangeType(typeof(T), value);
-        }
+        // https://stackoverflow.com/a/1833128/1845714
+        public static T ToType<T>(this object value) => (T)ChangeType(typeof(T), value);
 
         public static object ChangeType(Type t, object value)
         {
-            TypeConverter tc = TypeDescriptor.GetConverter(t);
+            var tc = TypeDescriptor.GetConverter(t);
             return tc.ConvertFrom(value);
         }
 
         public static void RegisterTypeConverter<T, TC>() where TC : TypeConverter
         {
-
             TypeDescriptor.AddAttributes(typeof(T), new TypeConverterAttribute(typeof(TC)));
         }
 
-
-        public static TU ToType<TU, T>(this T source) { return source.ToJson().FromJson<TU>(); }
-        public static T AsType<T>(this object source) { return source.ToJson().FromJson<T>(); }
+        public static TU ToType<TU, T>(this T source) => source.ToJson().FromJson<TU>();
+        public static T AsType<T>(this object source) => source.ToJson().FromJson<T>();
 
         public static void CopyProperties<T>(this T source, T destination)
         {
+            if (source == null) return;
+
             // https://stackoverflow.com/a/7262846/1845714
 
             // Iterate the Properties of the destination instance and  
@@ -140,15 +156,16 @@ namespace Zen.Base.Extension
             foreach (var destinationPi in destinationProperties)
             {
                 var sourcePi = source.GetType().GetProperty(destinationPi.Name);
-                try { destinationPi.SetValue(destination, sourcePi?.GetValue(source, null), null); } catch (Exception) { }
+                try
+                {
+                    destinationPi.SetValue(destination, sourcePi?.GetValue(source, null), null);
+                }
+                catch (Exception) { }
             }
         }
 
-        public static DateTime RoundUp(this DateTime dt, TimeSpan d)
-        {
-            //https://stackoverflow.com/a/7029464/1845714
-            return new DateTime((dt.Ticks + d.Ticks - 1) / d.Ticks * d.Ticks, dt.Kind);
-        }
+        //https://stackoverflow.com/a/7029464/1845714
+        public static DateTime RoundUp(this DateTime dt, TimeSpan d) => new DateTime((dt.Ticks + d.Ticks - 1) / d.Ticks * d.Ticks, dt.Kind);
 
         public static string ToOrdinal(this int num)
         {
@@ -172,11 +189,8 @@ namespace Zen.Base.Extension
 
         // public static MediaTypeNames.Image FromPathToImage(this string source) { return new Bitmap(source); }
 
-        public static DateTime Next(this DateTime date, DayOfWeek dayOfWeek)
-        {
-            // https://stackoverflow.com/a/3284486/1845714
-            return date.AddDays((dayOfWeek < date.DayOfWeek ? 7 : 0) + dayOfWeek - date.DayOfWeek);
-        }
+        // https://stackoverflow.com/a/3284486/1845714
+        public static DateTime Next(this DateTime date, DayOfWeek dayOfWeek) => date.AddDays((dayOfWeek < date.DayOfWeek ? 7 : 0) + dayOfWeek - date.DayOfWeek);
 
         public static void CopyValues<T>(this T source, T target, bool copyWhenSourceIsNull = false, bool copyWhenTargetIsNotNull = true)
         {
@@ -207,7 +221,7 @@ namespace Zen.Base.Extension
             if (body == null) return null;
 
             const string pattern = @"{{(.*?)}}";
-            var matches = Regex.Matches(body, pattern).Cast<Match>().Select(m => m.Value).ToList();
+            var matches = Regex.Matches(body, pattern).Select(m => m.Value).ToList();
             return matches;
         }
 
@@ -229,10 +243,17 @@ namespace Zen.Base.Extension
             return tmp;
         }
 
-        public static string StripHtml(this string input) { return input == null ? null : Regex.Replace(input, "<.*?>", string.Empty); }
+        public static string StripHtml(this string input) => input == null ? null : Regex.Replace(input, "<.*?>", string.Empty);
 
-        public static IEnumerable<T> ToInstances<T>(this IEnumerable<Type> source) { return source.Select(i => (T)Activator.CreateInstance(i, new object[] { })).ToList(); }
-        public static T ToInstance<T>(this Type source) { return (T)Activator.CreateInstance(source, new object[] { }); }
+        public static IEnumerable<T> ToInstances<T>(this IEnumerable<Type> source)
+        {
+            return source.Select(i => (T)Activator.CreateInstance(i, new object[] { })).ToList();
+        }
+
+        public static T ToInstance<T>(this Type source)
+        {
+            return (T)Activator.CreateInstance(source, new object[] { });
+        }
 
         public static IEnumerable<List<T>> SplitList<T>(List<T> items, int nSize = 30)
         {
@@ -249,7 +270,7 @@ namespace Zen.Base.Extension
 
         public static T Random<T>(this IEnumerable<T> source)
         {
-            if (source == null) return default(T);
+            if (source == null) return default;
 
             var enumerable = source.ToList();
 
@@ -257,7 +278,7 @@ namespace Zen.Base.Extension
             return enumerable[r];
         }
 
-        private static string WildCardToRegular(this string value) { return "^" + Regex.Escape(value).Replace("\\?", ".").Replace("\\*", ".*") + "$"; }
+        private static string WildCardToRegular(this string value) => "^" + Regex.Escape(value).Replace("\\?", ".").Replace("\\*", ".*") + "$";
 
         public static string ToQueryString(this Dictionary<string, string> obj)
         {
@@ -341,6 +362,7 @@ namespace Zen.Base.Extension
 
             return false;
         }
+
         private static bool IsNullOrEmpty(object value)
         {
             if (ReferenceEquals(value, null))
@@ -399,7 +421,7 @@ namespace Zen.Base.Extension
         }
 
         // https://weblogs.asp.net/haithamkhedre/generate-guid-from-any-string-using-c
-        public static Guid StringToGuid(this string value)
+        public static Guid ToGuid(this string value)
         {
             // Create a new instance of the MD5CryptoServiceProvider object.
             var md5Hasher = MD5.Create();
@@ -421,7 +443,7 @@ namespace Zen.Base.Extension
 
         //public static string Encrypt(this string value) { return Current.Encryption.Encrypt(value); }
         //public static string Decrypt(this string value) { return Current.Encryption.Decrypt(value); }
-        public static string Truncate(this string value, int maxChars) { return value.Length <= maxChars ? value : value.Substring(0, maxChars) + "..."; }
+        public static string Truncate(this string value, int maxChars) => value.Length <= maxChars ? value : value.Substring(0, maxChars) + "...";
 
         public static bool IsNumeric(this object refObj)
         {
@@ -437,8 +459,8 @@ namespace Zen.Base.Extension
             for (var i = 0; i < str.Length; i += maxChunkSize) yield return str.Substring(i, Math.Min(maxChunkSize, str.Length - i));
         }
 
-        public static ShortGuid ToShortGuid(this Guid oRef) { return new ShortGuid(oRef); }
-        public static string FancyString(this Exception source) { return new StackTrace(source, true).FancyString(); }
+        public static ShortGuid ToShortGuid(this Guid oRef) => new ShortGuid(oRef);
+        public static string FancyString(this Exception source) => new StackTrace(source, true).FancyString();
 
         public static string ToSummary(this Exception ex)
         {
@@ -498,21 +520,18 @@ namespace Zen.Base.Extension
             return ret;
         }
 
-        public static string TrimSql(this string s)
-        {
-            return s
-                    .Replace("\r", " ")
-                    .Replace("\n", " ")
-                    .Replace("\t", " ")
-                    .Replace("  ", " ")
-                    .Replace("  ", " ")
-                    .Replace("  ", " ")
-                    .Replace("  ", " ")
-                    .Replace("  ", " ")
-                    .Replace("  ", " ")
-                    .Replace("  ", " ")
-                ;
-        }
+        public static string TrimSql(this string s) =>
+            s
+                .Replace("\r", " ")
+                .Replace("\n", " ")
+                .Replace("\t", " ")
+                .Replace("  ", " ")
+                .Replace("  ", " ")
+                .Replace("  ", " ")
+                .Replace("  ", " ")
+                .Replace("  ", " ")
+                .Replace("  ", " ")
+                .Replace("  ", " ");
 
         public static IDictionary<string, object> AddProperty(this object obj, string name, object value)
         {
@@ -557,12 +576,51 @@ namespace Zen.Base.Extension
             return result;
         }
 
-        public static IDictionary<string, object> ToPropertyDictionary(this object obj)
+        public static IDictionary<string, object> AddPrefix(this Dictionary<string, object> source, string memberPrefix)
+        {
+            var ret = new Dictionary<string, object>();
+            foreach (var (key, value) in source) ret.Add(memberPrefix + key, value);
+            return ret;
+        }
+
+
+        public static IDictionary<string, object> ToPropertyDictionary(this object obj, string memberPrefix = null)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
-            var properties = TypeDescriptor.GetProperties(obj);
-            foreach (PropertyDescriptor property in properties) result.Add(property.Name, property.GetValue(obj));
+
+            var type = obj.GetType();
+            foreach (var item in type.GetProperties()) result.Add(memberPrefix + item.Name, item.GetValue(obj));
+            foreach (var item in type.GetFields().Where(i=> i.IsPublic)) result.Add(memberPrefix + item.Name, item.GetValue(obj));
             return result;
+        }
+
+        static bool IsNullable<T>(T obj)
+        {
+            if (obj == null) return true; // obvious
+            Type type = typeof(T);
+            if (!type.IsValueType) return true; // ref-type
+            if (Nullable.GetUnderlyingType(type) != null) return true; // Nullable<T>
+            return false; // value-type
+        }
+
+        public static bool IsNullable(this Type type)
+        {
+            if (!type.IsValueType) return true; // ref-type
+            if (Nullable.GetUnderlyingType(type) != null) return true; // Nullable<T>
+            return false; // value-type
+        }
+
+        public static string ReplaceIn(this IDictionary<string, object> map, string source)
+        {
+            var res = new StringBuilder(source);
+
+            foreach (var (key, value) in map)
+            {
+                if (value != null)
+                    res.Replace("{" + key + "}", value.ToString());
+            }
+
+            return res.ToString();
         }
 
         public static T ToObject<T>(this IDictionary<string, object> source)
@@ -576,8 +634,12 @@ namespace Zen.Base.Extension
             return someObject;
         }
 
-        public static string ToCommaSeparatedString(this List<string> obj) { return obj.Aggregate((i, j) => i + ", " + j); }
-        public static string format(this string source, params object[] parms) { return string.Format(source, parms); }
+        public static string ToCommaSeparatedString(this List<string> obj)
+        {
+            return obj.Aggregate((i, j) => i + ", " + j);
+        }
+
+        public static string format(this string source, params object[] parms) => string.Format(source, parms);
 
         public static List<List<T>> Split<T>(this List<T> items, int sliceSize = 30)
         {
@@ -594,7 +656,7 @@ namespace Zen.Base.Extension
             return true;
         }
 
-        public static T ConvertTo<T>(ref object input) { return (T)Convert.ChangeType(input, typeof(T)); }
+        public static T ConvertTo<T>(ref object input) => (T)Convert.ChangeType(input, typeof(T));
 
         public static object ToConcrete<T>(this ExpandoObject dynObject)
         {
@@ -637,7 +699,10 @@ namespace Zen.Base.Extension
                 {
                     if (s1Words[i].SoundEx() != s2Words[i].SoundEx()) return false;
                 }
-                catch { return false; }
+                catch
+                {
+                    return false;
+                }
 
             return true;
         }
@@ -683,32 +748,37 @@ namespace Zen.Base.Extension
             return false;
         }
 
-        public static string ProperCase(this string str)
-        {
-            var words = str.Split(' ');
-            for (var i = 0; i < words.Length; i++) words[i] = words[i].Substring(0, 1).ToUpper() + words[i].ToLower().Substring(1, words[i].Length - 1);
+        public static string ProperCase(this string str) => ToTitleCase(str);
+        public static string ToTitleCase(this string str) => new CultureInfo("en-US", false).TextInfo.ToTitleCase(str);
 
-            return string.Join(" ", words);
-        }
-
-        public static string ToString(this JValue val) { return val.ToObject<string>(); }
+        public static string ToString(this JValue val) => val.ToObject<string>();
 
         public static bool IsValidEmail(this string strIn)
         {
             if (string.IsNullOrEmpty(strIn)) return false;
 
             // Use IdnMapping class to convert Unicode domain names.
-            try { strIn = Regex.Replace(strIn, @"(@)(.+)$", DomainMapper, RegexOptions.None, TimeSpan.FromMilliseconds(200)); } catch { return false; }
+            try
+            {
+                strIn = Regex.Replace(strIn, @"(@)(.+)$", DomainMapper, RegexOptions.None, TimeSpan.FromMilliseconds(200));
+            }
+            catch
+            {
+                return false;
+            }
 
             // Return true if strIn is in valid e-mail format.
             try
             {
                 return Regex.IsMatch(strIn,
-                                     @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-                                     @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
-                                     RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+                    @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+                    @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
+                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
             }
-            catch (RegexMatchTimeoutException) { return false; }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
         }
 
         private static string DomainMapper(Match match)
@@ -738,15 +808,22 @@ namespace Zen.Base.Extension
 
                 ret = string.Format("{" + patt + "}", num);
             }
-            catch (Exception) { ret = source; }
+            catch (Exception)
+            {
+                ret = source;
+            }
 
             return ret;
         }
 
-        public static DataReference ToReference<T>(this Data<T> source) where T : Data<T> { return new DataReference { Key = source.GetDataKey(), Display = source.GetDataDisplay() }; }
-        public static DataReference<T> TypedReference<T>(this Data<T> source) where T : Data<T> { return new DataReference<T> { Key = source.GetDataKey(), Display = source.GetDataDisplay() }; }
-        public static IEnumerable<DataReference> ToReference<T>(this IEnumerable<Data<T>> source) where T : Data<T> { return source.Select(i => i.ToReference()); }
+        public static DataReference ToReference<T>(this Data<T> source) where T : Data<T> => new DataReference { Key = source.GetDataKey(), Display = source.GetDataDisplay() };
+        public static DataReference<T> TypedReference<T>(this Data<T> source) where T : Data<T> => new DataReference<T> { Key = source.GetDataKey(), Display = source.GetDataDisplay() };
 
-        public static T ToData<T>(this DataReference source) where T : Data<T> { return Data<T>.Get(source.Key); }
+        public static IEnumerable<DataReference> ToReference<T>(this IEnumerable<Data<T>> source) where T : Data<T>
+        {
+            return source.Select(i => i.ToReference());
+        }
+
+        public static T ToData<T>(this DataReference source) where T : Data<T> => Data<T>.Get(source.Key);
     }
 }

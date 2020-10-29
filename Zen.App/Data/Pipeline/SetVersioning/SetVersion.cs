@@ -33,7 +33,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
         public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageCollectionName}#{CollectionSuffix}";
 
-        public new static DataAdapterPrimitive GetDataAdapter() => Info<T>.Settings.Adapter;
+        public new static DataAdapterPrimitive<T> GetDataAdapter() => Info<T>.Settings.Adapter;
 
         public override void BeforeSave()
         {
@@ -57,7 +57,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
         public override void BeforeRemove()
         {
-            Info<T>.Settings.Adapter.DropSet<T>(Id);
+            Info<T>.Settings.Adapter.DropSet(Id);
 
             var action = "Dropped";
 
@@ -111,7 +111,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                 probe.ItemCount = Data<T>.Count();
                 probe.Save();
 
-                Info<T>.Settings.Adapter.CopySet<T>(Constants.CURRENT_LIVE_WORKSET_TAG, CollectionTag(probe.Id), true);
+                Info<T>.Settings.Adapter.CopySet(Constants.CURRENT_LIVE_WORKSET_TAG, CollectionTag(probe.Id), true);
 
                 var log = new Log<T>
                 {
@@ -147,7 +147,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
 
         public void PullToWorkset()
         {
-            Info<T>.Settings.Adapter.CopySet<T>(CollectionTag(Id), Constants.CURRENT_LIVE_WORKSET_TAG, true);
+            Info<T>.Settings.Adapter.CopySet(CollectionTag(Id), Constants.CURRENT_LIVE_WORKSET_TAG, true);
 
             new Log<T>
             {

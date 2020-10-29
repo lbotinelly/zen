@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Zen.Base.Extension;
 using Zen.Base.Module.Data.CommonAttributes;
@@ -29,5 +30,6 @@ namespace Zen.Base.Module.Data
         }
 
         public static Dictionary<string, T> AsMap<T>(this IEnumerable<T> modelSet) where T : Data<T>, IDataId { return modelSet.ToDictionary(i => i.Id, i => i); }
+        public static Dictionary<string, T> AsMap<T>(this IEnumerable<T> modelSet, Func<T, string> identifierFunction) { return modelSet.ToDictionary(identifierFunction, i => i); }
     }
 }

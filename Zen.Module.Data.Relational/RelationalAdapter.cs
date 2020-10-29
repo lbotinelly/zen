@@ -2,93 +2,152 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Dapper;
+using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
-using Zen.Module.Data.Relational.Builder;
+using Zen.Base.Module.Log;
 using Zen.Module.Data.Relational.Mapper;
+using Zen.Pebble.Database;
+using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Relational
 {
-    public abstract class RelationalAdapter : DataAdapterPrimitive, IRelationalStatements
+    public abstract class RelationalAdapter<T, TStatementFragments, TWherePart> : DataAdapterPrimitive<T>, IRelationalStatements
+        where T : Data<T>
+        where TStatementFragments : IStatementFragments
+        where TWherePart : IWherePart
     {
-        public StatementMasks Masks = null;
         public Dictionary<string, string> MemberMap = new Dictionary<string, string>();
-        public StatementBuilder StatementBuilder = null;
-
-        public void Map<T>() where T : Data<T>
+        public abstract StatementMasks Masks { get; }
+        public abstract Dictionary<Type, TypeDefinition> TypeDefinitionMap { get; }
+        public IDictionary<string, object> ToRawParameters(object source) => ToRawParameters(new Dictionary<string, object>(source.ToPropertyDictionary(Masks.ParameterPrefix)));
+        public IDictionary<string, object> ToRawParameters(Dictionary<string, object> probe)
         {
-            var cat = new ColumnAttributeTypeMapper<T>();
-            SqlMapper.SetTypeMap(typeof(T), cat);
+            var res = new Dictionary<string, object>();
 
-            MemberDescriptors =
-                (from pInfo in typeof(T).GetProperties()
-                    let p1 = pInfo.GetCustomAttributes(false).OfType<ColumnAttribute>().ToList()
-                    let field = p1.Count != 0 ? p1[0].Name ?? pInfo.Name : pInfo.Name
-                    let length = p1.Count != 0 ? (p1[0].Length != 0 ? p1[0].Length : 0) : 0
-                    let serializable = p1.Count != 0 && p1[0].Serialized
-                    select new KeyValuePair<string, MemberDescriptor>(pInfo.Name, new MemberDescriptor {Field = field, Length = length, Serializable = serializable})
-                ).ToDictionary(x => x.Key, x => x.Value);
+            foreach (var (key, value) in probe)
+            {
+                res[key] = value;
 
-            MemberMap = MemberDescriptors.Select(i => new KeyValuePair<string, string>(i.Key, i.Value.Field)).ToDictionary(i => i.Key, i => i.Value);
+                if (Masks.BooleanValues != null)
+                    if (value is bool)
+                        res[key] = (bool)value ? Masks.BooleanValues.True : Masks.BooleanValues.False;
 
-            var mapEntry = MemberDescriptors.FirstOrDefault(p => p.Value.Field.ToLower().Equals(Info<T>.Settings.KeyMemberName.ToLower()));
+                if (value is Enum) res[key] = (int)value;
+            }
 
-            KeyMember = mapEntry.Key;
-            KeyColumn = mapEntry.Value.Field;
+            return res;
         }
 
-        public virtual void PrepareCachedStatements<T>() where T : Data<T>
+        public void Map()
         {
-            var setName = Info<T>.Configuration.SetName;
+            SqlMapper.SetTypeMap(typeof(T), new ColumnAttributeTypeMapper<T>());
 
-            // "SELECT COUNT(*) FROM {0}"
-            Statements.RowCount = Statements.RowCount.format(setName);
+            // For each of the custom type members, map it as a Json object:
 
-            // "SELECT * FROM {0} WHERE {1} = {2}"
-            Statements.GetSingleByIdentifier =
-                Statements.GetSingleByIdentifier.format(setName, KeyColumn,
-                                                        Masks.InlineParameter.format(
-                                                            Masks.Parameter.format(KeyColumn)));
+            foreach (var memberAttribute in Settings.Members.Where(memberAttribute => !memberAttribute.Value.Type.IsBasicType())) SqlMapper.AddTypeHandler(memberAttribute.Value.Type, new JsonObjectTypeHandler());
+        }
 
-            // "SELECT * FROM {0} WHERE {1} IN ({2})"
-            Statements.GetManyByIdentifier =
-                Statements.GetManyByIdentifier.format(setName, KeyColumn,
-                                                      Masks.InlineParameter.format(
-                                                          Masks.Parameter.format(Masks.Keywords.Keyset)));
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public virtual void PrepareStatements()
+        {
+            var membersSansKey = Settings.Members.Where(i => i.Key != Settings.KeyMemberName).ToList();
 
-            // "SELECT * FROM {0}"
-            Statements.GetAll = Statements.GetAll.format(setName);
+            var InlineFieldSet = string.Join(", ", Settings.Members.Select(i => i.Value.TargetName));
+            var InlineParameterSet = string.Join(", ", Settings.Members.Select(i => Masks.ParameterPrefix + i.Value.SourceName));
+            var InterspersedFieldParameterSet = string.Join(", ", Settings.Members.Select(i => i.Value.TargetName + Masks.Markers.Assign + Masks.ParameterPrefix + i.Value.SourceName));
 
-            // "SELECT * FROM {0} WHERE {1}"
-            Statements.AllFields = Statements.AllFields.format(setName, "{0}");
+            var InlineFieldSetSansKey = string.Join(", ", membersSansKey.Select(i => i.Value.TargetName));
+            var InlineParameterSetSansKey = string.Join(", ", membersSansKey.Select(i => Masks.ParameterPrefix + i.Value.SourceName));
+            var InterspersedFieldParameterSetSansKey = string.Join(", ", membersSansKey.Select(i => i.Value.TargetName + Masks.Markers.Assign + Masks.ParameterPrefix + i.Value.SourceName));
+
+            var preCol = new
+            {
+                Settings.StorageCollectionName,
+                Settings.StorageKeyMemberName,
+                Masks.ParameterPrefix,
+                Settings.KeyMemberName,
+                Masks.SetParameterName,
+                InlineFieldSet,
+                InlineParameterSet,
+                InterspersedFieldParameterSet,
+                InlineFieldSetSansKey,
+                InlineParameterSetSansKey,
+                InterspersedFieldParameterSetSansKey
+            }.ToPropertyDictionary();
+
+            Statements.DropSet = preCol.ReplaceIn(Statements.DropSet);
+
+            Statements.RowCount = preCol.ReplaceIn(Statements.RowCount);
+            Statements.CheckKey = preCol.ReplaceIn(Statements.CheckKey);
+
+            Statements.ParametrizedKeyField = preCol.ReplaceIn(Statements.ParametrizedKeyField);
+
+            Statements.InsertModel = preCol.ReplaceIn(Statements.InsertModel);
+            Statements.UpdateModel = preCol.ReplaceIn(Statements.UpdateModel);
+            Statements.RemoveModel = preCol.ReplaceIn(Statements.RemoveModel);
+
+            Statements.GetModelByIdentifier = preCol.ReplaceIn(Statements.GetModelByIdentifier);
+            Statements.GetSetByIdentifiers = preCol.ReplaceIn(Statements.GetSetByIdentifiers);
+            Statements.RemoveSetByIdentifiers = preCol.ReplaceIn(Statements.RemoveSetByIdentifiers);
+
+            Statements.GetSetByWhere = preCol.ReplaceIn(Statements.GetSetByWhere);
+            Statements.GetSetComplete = preCol.ReplaceIn(Statements.GetSetComplete);
+        }
+
+        public class TypeDefinition
+        {
+            public string DefaultValue;
+            public List<string> DiscreteAutoSchema;
+            public string InlineAutoSchema;
+            public string Name;
+
+            public TypeDefinition(string name, string defaultValue = null)
+            {
+                Name = name;
+                DefaultValue = defaultValue;
+            }
         }
 
         #region Custom Members
-
-        public T1 QuerySingleValue<T, T1>(string statement) where T : Data<T>
+        public T1 QuerySingleValue<T1>(string statement)
         {
-            using (var conn = GetConnection<T>())
+            using (var conn = GetConnection())
             {
                 var ret = conn.Query<T1>(statement).FirstOrDefault();
                 return ret;
             }
         }
 
-        public void Execute<T>(string statement) where T : Data<T>
+        public void Execute(string statement, object parameters = null)
         {
-            using (var conn = GetConnection<T>()) { conn.Execute(statement); }
+            Current.Log.Add("Execute: " + statement, Message.EContentType.Debug);
+
+            if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
+
+            using (var conn = GetConnection()) { conn.Execute(statement, parameters); }
         }
 
-        public List<TU> RawQuery<T, TU>(string statement, object parameters) where T : Data<T>
+        public TE ExecuteScalar<TE>(string statement, object parameters = null)
         {
+            Current.Log.Add("ExecuteScalar: " + statement, Message.EContentType.Debug);
+
+            if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
+
+            using (var conn = GetConnection()) { return (TE)conn.ExecuteScalar(statement, parameters); }
+        }
+        public List<TU> RawQuery<TU>(string statement, object parameters)
+        {
+
             try
             {
-                using (var conn = GetConnection<T>())
+                using (var conn = GetConnection())
                 {
                     conn.Open();
 
@@ -101,100 +160,140 @@ namespace Zen.Module.Data.Relational
 
                     return ret;
                 }
-            } catch (Exception e) { throw new DataException(Info<T>.Settings.TypeQualifiedName + " RelationalAdapter: Error while issuing statements to the database.", e); }
-        }
+            } catch (Exception e)
+            {
+                Current.Log.Add(statement, Message.EContentType.Exception);
+                if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Exception);
 
-        public List<TU> AdapterQuery<T, TU>(string statement, Mutator mutator = null) where T : Data<T>
+                throw new DataException(Info<T>.Settings.TypeQualifiedName + " RelationalAdapter: Error while issuing statements to the database.", e);
+            }
+        }
+        public List<TU> AdapterQuery<TU>(string statement, Mutator mutator = null)
         {
-            if (mutator == null) mutator = new Mutator {Transform = new QueryTransform {Statement = statement}};
+            mutator = mutator.SetStatement(statement);
+            var builder = mutator.ToSqlBuilderTemplate(Settings, Masks);
+            var sql = builder.RawSql;
 
-            var builder = mutator.ToSqlBuilderTemplate();
+            if (mutator.Transform?.Pagination?.Size > 0) sql = AddPaginationWrapper(sql, mutator.Transform.Pagination);
 
-            return RawQuery<T, TU>(builder.RawSql, builder.Parameters);
+            return RawQuery<TU>(sql, builder.Parameters);
         }
+        public virtual string AddPaginationWrapper(string sql, Pagination pagination)
+        {
+            var parameters = new
+            {
+                pagination.Size,
+                pagination.Index,
+                StartPosition = pagination.Index * pagination.Size,
+                EndPosition = (pagination.Index + 1) * pagination.Size - 1,
+                OriginalQuery = sql
+            }.ToPropertyDictionary();
 
+            return parameters.ReplaceIn(Statements.PaginationWrapper);
+        }
         #endregion
 
         #region Implementation of IRelationalStatements
-
         public virtual bool UseIndependentStatementsForKeyExtraction { get; } = false;
         public virtual bool UseNumericPrimaryKeyOnly { get; } = false;
         public virtual bool UseOutputParameterForInsertedKeyExtraction { get; } = false;
         public virtual RelationalStatements Statements { get; } = new RelationalStatements();
-        public Dictionary<string, MemberDescriptor> MemberDescriptors { get; set; } = new Dictionary<string, MemberDescriptor>();
-
-        public class MemberDescriptor
-        {
-            public string Field;
-            public long Length;
-            public bool Serializable;
-        }
-
         public string KeyMember { get; set; }
         public string KeyColumn { get; set; }
-        public Dictionary<string, KeyValuePair<string, string>> SchemaElements { get; set; }
-
-        public virtual DbConnection GetConnection<T>() where T : Data<T> { return null; }
-        public virtual void RenderSchemaEntityNames<T>() where T : Data<T> { }
-        public virtual void ValidateSchema<T>() where T : Data<T> { }
-
+        public Dictionary<string, Dictionary<string, string>> SchemaElements { get; set; }
+        public virtual DbConnection GetConnection() { return null; }
+        public virtual void RenderSchemaEntityNames() { }
+        public virtual void ValidateSchema() { }
         #endregion
 
         #region Overrides of DataAdapterPrimitive
-
-        public override void Setup<T>(Settings settings) { }
-        public override void Initialize<T>() { }
-
-        public override long Count<T>(Mutator mutator = null) { return QuerySingleValue<T, long>(Statements.RowCount); }
-
-        public override T Get<T>(string key, Mutator mutator = null)
+        public override void Initialize()
         {
-            var statement = Statements.GetSingleByIdentifier;
-            var parameter = new Dictionary<string, object> {{Masks.Parameter.format(KeyColumn), key}};
+            Configuration = Info<T>.Configuration;
+            Settings = Info<T>.Settings;
 
-            return RawQuery<T, T>(statement, parameter).FirstOrDefault();
+            Map();
+            RenderSchemaEntityNames();
+            ValidateSchema();
+
+            KeyColumn = Settings.Members[Settings.KeyMemberName].TargetName;
+
+            ModelRender = new ModelRender<T, TStatementFragments, TWherePart>(Extensions.ToModelDescriptor<T>(), Masks);
+
+            PrepareStatements();
+
+            ReferenceCollectionName = Configuration.SetPrefix + Configuration.SetName;
         }
+        public ModelRender<T, TStatementFragments, TWherePart> ModelRender { get; set; }
+        public Settings<T> Settings { get; private set; }
+        public DataConfigAttribute Configuration { get; private set; }
+        public override long Count(Mutator mutator = null) => QuerySingleValue<long>(Statements.RowCount);
+        public override T Insert(T model, Mutator mutator = null)
+        {
+            if (model == null) return null;
+            Execute(Statements.InsertModel, ToRawParameters(model));
+            return Get(model.GetDataKey(), mutator);
+        }
+        public override T Save(T model, Mutator mutator = null)
+        {
+            if (model == null) return null;
+            Execute(Statements.UpdateModel, ToRawParameters(model));
+            return Get(model.GetDataKey(), mutator);
+        }
+        public override bool KeyExists(string key, Mutator mutator = null) => ExecuteScalar<long>(Statements.CheckKey, KeyParameter(key)) > 0;
+        // ReSharper disable once IdentifierTypo
+        public override T Upsert(T model, Mutator mutator = null) => !KeyExists(model.GetDataKey()) ? Insert(model, mutator) : Save(model, mutator);
+        public override void Remove(string key, Mutator mutator = null) => Execute(Statements.RemoveModel, KeyParameter(key));
+        public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
+        public override void RemoveAll(Mutator mutator = null) => Execute(Statements.DropSet);
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
+        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
 
-        public override IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null)
+        public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
+        {
+            models = models.ToList();
+            foreach (var model in models) model.Save();
+            return models;
+        }
+        public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null)
+        {
+            var keySet = keys as string[] ?? keys.ToArray();
+            if (!keySet.Any()) return;
+
+            var statement = Statements.RemoveSetByIdentifiers;
+            var parameter = new Dictionary<string, object> { { Statements.ParametrizedKeyField, keySet.ToArray() } };
+
+            Execute(statement, parameter);
+        }
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i => i.GetDataKey()).ToList(), mutator);
+        public override void DropSet(string setName) => throw new NotSupportedException("Set operations not supported by Relational adapters");
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) => throw new NotSupportedException("Set operations not supported by Relational adapters");
+        public override T Get(string key, Mutator mutator = null) => RawQuery<T>(Statements.GetModelByIdentifier, KeyParameter(key)).FirstOrDefault();
+        private Dictionary<string, object> KeyParameter(string key) => new Dictionary<string, object> { { Statements.ParametrizedKeyField, key } };
+
+        public override IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null)
         {
             var keySet = keys as string[] ?? keys.ToArray();
 
             if (!keySet.Any()) return new List<T>();
 
-            var statement = Statements.GetManyByIdentifier;
-            var parameter = new Dictionary<string, object> {{Masks.Parameter.format(Masks.Keywords.Keyset), keySet.ToArray()}};
-            return RawQuery<T, T>(statement, parameter);
+            var statement = Statements.GetSetByIdentifiers;
+            var parameter = new Dictionary<string, object> { { Statements.ParametrizedKeyField, keySet.ToArray() } };
+
+            return RawQuery<T>(statement, parameter);
         }
-
-        public override IEnumerable<T> Query<T>(string statement) { throw new NotImplementedException(); }
-
-        public override IEnumerable<T> Query<T>(Mutator mutator = null) { return Query<T>(Statements.GetAll); }
-        public override IEnumerable<TU> Query<T, TU>(string statement) { throw new NotImplementedException(); }
-
-        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null) { return AdapterQuery<T, TU>(Statements.GetAll, mutator); }
-
-        public override T Insert<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override T Save<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override T Upsert<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void Remove<T>(string key, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void Remove<T>(T model, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void RemoveAll<T>(Mutator mutator = null) { throw new NotImplementedException(); }
-
-        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null) { throw new NotImplementedException(); }
-        public override void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) { throw new NotImplementedException(); }
-
-        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null)
+        public override IEnumerable<T> Query(string statement) => RawQuery<T>(statement, null);
+        public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(Statements.GetSetComplete);
+        public override IEnumerable<TU> Query<TU>(string statement) => AdapterQuery<TU>(Statements.GetSetComplete);
+        public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => AdapterQuery<TU>(Statements.GetSetComplete, mutator);
+        public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            var parts = StatementBuilder.ToSql(predicate, MemberDescriptors);
+            var parts = ModelRender.Render(predicate);
+            var statement = Statements.GetSetByWhere.format(parts.Statement);
+            var parameters = ToRawParameters(ModelRender.Render(predicate).Parameters);
 
-            var statement = Statements.AllFields.format(parts.Sql);
-
-            return RawQuery<T, T>(statement, parts.Parameters);
+            return RawQuery<T>(statement, parameters);
         }
-
         #endregion
     }
 }

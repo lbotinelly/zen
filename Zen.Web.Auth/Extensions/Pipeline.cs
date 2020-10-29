@@ -64,7 +64,7 @@ namespace Zen.Web.Auth.Extensions
         public static string StampValue(string provider, string key)
         {
             var rawKey = $"{provider}::{key}";
-            var stamp = rawKey.StringToGuid().ToString();
+            var stamp = rawKey.ToGuid().ToString();
 
             Log.KeyValuePair(stamp, rawKey, Message.EContentType.StartupSequence);
 

@@ -6,9 +6,9 @@ namespace Zen.Pebble.Database.Renders.Relational
     {
         public virtual string ParametrizedValue => "@p{0}";
         public virtual string InlineValue => "{0}";
-        public virtual string Column => "[{0}]";
-        public virtual KeywordSet Keywords => new KeywordSet();
-        public virtual ValueSet Values => new ValueSet();
+        public virtual string Column => "{0}";
+        public virtual StatementMasks.MarkerSet Markers => new StatementMasks.MarkerSet();
+        public virtual StatementMasks.ValueSet Values => new StatementMasks.ValueSet();
 
         public virtual string NodeAdd => "{0} + {1}";
         public virtual string NodeAnd => "{0} & {1}";

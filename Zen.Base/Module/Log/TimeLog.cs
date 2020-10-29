@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Zen.Base.Module.Log
 {
-    public class TimeLog : Dictionary<TimeSpan, string>, IDisposable
+    public class TimeLog : List<KeyValuePair<string, string>>, IDisposable
     {
         private readonly Stopwatch _s = new Stopwatch();
 
@@ -19,11 +19,12 @@ namespace Zen.Base.Module.Log
 
         #endregion
 
-        public string Log(string message, bool verbose = true, [CallerMemberName] string callerMemberName = null)
+        public string Log(string message, bool verbose = true, [CallerMemberName]
+                          string callerMemberName = null)
         {
             if (Host.IsDevelopment) _callerMemberName = $"[{callerMemberName}] ";
 
-            Add(_s.Elapsed, message);
+            Add(new KeyValuePair<string, string>(_s.Elapsed.ToString("G"), message));
             CurrentMessage = message;
             return message;
         }
@@ -32,7 +33,7 @@ namespace Zen.Base.Module.Log
         {
             _s.Start();
             if (verbose)
-                if (message!= null)
+                if (message != null)
                     Log(message);
 
             return this;
@@ -45,7 +46,7 @@ namespace Zen.Base.Module.Log
             _s.Stop();
 
             if (!dumpInfo) return;
-            foreach (var entries in this) Current.Log.Info($"{_callerMemberName}{entries.Key:\\:hh\\:mm\\:ss\\.fff} {entries.Value}");
+            foreach (var entries in this) Current.Log.Info($"{_callerMemberName}{entries.Key} {entries.Value}");
             Current.Log.Info($"{_s.Elapsed:\\:hh\\:mm\\:ss\\.fff} [Total elapsed time]");
         }
     }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -6,30 +6,28 @@
     <RootNamespace>Sample04_AuthenticatedWeb</RootNamespace>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Bogus" Version="30.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.8" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Cache.Memory\Zen.Module.Cache.Memory.csproj" />
-    <ProjectReference Include="..\..\Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Data.MySql\Zen.Module.Data.MySql.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Facebook\Zen.Provider.Facebook.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.GitHub\Zen.Provider.GitHub.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Google\Zen.Provider.Google.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Microsoft\Zen.Provider.Microsoft.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Steam\Zen.Provider.Steam.csproj" />
     <ProjectReference Include="..\..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
+    <ProjectReference Include="..\..\Zen.Web.GraphQL\Zen.Web.GraphQL.csproj" />
     <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
   </ItemGroup>
 
 </Project>

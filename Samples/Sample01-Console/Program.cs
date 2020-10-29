@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Linq;
+using Sample01_Console.Model;
 using Zen.Base.Extension;
+using Zen.Base.Module.Data.LINQ;
 
 namespace Sample01_Console
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var model = new Model.Person();
+            var model = new Person();
             model.Save();
 
-            var all = Model.Person.All().ToList();
+            var all = Person.All().ToList();
 
-            foreach (var person in all)
-            {
-                Console.WriteLine(person.ToJson());
-            }
+            foreach (var person in all) Console.WriteLine(person.ToJson());
 
-            Console.WriteLine($"Current record count: {Model.Person.Count()}");
+            Console.WriteLine($@"Current record count: {Person.Count()}");
+
+            var query = from person in new DataContext<Person>()
+                where person.Name != null
+                select person;
+
+            var results = query.ToList();
+
+            Console.WriteLine($@"LINQ query count: {results.Count}");
         }
     }
 }

@@ -7,32 +7,32 @@ using System.Reflection;
 using LiteDB;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Adapter;
 using Zen.Base.Module.Data.Connection;
 
 namespace Zen.Module.Data.LiteDB
 {
-    public class LiteDbAdapter : DataAdapterPrimitive
+    public class LiteDbAdapter<T> : DataAdapterPrimitive<T> where T : Data<T>
     {
         private readonly string _collectionPrefix = "";
         private readonly string _collectionPrefixSeparator = "#";
-        private object _Collection;
+        private ILiteCollection<T> _collection;
         private string _collectionName = "";
         private string _collectionNamespace = "";
         private Type _refType;
-        private Settings _statements;
+        private Settings<T> _statements;
         private DataConfigAttribute _tabledata;
         public LiteDatabase Database;
 
-        public override void Setup<T>(Settings settings)
+        public override void Setup(Settings<T> settings)
         {
             _statements = settings;
 
             _refType = typeof(T);
 
-            var statementsConnectionString = _statements.ConnectionString ??
-                                             Host.DataDirectory + Path.DirectorySeparatorChar + "lite.db";
+            var statementsConnectionString = _statements.ConnectionString ?? $"{Host.DataDirectory}{Path.DirectorySeparatorChar}lite.db";
             Database = Instances.GetDatabase(statementsConnectionString);
 
             _statements = Info<T>.Settings;
@@ -42,21 +42,20 @@ namespace Zen.Module.Data.LiteDB
 
             SetBaseCollectionName();
 
-            _Collection = Database.GetCollection<T>(ReferenceCollectionName);
+             _collection = Database.GetCollection<T>(ReferenceCollectionName);
         }
 
-        private ILiteCollection<T> Collection<T>()
+        private ILiteCollection<T> Collection()
         {
-            return (ILiteCollection<T>) _Collection;
+            return _collection;
         }
-
 
         private void SetBaseCollectionName()
         {
             _collectionNamespace = _tabledata?.SetPrefix ?? _statements.TypeNamespace;
             var typeName = _tabledata?.SetName ?? _statements.TypeName;
             if (typeof(IStorageCollectionResolver).GetTypeInfo().IsAssignableFrom(_refType.GetTypeInfo()))
-                typeName = ((IStorageCollectionResolver) _refType.CreateInstance()).GetStorageCollectionName();
+                typeName = ((IStorageCollectionResolver)_refType.CreateInstance()).GetStorageCollectionName();
             _collectionName = typeName;
             ReferenceCollectionName = GetCollectionName().Replace(".", "_");
         }
@@ -68,128 +67,112 @@ namespace Zen.Module.Data.LiteDB
         }
 
 
-        public override T Get<T>(string key, Mutator mutator = null)
+        public override T Get(string key, Mutator mutator = null)
         {
             var statement = $"$._id = '{key}'";
 
-            var model = Collection<T>().FindOne(statement);
+            var model = Collection().FindOne(statement);
             return model;
         }
 
-        public override IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null)
+        public override IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null)
         {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<T> Query<T>(string statement)
+        public override IEnumerable<T> Query(string statement)
         {
-            return Collection<T>().Find(statement);
+            return Collection().Find(statement);
         }
 
-        public override IEnumerable<T> Query<T>(Mutator mutator = null)
+        public override IEnumerable<T> Query(Mutator mutator = null)
         {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<TU> Query<T, TU>(string statement)
+        public override IEnumerable<TU> Query<TU>(string statement)
         {
-            var modelBuffer = Collection<T>().Find(statement);
+            var modelBuffer = Collection().Find(statement);
             return modelBuffer.ToJson().FromJson<List<TU>>();
         }
 
-        public override IEnumerable<TU> Query<T, TU>(Mutator mutator = null)
+        public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => Query<TU>(mutator.ToQueryExpression());
+
+        public override long Count(Mutator mutator = null) => Collection().Count();
+        public override bool KeyExists(string key, Mutator mutator = null)
         {
-            return Query<T, TU>(mutator.ToQueryExpression());
+            if (Get(key) != null) return true;
+            return false;
         }
 
-        public override long Count<T>(Mutator mutator = null)
+        public override T Insert(T model, Mutator mutator = null)
         {
-            return Collection<T>().Count();
-        }
-
-        public override T Insert<T>(T model, Mutator mutator = null)
-        {
-            Collection<T>().Insert(model);
+            Collection().Insert(model);
             return model;
         }
 
-        public override T Save<T>(T model, Mutator mutator = null)
-        {
-            return Upsert(model);
-        }
+        public override T Save(T model, Mutator mutator = null) => Upsert(model);
 
-        public override T Upsert<T>(T model, Mutator mutator = null)
+        public override T Upsert(T model, Mutator mutator = null)
         {
-            Collection<T>().Upsert(model);
+            Collection().Upsert(model);
             return model;
         }
 
-        public override void Remove<T>(string key, Mutator mutator = null)
-        {
-            Collection<T>().Delete(key);
-        }
+        public override void Remove(string key, Mutator mutator = null) => Collection().Delete(key);
 
-        public override void Remove<T>(T model, Mutator mutator = null)
-        {
-            Remove<T>(model.GetDataKey(), mutator);
-        }
+        public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
 
-        public override void RemoveAll<T>(Mutator mutator = null)
-        {
-            Collection<T>().DeleteMany("1=1");
-        }
+        public override void RemoveAll(Mutator mutator = null) => Collection().DeleteMany("1=1");
 
-        public override IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null)
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null)
         {
             var modelBuffer = models.ToList();
-            Collection<T>().InsertBulk(modelBuffer);
+            Collection().InsertBulk(modelBuffer);
             return modelBuffer;
         }
 
-        public override IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null)
+        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null)
         {
             var modelBuffer = models.ToList();
             foreach (var data in modelBuffer) Save(data);
             return modelBuffer;
         }
 
-        public override IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null)
+        public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
         {
             var modelBuffer = models.ToList();
             foreach (var data in modelBuffer) Upsert(data);
             return modelBuffer;
         }
 
-        public override void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null)
+        public override void BulkRemove(IEnumerable<string> keys, Mutator mutator = null)
         {
             var keyBuffer = keys.ToList();
-            foreach (var data in keyBuffer) Remove<T>(data);
+            foreach (var data in keyBuffer) Remove(data);
         }
 
-        public override void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null)
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null)
         {
             var keyBuffer = models.Select(i => i.GetDataKey()).ToList();
-            foreach (var data in keyBuffer) Remove<T>(data);
+            foreach (var data in keyBuffer) Remove(data);
         }
 
-        public override void DropSet<T>(string setName)
+        public override void DropSet(string setName)
         {
             throw new NotImplementedException();
         }
 
-        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier,
-            bool flushDestination = false)
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
         {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null)
+        public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            return Collection<T>().Find(predicate);
+            return Collection().Find(predicate);
         }
 
-        public override void Initialize<T>()
-        {
-        }
+        public override void Initialize() { }
     }
 }

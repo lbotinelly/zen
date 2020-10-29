@@ -14,6 +14,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -177,7 +178,7 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null)!= null
+                             where p.GetValue(obj, null) != null
                              select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
@@ -255,7 +256,13 @@ namespace Zen.Base.Extension
         }
 
         // ReSharper disable once InconsistentNaming
-        public static string ToISODateString(this DateTime obj) { return $"ISODate(\"{obj:o}\")"; }
+        public static string ToISODateString(this DateTime obj, bool includeLocalTimezone = true)
+        {
+            return !includeLocalTimezone
+                ? $"ISODate(\"{obj:o}\")"
+                : $"ISODate(\"{obj:o}{TimeZoneInfo.Local.BaseUtcOffset.Hours}:00\")";
+        }
+        public static string ToISOString(this DateTime obj) => $"{obj:o}";
 
         // ReSharper disable once InconsistentNaming
         public static string ToRawDateHash(this DateTime obj) { return obj.ToString("yyyyMMddHHmmss"); }
@@ -294,16 +301,18 @@ namespace Zen.Base.Extension
                     typeof(string),
                     typeof(decimal),
                     typeof(DateTime),
-                    typeof(DateTimeOffset),
-                    typeof(TimeSpan),
+                    // typeof(DateTimeOffset),
+                    // typeof(TimeSpan),
                     typeof(Guid)
                 }.Contains(type) ||
                 Convert.GetTypeCode(type) != TypeCode.Object;
         }
 
+        public static bool IsNullOrEmpty(this string source) => string.IsNullOrEmpty(source);
+
         public static string TruncateEnd(this string text, int length, bool padLeft = false)
         {
-            if (string.IsNullOrEmpty(text)) return string.Empty;
+            if (string.IsNullOrEmpty(text)) text = new string(' ', length - 1);
 
             if (text.Length < length) return !padLeft ? text : text.PadLeft(length - 1);
 
@@ -352,7 +361,7 @@ namespace Zen.Base.Extension
         public static List<X509Certificate2> BySubject(this X509Store source, string targetSubject)
         {
             source.Open(OpenFlags.ReadOnly);
-            var target = source.Certificates.ToList().Where(i => i?.SubjectName.Name!= null && i.SubjectName.Name.Contains(targetSubject)).ToList();
+            var target = source.Certificates.ToList().Where(i => i?.SubjectName.Name != null && i.SubjectName.Name.Contains(targetSubject)).ToList();
             source.Close();
             return target;
         }
@@ -394,9 +403,14 @@ namespace Zen.Base.Extension
             var doc = new XmlDocument();
             doc.LoadXml(source);
 
-            var json = JsonConvert.SerializeXmlNode(doc);
+            var json = JsonConvert.SerializeXmlNode(doc, Formatting.Indented);
 
             return json;
+        }
+
+        public static string ToJson(this XElement source)
+        {
+            return source.ToString().XmlToJson();
         }
 
         public static List<T> ToList<T>(this IEnumerator<T> e)
@@ -407,6 +421,15 @@ namespace Zen.Base.Extension
                 list.Add(e.Current);
             }
             return list;
+        }
+
+        public static int Years(this TimeSpan source) => (new DateTime(1, 1, 1) + source).Year - 1;
+
+        public static string ContentToString(this Stream source)
+        {
+            var reader = new StreamReader(source);
+            source.Position = 0;
+            return reader.ReadToEnd();
         }
 
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
@@ -556,7 +579,7 @@ namespace Zen.Base.Extension
 
         public static bool IsSubclassOfRawGeneric(this Type toCheck, Type generic)
         {
-            while (toCheck!= null && toCheck != typeof(object))
+            while (toCheck != null && toCheck != typeof(object))
             {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
                 if (generic == cur) return true;
@@ -672,14 +695,14 @@ namespace Zen.Base.Extension
 
         internal static TTarget Copy(TSource source)
         {
-            if (initializationException!= null) throw initializationException;
+            if (initializationException != null) throw initializationException;
             if (source == null) throw new ArgumentNullException("source");
             return creator(source);
         }
 
         internal static void Copy(TSource source, TTarget target)
         {
-            if (initializationException!= null) throw initializationException;
+            if (initializationException != null) throw initializationException;
             if (source == null) throw new ArgumentNullException("source");
             for (var i = 0; i < sourceProperties.Count; i++) targetProperties[i].SetValue(target, sourceProperties[i].GetValue(source, null), null);
         }
@@ -687,6 +710,7 @@ namespace Zen.Base.Extension
         private static Func<TSource, TTarget> BuildCreator()
         {
             var sourceParameter = Expression.Parameter(typeof(TSource), "source");
+
             var bindings = new List<MemberBinding>();
             foreach (var sourceProperty in typeof(TSource).GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {

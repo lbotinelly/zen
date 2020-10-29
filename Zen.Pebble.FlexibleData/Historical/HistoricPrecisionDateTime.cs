@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Zen.Pebble.FlexibleData.Historical
 {
@@ -15,14 +16,16 @@ namespace Zen.Pebble.FlexibleData.Historical
             Day
         }
 
-        public HistoricDateTime() { }
+        public HistoricDateTime()
+        {
+        }
 
         public HistoricDateTime(System.DateTime? date)
         {
             if (date == null) return;
 
             Value = date;
-            Precision = null;
+            Precision = EDatePrecision.Day;
 
             var precisionBoundaryProbe = Value.Value;
 
@@ -45,9 +48,75 @@ namespace Zen.Pebble.FlexibleData.Historical
         public System.DateTime? Value { get; set; }
         public EDatePrecision? Precision { get; set; }
 
-        public static implicit operator HistoricDateTime(System.DateTime source) => new HistoricDateTime { Value = source, Precision = EDatePrecision.Day };
+        private string AddOrdinal(int num)
+        {
+            if (num <= 0) return num.ToString();
 
-        public static implicit operator HistoricDateTime(string source) => string.IsNullOrEmpty(source) ? null : new HistoricDateTime(TryParse(source));
+            switch (num % 100)
+            {
+                case 11:
+                case 12:
+                case 13:
+                    return num + "th";
+            }
+
+            switch (num % 10)
+            {
+                case 1:
+                    return num + "st";
+                case 2:
+                    return num + "nd";
+                case 3:
+                    return num + "rd";
+                default:
+                    return num + "th";
+            }
+        }
+
+        #region Overrides of Object
+
+        public override string ToString()
+        {
+            if (Value == null) return null;
+
+            switch (Precision)
+            {
+                case EDatePrecision.Millennium:
+                    return AddOrdinal((int) Math.Floor((decimal) Value.Value.Year / 1000) + 1) + " millennium";
+
+                case EDatePrecision.Century:
+                    return Math.Floor((decimal) Value.Value.Year / 100).ToString(CultureInfo.InvariantCulture) + "00s";
+
+                case EDatePrecision.Decade:
+                    return Math.Floor((decimal) Value.Value.Year / 10).ToString(CultureInfo.InvariantCulture) + "0s";
+                case EDatePrecision.Year:
+                    return Value.Value.ToString("yyyy");
+
+                case EDatePrecision.Season:
+                    return Value.Value.ToString("MMMM yyyy");
+
+                case EDatePrecision.Month:
+                    return Value.Value.ToString("MMMM yyyy");
+
+                case EDatePrecision.Day:
+                case null:
+                    return Value.Value.ToString("D");
+
+                default: return base.ToString();
+            }
+        }
+
+        #endregion
+
+        public static implicit operator HistoricDateTime(System.DateTime source)
+        {
+            return new HistoricDateTime {Value = source, Precision = EDatePrecision.Day};
+        }
+
+        public static implicit operator HistoricDateTime(string source)
+        {
+            return string.IsNullOrEmpty(source) ? null : new HistoricDateTime(TryParse(source));
+        }
 
         private static System.DateTime? TryParse(string source)
         {

@@ -6,6 +6,6 @@ namespace Zen.Module.Data.MongoDB
     [Priority(Level = -2)]
     public class MongoDbDefaultBundle : ConnectionBundlePrimitive
     {
-        public MongoDbDefaultBundle() { AdapterType = typeof(MongoDbAdapter); }
+        public MongoDbDefaultBundle() => AdapterType = typeof(MongoDbAdapter<>);
     }
 }

@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AssemblyName>Zen.Module.Data.MySql</AssemblyName>
+    <RootNamespace>Zen.Module.Data.MySql</RootNamespace>
+    <Version>0.0.1.0</Version>
+    <Description>MySql adapter for Zen</Description>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <LangVersion>8</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <Authors>Zen Development Team</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Module.Data.Relational\Zen.Module.Data.Relational.csproj" />
+    <ProjectReference Include="..\Zen.Pebble.Database\Zen.Pebble.Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\static\res\zen-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
+  </ItemGroup>
+
+</Project>

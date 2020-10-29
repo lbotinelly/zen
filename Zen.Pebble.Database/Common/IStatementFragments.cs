@@ -5,8 +5,9 @@
         string ParametrizedValue { get; }
         string InlineValue { get; }
         string Column { get; }
-        KeywordSet Keywords { get; }
-        ValueSet Values { get; }
+
+        StatementMasks.MarkerSet Markers { get; }
+        StatementMasks.ValueSet Values { get; }
 
         string NodeAdd { get; }
         string NodeAnd { get; }

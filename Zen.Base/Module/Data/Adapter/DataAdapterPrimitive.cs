@@ -6,15 +6,15 @@ using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Data.Adapter
 {
-    public abstract class DataAdapterPrimitive : IInterceptor
+    public abstract class DataAdapterPrimitive<T> : IInterceptor<T> where T: Data<T>
     {
         public string ReferenceCollectionName;
-        public IConnectionBundlePrimitive SourceBundle;
+        public IConnectionBundle SourceBundle;
 
         #region Initialization
 
-        public abstract void Setup<T>(Settings settings) where T : Data<T>;
-        public abstract void Initialize<T>() where T : Data<T>;
+        public abstract void Setup(Settings<T> settings);
+        public abstract void Initialize();
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace Zen.Base.Module.Data.Adapter
 
         public Func<string> GetNewKey = () => Guid.NewGuid().ToString();
 
-        public virtual void SetConnectionString<T>() where T : Data<T>
+        public virtual void SetConnectionString()
         {
             var settings = Info<T>.Settings;
 
@@ -48,7 +48,7 @@ namespace Zen.Base.Module.Data.Adapter
             if (!settings.CredentialCypherKeys.ContainsKey(envCode)) return;
 
             //Handling credentials
-            // if (settings.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1) Current.Log.Warn<T>("Credentials set, but no placeholder found on connection string");
+            // if (settings.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1) Current.Log.Warn("Credentials set, but no placeholder found on connection string");
 
             settings.CredentialsString = settings.CredentialCypherKeys[envCode];
 
@@ -63,33 +63,34 @@ namespace Zen.Base.Module.Data.Adapter
 
         #region Interceptor calls
 
-        public abstract T Get<T>(string key, Mutator mutator = null) where T : Data<T>;
-        public abstract IEnumerable<T> Get<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
+        public abstract T Get(string key, Mutator mutator = null);
+        public abstract IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null);
 
-        public abstract IEnumerable<T> Query<T>(string statement) where T : Data<T>;
-        public abstract IEnumerable<T> Query<T>(Mutator mutator = null) where T : Data<T>;
-        public abstract IEnumerable<T> Where<T>(Expression<Func<T, bool>> predicate, Mutator mutator = null) where T : Data<T>;
-        public abstract IEnumerable<TU> Query<T, TU>(string statement) where T : Data<T>;
-        public abstract IEnumerable<TU> Query<T, TU>(Mutator mutator = null) where T : Data<T>;
+        public abstract IEnumerable<T> Query(string statement);
+        public abstract IEnumerable<T> Query(Mutator mutator = null);
+        public abstract IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null);
+        public abstract IEnumerable<TU> Query<TU>(string statement);
+        public abstract IEnumerable<TU> Query<TU>(Mutator mutator = null);
 
-        public abstract long Count<T>(Mutator mutator = null) where T : Data<T>;
+        public abstract long Count(Mutator mutator = null);
+        public abstract bool KeyExists(string key, Mutator mutator = null);
 
-        public abstract T Insert<T>(T model, Mutator mutator = null) where T : Data<T>;
-        public abstract T Save<T>(T model, Mutator mutator = null) where T : Data<T>;
-        public abstract T Upsert<T>(T model, Mutator mutator = null) where T : Data<T>;
+        public abstract T Insert(T model, Mutator mutator = null);
+        public abstract T Save(T model, Mutator mutator = null);
+        public abstract T Upsert(T model, Mutator mutator = null);
 
-        public abstract void Remove<T>(string key, Mutator mutator = null) where T : Data<T>;
-        public abstract void Remove<T>(T model, Mutator mutator = null) where T : Data<T>;
-        public abstract void RemoveAll<T>(Mutator mutator = null) where T : Data<T>;
+        public abstract void Remove(string key, Mutator mutator = null);
+        public abstract void Remove(T model, Mutator mutator = null);
+        public abstract void RemoveAll(Mutator mutator = null);
 
-        public abstract IEnumerable<T> BulkInsert<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
-        public abstract IEnumerable<T> BulkSave<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
-        public abstract IEnumerable<T> BulkUpsert<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
-        public abstract void BulkRemove<T>(IEnumerable<string> keys, Mutator mutator = null) where T : Data<T>;
-        public abstract void BulkRemove<T>(IEnumerable<T> models, Mutator mutator = null) where T : Data<T>;
+        public abstract IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null);
+        public abstract IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null);
+        public abstract IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null);
+        public abstract void BulkRemove(IEnumerable<string> keys, Mutator mutator = null);
+        public abstract void BulkRemove(IEnumerable<T> models, Mutator mutator = null);
 
-        public abstract void DropSet<T>(string setName) where T : Data<T>;
-        public abstract void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) where T : Data<T>;
+        public abstract void DropSet(string setName);
+        public abstract void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false);
 
         #endregion
     }

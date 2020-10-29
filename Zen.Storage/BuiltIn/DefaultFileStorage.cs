@@ -12,7 +12,11 @@ namespace Zen.Storage.BuiltIn
     {
         private string _location;
 
-        public override void ResolveStorage() { _location = Host.DataDirectory; }
+        public override IFileStorage ResolveStorage()
+        {
+            _location = Host.DataDirectory;
+            return this;
+        }
 
         public override async Task<Stream> Fetch(IFileDescriptor fileDescriptor)
         {

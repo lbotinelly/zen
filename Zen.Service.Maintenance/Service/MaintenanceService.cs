@@ -53,7 +53,7 @@ namespace Zen.Service.Maintenance.Service
 
                 i.Description = i.Setup?.Name;
 
-                i.Id = $"{i.Type.FullName} | {i.Description}".StringToGuid().ToString();
+                i.Id = $"{i.Type.FullName} | {i.Description}".ToGuid().ToString();
             }
 
             preList.Sort((a, b) => b.Priority.Level - a.Priority.Level);
@@ -173,13 +173,11 @@ namespace Zen.Service.Maintenance.Service
 
                 Log.Divider();
                 Log.Maintenance<MaintenanceService>($"Running {taskSet.Count} {scope} maintenance task(s)");
-                foreach (var item in runnableTaskMap) Log.KeyValuePair(item.Key.Type.FullName, item.Value.ToString(), Message.EContentType.Maintenance);
+                foreach (var (key, value) in runnableTaskMap) Log.KeyValuePair(key.Type.FullName, value.ToString(), Message.EContentType.Maintenance);
                 Log.Divider();
 
-                foreach (var item in runnableTaskMap)
+                foreach (var (item, tracking) in runnableTaskMap)
                 {
-                    var ms = item.Key;
-                    var tk = item.Value;
                     Task<Result> task = null;
                     var sw = new Stopwatch();
                     Ticket distributedTaskHandler = null;
@@ -189,22 +187,24 @@ namespace Zen.Service.Maintenance.Service
                     try
                     {
 
-                        if (ms.Setup.Orchestrated)
+                        if (item.Setup.Orchestrated)
                         {
-                            distributedTaskHandler = Factory.GetTicket(ms.Description);
+                            distributedTaskHandler = Factory.GetTicket(item.Description);
                             if (!distributedTaskHandler.CanRun()) continue;
                             distributedTaskHandler.Start();
                         }
 
-                        Current.Log.KeyValuePair("Task", $"[{ms.Id}] {item}", Message.EContentType.Maintenance);
+                        Current.Log.KeyValuePair("Task", $"[{item.Id}] {item}", Message.EContentType.Maintenance);
 
-                        task = ms.Instance.MaintenanceTask();
+                        task = item.Instance.MaintenanceTask();
 
                         task?.Wait();
 
                     }
                     catch (Exception e)
                     {
+                        Current.Log.Add(e);
+
                         if (task != null)
                         {
                             task.Result.Status = Result.EResultStatus.Failed;
@@ -212,8 +212,8 @@ namespace Zen.Service.Maintenance.Service
                         }
                         else
                         {
-                            tk.LastMessage = e.ToSummary();
-                            tk.Success = false;
+                            tracking.LastMessage = e.ToSummary();
+                            tracking.Success = false;
                         }
                     }
                     finally
@@ -232,18 +232,18 @@ namespace Zen.Service.Maintenance.Service
 
                             task.Result.Counters?.ToLog();
 
-                            tk.LastResult = task.Result;
-                            tk.Success = task.Result.Status == Result.EResultStatus.Success;
-                            tk.Elapsed = sw.Elapsed;
-                            tk.LastMessage = tk.LastResult?.Message;
+                            tracking.LastResult = task.Result;
+                            tracking.Success = task.Result.Status == Result.EResultStatus.Success;
+                            tracking.Elapsed = sw.Elapsed.ToString();
+                            tracking.LastMessage = tracking.LastResult?.Message;
                         }
 
-                        tk.LastRun = DateTime.Now;
+                        tracking.LastRun = DateTime.Now;
 
-                        if (ms.Setup.Cooldown != default) tk.NextRun = tk.LastRun.Add(ms.Setup.Cooldown);
-                        tk.RunOnce = ms.Setup.RunOnce;
+                        if (item.Setup.Cooldown != default) tracking.NextRun = tracking.LastRun.Add(item.Setup.Cooldown);
+                        tracking.RunOnce = item.Setup.RunOnce;
 
-                        tk.Save();
+                        tracking.Save();
 
                     }
                 }

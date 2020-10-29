@@ -2,124 +2,199 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Oracle.ManagedDataAccess.Client;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Module;
 using Zen.Base.Module.Data;
+using Zen.Module.Data.Oracle.Statement;
 using Zen.Module.Data.Relational;
-using Zen.Module.Data.Relational.Builder;
+using Zen.Module.Data.Relational.Common;
+using Zen.Pebble.Database.Common;
 
 namespace Zen.Module.Data.Oracle
 {
-    public class OracleAdapter : RelationalAdapter
+    public class OracleAdapter<T> : RelationalAdapter<T, OracleStatementFragments, OracleWherePart> where T : Data<T>
     {
+        private Configuration.IOptions _options;
+        private bool _useAdmin;
+
+        public override StatementMasks Masks { get; } = new StatementMasks
+        {
+            ParameterPrefix = ":u_",
+            BooleanValues = { True = 1, False = 0 },
+            DefaultTextSize = 255,
+            MaximumTextSize = 65535,
+            TextOverflowType = "NVARCHAR",
+            EnumType = "INT",
+            LeftFieldDelimiter = '[',
+            RightFieldDelimiter = ']'
+        };
+
+        public override Dictionary<Type, TypeDefinition> TypeDefinitionMap { get; } = new Dictionary<Type, TypeDefinition>
+        {
+            {
+                typeof(int), new TypeDefinition("NUMBER(20)")
+                {
+                    DiscreteAutoSchema = new List<string>
+                    {
+                        "CREATE SEQUENCE {StorageCollectionName}_SEQ",
+                        @"CREATE TRIGGER {StorageCollectionName}_BI
+BEFORE INSERT ON {StorageCollectionName}
+FOR EACH ROW
+BEGIN
+  SELECT {StorageCollectionName}_SEQ.nextval
+  INTO :new.{StorageKeyMemberName}
+  FROM dual;
+END;
+"
+                    }
+                }
+            },
+            {
+                typeof(long), new TypeDefinition("NUMBER(20)")
+                {
+                    DiscreteAutoSchema = new List<string>
+                    {
+                        "CREATE SEQUENCE {StorageCollectionName}_SEQ",
+                        @"CREATE TRIGGER {StorageCollectionName}_BI
+BEFORE INSERT ON {StorageCollectionName}
+FOR EACH ROW
+BEGIN
+  SELECT {StorageCollectionName}_SEQ.nextval
+  INTO :new.{StorageKeyMemberName}
+  FROM dual;
+END;
+"
+                    }
+                }
+            },
+            {typeof(bool), new TypeDefinition("NUMBER(1)", "0")},
+            {typeof(DateTime), new TypeDefinition("TIMESTAMP")},
+            {typeof(string), new TypeDefinition("NVARCHAR({DefaultTextSize})") {InlineAutoSchema = "SYS_GUID()"}},
+            {typeof(object), new TypeDefinition("BLOB")}
+        };
+
         #region Overrides of RelationalAdapter
 
-        public override DbConnection GetConnection<T>()
+        public override DbConnection GetConnection()
         {
             var cn = Info<T>.Settings.ConnectionString;
             return new OracleConnection(cn);
         }
 
-        public override void Initialize<T>()
+        public override void Setup(Settings<T> settings)
         {
-            Masks = new StatementMasks
-            {
-                Column = "{0}",
-                InlineParameter = ":{0}",
-                Parameter = "u_{0}",
-                Values =
-                {
-                    True = 1,
-                    False = 0
-                }
-            };
-
-            StatementBuilder = new StatementBuilder {Masks = Masks};
-
-            Map<T>();
-            RenderSchemaEntityNames<T>();
-            ValidateSchema<T>();
-            PrepareCachedStatements<T>();
-
-            ReferenceCollectionName = Info<T>.Configuration.SetPrefix + Info<T>.Configuration.SetName;
+            _options = new Configuration.Options().GetSettings<Configuration.IOptions, Configuration.Options>("Database:Oracle");
+            Statements.InsertModel = "INSERT INTO {StorageCollectionName} ({InlineFieldSet}) VALUES ({InlineParameterSet})";
         }
 
-        public override void DropSet<T>(string setName) { throw new NotImplementedException(); }
-        public override void CopySet<T>(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) { throw new NotImplementedException(); }
+        public override void DropSet(string setName) => throw new NotImplementedException();
 
-        public override void RenderSchemaEntityNames<T>()
+        public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false) => throw new NotImplementedException();
+
+        public override void RenderSchemaEntityNames()
         {
-            var tn = Info<T>.Settings.StorageCollectionName;
+            var collectionName = Settings.StorageCollectionName;
+            if (collectionName == null) return;
 
-            if (tn == null) return;
+            var tableName = Configuration.SetName ?? collectionName + Masks.Markers.Spacer + Settings.TypeNamespace.ToGuid().ToShortGuid();
+            Settings.StorageCollectionName = tableName;
+            Settings.ConnectionString ??= _options.ConnectionString;
 
-            var trigBaseName = "TRG_" + tn.Replace("TBL_", "");
-            if (trigBaseName.Length > 27) trigBaseName = trigBaseName.Substring(0, 27); // Oracle Schema object naming limitation
+            Settings.StorageKeyMemberName = Settings.Members[Settings.KeyMemberName].TargetName;
 
-            var res = new Dictionary<string, KeyValuePair<string, string>>
+            var settingsDict = Settings.ToPropertyDictionary();
+
+            var res = new Dictionary<string, Dictionary<string, string>>
             {
-                {"Sequence", new KeyValuePair<string, string>("SEQUENCE", "SEQ_" + tn.Replace("TBL_", ""))},
-                {"Table", new KeyValuePair<string, string>("TABLE", tn)},
                 {
-                    "BeforeInsertTrigger",
-                    new KeyValuePair<string, string>("TRIGGER", trigBaseName + "_BI")
-                },
-                {
-                    "BeforeUpdateTrigger",
-                    new KeyValuePair<string, string>("TRIGGER", trigBaseName + "_BU")
+                    Categories.Table,
+                    new Dictionary<string, string> {{Keys.Name, tableName}}
                 }
             };
+
+            if (TypeDefinitionMap.ContainsKey(Settings.Members[Settings.KeyMemberName].Type))
+            {
+                var discreteKeySchema = TypeDefinitionMap[Settings.Members[Settings.KeyMemberName].Type]?.DiscreteAutoSchema;
+
+                if (discreteKeySchema != null)
+                    foreach (var keySchema in discreteKeySchema)
+                    {
+                        var renderedKeySchema = settingsDict.ReplaceIn(keySchema);
+
+                        if (!res.ContainsKey(Categories.Trigger)) res.Add(Categories.Trigger, new Dictionary<string, string>());
+                        if (res[Categories.Trigger] == null) res[Categories.Trigger] = new Dictionary<string, string>();
+
+                        res[Categories.Trigger].Add(renderedKeySchema.Md5Hash(), renderedKeySchema);
+                    }
+            }
 
             SchemaElements = res;
         }
 
-        public override void ValidateSchema<T>()
+        public override void ValidateSchema()
         {
             if (Info<T>.Configuration.IsReadOnly) return;
 
             //First step - check if the table is there.
             try
             {
-                var tn = SchemaElements["Table"].Value;
+                var tableName = SchemaElements[Categories.Table][Keys.Name];
 
-                var tableCount = QuerySingleValue<T, int>("SELECT COUNT(*) FROM ALL_TABLES WHERE table_name = '" + tn + "'");
+                try
+                {
+                    var tableCount = QuerySingleValue<int>($"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{tableName}'");
+                    if (tableCount != 0) return;
+                }
+                catch (Exception e)
+                {
+                    if (!_options.AttempSchemaSetup) throw;
 
-                if (tableCount != 0) return;
+                    // if (e.Message.Contains("is not allowed") || e.Message.Contains("denied")) // Let's try Admin mode.
+                    try
+                    {
+                        _useAdmin = true;
+                        // Let's create a default database and user.
+                        Execute("CREATE DATABASE IF NOT EXISTS Zen");
+                        Execute("SET GLOBAL log_bin_trust_function_creators = 1");
+                        Execute("CREATE USER IF NOT EXISTS 'zenMaster'@'localhost' IDENTIFIED BY 'ExtremelyWeakPassword'");
+                        Execute("GRANT ALL PRIVILEGES ON Zen.* TO 'zenMaster'@'localhost' WITH GRANT OPTION");
+                        Execute("FLUSH PRIVILEGES");
+                        _useAdmin = false;
+                    }
+                    catch (Exception exception)
+                    {
+                        _useAdmin = false;
+                        Console.WriteLine(exception);
+                        throw;
+                    }
+                }
 
-                Current.Log.Add<T>("Initializing schema");
+                Current.Log.Add("Initializing schema");
+
+                var maskKeys = Masks.ToPropertyDictionary();
 
                 //Create sequence.
-                var seqName = SchemaElements["Sequence"].Value;
-
-                if (seqName.Length > 30) seqName = seqName.Substring(0, 30);
-
                 var tableRender = new StringBuilder();
 
-                tableRender.Append("CREATE TABLE " + tn + "(");
+                tableRender.AppendLine("CREATE TABLE IF NOT EXISTS " + tableName + " (");
 
                 var isFirst = true;
 
-                //bool isRCTSFound = false;
-                //bool isRUTSFound = false;
-
-                foreach (var prop in typeof(T).GetProperties())
+                foreach (var (name, memberDescriptor) in Settings.Members)
                 {
-                    var pType = prop.PropertyType;
+                    var pType = memberDescriptor.Type;
+                    long size = memberDescriptor.Size ?? Masks.DefaultTextSize;
 
-                    var pSourceName = prop.Name;
+                    var pSourceName = memberDescriptor.TargetName;
 
-                    long size = 255;
-
-                    if (MemberDescriptors.ContainsKey(pSourceName))
-                    {
-                        size = MemberDescriptors[pSourceName].Length;
-                        if (size == 0) size = 255;
-                    }
-
-                    var pDestinyType = "VARCHAR2(" + size + ")";
+                    var pDestinyType = "";
+                    var pAutoSchema = "";
+                    var defaultDestinyType = $"VARCHAR ({Masks.DefaultTextSize})";
                     var pNullableSpec = "";
 
                     if (pType.IsPrimitiveType())
@@ -130,161 +205,76 @@ namespace Zen.Module.Data.Oracle
                         if (typeof(IList).IsAssignableFrom(pType)) continue;
                         if (typeof(IDictionary).IsAssignableFrom(pType)) continue;
 
-                        if (pType.BaseType!= null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
+                        if (pType.BaseType != null && typeof(IList).IsAssignableFrom(pType.BaseType) && pType.BaseType.IsGenericType) continue;
 
-                        var isNullable = false;
+                        var isNullable = pType.IsNullable();
 
-                        //Check if it's a nullable type.
+                        if (Settings.StorageKeyMemberName == memberDescriptor.SourceName) isNullable = false;
 
-                        var nullProbe = Nullable.GetUnderlyingType(pType);
+                        var (key, value) = TypeDefinitionMap.FirstOrDefault(i => pType == i.Key);
 
-                        if (nullProbe!= null)
+                        if (key != null)
                         {
-                            isNullable = true;
-                            pType = nullProbe;
+                            pDestinyType = value.Name;
+                            if (value.DefaultValue != null) pDestinyType += " DEFAULT " + value.DefaultValue;
+
+                            if (name == Settings.KeyMemberName)
+                                if (value.InlineAutoSchema != null)
+                                    pAutoSchema = value.InlineAutoSchema;
+                        }
+                        else
+                        {
+                            pDestinyType = defaultDestinyType;
                         }
 
-                        if (pType == typeof(long)) pDestinyType = "NUMBER (20)";
-                        if (pType == typeof(int)) pDestinyType = "NUMBER (20)";
-                        if (pType == typeof(DateTime)) pDestinyType = "TIMESTAMP";
-                        if (pType == typeof(bool)) pDestinyType = "NUMBER (1) DEFAULT 0";
-                        if (pType == typeof(object)) pDestinyType = "BLOB";
-                        if (size > 4000) pDestinyType = "BLOB";
-                        if (pType.IsEnum) pDestinyType = "NUMBER (10)";
-
-                        if (pType == typeof(string)) isNullable = true;
-
-                        if (MemberDescriptors.ContainsKey(pSourceName)) pSourceName = MemberDescriptors[pSourceName].Field;
-
-                        var bMustSkip =
-                            pSourceName.ToLower().Equals("rcts") ||
-                            pSourceName.ToLower().Equals("ruts");
-
-                        if (bMustSkip) continue;
-
-                        if (string.Equals(pSourceName, KeyColumn,
-                                          StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
-
-                        if (string.Equals(pSourceName, KeyMember,
-                                          StringComparison.CurrentCultureIgnoreCase)) isNullable = false;
+                        if (size > Masks.MaximumTextSize) pDestinyType = Masks.TextOverflowType;
+                        if (pType.IsEnum) pDestinyType = Masks.EnumType;
 
                         //Rendering
 
-                        if (!isNullable) pNullableSpec = " NOT NULL";
+                        if (!isNullable) pNullableSpec = "NOT NULL";
                     }
                     else
                     {
-                        pDestinyType = "CLOB";
+                        pDestinyType = Masks.TextOverflowType;
                         pNullableSpec = "";
                     }
 
-                    if (!isFirst) tableRender.Append(", ");
+                    if (!isFirst) tableRender.Append(", " + Environment.NewLine);
                     else isFirst = false;
 
-                    tableRender.Append(pSourceName + " " + pDestinyType + pNullableSpec);
+                    tableRender.Append($"{Masks.LeftFieldDelimiter}{pSourceName}{Masks.RightFieldDelimiter} {pDestinyType} {pNullableSpec} {pAutoSchema}");
                 }
 
-                //if (!isRCTSFound) tableRender.Append(", RCTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
-                //if (!isRUTSFound) tableRender.Append(", RUTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
+                // Finally the PK.
 
-                tableRender.Append(", RCTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
-                tableRender.Append(", RUTS TIMESTAMP  DEFAULT CURRENT_TIMESTAMP");
+                tableRender.AppendLine($"{Environment.NewLine}, PRIMARY KEY(`{Settings.Members[Settings.KeyMemberName].TargetName}`)");
 
-                tableRender.Append(")");
+                tableRender.AppendLine(");");
 
-                try
+                var rendered = tableRender.ToString();
+
+                rendered = maskKeys.ReplaceIn(rendered);
+
+                Current.Log.Add("Creating table " + tableName);
+
+                Current.Log.Add("---");
+                Current.Log.Add(rendered);
+                Execute(rendered);
+                Current.Log.Add("---");
+
+                foreach (var (name, creationStatement) in SchemaElements[Categories.Trigger])
                 {
-                    Current.Log.Add<T>("Creating table " + tn);
-                    Execute<T>(tableRender.ToString());
-                } catch (Exception e) { Current.Log.Add(e); }
-
-                if (KeyColumn!= null)
-                {
-                    try { Execute<T>("DROP SEQUENCE " + seqName); } catch { }
-
-                    try
-                    {
-                        Current.Log.Add<T>("Creating Sequence " + seqName);
-                        Execute<T>("CREATE SEQUENCE " + seqName);
-                    } catch (Exception) { }
-
-                    //Primary Key
-                    var pkName = tn + "_PK";
-                    var pkStat = $"ALTER TABLE {tn} ADD (CONSTRAINT {pkName} PRIMARY KEY ({KeyColumn}))";
-
-                    try
-                    {
-                        Current.Log.Add<T>("Adding Primary Key constraint " + pkName + " (" + KeyColumn + ")");
-                        Execute<T>(pkStat);
-                    } catch (Exception e) { Current.Log.Add(e); }
+                    Current.Log.Add($"Creating {Categories.Trigger} {name}");
+                    Execute(creationStatement);
                 }
-                //Trigger
-
-                var trigStat =
-                    @"CREATE OR REPLACE TRIGGER {0}
-                BEFORE INSERT ON {1}
-                FOR EACH ROW
-                BEGIN
-                " +
-                    (KeyColumn!= null
-                        ? @"IF :new.{3} is null 
-                    THEN       
-                        SELECT {2}.NEXTVAL INTO :new.{3} FROM dual;
-                    END IF;"
-                        : "")
-                    + @"  
-                :new.RCTS := CURRENT_TIMESTAMP;
-                :new.RUTS := CURRENT_TIMESTAMP;
-                END;";
-
-                try
-                {
-                    Current.Log.Add<T>("Adding BI Trigger " + SchemaElements["BeforeInsertTrigger"].Value);
-                    Execute<T>(
-                        string.Format(trigStat,
-                                      SchemaElements["BeforeInsertTrigger"].Value, tn, seqName,
-                                      KeyColumn));
-                } catch (Exception e) { Current.Log.Add(e); }
-
-                trigStat =
-                    @"CREATE OR REPLACE TRIGGER {0}
-                BEFORE UPDATE ON {1}
-                FOR EACH ROW
-                BEGIN
-                :new.RUTS := CURRENT_TIMESTAMP;
-                END;";
-
-                try
-                {
-                    Current.Log.Add<T>("Adding BU Trigger " + SchemaElements["BeforeUpdateTrigger"].Value);
-
-                    Execute<T>(string.Format(trigStat,
-                                             SchemaElements["BeforeUpdateTrigger"].Value, tn, seqName,
-                                             KeyColumn));
-                } catch (Exception e) { Current.Log.Add(e); }
-
-                var ocfld = ";";
-                var commentStat =
-                    "COMMENT ON TABLE " + tn + " IS 'Auto-generated table for Entity " + typeof(T).FullName + ". " +
-                    "Supporting structures - " +
-                    " Sequence: " + seqName + "; " +
-                    " Triggers: " +
-                    SchemaElements["BeforeInsertTrigger"].Value
-                    + ", " +
-                    SchemaElements["BeforeUpdateTrigger"].Value
-                    + ".'" + ocfld;
-
-                try { Execute<T>(commentStat); } catch { }
 
                 //'Event' hook for post-schema initialization procedure:
-                try
-                {
-                    typeof(T).GetMethod("OnSchemaInitialization", BindingFlags.Public | BindingFlags.Static)
-                        .Invoke(null, null);
-                } catch { }
-            } catch (Exception e)
+                typeof(T).GetMethod("OnSchemaInitialization", BindingFlags.Public | BindingFlags.Static)?.Invoke(null, null);
+            }
+            catch (Exception e)
             {
-                Current.Log.Warn<T>("Schema render Error: " + e.Message);
+                Current.Log.Warn("Schema render Error: " + e.Message);
                 Current.Log.Add(e);
                 throw;
             }

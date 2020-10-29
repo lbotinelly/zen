@@ -19,6 +19,6 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
         public string PersonLocator { get; set; } = Current.Orchestrator?.Person?.Locator;
 
         public string GetStorageCollectionName() => $"{Info<T>.Settings.StorageCollectionName}#ver";
-        public new static DataAdapterPrimitive GetDataAdapter() => Info<T>.Settings.Adapter;
+        public new static DataAdapterPrimitive<T> GetDataAdapter() => Info<T>.Settings.Adapter;
     }
 }

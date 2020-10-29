@@ -11,7 +11,7 @@ namespace Zen.Pebble.Database.Common
 
         public class MemberDescriptor
         {
-            public long Length;
+            public int? Length;
             public string TargetName;
             public string SourceName;
             public Type ValueType;

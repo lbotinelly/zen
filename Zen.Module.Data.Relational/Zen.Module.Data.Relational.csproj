@@ -25,12 +25,13 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.35" />
-    <PackageReference Include="Dapper.FluentMap" Version="1.8.0" />
+    <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.35" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Pebble.Database\Zen.Pebble.Database.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,6 +43,14 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Builder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.2.31" />
   </ItemGroup>
 
 </Project>

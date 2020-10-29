@@ -12,8 +12,13 @@ namespace Zen.Module.Cloud.Google.Provider
 
         #region Implementation of IZenProvider
 
-        public virtual void Initialize() { }
+        public EOperationalStatus OperationalStatus { get; set; } = EOperationalStatus.Undefined;
 
+        public virtual void Initialize()
+        {
+            OperationalStatus = EOperationalStatus.Operational;
+        }
+        public virtual string GetState() => $"{OperationalStatus}";
         #endregion
     }
 }

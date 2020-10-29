@@ -1,18 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using Zen.Base;
 using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module.Cache;
+using Zen.Base.Module.Encryption;
+using Zen.Base.Module.Environment;
 using Zen.Base.Module.Log;
 
 namespace Zen.Module.Cache.Redis
 {
     [Priority(Level = -1)]
-    public class RedisCacheProvider : PrimitiveCacheProvider, IZenProvider
+    public class RedisCacheProvider : CacheProviderPrimitive
     {
+        public RedisCacheProvider(IEnvironmentProvider environmentProvider, IEncryptionProvider encryptionProvider, IOptions<Configuration.Options> options) : this(environmentProvider, encryptionProvider, options.Value) { }
+        public RedisCacheProvider(IEnvironmentProvider environmentProvider, IEncryptionProvider encryptionProvider, Configuration.Options options)
+        {
+            _environmentProvider = environmentProvider;
+            _encryptionProvider = encryptionProvider;
+            _options = options;
+
+            InitializeConnection();
+        }
+
         public override IEnumerable<string> GetKeys(string oNamespace = null)
         {
             if (OperationalStatus != EOperationalStatus.Operational) return null;
@@ -41,9 +54,7 @@ namespace Zen.Module.Cache.Redis
 
             try
             {
-                var db = _redis.GetDatabase(DatabaseIndex);
-                var res = db.KeyExists(key);
-                return res;
+                return _redis.GetDatabase(DatabaseIndex).KeyExists(key);
             }
             catch (Exception)
             {
@@ -52,7 +63,7 @@ namespace Zen.Module.Cache.Redis
             }
         }
 
-        public override void SetNative(string key, string serializedModel)
+        public override void SetNative(string key, string serializedModel, CacheOptions options = null)
         {
             if (OperationalStatus != EOperationalStatus.Operational) return;
 
@@ -60,9 +71,7 @@ namespace Zen.Module.Cache.Redis
             {
                 var db = _redis.GetDatabase(DatabaseIndex);
 
-                //if (cacheTimeOutSeconds == 0) db.StringSet(key, serializedModel);
-                //else 
-                db.StringSet(key, serializedModel, TimeSpan.FromSeconds(cacheTimeOutSeconds));
+                db.StringSet(key, serializedModel, options?.LifeTimeSpan);
             }
             catch (Exception e)
             {
@@ -126,21 +135,16 @@ namespace Zen.Module.Cache.Redis
                 Current.Log.Add($"REDIS: {e.Message}", Message.EContentType.Exception);
             }
         }
-
-        public override string Name { get; } = "Redis";
+        public override string GetState() => $"{OperationalStatus} | {_descriptor}";
 
         #region driver-specific implementation
 
-        public override void Initialize()
-        {
-            //In the case nothing is defined, a standard environment setup is provided.
-            if (EnvironmentConfiguration == null)
-                EnvironmentConfiguration = new Dictionary<string, ICacheConfiguration>
-                {
-                    {"STA", new RedisCacheConfiguration {DatabaseIndex = 5, ConnectionString = "localhost"}}
-                };
+        public override void Initialize() { }
 
-            var probe = (RedisCacheConfiguration) EnvironmentConfiguration[Current.Environment.CurrentCode];
+        public void InitializeConnection()
+        {
+
+            var probe = _options.EnvironmentSettings[_environmentProvider.CurrentCode];
             DatabaseIndex = probe.DatabaseIndex;
             _currentServer = probe.ConnectionString;
 
@@ -151,32 +155,33 @@ namespace Zen.Module.Cache.Redis
 
         private static string _currentServer = "none";
 
+        private readonly IEnvironmentProvider _environmentProvider;
+        private readonly IEncryptionProvider _encryptionProvider;
+        private readonly Configuration.Options _options;
+        private string _descriptor;
+
         private static int DatabaseIndex { get; set; } = -1;
         internal string ServerName { get; private set; }
-
-        private int cacheTimeOutSeconds = 600;
 
         public void Connect()
         {
             try
             {
                 ServerName = _currentServer.Split(',')[0];
+                _currentServer = _encryptionProvider.TryDecrypt(_currentServer);
+                _descriptor = _currentServer.SafeArray("password");
 
-                //The connection string may be encrypted. Try to decrypt it, but ignore if it fails.
-                try
-                {
-                    _currentServer = Current.Encryption.Decrypt(_currentServer);
-                }
-                catch { }
-
-                Events.AddLog("Redis server", _currentServer.SafeArray("password"));
+                Events.AddLog("Redis server", _descriptor);
 
                 _redis = ConnectionMultiplexer.Connect(_currentServer);
+
                 OperationalStatus = EOperationalStatus.Operational;
+
             }
             catch (Exception e)
             {
                 OperationalStatus = EOperationalStatus.NonOperational;
+
                 Events.AddLog("REDIS server", "Unavailable - running on direct database mode");
                 Current.Log.KeyValuePair("REDIS server", "Unavailable - running on direct database mode", Message.EContentType.Warning);
                 Current.Log.Add(e);

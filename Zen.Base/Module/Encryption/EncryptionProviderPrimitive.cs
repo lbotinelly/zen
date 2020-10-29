@@ -1,8 +1,12 @@
-﻿namespace Zen.Base.Module.Encryption {
+﻿using Zen.Base.Common;
+
+namespace Zen.Base.Module.Encryption
+{
     public abstract class EncryptionProviderPrimitive : IEncryptionProvider
     {
+        public EOperationalStatus OperationalStatus { get; set; } = EOperationalStatus.Undefined;
         public abstract void Initialize();
-        public abstract void Configure(params string[] oParms);
+        public virtual string GetState() => $"{OperationalStatus}";
         public abstract string Decrypt(string pContent);
         public abstract string Encrypt(string pContent);
 

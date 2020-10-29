@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
-using Zen.Base.Module;
 
 namespace Zen.Module.Data.Relational
 {
@@ -10,17 +9,12 @@ namespace Zen.Module.Data.Relational
         bool UseNumericPrimaryKeyOnly { get; }
         bool UseOutputParameterForInsertedKeyExtraction { get; }
         RelationalStatements Statements { get; }
-
-        Dictionary<string, RelationalAdapter.MemberDescriptor> MemberDescriptors { get; }
-
         string KeyMember { get; set; }
         string KeyColumn { get; set; }
+        Dictionary<string, Dictionary<string, string>> SchemaElements { get; set; }
 
-        Dictionary<string, KeyValuePair<string, string>> SchemaElements { get; set; }
-
-
-        DbConnection GetConnection<T>() where T : Data<T>;
-        void RenderSchemaEntityNames<T>() where T : Data<T>;
-        void ValidateSchema<T>() where T : Data<T>;
+        DbConnection GetConnection();
+        void RenderSchemaEntityNames();
+        void ValidateSchema();
     }
 }

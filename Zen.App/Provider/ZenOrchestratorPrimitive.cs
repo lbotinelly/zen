@@ -9,6 +9,7 @@ using Zen.App.Core.Group;
 using Zen.App.Core.Person;
 using Zen.App.Model.Core;
 using Zen.Base;
+using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Service;
@@ -26,11 +27,16 @@ namespace Zen.App.Provider
 
         #region Implementation of IZenProvider
 
+        public EOperationalStatus OperationalStatus { get; set; } = EOperationalStatus.Undefined;
+
         public virtual void Initialize()
         {
             DetectEnvironment();
             Settings = new Settings().GetSettings();
         }
+
+        public virtual string Name {get; }
+        public virtual string GetState() => $"{OperationalStatus}";
 
         #endregion
 

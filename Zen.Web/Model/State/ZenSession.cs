@@ -23,16 +23,20 @@ namespace Zen.Web.Model.State
         {
             var result = new Result();
 
+            var c = new TagClicker();
+
             // Return all sessions at least six hours old.
 
             var sessions = Where(i => i.LastUpdate <= DateTime.Now.AddHours(-6)).ToList();
 
-            result.Counters.Click("Invalid sessions", sessions);
+            c.Click("Invalid sessions", sessions);
 
             Remove(sessions);
 
             result.Status = Result.EResultStatus.Success;
             result.Message = $"{sessions.Count} stale sessions removed";
+
+            c.ToLog();
 
             return Task.FromResult(result);
         }
