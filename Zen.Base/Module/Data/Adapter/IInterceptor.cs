@@ -14,24 +14,17 @@ namespace Zen.Base.Module.Data.Adapter
         #endregion
 
         #region Read
-
         T Get(string key, Mutator mutator = null);
         IEnumerable<T> Get(IEnumerable<string> keys, Mutator mutator = null);
-
         IEnumerable<T> Query(string statement);
         IEnumerable<T> Query(Mutator mutator = null);
-
         IEnumerable<TU> Query<TU>(string statement);
         IEnumerable<TU> Query<TU>(Mutator mutator = null);
-
         IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null);
-
         long Count(Mutator mutator = null);
-
         #endregion
 
         #region Change 
-
         T Insert(T model, Mutator mutator = null);
         T Save(T model, Mutator mutator = null);
         T Upsert(T model, Mutator mutator = null);
