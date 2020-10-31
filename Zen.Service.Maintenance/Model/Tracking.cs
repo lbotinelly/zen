@@ -2,11 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
+using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.Service.Maintenance.Model
 {
     [DataConfig(UseCaching = false)]
-    public class Tracking : Data<Tracking>
+    public class Tracking : Data<Tracking>, IDataId
     {
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
