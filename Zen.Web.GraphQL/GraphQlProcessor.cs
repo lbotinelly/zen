@@ -13,19 +13,13 @@ namespace Zen.Web.GraphQL
         private static SchemaProvider<object> _schema;
         private readonly Configuration.Options _options;
 
-        public GraphQlProcessor(IOptions<Configuration.Options> options) : this(options.Value)
-        {
-        }
+        public GraphQlProcessor(IOptions<Configuration.Options> options) : this(options.Value) { }
 
-        public GraphQlProcessor(Configuration.Options options)
-        {
-            _options = options;
-        }
+        public GraphQlProcessor(Configuration.Options options) => _options = options;
 
         public SchemaProvider<object> Schema => _schema;
 
         public dynamic Context { get; set; } = new { };
-
 
         public EOperationalStatus OperationalStatus { get; } = EOperationalStatus.Operational;
 
@@ -49,9 +43,6 @@ namespace Zen.Web.GraphQL
             Current.Log.KeyValuePair(GetType().Name, $"{queryableTypes.Count} queryable types added");
         }
 
-        public string GetState()
-        {
-            return "OK";
-        }
+        public string GetState() => "OK";
     }
 }
