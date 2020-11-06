@@ -103,7 +103,9 @@ namespace Zen.Web.Service.Extensions
             // .Net Core 3.0 requirement
             foreach (var entry in IoC.AssemblyLoadMap) mvc.AddApplicationPart(entry.Value).AddControllersAsServices();
 
-            services.AddRazorPages();
+            services
+                .AddRazorPages()
+                .AddRazorRuntimeCompilation();
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 
