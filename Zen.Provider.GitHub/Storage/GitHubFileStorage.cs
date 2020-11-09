@@ -34,43 +34,39 @@ namespace Zen.Provider.GitHub.Storage
 
         public string LocalStoragePath { get; }
 
-        #region Overrides of FileStoragePrimitive
-
-        public override Task<Stream> Fetch(IFileDescriptor definition)
-        {
-            var fullPath = Path.Combine(definition.StoragePath, definition.StorageName);
-            var fileStream = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-
-            Stream castBuffer = fileStream;
-
-            return Task.FromResult(castBuffer);
-        }
-
-        public override async Task<string> Store(IFileDescriptor definition, Stream source)
-        {
-            var fullPath = Path.Combine(LocalStoragePath, definition.StoragePath.Replace("/", "\\"), definition.StorageName);
-            await using var fs = File.OpenWrite(fullPath);
-            
-            source.Seek(0, SeekOrigin.Begin);
-            await source.CopyToAsync(fs);
-            fs.Close();
-
-            return fullPath;
-        }
-
-        #endregion
-
         public void CheckStatus(bool forceUpdate = false)
         {
             var mustClone = false;
 
-            Log.KeyValuePair(GetType().Name, $"Cloning: {Configuration.Url}", Message.EContentType.MoreInfo);
+            Log.KeyValuePair(GetType().Name, $"Repository: {Configuration.Url}", Message.EContentType.MoreInfo);
             Log.Info(LocalStoragePath);
 
             try
             {
                 // Try to create the local git clone storage, if not present;
                 Directory.CreateDirectory(LocalStoragePath);
+
+                Credentials GitHubCredentialsProvider(string url, string usernameFromUrl,
+                    SupportedCredentialTypes types)
+                {
+                    return new UsernamePasswordCredentials {Username = Configuration.Token, Password = ""};
+                }
+
+                var pullOptions = new PullOptions
+                {
+                    MergeOptions = new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default},
+                    FetchOptions = new FetchOptions
+                    {
+                        CredentialsProvider = GitHubCredentialsProvider
+                    }
+                };
+
+                var cloneOptions = new CloneOptions
+                {
+                    CredentialsProvider = GitHubCredentialsProvider
+                };
+
+                var signature = new Signature(Host.ApplicationAssemblyName, "none@none.com", DateTimeOffset.Now);
 
                 try
                 {
@@ -87,43 +83,54 @@ namespace Zen.Provider.GitHub.Storage
                             currentBranch = localRepo.Branches[Configuration.Branch];
                         }
 
-                        currentBranch = Commands.Checkout(localRepo, currentBranch);
+                        if (currentBranch.FriendlyName != Configuration.Branch)
+                            currentBranch = Commands.Checkout(localRepo, currentBranch);
                     }
 
                     Log.Add(LocalStoragePath);
 
                     var status = localRepo.RetrieveStatus();
-                    if (status.IsDirty || localRepo.Info.IsHeadUnborn)
+
+                    // Always try to Fetch changes.
+                    var remote = localRepo.Network.Remotes.FirstOrDefault();
+                    var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification).ToList();
+                    Commands.Fetch(localRepo, remote.Name, refSpecs, pullOptions.FetchOptions, null);
+
+                    try
                     {
-                        var remote = localRepo.Network.Remotes.FirstOrDefault();
-                        if (remote != null)
-                            try
-                            {
-                                var pullOptions = new PullOptions
-                                {
-                                    MergeOptions = new MergeOptions {FastForwardStrategy = FastForwardStrategy.Default}
-                                };
+                        var mergeResult = Commands.Pull(localRepo, signature, pullOptions);
 
-                                var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification).ToList();
+                        if (mergeResult.Status == MergeStatus.UpToDate)
+                            Log.KeyValuePair(GetType().Name, "Repository is up-to-date",
+                                Message.EContentType.MoreInfo);
+                        else
+                            Log.KeyValuePair(GetType().Name,
+                                mergeResult?.Commit?.Message.Replace("\n", " | ") ?? "Fetch/Pull finished.",
+                                Message.EContentType.MoreInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Add(e);
+                    }
 
-                                Commands.Fetch(localRepo, remote.Name, refSpecs, null, null);
+                    // Commit/push stragglers.
 
-                                var mergeResult = Commands.Pull(localRepo,
-                                    new Signature(Host.ApplicationAssemblyName, "none@none.com", DateTimeOffset.Now),
-                                    pullOptions);
+                    if (status.IsDirty)
+                    {
 
-                                if (mergeResult.Status == MergeStatus.UpToDate)
-                                    Log.KeyValuePair(GetType().Name, "Repository is up-to-date",
-                                        Message.EContentType.MoreInfo);
-                                else
-                                    Log.KeyValuePair(GetType().Name,
-                                        mergeResult?.Commit?.Message.Replace("\n", " | ") ?? "Fetch/Pull finished.",
-                                        Message.EContentType.MoreInfo);
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Add(e);
-                            }
+                        Log.KeyValuePair(GetType().Name, $"{status.Count()} uncommitted change(s)", Message.EContentType.MoreInfo);
+
+
+                        //try
+                        //{
+                        //    var commitOptions = new CommitOptions();
+                        //    localRepo.Commit(Host.ApplicationAssemblyName + " automatic sync", signature, signature, commitOptions);
+                        //}
+                        //catch (Exception) { }
+
+                        //var targetSpec = @"refs/heads/" + Configuration.Branch.Split('/')[1];
+
+                        //localRepo.Network.Push(remote, targetSpec, new PushOptions {CredentialsProvider = GitHubCredentialsProvider});
                     }
                 }
                 catch (RepositoryNotFoundException e)
@@ -138,21 +145,22 @@ namespace Zen.Provider.GitHub.Storage
                     throw;
                 }
 
-                if (mustClone)
-                    try
-                    {
-                        Log.KeyValuePair("Cloning", Configuration.Url, Message.EContentType.MoreInfo);
-                        Log.KeyValuePair("To", LocalStoragePath, Message.EContentType.MoreInfo);
+                if (!mustClone) return;
 
-                        // Easy. Let's try to clone from source.
-                        Repository.Clone(Configuration.Url, LocalStoragePath);
+                try
+                {
+                    Log.KeyValuePair("Cloning", Configuration.Url, Message.EContentType.MoreInfo);
+                    Log.KeyValuePair("To", LocalStoragePath, Message.EContentType.MoreInfo);
 
-                        Log.KeyValuePair("Status", "Success", Message.EContentType.MoreInfo);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
+                    // Easy. Let's try to clone from source.
+                    Repository.Clone(Configuration.Url, LocalStoragePath, cloneOptions);
+
+                    Log.KeyValuePair("Status", "Success", Message.EContentType.MoreInfo);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
             catch (Exception e)
             {
@@ -179,7 +187,9 @@ namespace Zen.Provider.GitHub.Storage
                 .Select(dir => new DirectoryInfo(dir))
                 .Select(dirInfo => new GitHubDirectoryDescriptor
                 {
-                    StorageName = dirInfo.Name, StoragePath = dirInfo.Parent?.FullName, Creation = dirInfo.CreationTime
+                    StorageName = dirInfo.Name,
+                    StoragePath = dirInfo.Parent?.FullName,
+                    Creation = dirInfo.CreationTime
                 })
                 .Cast<IStorageEntityDescriptor>()
                 .ToList());
@@ -188,13 +198,42 @@ namespace Zen.Provider.GitHub.Storage
                 .Select(file => new FileInfo(file))
                 .Select(fileInfo => new GitHubFileDescriptor
                 {
-                    FileSize = fileInfo.Length, StorageName = fileInfo.Name, StoragePath = fileInfo.DirectoryName,
+                    FileSize = fileInfo.Length,
+                    StorageName = fileInfo.Name,
+                    StoragePath = fileInfo.DirectoryName,
                     Creation = fileInfo.CreationTime
                 })
                 .Cast<IStorageEntityDescriptor>()
                 .ToList());
 
             return Task.FromResult(res.ToDictionary(i => i.StorageName, i => i));
+        }
+
+        #endregion
+
+        #region Overrides of FileStoragePrimitive
+
+        public override Task<Stream> Fetch(IFileDescriptor definition)
+        {
+            var fullPath = Path.Combine(definition.StoragePath, definition.StorageName);
+            var fileStream = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+            Stream castBuffer = fileStream;
+
+            return Task.FromResult(castBuffer);
+        }
+
+        public override async Task<string> Store(IFileDescriptor definition, Stream source)
+        {
+            var fullPath = Path.Combine(LocalStoragePath, definition.StoragePath.Replace("/", "\\"),
+                definition.StorageName);
+            await using var fs = File.OpenWrite(fullPath);
+
+            source.Seek(0, SeekOrigin.Begin);
+            await source.CopyToAsync(fs);
+            fs.Close();
+
+            return fullPath;
         }
 
         #endregion

@@ -185,13 +185,17 @@ namespace Zen.Base.Module
                         .Select(i => (DataEnvironmentMappingAttribute) i)
                         .ToList();
 
+                    var persistentEnvironmentCode = Info<T>.Configuration?.PersistentEnvironmentCode;
+                    var environmentMappingCode = _settings.EnvironmentMapping?.FirstOrDefault(i => i.Origin == Current.Environment?.CurrentCode)?.Target;
+                    var currentEnvironmentCode = Current.Environment?.Current?.Code;
+
                     _settings.EnvironmentCode =
                         // If a PersistentEnvironmentCode is defined, use it.
-                        Info<T>.Configuration?.PersistentEnvironmentCode ??
+                        persistentEnvironmentCode ??
                         // Otherwise let's check if there's a mapping defined for the current 'real' environment.
-                        _settings.EnvironmentMapping?.FirstOrDefault(i => i.Origin == Current.Environment?.CurrentCode)?.Target ??
+                        environmentMappingCode ??
                         // Nothing? Let's just use the current environment then.
-                        Current.Environment?.Current?.Code;
+                        currentEnvironmentCode;
 
                     _settings.State.Step = "Setting up Reference Bundle";
                     var refBundle = Info<T>.Configuration?.ConnectionBundleType ?? Instances.ServiceProvider.GetService<IConnectionBundleProvider>().DefaultBundleType;

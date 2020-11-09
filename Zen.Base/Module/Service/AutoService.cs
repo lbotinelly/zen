@@ -20,14 +20,18 @@ namespace Zen.Base.Module.Service
 
                 try
                 {
-                    item.Add(Instances.ServiceCollection);
+                    Instances.ServiceCollection.Add(item);
 
                     // Building the provider incrementally as the modules are loaded and made available.
                     Instances.ServiceProvider = Instances.ServiceCollection.BuildServiceProvider();
 
 
                 }
-                catch (Exception e) { throw new InvalidDataException("Error initializing " + item.GetType().FullName, e); }
+                catch (Exception e)
+                {
+                    
+                    // throw new InvalidDataException("Error initializing " + item.GetType().FullName, e);
+                }
 
             var zenServices = Instances.ServiceCollection.Where(i => typeof(IZenProvider).IsAssignableFrom(i.ServiceType)).ToList();
 

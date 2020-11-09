@@ -104,8 +104,8 @@ namespace Zen.Web.Service.Extensions
             foreach (var entry in IoC.AssemblyLoadMap) mvc.AddApplicationPart(entry.Value).AddControllersAsServices();
 
             services
-                .AddRazorPages()
-                .AddRazorRuntimeCompilation();
+                .AddRazorPages();
+                //.AddRazorRuntimeCompilation();
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 

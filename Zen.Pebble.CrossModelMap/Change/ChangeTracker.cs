@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module;
+using Zen.Base.Module.Log;
 
 namespace Zen.Pebble.CrossModelMap.Change
 {
@@ -18,11 +20,6 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public ChangeTrackerConfiguration Configuration { get; set; } = new ChangeTrackerConfiguration();
 
-        public void ClearChangeTrack()
-        {
-            ChangeEntry<T>.RemoveAll();
-        }
-
         public Dictionary<string, ChangeEntry<T>> Changes { get; private set; }
 
         public Func<T, TU> TransformAction { get; set; }
@@ -30,8 +27,22 @@ namespace Zen.Pebble.CrossModelMap.Change
 
 
         public Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)>
-            ConvertToModelTypeAction
-        { get; set; }
+            ConvertToModelTypeAction { get; set; }
+
+        public Action OnCommitAction { get; set; }
+
+        public void ClearChangeTrack()
+        {
+            try
+            {
+                ChangeEntry<T>.RemoveAll();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
 
         public ChangeTracker<T, TU> ComplexTransform(Action<(T sourceData, TU targetModel)> function)
         {
@@ -43,10 +54,7 @@ namespace Zen.Pebble.CrossModelMap.Change
         {
             OnCommitAction = action;
             return this;
-
         }
-
-        public Action OnCommitAction { get; set; }
 
         public ChangeTracker<T, TU> ConvertToModelType(
             Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)> action)
@@ -80,14 +88,38 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public void Run()
         {
+            var c = new TimeLog();
+
+            var tn = GetType().Name;
+
+            c.Start($"{tn} - Starting");
             Start();
 
-            ProcessChanges();
+            if (Changes == null || Changes?.Count == 0)
+            {
+                c.Log($"{tn} - No changes in queue");
+            }
+            else
+            {
+                c.Log($"{tn} - Process Changes");
+                ProcessChanges();
 
-            Changes.Save();
-            DataSets.Save();
+                c.Log($"{tn} - Commit Changes");
+                Changes.Save();
 
-            OnCommitAction?.Invoke();
+                c.Log($"{tn} - Commit Datasets");
+                DataSets.Save();
+
+                if (OnCommitAction != null)
+                {
+                    c.Start($"{tn} - Running post-commit actions");
+                    OnCommitAction?.Invoke();
+                }
+            }
+
+            c.Start($"{tn} - Finished");
+
+            c.End();
         }
 
         public virtual void Start()
@@ -150,6 +182,14 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public void ProcessChanges(Dictionary<string, ChangeEntry<T>> changes)
         {
+            if (changes == null)
+            {
+                Log.Warn<T>("No changes queued");
+                return;
+            }
+
+            Log.Add<T>($"Processing {changes.Count} changes");
+
             foreach (var value in changes.Values)
                 try
                 {
@@ -160,7 +200,7 @@ namespace Zen.Pebble.CrossModelMap.Change
                     ApplyMappedData(targetModel, value);
 
                     //If defined, use the complex transformation function
-                    ComplexTransformAction?.Invoke((value.Model, targetModel ));
+                    ComplexTransformAction?.Invoke((value.Model, targetModel));
 
                     value.Result = ChangeEntry<T>.EResult.Success;
                 }
@@ -179,14 +219,12 @@ namespace Zen.Pebble.CrossModelMap.Change
                 var sourceValue = SourceValueHandlerFunc(value.Model, key);
 
                 if (string.IsNullOrEmpty(sourceValue) && definition.AternateSources?.Count > 0)
-                {
                     foreach (var altSource in definition.AternateSources)
                     {
                         sourceValue = SourceValueHandlerFunc(value.Model, altSource);
                         if (sourceValue != null) break;
                     }
-                }
-                 
+
                 var destinationValue = model.GetMemberValue(definition.Target);
 
                 var result = new ConvertToModelTypeResult();
