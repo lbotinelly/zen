@@ -28,7 +28,10 @@ namespace Zen.Base.Extension
 
         public static void ThreadSafeAdd<T>(this List<T> source, T obj)
         {
-            lock (OLock) { source.Add(obj); }
+            lock (OLock)
+            {
+                source.Add(obj);
+            }
         }
 
         public static string MergeJson(this string source, string extra)
@@ -36,7 +39,7 @@ namespace Zen.Base.Extension
             var sourceObject = JObject.Parse(source);
             var extraObject = JObject.Parse(extra);
 
-            sourceObject.Merge(extraObject, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
+            sourceObject.Merge(extraObject, new JsonMergeSettings {MergeArrayHandling = MergeArrayHandling.Union});
 
             source = sourceObject.ToString(Formatting.None);
 
@@ -49,7 +52,7 @@ namespace Zen.Base.Extension
 
             using (var writer = new Utf8StringWriter())
             {
-                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = false }))
+                using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings {Indent = false}))
                 {
                     var ns = new XmlSerializerNamespaces();
 
@@ -86,8 +89,8 @@ namespace Zen.Base.Extension
         {
             var jo = JObject.Parse(obj);
             var myTest = jo.Descendants()
-                .Where(t => t.Type == JTokenType.Property && ((JProperty)t).Name == nodeName)
-                .Select(p => ((JProperty)p).Value)
+                .Where(t => t.Type == JTokenType.Property && ((JProperty) t).Name == nodeName)
+                .Select(p => ((JProperty) p).Value)
                 .FirstOrDefault();
             return myTest.ToString();
         }
@@ -109,7 +112,7 @@ namespace Zen.Base.Extension
                     if (colpos > 0) sb.Append(", ");
                     sb.Append("\"" + column + "\":");
 
-                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime)obj[colpos]).ToString("o") + "\"");
+                    if (obj[colpos].GetType().Name == "DateTime") sb.Append("\"" + ((DateTime) obj[colpos]).ToString("o") + "\"");
                     else sb.Append(CleanupJsonData(obj[colpos]));
                 }
 
@@ -178,8 +181,8 @@ namespace Zen.Base.Extension
         public static string ToQueryString(this object obj)
         {
             var properties = from p in obj.GetType().GetProperties()
-                             where p.GetValue(obj, null) != null
-                             select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+                where p.GetValue(obj, null) != null
+                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
 
             return string.Join("&", properties.ToArray());
         }
@@ -205,7 +208,7 @@ namespace Zen.Base.Extension
                 else if (c >= 'A' && c <= 'Z')
                 {
                     // tricky way to convert to lowercase
-                    sb.Append((char)(c | 32));
+                    sb.Append((char) (c | 32));
                     prevdash = false;
                 }
                 else if (c == ' ' || c == ',' || c == '.' || c == '/' ||
@@ -256,26 +259,25 @@ namespace Zen.Base.Extension
         }
 
         // ReSharper disable once InconsistentNaming
-        public static string ToISODateString(this DateTime obj, bool includeLocalTimezone = true)
-        {
-            return !includeLocalTimezone
+        public static string ToISODateString(this DateTime obj, bool includeLocalTimezone = true) =>
+            !includeLocalTimezone
                 ? $"ISODate(\"{obj:o}\")"
                 : $"ISODate(\"{obj:o}{TimeZoneInfo.Local.BaseUtcOffset.Hours}:00\")";
-        }
+
         public static string ToISOString(this DateTime obj) => $"{obj:o}";
 
         // ReSharper disable once InconsistentNaming
-        public static string ToRawDateHash(this DateTime obj) { return obj.ToString("yyyyMMddHHmmss"); }
+        public static string ToRawDateHash(this DateTime obj) => obj.ToString("yyyyMMddHHmmss");
 
-        public static DateTime FromRawDateHash(this string obj) { return DateTime.ParseExact(obj, "yyyyMMddHHmmss", new CultureInfo("en-US")); }
-
-        // ReSharper disable once InconsistentNaming
-        public static string ToFutureISODateString(this TimeSpan obj) { return DateTime.Now.Add(obj).ToISODateString(); }
+        public static DateTime FromRawDateHash(this string obj) => DateTime.ParseExact(obj, "yyyyMMddHHmmss", new CultureInfo("en-US"));
 
         // ReSharper disable once InconsistentNaming
-        public static string ToPastISODateString(this TimeSpan obj) { return DateTime.Now.Subtract(obj).ToISODateString(); }
+        public static string ToFutureISODateString(this TimeSpan obj) => DateTime.Now.Add(obj).ToISODateString();
 
-        public static string ToBase64(this string obj) { return obj == null ? null : Convert.ToBase64String(Encoding.UTF8.GetBytes(obj)); }
+        // ReSharper disable once InconsistentNaming
+        public static string ToPastISODateString(this TimeSpan obj) => DateTime.Now.Subtract(obj).ToISODateString();
+
+        public static string ToBase64(this string obj) => obj == null ? null : Convert.ToBase64String(Encoding.UTF8.GetBytes(obj));
 
         public static string FromBase64(this string obj)
         {
@@ -326,14 +328,14 @@ namespace Zen.Base.Extension
             // https://theburningmonk.com/2011/05/idictionarystring-object-to-expandoobject-extension-method/
 
             var expando = new ExpandoObject();
-            var expandoDic = (IDictionary<string, object>)expando;
+            var expandoDic = (IDictionary<string, object>) expando;
 
             // go through the items in the dictionary and copy over the key value pairs)
             foreach (var kvp in dictionary)
                 // if the value can also be turned into an ExpandoObject, then do it!
                 if (kvp.Value is IDictionary<string, object>)
                 {
-                    var expandoValue = ((IDictionary<string, object>)kvp.Value).ToExpando();
+                    var expandoValue = ((IDictionary<string, object>) kvp.Value).ToExpando();
                     expandoDic.Add(kvp.Key, expandoValue);
                 }
                 else if (kvp.Value is ICollection)
@@ -341,22 +343,28 @@ namespace Zen.Base.Extension
                     // iterate through the collection and convert any strin-object dictionaries
                     // along the way into expando objects
                     var itemList = new List<object>();
-                    foreach (var item in (ICollection)kvp.Value)
+                    foreach (var item in (ICollection) kvp.Value)
                         if (item is IDictionary<string, object>)
                         {
-                            var expandoItem = ((IDictionary<string, object>)item).ToExpando();
+                            var expandoItem = ((IDictionary<string, object>) item).ToExpando();
                             itemList.Add(expandoItem);
                         }
-                        else { itemList.Add(item); }
+                        else
+                        {
+                            itemList.Add(item);
+                        }
 
                     expandoDic.Add(kvp.Key, itemList);
                 }
-                else { expandoDic.Add(kvp); }
+                else
+                {
+                    expandoDic.Add(kvp);
+                }
 
             return expando;
         }
 
-        public static List<X509Certificate2> ToList(this X509Certificate2Collection source) { return source.OfType<X509Certificate2>().ToList(); }
+        public static List<X509Certificate2> ToList(this X509Certificate2Collection source) => source.OfType<X509Certificate2>().ToList();
 
         public static List<X509Certificate2> BySubject(this X509Store source, string targetSubject)
         {
@@ -408,18 +416,12 @@ namespace Zen.Base.Extension
             return json;
         }
 
-        public static string ToJson(this XElement source)
-        {
-            return source.ToString().XmlToJson();
-        }
+        public static string ToJson(this XElement source) => source.ToString().XmlToJson();
 
         public static List<T> ToList<T>(this IEnumerator<T> e)
         {
             var list = new List<T>();
-            while (e.MoveNext())
-            {
-                list.Add(e.Current);
-            }
+            while (e.MoveNext()) list.Add(e.Current);
             return list;
         }
 
@@ -446,10 +448,17 @@ namespace Zen.Base.Extension
                 settings.DefaultValueHandling = DefaultValueHandling.Ignore;
             }
 
-            try { return JsonConvert.SerializeObject(obj, format, settings); } catch { return null; }
+            try
+            {
+                return JsonConvert.SerializeObject(obj, format, settings);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
-        public static JObject ToJObject(this object src) { return JObject.Parse(src.ToJson()); }
+        public static JObject ToJObject(this object src) => JObject.Parse(src.ToJson());
 
         public static string CleanSqlFormatting(this string source)
         {
@@ -458,27 +467,27 @@ namespace Zen.Base.Extension
             return ret;
         }
 
-        public static IDictionary<string, object> ToKeyValueDictionary(this string source) { return source.FromJson<IDictionary<string, object>>(); }
+        public static IDictionary<string, object> ToKeyValueDictionary(this string source) => source.FromJson<IDictionary<string, object>>();
 
         public static Dictionary<string, string> ToPathValueDictionary(this JObject source)
         {
             var ret = new Dictionary<string, string>();
 
-            foreach (var jToken in (JToken)source)
+            foreach (var jToken in (JToken) source)
             {
-                var t = (JProperty)jToken;
+                var t = (JProperty) jToken;
 
                 var k = t.Name;
                 var v = t.Value;
 
-                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject)v)).ToDictionary(x => x.Key, x => x.Value);
+                if (v is JObject) ret = ret.Concat(ToPathValueDictionary((JObject) v)).ToDictionary(x => x.Key, x => x.Value);
                 else ret.Add(t.Path, v.ToString());
             }
 
             return ret;
         }
 
-        public static T FromJson<T>(this string obj) { return obj == null ? default : JsonConvert.DeserializeObject<T>(obj); }
+        public static T FromJson<T>(this string obj) => obj == null ? default : JsonConvert.DeserializeObject<T>(obj);
 
         public static object FromJson(this string obj, Type destinyFormat, bool asList)
         {
@@ -489,7 +498,7 @@ namespace Zen.Base.Extension
                 var genericListType = typeof(List<>);
 
                 var specificListType = genericListType.MakeGenericType(destinyFormat);
-                type = ((IEnumerable<object>)Activator.CreateInstance(specificListType)).GetType();
+                type = ((IEnumerable<object>) Activator.CreateInstance(specificListType)).GetType();
             }
 
             if (obj == null) return null;
@@ -499,7 +508,7 @@ namespace Zen.Base.Extension
         public static dynamic ToObject(this Dictionary<string, object> source)
         {
             var eo = new ExpandoObject();
-            var eoColl = (ICollection<KeyValuePair<string, object>>)eo;
+            var eoColl = (ICollection<KeyValuePair<string, object>>) eo;
 
             foreach (var kvp in source) eoColl.Add(kvp);
 
@@ -521,6 +530,56 @@ namespace Zen.Base.Extension
             }
         }
 
+        public static byte[] ToByteArray(this Stream stream)
+        {
+            long originalPosition = 0;
+
+            if (stream.CanSeek)
+            {
+                originalPosition = stream.Position;
+                stream.Position = 0;
+            }
+
+            try
+            {
+                var readBuffer = new byte[4096];
+
+                var totalBytesRead = 0;
+                int bytesRead;
+
+                while ((bytesRead = stream.Read(readBuffer, totalBytesRead, readBuffer.Length - totalBytesRead)) > 0)
+                {
+                    totalBytesRead += bytesRead;
+
+                    if (totalBytesRead == readBuffer.Length)
+                    {
+                        var nextByte = stream.ReadByte();
+                        if (nextByte != -1)
+                        {
+                            var temp = new byte[readBuffer.Length * 2];
+                            Buffer.BlockCopy(readBuffer, 0, temp, 0, readBuffer.Length);
+                            Buffer.SetByte(temp, totalBytesRead, (byte) nextByte);
+                            readBuffer = temp;
+                            totalBytesRead++;
+                        }
+                    }
+                }
+
+                var buffer = readBuffer;
+                if (readBuffer.Length != totalBytesRead)
+                {
+                    buffer = new byte[totalBytesRead];
+                    Buffer.BlockCopy(readBuffer, 0, buffer, 0, totalBytesRead);
+                }
+
+                return buffer;
+            }
+            finally
+            {
+                if (stream.CanSeek) stream.Position = originalPosition;
+            }
+        }
+
         public static T FromByteArray<T>(this byte[] data)
         {
             // https://stackoverflow.com/a/33022788/1845714
@@ -530,7 +589,7 @@ namespace Zen.Base.Extension
             using (var ms = new MemoryStream(data))
             {
                 var obj = bf.Deserialize(ms);
-                return (T)obj;
+                return (T) obj;
             }
         }
 
@@ -552,7 +611,7 @@ namespace Zen.Base.Extension
             using (var stream = new MemoryStream(obj))
             {
                 var ser = new BinaryFormatter();
-                return (T)ser.Deserialize(stream);
+                return (T) ser.Deserialize(stream);
             }
         }
 
@@ -573,8 +632,14 @@ namespace Zen.Base.Extension
         public static string GetString(this HttpWebResponse a)
         {
             var streamReader = new StreamReader(a.GetResponseStream(), true);
-            try { return streamReader.ReadToEnd(); }
-            finally { streamReader.Close(); }
+            try
+            {
+                return streamReader.ReadToEnd();
+            }
+            finally
+            {
+                streamReader.Close();
+            }
         }
 
         public static bool IsSubclassOfRawGeneric(this Type toCheck, Type generic)
@@ -589,7 +654,7 @@ namespace Zen.Base.Extension
             return false;
         }
 
-        public static string CacheKey(this Type baseclass, string id = null, string fullNameAlias = null) { return CacheKey(baseclass, id, fullNameAlias, null); }
+        public static string CacheKey(this Type baseclass, string id = null, string fullNameAlias = null) => CacheKey(baseclass, id, fullNameAlias, null);
 
         public static string CacheKey(this Type baseclass, string id, string fullNameAlias, string suffix = null)
         {
@@ -598,11 +663,9 @@ namespace Zen.Base.Extension
             return basename + (id == null ? "" : ":" + id);
         }
 
-        public static bool IsBetween<T>(this T item, T start, T end)
-        {
-            return Comparer<T>.Default.Compare(item, start) >= 0
-                   && Comparer<T>.Default.Compare(item, end) <= 0;
-        }
+        public static bool IsBetween<T>(this T item, T start, T end) =>
+            Comparer<T>.Default.Compare(item, start) >= 0
+            && Comparer<T>.Default.Compare(item, end) <= 0;
 
         // https://stackoverflow.com/a/930599/1845714
         /// <summary>
@@ -649,7 +712,7 @@ namespace Zen.Base.Extension
         ///     Copies all readable properties from the source to a new instance
         ///     of TTarget.
         /// </summary>
-        public static TTarget CopyFrom<TSource>(TSource source) where TSource : class { return PropertyCopier<TSource, TTarget>.Copy(source); }
+        public static TTarget CopyFrom<TSource>(TSource source) where TSource : class => PropertyCopier<TSource, TTarget>.Copy(source);
     }
 
     /// <summary>
@@ -676,6 +739,7 @@ namespace Zen.Base.Extension
         ///     me if you really need this...
         /// </summary>
         private static readonly List<PropertyInfo> sourceProperties = new List<PropertyInfo>();
+
         private static readonly List<PropertyInfo> targetProperties = new List<PropertyInfo>();
         private static readonly Exception initializationException;
 
