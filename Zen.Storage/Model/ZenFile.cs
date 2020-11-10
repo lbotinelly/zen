@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Zen.App.Model.Audience;
 using Zen.App.Model.Tag;
 using Zen.Base.Common;
@@ -9,7 +10,7 @@ namespace Zen.Storage.Model
     [Priority(Level = -99)]
     public class ZenFile : ZenFileBaseDescriptor<ZenFile>, IFileDescriptor {
         #region Implementation of IDataId
-
+        [Key]
         public string Id { get; set; }
 
         #endregion
