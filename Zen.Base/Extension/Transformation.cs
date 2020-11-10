@@ -345,6 +345,14 @@ namespace Zen.Base.Extension
                 return guid;
             }
         }
+        public static string HashGuid(this Stream inputStream)
+        {
+            using var md5 = MD5.Create();
+            inputStream.Position = 0;
+            var hash = md5.ComputeHash(inputStream);
+            var guid = new Guid(hash).ToString("N");
+            return guid;
+        }
 
         public static bool IsAnyNullOrEmpty(params object[] objects)
         {
