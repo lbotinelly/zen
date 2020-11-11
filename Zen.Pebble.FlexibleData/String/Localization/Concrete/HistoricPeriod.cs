@@ -28,6 +28,8 @@ namespace Zen.Pebble.FlexibleData.String.Localization.Concrete
         public HistoricDateTime Start { get; set; }
         public HistoricDateTime End { get; set; }
 
-        public static implicit operator HistoricPeriod(System.DateTime source) { return new HistoricPeriod {Start = source, End = source}; }
+        public static implicit operator HistoricPeriod(System.DateTime source) { return new HistoricPeriod { Start = source, End = source }; }
+
+        public static implicit operator HistoricPeriod(HistoricDateTime source) { return new HistoricPeriod { Start = source, End = source}; }
     }
 }
