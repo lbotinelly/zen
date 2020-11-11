@@ -16,20 +16,23 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public Func<T, string> ChecksumFunc { get; } = arg => arg.ToJson().Sha512Hash();
 
-        public Func<T, string, string> SourceValueHandlerFunc { get; set; }
+        public Func<T, string, string> SourceValueFunc { get; set; }
 
         public ChangeTrackerConfiguration Configuration { get; set; } = new ChangeTrackerConfiguration();
 
         public Dictionary<string, ChangeEntry<T>> Changes { get; private set; }
 
-        public Func<T, TU> TransformAction { get; set; }
+        public Func<T, TU> ResolveReferenceAction { get; set; }
         private Action<(T sourceData, TU targetModel)> ComplexTransformAction { get; set; }
 
 
         public Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)>
-            ConvertToModelTypeAction { get; set; }
+            ConvertToModelTypeAction
+        { get; set; }
 
         public Action OnCommitAction { get; set; }
+
+        public Action<ChangeBag> SourceModelAction { get; set; }
 
         public void ClearChangeTrack()
         {
@@ -63,15 +66,15 @@ namespace Zen.Pebble.CrossModelMap.Change
             return this;
         }
 
-        public ChangeTracker<T, TU> SourceDataByPath(Func<T, string, string> function)
+        public ChangeTracker<T, TU> SourceValue(Func<T, string, string> function)
         {
-            SourceValueHandlerFunc = function;
+            SourceValueFunc = function;
             return this;
         }
 
-        public ChangeTracker<T, TU> Transform(Func<T, TU> function)
+        public ChangeTracker<T, TU> ResolveReference(Func<T, TU> function)
         {
-            TransformAction = function;
+            ResolveReferenceAction = function;
             return this;
         }
 
@@ -93,7 +96,11 @@ namespace Zen.Pebble.CrossModelMap.Change
             var tn = GetType().Name;
 
             c.Start($"{tn} - Starting");
-            Start();
+
+            var changeBag = new ChangeBag { Items = new List<T>() };
+
+            SourceModelAction(changeBag);
+            FetchChanges(changeBag.Items);
 
             if (Changes == null || Changes?.Count == 0)
             {
@@ -120,10 +127,6 @@ namespace Zen.Pebble.CrossModelMap.Change
             c.Start($"{tn} - Finished");
 
             c.End();
-        }
-
-        public virtual void Start()
-        {
         }
 
         public Dictionary<string, ChangeEntry<T>> FetchChanges(IEnumerable<T> modelCollection)
@@ -175,6 +178,12 @@ namespace Zen.Pebble.CrossModelMap.Change
             return this;
         }
 
+        public ChangeTracker<T, TU> SourceModel(Action<ChangeBag> action)
+        {
+            SourceModelAction = action;
+            return this;
+        }
+
         public void ProcessChanges()
         {
             ProcessChanges(Changes);
@@ -194,7 +203,7 @@ namespace Zen.Pebble.CrossModelMap.Change
                 try
                 {
                     // First resolve the target record.
-                    var targetModel = TransformAction(value.Model);
+                    var targetModel = ResolveReferenceAction(value.Model);
 
                     // First use the simple Map iteration.
                     ApplyMappedData(targetModel, value);
@@ -214,14 +223,16 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         private void ApplyMappedData(TU model, ChangeEntry<T> value)
         {
+            if (!(Configuration.MemberMapping?.KeyMaps?.Count > 0)) return;
+
             foreach (var (key, definition) in Configuration.MemberMapping.KeyMaps)
             {
-                var sourceValue = SourceValueHandlerFunc(value.Model, key);
+                var sourceValue = SourceValueFunc(value.Model, key);
 
                 if (string.IsNullOrEmpty(sourceValue) && definition.AternateSources?.Count > 0)
                     foreach (var altSource in definition.AternateSources)
                     {
-                        sourceValue = SourceValueHandlerFunc(value.Model, altSource);
+                        sourceValue = SourceValueFunc(value.Model, altSource);
                         if (sourceValue != null) break;
                     }
 
@@ -233,6 +244,12 @@ namespace Zen.Pebble.CrossModelMap.Change
 
                 if (result.Success) model.SetMemberValue(definition.Target, result.Value);
             }
+        }
+
+        public class ChangeBag
+        {
+            public List<T> Items = new List<T>();
+            public object Source;
         }
 
         public class ConvertToModelTypeResult
