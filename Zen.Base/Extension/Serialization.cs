@@ -469,6 +469,30 @@ namespace Zen.Base.Extension
 
         public static IDictionary<string, object> ToKeyValueDictionary(this string source) => source.FromJson<IDictionary<string, object>>();
 
+        public static string StringValue(this JObject source, string query) => source?.SelectTokens(query).FirstOrDefault()?.ToString().Trim();
+        public static string StringValue(this JObject source, IEnumerable<string> querySet)
+        {
+            foreach (var query in querySet)
+            {
+                var probe = source?.SelectTokens(query).FirstOrDefault()?.ToString().Trim();
+                if (probe != null) return probe;
+
+            }
+
+            return null;
+        }
+        public static JObject JValue(this JObject source, IEnumerable<string> querySet)
+        {
+            foreach (var query in querySet)
+            {
+                var probe = source?.SelectTokens(query).FirstOrDefault();
+                if (probe != null) return (JObject)probe;
+
+            }
+
+            return null;
+        }
+
         public static Dictionary<string, string> ToPathValueDictionary(this JObject source)
         {
             var ret = new Dictionary<string, string>();
