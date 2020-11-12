@@ -12,6 +12,9 @@ namespace Zen.Pebble.CrossModelMap.Change
     {
         public MultiSet DataSets { get; } = new MultiSet();
 
+        public TimeLog EventTimeLog = new TimeLog();
+
+
         public Func<T, string> IdentifierFunc { get; private set; }
 
         public Func<T, string> ChecksumFunc { get; } = arg => arg.ToJson().Sha512Hash();
@@ -31,6 +34,15 @@ namespace Zen.Pebble.CrossModelMap.Change
         { get; set; }
 
         public Action OnCommitAction { get; set; }
+
+        public ChangeTracker<T, TU> Prepare(Action action)
+        {
+            this.PrepareAction = action;
+            return this;
+        }
+
+        public Action PrepareAction { get; set; }
+
 
         public Action<ChangeBag> SourceModelAction { get; set; }
 
@@ -91,42 +103,43 @@ namespace Zen.Pebble.CrossModelMap.Change
 
         public void Run()
         {
-            var c = new TimeLog();
-
             var tn = GetType().Name;
 
-            c.Start($"{tn} - Starting");
+            EventTimeLog.Start($"{tn} - Starting");
 
             var changeBag = new ChangeBag { Items = new List<T>() };
 
+            PrepareAction?.Invoke();
+
             SourceModelAction(changeBag);
+
             FetchChanges(changeBag.Items);
 
             if (Changes == null || Changes?.Count == 0)
             {
-                c.Log($"{tn} - No changes in queue");
+                EventTimeLog.Log($"{tn} - No changes in queue");
             }
             else
             {
-                c.Log($"{tn} - Process Changes");
+                EventTimeLog.Log($"{tn} - Process Changes");
                 ProcessChanges();
 
-                c.Log($"{tn} - Commit Changes");
+                EventTimeLog.Log($"{tn} - Commit Changes");
                 Changes.Save();
 
-                c.Log($"{tn} - Commit Datasets");
+                EventTimeLog.Log($"{tn} - Commit Datasets");
                 DataSets.Save();
 
                 if (OnCommitAction != null)
                 {
-                    c.Start($"{tn} - Running post-commit actions");
+                    EventTimeLog.Start($"{tn} - Running post-commit actions");
                     OnCommitAction?.Invoke();
                 }
             }
 
-            c.Start($"{tn} - Finished");
+            EventTimeLog.Start($"{tn} - Finished");
 
-            c.End();
+            EventTimeLog.End();
         }
 
         public Dictionary<string, ChangeEntry<T>> FetchChanges(IEnumerable<T> modelCollection)
@@ -215,6 +228,7 @@ namespace Zen.Pebble.CrossModelMap.Change
                 }
                 catch (Exception e)
                 {
+                    EventTimeLog.Log("WARN " + value.Id + " - ComplexTransform: " + e.Message);
                     value.Result = ChangeEntry<T>.EResult.Fail;
                     value.ResultMessage = e.Message;
                 }
@@ -266,5 +280,6 @@ namespace Zen.Pebble.CrossModelMap.Change
             public MapDefinition MemberMapping { get; set; } = null;
             public string SourceIdentifierPath { get; set; }
         }
+
     }
 }
