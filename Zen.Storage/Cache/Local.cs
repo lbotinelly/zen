@@ -6,9 +6,9 @@ namespace Zen.Storage.Cache
 {
     public static class Local
     {
-        internal static readonly string BasePath = $"{Host.DataDirectory}{Path.DirectorySeparatorChar}cache{Path.DirectorySeparatorChar}";
+        public static readonly string BasePath = $"{Host.DataDirectory}{Path.DirectorySeparatorChar}cache{Path.DirectorySeparatorChar}";
 
-        public static bool WriteString(string key, string source) { return Write(key, new MemoryStream(Encoding.UTF8.GetBytes(source))); }
+        public static string WriteString(string key, string source) { return Write(key, new MemoryStream(Encoding.Unicode.GetBytes(source))); }
 
         public static string ReadString(string key)
         {
@@ -16,16 +16,20 @@ namespace Zen.Storage.Cache
             return stream == null ? null : new StreamReader(stream).ReadToEnd();
         }
 
-        public static bool Write(string key, Stream source)
+        public static string Write(string key, Stream source)
         {
-            Directory.CreateDirectory(BasePath);
-            var fileStream = File.Create(BasePath + key);
+            var targetFile = Path.Combine(BasePath, key);
+            var targetDirectory = Path.GetDirectoryName(targetFile);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(targetDirectory));
+
+            var fileStream = File.Create(Path.Combine(BasePath, key));
             source.Seek(0, SeekOrigin.Begin);
             source.CopyTo(fileStream);
             fileStream.Close();
             source.Seek(0, SeekOrigin.Begin);
 
-            return true;
+            return targetFile;
         }
 
         public static Stream Read(string key)
