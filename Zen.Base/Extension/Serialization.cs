@@ -469,13 +469,21 @@ namespace Zen.Base.Extension
 
         public static IDictionary<string, object> ToKeyValueDictionary(this string source) => source.FromJson<IDictionary<string, object>>();
 
-        public static string StringValue(this JObject source, string query) => source?.SelectTokens(query).FirstOrDefault()?.ToString().Trim();
-        public static string StringValue(this JObject source, IEnumerable<string> querySet)
+        public static string StrVal(this JObject source, string query) => source?.SelectTokens(query).FirstOrDefault()?.ToString().Trim();
+        public static string StrVal(this JObject source, IEnumerable<string> querySet)
         {
             foreach (var query in querySet)
             {
-                var probe = source?.SelectTokens(query).FirstOrDefault()?.ToString().Trim();
-                if (probe != null) return probe;
+                try
+                {
+                    var probe = source?.SelectTokens(query).FirstOrDefault()?.ToString().Trim();
+                    if (probe != null) return probe;
+
+                }
+                catch (Exception e)
+                {
+                    throw;
+                }
 
             }
 
@@ -486,6 +494,17 @@ namespace Zen.Base.Extension
             foreach (var query in querySet)
             {
                 var probe = source?.SelectTokens(query).FirstOrDefault();
+                if (probe != null) return (JObject)probe;
+
+            }
+
+            return null;
+        }
+        public static JObject JValues(this JObject source, IEnumerable<string> querySet)
+        {
+            foreach (var query in querySet)
+            {
+                var probe = source?.SelectTokens(query);
                 if (probe != null) return (JObject)probe;
 
             }
