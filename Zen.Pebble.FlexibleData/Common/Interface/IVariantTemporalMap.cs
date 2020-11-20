@@ -5,6 +5,6 @@ namespace Zen.Pebble.FlexibleData.Common.Interface
 {
     public interface IVariantTemporalMap<TU, T>
     {
-        Dictionary<TU, IVariant<ITemporalCommented<T>>> Variants { get; set; }
+        Dictionary<TU, IVariantList<ITemporalCommented<T>>> Variants { get; set; }
     }
 }
