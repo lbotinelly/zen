@@ -58,7 +58,7 @@ namespace Zen.Pebble.FlexibleData.String.Localization
 
             value = value?.Trim();
 
-            if (Variants == null) Variants = new Dictionary<string, Variant<TemporalCommented<string>>>();
+            if (Variants == null) Variants = new Dictionary<string, VariantList<TemporalCommented<string>>>();
 
             // Detect target Culture
 
