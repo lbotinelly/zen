@@ -12,8 +12,7 @@ namespace Zen.Pebble.CrossModelMap.Change
     {
         public MultiSet DataSets { get; } = new MultiSet();
 
-        public TimeLog EventTimeLog = new TimeLog();
-
+        public ScopedTimeLog ScopedLog = new ScopedTimeLog();
 
         public Func<T, string> IdentifierFunc { get; private set; }
 
@@ -26,7 +25,7 @@ namespace Zen.Pebble.CrossModelMap.Change
         public Dictionary<string, ChangeEntry<T>> Changes { get; private set; }
 
         public Func<T, TU> ResolveReferenceAction { get; set; }
-        private Action<(T sourceData, TU targetModel)> ComplexTransformAction { get; set; }
+        private Action<(T Model, TU targetModel, ScopedTimeLog timeLog)> ComplexTransformAction { get; set; }
 
 
         public Action<(string HandlerType, string Source, object Current, ConvertToModelTypeResult Result)>
@@ -59,7 +58,7 @@ namespace Zen.Pebble.CrossModelMap.Change
             }
         }
 
-        public ChangeTracker<T, TU> ComplexTransform(Action<(T sourceData, TU targetModel)> function)
+        public ChangeTracker<T, TU> ComplexTransform(Action<(T sourceData, TU targetModel, ScopedTimeLog timeLog)> function)
         {
             ComplexTransformAction = function;
             return this;
@@ -105,7 +104,7 @@ namespace Zen.Pebble.CrossModelMap.Change
         {
             var tn = GetType().Name;
 
-            EventTimeLog.Start($"{tn} - Starting");
+            ScopedLog.Start($"{tn} - Starting");
 
             var changeBag = new ChangeBag { Items = new List<T>() };
 
@@ -117,29 +116,29 @@ namespace Zen.Pebble.CrossModelMap.Change
 
             if (Changes == null || Changes?.Count == 0)
             {
-                EventTimeLog.Log($"{tn} - No changes in queue");
+                ScopedLog.Log($"{tn} - No changes in queue");
             }
             else
             {
-                EventTimeLog.Log($"{tn} - Process Changes");
+                ScopedLog.Log($"{tn} - Process Changes");
                 ProcessChanges();
 
-                EventTimeLog.Log($"{tn} - Commit Changes");
+                ScopedLog.Log($"{tn} - Commit Changes");
                 Changes.Save();
 
-                EventTimeLog.Log($"{tn} - Commit Datasets");
+                ScopedLog.Log($"{tn} - Commit Datasets");
                 DataSets.Save();
 
                 if (OnCommitAction != null)
                 {
-                    EventTimeLog.Start($"{tn} - Running post-commit actions");
+                    ScopedLog.Start($"{tn} - Running post-commit actions");
                     OnCommitAction?.Invoke();
                 }
             }
 
-            EventTimeLog.Start($"{tn} - Finished");
+            ScopedLog.Start($"{tn} - Finished");
 
-            EventTimeLog.End();
+            ScopedLog.End();
         }
 
         public Dictionary<string, ChangeEntry<T>> FetchChanges(IEnumerable<T> modelCollection)
@@ -213,25 +212,36 @@ namespace Zen.Pebble.CrossModelMap.Change
             Log.Add<T>($"Processing {changes.Count} changes");
 
             foreach (var value in changes.Values)
+            {
+                var scopedTimeLog = new ScopedTimeLog();
+
                 try
                 {
+
                     // First resolve the target record.
+                    scopedTimeLog.Start("Reference resolution");
                     var targetModel = ResolveReferenceAction(value.Model);
 
                     // First use the simple Map iteration.
+                    scopedTimeLog.Start("Data mapping");
                     ApplyMappedData(targetModel, value);
 
                     //If defined, use the complex transformation function
-                    ComplexTransformAction?.Invoke((value.Model, targetModel));
+                    if (ComplexTransformAction != null)
+                    {
+                        scopedTimeLog.Start("Complex transformation");
+                        ComplexTransformAction?.Invoke((value.Model, targetModel, scopedTimeLog));
+                    }
 
                     value.Result = ChangeEntry<T>.EResult.Success;
                 }
                 catch (Exception e)
                 {
-                    EventTimeLog.Log("WARN " + value.Id + " - ComplexTransform: " + e.Message);
+                    ScopedLog.Log($"WARN {value.Id} - {scopedTimeLog.LastMessage()}: {e.FlatExceptionMessage()}");
                     value.Result = ChangeEntry<T>.EResult.Fail;
                     value.ResultMessage = e.Message;
                 }
+            }
         }
 
 
@@ -279,6 +289,7 @@ namespace Zen.Pebble.CrossModelMap.Change
             public string Collection { get; set; }
             public MapDefinition MemberMapping { get; set; } = null;
             public string SourceIdentifierPath { get; set; }
+            public string CollectionFullIdentifier { get; set; }
         }
 
     }
