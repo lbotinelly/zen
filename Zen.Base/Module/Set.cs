@@ -47,9 +47,11 @@ namespace Zen.Base.Module
             return model;
         }
 
-        public void Store(T model)
+        public T Store(T model)
         {
             Cache[model.GetDataKey()] = model;
+
+            return model;
         }
 
         public List<T> Save()
