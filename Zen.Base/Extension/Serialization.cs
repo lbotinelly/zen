@@ -434,6 +434,34 @@ namespace Zen.Base.Extension
             return reader.ReadToEnd();
         }
 
+        public static string ConvertByOptionsMap(this Dictionary<string, List<string>> sourceMap, string originalText, bool returnOriginalIfMiss = false)
+        {
+
+            var result = returnOriginalIfMiss ? originalText : null;
+
+            var (correctTerm, value) = sourceMap.FirstOrDefault(i => i.Value.Any(originalText.Contains));
+
+            if (correctTerm == null) return result;
+
+            foreach (var incorrectTerm in value.Where(originalText.Contains))
+            {
+                result = originalText.Replace(incorrectTerm, correctTerm);
+                break;
+            }
+
+            return result;
+        }
+
+        public static void AddIfMissing<T>(this List<T> collection, T item)
+        {
+            if (item == null) return;
+            collection ??= new List<T>();
+
+            var serializedItem = item.ToJson();
+
+            if (collection.All(i => i.ToJson() != serializedItem)) collection.Add(item);
+        }
+
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
