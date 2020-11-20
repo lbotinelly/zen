@@ -468,6 +468,7 @@ namespace Zen.Base.Extension
         }
 
         public static ShortGuid ToShortGuid(this Guid oRef) => new ShortGuid(oRef);
+        public static string FlatExceptionMessage(this Exception source) => FancyString(source);
         public static string FancyString(this Exception source) => new StackTrace(source, true).FancyString();
 
         public static string ToSummary(this Exception ex)
