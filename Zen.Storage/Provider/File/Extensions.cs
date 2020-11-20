@@ -31,7 +31,7 @@ namespace Zen.Storage.Provider.File
 
         public static async Task<string> GetText(this IFileStorage repo, string path, string file)
         {
-            var payload = await GetStream(repo, path, file);
+            await using var payload = await GetStream(repo, path, file);
             return payload?.ContentToString();
         }
         public static async void StoreText(this IFileStorage repo, string path, string file, string contents)
