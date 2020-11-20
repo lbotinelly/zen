@@ -22,5 +22,7 @@ namespace Zen.Base.Module
             _setMap[targetType] = new Set<T>();
             return (Set<T>) _setMap[targetType];
         }
+
+        public T Store<T>(T model) where T : Data<T> => GetSet<T>().Store(model);
     }
 }
