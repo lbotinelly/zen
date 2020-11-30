@@ -118,21 +118,6 @@ namespace Zen.App.Core.Application
 
             e.Send();
 
-            //var f = new BucknellNotification
-            //{
-            //    options =
-            //    {
-            //        body = Status.Person.Name + " made " + (changes == 1 ? "one change" : changes + " changes") + " to Application Access Control",
-            //        actions =
-            //        {
-            //            new Options.Action(Status.ConfigInfo.URL, "Visit App"),
-            //            new Options.Action(Status.ConfigInfo.URL + "#/framework/groups", "Users and Groups")
-            //        }
-            //    }
-            //};
-
-            //BucknellPushDispatcher.Notify(app.GetGroup("ADM"), f);
-
             return true;
         }
     }
