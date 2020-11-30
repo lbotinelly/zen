@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Zen.App.Model.Tag
 {
     public class TagCollection : List<string>
     {
-        public new void Add(string item)
+        public void Ensure(string item)
         {
             if (item.IndexOf(":", StringComparison.Ordinal) != -1)
             {
@@ -22,6 +23,20 @@ namespace Zen.App.Model.Tag
             {
                 if (Find(a => a.Equals(item)) == null) base.Add(item);
             }
+        }
+
+        public static string Tagify(string item)
+        {
+
+            item = item.Replace("'", "");
+
+            var rx = new Regex("[^0-9a-zA-Z]");
+            item = rx.Replace(item.Trim().ToLower(), "-");
+
+            var cleanupRx = new Regex("[-]{2,}");
+            item = cleanupRx.Replace(item, "-");
+
+            return item;
         }
 
         public string GetValue(string tag)
