@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -53,7 +52,13 @@ namespace Zen.Web.Service.Extensions
 
             Base.Host.Variables[Keys.WebQualifiedServerName] = ctxConfig?.QualifiedServerName ?? Current.Configuration?.QualifiedServerName;
 
-            services.Configure<FormOptions>(options => { options.MemoryBufferThreshold = int.MaxValue; });
+            services.Configure<FormOptions>(options =>
+            {
+                options.MemoryBufferThreshold = int.MaxValue;
+                options.MultipartBodyLengthLimit = long.MaxValue;
+                options.MultipartBoundaryLengthLimit = int.MaxValue;
+                options.ValueCountLimit = 10;
+            });
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -87,7 +92,7 @@ namespace Zen.Web.Service.Extensions
                         //options.ClientErrorMapping[404].Link =
                         //    "https://httpstatuses.com/404";
                     }) // "How to turn off or handle camelCasing in JSON response ASP.NET Core?"
-                       // https://stackoverflow.com/questions/38728200/how-to-turn-off-or-handle-camelcasing-in-json-response-asp-net-core
+                    // https://stackoverflow.com/questions/38728200/how-to-turn-off-or-handle-camelcasing-in-json-response-asp-net-core
                     .AddJsonOptions(opt =>
                     {
                         opt.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -105,7 +110,7 @@ namespace Zen.Web.Service.Extensions
 
             services
                 .AddRazorPages();
-                //.AddRazorRuntimeCompilation();
+            //.AddRazorRuntimeCompilation();
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 
