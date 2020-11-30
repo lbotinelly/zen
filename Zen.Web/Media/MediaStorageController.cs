@@ -1,7 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using Zen.Base;
 using Zen.Base.Extension;
+using Zen.Base.Module.Log;
 using Zen.Media.Processing;
 using Zen.Storage.Cache;
 using Zen.Storage.Model;
@@ -11,10 +15,13 @@ namespace Zen.Web.Media
     [Route("api/media/storage")]
     public class MediaStorageController : ControllerBase
     {
+        [ResponseCache(Duration = int.MaxValue, Location = ResponseCacheLocation.Any, NoStore = false)]
         [HttpGet]
         public object Get([FromQuery] string id)
         {
             // First, prep.
+
+            Log.Add<MediaStorageController>("FETCH " + id);
 
             var query = Request.Query;
             var dictQuery = query
@@ -24,8 +31,14 @@ namespace Zen.Web.Media
 
             var hasParameter = dictQuery.Count != 0;
 
-            var cacheTag = (id + dictQuery.ToJson()).Sha512Hash();
+            DateTimeOffset offset;
+
+            var idPayload = id + dictQuery.ToJson();
+
+            var cacheTag = idPayload.Sha512Hash();
             var mimeCacheTag = cacheTag + "_mimeType";
+
+            var entityTag = new EntityTagHeaderValue($"\"{cacheTag}\"");
 
             // Is this configuration already cached? Fetch and reply.
 
@@ -36,12 +49,18 @@ namespace Zen.Web.Media
                 if (cachedStream != null && cachedMimeType != null)
                 {
                     var cachedStreamContent = cachedStream.ToByteArray();
+                    offset = DateTime.MinValue;
 
                     Log.KeyValuePair(id, cacheTag + " " + cachedMimeType);
-                    return File(cachedStreamContent, cachedMimeType);
+                    return File(cachedStreamContent, cachedMimeType, offset, entityTag);
                 }
 
             var file = ZenFile.Get(id);
+
+            if (file == null) return NotFound();
+
+            if (!file.Exists().Result) return NotFound();
+
             using var stream = file.Fetch().Result;
 
             var targetStreamMimeType = file.MimeType;
@@ -59,62 +78,29 @@ namespace Zen.Web.Media
             Local.WriteString(mimeCacheTag, pipeline.Format.DefaultMimeType);
             Log.KeyValuePair(pipeline.Format.DefaultMimeType + " media cache ", mimeCacheTag);
 
-            return File(resultStream.ToByteArray(), pipeline.Format.DefaultMimeType);
+            offset = file.Creation;
+
+            return File(resultStream.ToByteArray(), pipeline.Format.DefaultMimeType, offset, entityTag);
         }
 
-        //[Route(""), HttpPost]
-        //public async Task<HttpResponseMessage> Put()
-        //{
-        //    if (!Request.Content.IsMimeMultipartContent()) throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+        [Route("")]
+        [HttpPost]
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
+        public List<string> Put()
+        {
+            var files = Request.Form.Files;
 
-        //    var mustCompress = false;
+            var mediaObjects = files.Select(sceneFile => sceneFile.ToZenFile()).ToList();
 
-        //    var allUrlKeyValues = ControllerContext.Request.GetQueryNameValuePairs();
-        //    var targetFormat = allUrlKeyValues.LastOrDefault(x => x.Key == "targetFormat").Value;
+            Log.KeyValuePair("Media Storage", $"{mediaObjects.Count} object(s)");
 
-        //    if (targetFormat != null) mustCompress = true;
+            foreach (var mediaObject in mediaObjects)
+                Log.KeyValuePair(mediaObject.Id, $"{mediaObject.MimeType} | {mediaObject.FileSize} | {mediaObject.OriginalName}", Message.EContentType.MoreInfo);
 
-        //    var provider = new MultipartMemoryStreamProvider();
+            var mediaIds = mediaObjects.Select(o => o.Id).ToList();
 
-        //    File o = null;
-
-        //    try
-        //    {
-
-        //        await Request.Content.ReadAsMultipartAsync(provider);
-
-        //        foreach (var item in provider.Contents)
-        //            if (item.Headers.ContentDisposition.FileName != null)
-        //            {
-        //                var entry = new MultipartEntry
-        //                {
-        //                    Name = item.Headers.ContentDisposition.FileName.Replace("\"", "").Replace("\"", ""),
-        //                    Stream = item.ReadAsStreamAsync().Result
-        //                };
-
-        //                Current.Log.Add("File:" + entry.Name + ", size:" + entry.Stream.Length + " bytes");
-
-        //                if (mustCompress) Current.Log.Add("    (will compress)");
-
-        //                var stoStream = entry.Stream;
-
-        //                // http://stackoverflow.com/questions/1080442/how-to-convert-an-stream-into-a-byte-in-c
-
-        //                var mem = new MemoryStream();
-        //                stoStream.CopyTo(mem);
-
-        //                o = File.Load(mem, entry.Name);
-
-        //            }
-        //        return new SimpleHttpResponseMessage(HttpStatusCode.OK, new { id = o.Id, guid = o.Id, o.CreationTime, o.FileSize, o.MimeType, o.OriginalName, o.Tags }.ToJson());
-        //    }
-        //    catch (Exception e) { return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e); }
-        //}
-
-        //public class MultipartEntry
-        //{
-        //    public string Name { get; set; }
-        //    public Stream Stream { get; set; }
-        //}
+            return mediaIds;
+        }
     }
 }
