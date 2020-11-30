@@ -451,7 +451,6 @@ namespace Zen.Base.Extension
 
             return result;
         }
-
         public static void AddIfMissing<T>(this List<T> collection, T item)
         {
             if (item == null) return;
@@ -461,7 +460,11 @@ namespace Zen.Base.Extension
 
             if (collection.All(i => i.ToJson() != serializedItem)) collection.Add(item);
         }
-
+        public static Dictionary<int, string> ToDictionary(this Enum source)
+        {
+            var et = source.GetType();
+            return Enum.GetValues(et).Cast<int>().ToDictionary(i => i, i => Enum.GetName(et, i));
+        }
         public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
