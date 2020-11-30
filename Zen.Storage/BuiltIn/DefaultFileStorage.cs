@@ -19,7 +19,7 @@ namespace Zen.Storage.BuiltIn
             return this;
         }
 
-        public override async Task<Stream> Fetch(IFileDescriptor definition)
+        private string TargetPath(IFileDescriptor definition)
         {
             var targetPath = _location;
 
@@ -28,7 +28,20 @@ namespace Zen.Storage.BuiltIn
 
             targetPath = Path.Combine(targetPath, definition.StorageName);
 
-            return new FileStream(targetPath, FileMode.Open);
+
+            return targetPath;
+        }
+
+        public override async Task<Stream> Fetch(IFileDescriptor definition)
+        {
+
+
+            return new FileStream(TargetPath(definition), FileMode.Open);
+        }
+
+        public override async Task<bool> Exists(IFileDescriptor definition)
+        {
+            return File.Exists(TargetPath(definition));
         }
 
         public override async Task<string> Store(IFileDescriptor definition, Stream source)
