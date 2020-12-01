@@ -25,20 +25,6 @@ namespace Zen.App.Model.Tag
             }
         }
 
-        public static string Tagify(string item)
-        {
-
-            item = item.Replace("'", "");
-
-            var rx = new Regex("[^0-9a-zA-Z]");
-            item = rx.Replace(item.Trim().ToLower(), "-");
-
-            var cleanupRx = new Regex("[-]{2,}");
-            item = cleanupRx.Replace(item, "-");
-
-            return item;
-        }
-
         public string GetValue(string tag)
         {
             var probe = Find(a => a.StartsWith(tag));
