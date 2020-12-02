@@ -93,6 +93,9 @@ namespace Zen.Base
         public static void Maintenance(string content) { Add(content, Message.EContentType.Maintenance); }
         public static void Maintenance<T>(string content) { KeyValuePair(typeof(T).FullName, content, Message.EContentType.Maintenance); }
 
+        public static void Startup(string content) { Add(content, Message.EContentType.StartupSequence); }
+        public static void Startup<T>(string content) { KeyValuePair(typeof(T).FullName, content, Message.EContentType.StartupSequence); }
+
         public static void Add<T>(Exception e, string message, string token = null)
         {
             KeyValuePair(typeof(T).FullName, message + " | " + e.ToSummary(), Message.EContentType.Exception);
