@@ -52,6 +52,12 @@ namespace Zen.Web.SelfHost
             public void Evaluate()
             {
                 if (Mode != EMode.Auto) return;
+                //LanHttpPort = Instances.Options.GetCurrentEnvironment().HttpPort;
+                //LanHttpsPort = Instances.Options.GetCurrentEnvironment().HttpsPort;
+
+                //WanHttpPort = 80;
+                //WanHttpsPort = 443;
+
                 WanHttpPort = Instances.Options.GetCurrentEnvironment().HttpPort;
                 WanHttpsPort = Instances.Options.GetCurrentEnvironment().HttpsPort;
                 LanHttpPort = WanHttpPort;
