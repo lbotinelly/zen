@@ -60,8 +60,8 @@ namespace Zen.Web.Host
                         // We'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
                         var localAddress = IPAddress.Parse("0.0.0.0");
 
-                        var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Defaults.WebHttpPort);
-                        var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Defaults.WebHttpPort);
+                        var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Instances.Options.GetCurrentEnvironment().HttpPort);
+                        var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Instances.Options.GetCurrentEnvironment().HttpsPort);
 
                         options.Listen(localAddress, httpPort);
 
@@ -91,7 +91,7 @@ namespace Zen.Web.Host
 
             if (Base.Host.IsDevelopment)
             {
-                var targetSubject = Current.Configuration?.Development?.CertificateSubject ?? "localhost";
+                var targetSubject = Instances.Options?.Development?.CertificateSubject ?? "localhost";
 
                 targetCertificate = new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() ??
                                     new X509Store(StoreName.My).BySubject(targetSubject).FirstOrDefault() ??

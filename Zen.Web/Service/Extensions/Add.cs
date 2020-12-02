@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Session;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Zen.Base.Module.Service;
+using Zen.Web.Configuration;
 using Zen.Web.Convention;
 using Zen.Web.Host;
 using Zen.Web.Model.State;
@@ -18,39 +20,35 @@ namespace Zen.Web.Service.Extensions
 {
     public static class Add
     {
-        public static ZenWebBuilder AddZenWeb(this IServiceCollection services, Action<ZenWebConfigureOptions> configureOptions = null)
+        public static ZenWebBuilder AddZenWeb(this IServiceCollection services)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
+            Instances.Options = Base.Configuration.Options.GetSection("Web").Get<Options>();
+
             services.ResolveSettingsPackage();
 
-            configureOptions = configureOptions ?? (x => { });
-
-            var ctxConfig = Current.Configuration?.GetCurrentEnvironment();
+            var ctxConfig = Instances.Options.GetCurrentEnvironment();
 
             var appCode = App.Current.Configuration?.Code?.ToLower() ?? Base.Host.ApplicationAssemblyName;
 
             var usePrefix =
                 ctxConfig?.RoutePrefix != null ||
-                ctxConfig?.Behavior?.UseAppCodeAsRoutePrefix == true ||
-                Current.Configuration?.RoutePrefix != null ||
-                Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true;
+                ctxConfig?.Behavior?.UseAppCodeAsRoutePrefix == true;
 
             var prefix =
                 (ctxConfig?.RoutePrefix ??
-                 (ctxConfig?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null)) ??
-                (Current.Configuration?.RoutePrefix ??
-                 (Current.Configuration?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null));
+                 (ctxConfig?.Behavior?.UseAppCodeAsRoutePrefix == true ? appCode : null));
 
             Base.Host.Variables[Keys.WebAppCode] = appCode;
 
             Base.Host.Variables[Keys.WebUsePrefix] = usePrefix;
             Base.Host.Variables[Keys.WebRootPrefix] = "/" + prefix;
 
-            Base.Host.Variables[Keys.WebHttpPort] = ctxConfig?.HttpPort ?? Current.Configuration?.HttpPort ?? Defaults.WebHttpPort;
-            Base.Host.Variables[Keys.WebHttpsPort] = ctxConfig?.HttpsPort ?? Current.Configuration?.HttpsPort ?? Defaults.WebHttpsPort;
+            Base.Host.Variables[Keys.WebHttpPort] = ctxConfig?.HttpPort ?? Instances.Options.GetCurrentEnvironment().HttpPort;
+            Base.Host.Variables[Keys.WebHttpsPort] = ctxConfig?.HttpsPort ?? Instances.Options.GetCurrentEnvironment().HttpsPort;
 
-            Base.Host.Variables[Keys.WebQualifiedServerName] = ctxConfig?.QualifiedServerName ?? Current.Configuration?.QualifiedServerName;
+            Base.Host.Variables[Keys.WebQualifiedServerName] = ctxConfig?.QualifiedServerName;
 
             services.Configure<FormOptions>(options =>
             {
@@ -92,7 +90,7 @@ namespace Zen.Web.Service.Extensions
                         //options.ClientErrorMapping[404].Link =
                         //    "https://httpstatuses.com/404";
                     }) // "How to turn off or handle camelCasing in JSON response ASP.NET Core?"
-                    // https://stackoverflow.com/questions/38728200/how-to-turn-off-or-handle-camelcasing-in-json-response-asp-net-core
+                       // https://stackoverflow.com/questions/38728200/how-to-turn-off-or-handle-camelcasing-in-json-response-asp-net-core
                     .AddJsonOptions(opt =>
                     {
                         opt.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -119,8 +117,6 @@ namespace Zen.Web.Service.Extensions
             services.AddTransient<ISessionStore, ZenDistributedSessionStore>();
 
             var builder = new ZenWebBuilder(services);
-
-            if (configureOptions != null) services.Configure(configureOptions);
 
             return builder;
         }

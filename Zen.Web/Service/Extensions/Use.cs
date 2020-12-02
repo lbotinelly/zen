@@ -68,8 +68,7 @@ namespace Zen.Web.Service.Extensions
                     {
                         var destination = "." + rootPrefix;
 
-                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName,
-                            Defaults.WebQualifiedServerName);
+                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName, Instances.Options.WebQualifiedServerName);
 
                         if (qualifiedServerName != null)
                             if (context.Request.Host.Host != qualifiedServerName)
@@ -78,8 +77,8 @@ namespace Zen.Web.Service.Extensions
                                 var targetProtocol =
                                     ""; //If we omit the protocol, the client will use the one currently set.
 
-                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Defaults.WebHttpPort);
-                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Defaults.WebHttpsPort);
+                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Instances.Options.GetCurrentEnvironment().HttpPort);
+                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Instances.Options.GetCurrentEnvironment().HttpsPort);
 
                                 if (sourcePort == httpPort)
                                 {
@@ -88,7 +87,7 @@ namespace Zen.Web.Service.Extensions
                                 }
 
                                 var destinationHost = sourcePort.HasValue
-                                    ? new HostString(Current.Configuration.Development.QualifiedServerName,
+                                    ? new HostString(Instances.Options.Development.QualifiedServerName,
                                         sourcePort.Value)
                                     : new HostString(qualifiedServerName);
 
