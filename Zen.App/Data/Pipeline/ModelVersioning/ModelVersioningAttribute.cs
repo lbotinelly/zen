@@ -44,8 +44,8 @@ namespace Zen.App.Data.Pipeline.ModelVersioning
 
                     try
                     {
-                        var sourcePropertyDictionary = source.ToPropertyDictionary();
-                        var modelPropertyDictionary = current.ToPropertyDictionary();
+                        var sourcePropertyDictionary = source.ToMemberDictionary();
+                        var modelPropertyDictionary = current.ToMemberDictionary();
 
                         var compareMap = new List<string>();
                         compareMap.AddRange(sourcePropertyDictionary.Keys);

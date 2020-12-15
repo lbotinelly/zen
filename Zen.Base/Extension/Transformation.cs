@@ -572,7 +572,7 @@ namespace Zen.Base.Extension
 
         public static IDictionary<string, object> AddProperty(this object obj, string name, object value)
         {
-            var dictionary = obj.ToPropertyDictionary();
+            var dictionary = obj.ToMemberDictionary();
             dictionary.Add(name, value);
             return dictionary;
         }
@@ -621,7 +621,7 @@ namespace Zen.Base.Extension
         }
 
 
-        public static IDictionary<string, object> ToPropertyDictionary(this object obj, string memberPrefix = null)
+        public static IDictionary<string, object> ToMemberDictionary(this object obj, string memberPrefix = null)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
 

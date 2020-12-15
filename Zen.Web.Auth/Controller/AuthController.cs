@@ -103,7 +103,7 @@ namespace Zen.Web.Auth.Controller
         [HttpGet("identity")]
         public object GetIdentity()
         {
-            var tmp = App.Current.Orchestrator.Person?.ToPropertyDictionary() ?? new ConcurrentDictionary<string, object>();
+            var tmp = App.Current.Orchestrator.Person?.ToMemberDictionary() ?? new ConcurrentDictionary<string, object>();
 
             tmp["IsAuthenticated"] = App.Current.Orchestrator.Person != null;
 
