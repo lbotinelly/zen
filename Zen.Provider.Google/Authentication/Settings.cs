@@ -12,7 +12,7 @@ namespace Zen.Provider.Google.Authentication
 {
     public static class Settings
     {
-        private const string ProviderKey = "Google";
+        private const string ProviderKey = "google";
 
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
@@ -28,7 +28,7 @@ namespace Zen.Provider.Google.Authentication
                 {
                     options.ClientId = cid;
                     options.ClientSecret = cst;
-                    options.CallbackPath = "/auth/signin/google";
+                    options.CallbackPath = $"/auth/signin/{ProviderKey}";
 
                     options.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
 
