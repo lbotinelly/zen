@@ -20,7 +20,6 @@ namespace Zen.Web.Service.Extensions
         public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null,
             IHostEnvironment env = null)
         {
-            configuration = configuration ?? (x => { });
             var optionsProvider = app.ApplicationServices.GetService<IOptions<ZenWebOptions>>();
 
             var options = new ZenWebOptions(optionsProvider.Value);
@@ -54,7 +53,7 @@ namespace Zen.Web.Service.Extensions
 
                     app.UseDefaultFiles(
                         fOptions); // This will allow default (index.html, etc.) requests on the new mapping
-                    app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
+                    app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
                 }
                 else
                 {
@@ -67,8 +66,9 @@ namespace Zen.Web.Service.Extensions
                     r.MapGet("", context =>
                     {
                         var destination = "." + rootPrefix;
+                        var currentEnvOptions = Current.ZenWebOrchestrator.Options;
 
-                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName, Instances.Options.WebQualifiedServerName);
+                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName, currentEnvOptions.WebQualifiedServerName);
 
                         if (qualifiedServerName != null)
                             if (context.Request.Host.Host != qualifiedServerName)
@@ -77,8 +77,8 @@ namespace Zen.Web.Service.Extensions
                                 var targetProtocol =
                                     ""; //If we omit the protocol, the client will use the one currently set.
 
-                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Instances.Options.GetCurrentEnvironment().HttpPort);
-                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Instances.Options.GetCurrentEnvironment().HttpsPort);
+                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, currentEnvOptions.GetCurrentEnvironment().HttpPort);
+                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, currentEnvOptions.GetCurrentEnvironment().HttpsPort);
 
                                 if (sourcePort == httpPort)
                                 {
@@ -87,7 +87,7 @@ namespace Zen.Web.Service.Extensions
                                 }
 
                                 var destinationHost = sourcePort.HasValue
-                                    ? new HostString(Instances.Options.Development.QualifiedServerName,
+                                    ? new HostString(currentEnvOptions.Development.QualifiedServerName,
                                         sourcePort.Value)
                                     : new HostString(qualifiedServerName);
 
@@ -128,7 +128,7 @@ namespace Zen.Web.Service.Extensions
 
             if (!Base.Host.IsContainer) app.UseHttpsRedirection();
 
-            configuration.Invoke(builder);
+            configuration?.Invoke(builder);
         }
     }
 }

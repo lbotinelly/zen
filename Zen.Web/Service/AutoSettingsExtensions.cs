@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Module.Service;
+using Zen.Web.Common;
 using Zen.Web.Communication.Push;
 
 namespace Zen.Web.Service {
@@ -7,6 +8,7 @@ namespace Zen.Web.Service {
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddZenProvider<IZenWebOrchestrator>("Zen Web Orchestrator");
             serviceCollection.AddZenProvider<PushDispatcherPrimitive>("Push Dispatcher");
 
             return serviceCollection;

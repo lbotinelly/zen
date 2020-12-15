@@ -15,10 +15,7 @@ namespace Zen.Web.SelfHost
 
         private readonly IOptions _options;
 
-        public Configuration(IOptions<Options> options)
-        {
-            _options = options.Value;
-        }
+        public Configuration(IOptions<Options> options) => _options = options.Value;
 
         public void Configure(Options options)
         {
@@ -31,13 +28,12 @@ namespace Zen.Web.SelfHost
             int DiscoveryTimeOut { get; set; }
             int WanHttpsPort { get; set; }
             int WanHttpPort { get; set; }
+            string LocalCertificateStoragePassword { get; set; }
             void Evaluate();
         }
 
         [IoCIgnore]
-        public class Options : AutoOptions
-        {
-        }
+        public class Options : AutoOptions { }
 
         [Priority(Level = -99)]
         public class AutoOptions : IOptions // If nothing else is defined, AutoOptions kicks in.
@@ -48,6 +44,7 @@ namespace Zen.Web.SelfHost
             public int DiscoveryTimeOut { get; set; } = 10000;
             public int WanHttpsPort { get; set; }
             public int WanHttpPort { get; set; }
+            public string LocalCertificateStoragePassword { get; set; } = "zen_storage";
 
             public void Evaluate()
             {
@@ -58,8 +55,10 @@ namespace Zen.Web.SelfHost
                 //WanHttpPort = 80;
                 //WanHttpsPort = 443;
 
-                WanHttpPort = Instances.Options.GetCurrentEnvironment().HttpPort;
-                WanHttpsPort = Instances.Options.GetCurrentEnvironment().HttpsPort;
+                var currEnv = Web.Current.ZenWebOrchestrator.Options.GetCurrentEnvironment();
+
+                WanHttpPort = currEnv.HttpPort;
+                WanHttpsPort = currEnv.HttpsPort;
                 LanHttpPort = WanHttpPort;
                 LanHttpsPort = WanHttpsPort;
 

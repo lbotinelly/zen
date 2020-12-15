@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Zen.Web.Common;
 using Zen.Web.Communication.Push;
 
 namespace Zen.Web
@@ -13,5 +14,9 @@ namespace Zen.Web
 
         public static HttpContext Context => ContextProvider.Value?.HttpContext;
         public static PushDispatcherPrimitive PushDispatcher => PushDispatcherProvider.Value;
+
+        private static readonly Lazy<IZenWebOrchestrator> ZenWebOrchestratorInstance = new Lazy<IZenWebOrchestrator>(() => Base.Module.Service.Instances.ServiceProvider.GetService<IZenWebOrchestrator>(), true);
+        public static IZenWebOrchestrator ZenWebOrchestrator = ZenWebOrchestratorInstance.Value;
+
     }
 }
