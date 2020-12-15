@@ -13,32 +13,39 @@ namespace Zen.Web.SelfHost
     {
         public readonly Configuration.Options Options;
 
-        public SelfHostOrchestrator(IOptions<Configuration.Options> options) : this(options.Value)
-        {
-        }
+        public SelfHostOrchestrator(IOptions<Configuration.Options> options) : this(options.Value) { }
 
-        public SelfHostOrchestrator(Configuration.Options options)
-        {
-            options.Evaluate();
-            Options = options;
-        }
+        public SelfHostOrchestrator(Configuration.Options options) => Options = options;
 
         #region Implementation of IZenProvider
 
         public EOperationalStatus OperationalStatus { get; }
 
+        public void Initialize() { }
 
-        public void Initialize()
-        {
-            // throw new NotImplementedException();
-        }
-
-        public string GetState()
-        {
-            return OperationalStatus.ToString();
-        }
+        public string GetState() => OperationalStatus.ToString();
 
         public async Task Start()
+        {
+            Options.Evaluate();
+            await SetUpnp();
+            await SetCertificate();
+        }
+
+        private async Task SetCertificate()
+        {
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                Log.Add(e);
+                throw;
+            }
+        }
+
+        public async Task SetUpnp()
         {
             try
             {
@@ -46,19 +53,17 @@ namespace Zen.Web.SelfHost
                 var cts = new CancellationTokenSource(Options.DiscoveryTimeOut);
                 var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
 
-                var WanIp = await device.GetExternalIPAsync();
+                var wanIp = await device.GetExternalIPAsync();
 
-                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, Options.WanHttpPort, Options.LanHttpPort,
-                    Options.HttpMappingAlias));
-                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, Options.WanHttpsPort, Options.LanHttpsPort,
-                    Options.HttpsMappingAlias));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, Options.WanHttpPort, Options.LanHttpPort, Options.HttpMappingAlias));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, Options.WanHttpsPort, Options.LanHttpsPort, Options.HttpsMappingAlias));
 
-                Log.Startup<SelfHostOrchestrator>($"WAN {WanIp}:{Options.WanHttpPort} => {Options.LanHttpPort} | {Options.HttpMappingAlias}");
-                Log.Startup<SelfHostOrchestrator>($"WAN {WanIp}:{Options.WanHttpsPort} => {Options.LanHttpsPort} | {Options.HttpsMappingAlias}");
+                Log.Startup<SelfHostOrchestrator>($"WAN {wanIp}:{Options.WanHttpPort} => {Options.LanHttpPort} | {Options.HttpMappingAlias}");
+                Log.Startup<SelfHostOrchestrator>($"WAN {wanIp}:{Options.WanHttpsPort} => {Options.LanHttpsPort} | {Options.HttpsMappingAlias}");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.Add(e);
                 throw;
             }
         }
