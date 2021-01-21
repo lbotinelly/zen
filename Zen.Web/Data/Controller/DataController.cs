@@ -19,8 +19,8 @@ using Zen.Web.Filter;
 
 namespace Zen.Web.Data.Controller
 {
-    [Route("api/[controller]")]
-    public class DataController<T> : ControllerBase where T : Data<T>
+    [ApiController]
+    public abstract class DataController<T> : ControllerBase where T : Data<T>
     {
         private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
 
