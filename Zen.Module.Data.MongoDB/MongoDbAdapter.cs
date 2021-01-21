@@ -216,9 +216,9 @@ namespace Zen.Module.Data.MongoDB
             return res;
         }
 
-        public override IEnumerable<T> Query(string statement) { return Query<T>(statement.ToModifier()); }
+        public override IEnumerable<T> Query(string statement) => Query<T>(statement.ToModifier());
 
-        public override IEnumerable<T> Query(Mutator mutator = null) { return Query<T>(mutator); }
+        public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(mutator);
 
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
@@ -247,7 +247,7 @@ namespace Zen.Module.Data.MongoDB
             return false;
         }
 
-        public override IEnumerable<TU> Query<TU>(string statement) { return Query<TU>(statement.ToModifier()); }
+        public override IEnumerable<TU> Query<TU>(string statement) => Query<TU>(statement.ToModifier());
 
         public override IEnumerable<TU> Query<TU>(Mutator mutator = null)
         {
@@ -267,13 +267,13 @@ namespace Zen.Module.Data.MongoDB
             }
         }
 
-        public override long Count(Mutator mutator = null) { return Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument()); }
+        public override long Count(Mutator mutator = null) => Collection(mutator).CountDocuments(mutator?.Transform?.ToBsonQuery() ?? new BsonDocument());
 
-        public override bool KeyExists(string key, Mutator mutator = null) { return Get(key, mutator) != null; }
+        public override bool KeyExists(string key, Mutator mutator = null) => Get(key, mutator) != null;
 
-        public override T Insert(T model, Mutator mutator = null) { return Upsert(model, mutator); }
+        public override T Insert(T model, Mutator mutator = null) => Upsert(model, mutator);
 
-        public override T Save(T model, Mutator mutator = null) { return Upsert(model, mutator); }
+        public override T Save(T model, Mutator mutator = null) => Upsert(model, mutator);
 
         public override T Upsert(T obj, Mutator mutator = null)
         {
@@ -321,8 +321,6 @@ namespace Zen.Module.Data.MongoDB
         {
             var referenceCode = mutator?.SetCode ?? "";
 
-            if (_collectionCache.ContainsKey(referenceCode)) return _collectionCache[referenceCode];
-
             lock (_collectionCache)
             {
                 if (_collectionCache.ContainsKey(referenceCode)) return _collectionCache[referenceCode];
@@ -349,9 +347,9 @@ namespace Zen.Module.Data.MongoDB
             return collection;
         }
 
-        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) { return BulkUpsert(models, mutator); }
+        public override IEnumerable<T> BulkInsert(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
 
-        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) { return BulkUpsert(models, mutator); }
+        public override IEnumerable<T> BulkSave(IEnumerable<T> models, Mutator mutator = null) => BulkUpsert(models, mutator);
 
         public override IEnumerable<T> BulkUpsert(IEnumerable<T> models, Mutator mutator = null)
         {
@@ -404,7 +402,7 @@ namespace Zen.Module.Data.MongoDB
             Collection(mutator).DeleteMany(filter);
         }
 
-        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) { BulkRemove(models.Select(i => i.GetDataKey()), mutator); }
+        public override void BulkRemove(IEnumerable<T> models, Mutator mutator = null) => BulkRemove(models.Select(i => i.GetDataKey()), mutator);
 
         public override void Remove(string locator, Mutator mutator = null)
         {
@@ -412,11 +410,11 @@ namespace Zen.Module.Data.MongoDB
             Collection(mutator).DeleteOne(filter);
         }
 
-        public override void Remove(T model, Mutator mutator = null) { Remove(model.GetDataKey(), mutator); }
+        public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);
 
-        public override void RemoveAll(Mutator mutator = null) { Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty); }
+        public override void RemoveAll(Mutator mutator = null) => Collection(mutator).DeleteMany(FilterDefinition<BsonDocument>.Empty);
 
-        public override void DropSet(string setName) { Database.DropCollection(GetCollectionName(setName)); }
+        public override void DropSet(string setName) => Database.DropCollection(GetCollectionName(setName));
 
         public override void CopySet(string sourceSetIdentifier, string targetSetIdentifier, bool flushDestination = false)
         {
