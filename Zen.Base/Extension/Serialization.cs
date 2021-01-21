@@ -451,7 +451,7 @@ namespace Zen.Base.Extension
 
             return result;
         }
-        public static void AddIfMissing<T>(this List<T> collection, T item)
+        public static void Ensure<T>(this List<T> collection, T item)
         {
             if (item == null) return;
             collection ??= new List<T>();
