@@ -2,10 +2,11 @@
 using System.Linq;
 using Zen.Base.Extension;
 using Zen.Base.Module.Data;
+using Zen.Base.Module.Data.CommonAttributes;
 
 namespace Zen.Base.Module
 {
-    public sealed class Set<T> : ISetSave where T : Data<T>
+    public sealed class Set<T> : ISetSave where T : Data<T>, IDataId
     {
         internal Dictionary<string, T> Cache = new Dictionary<string, T>();
         private readonly Dictionary<string, string> _checkSum = new Dictionary<string, string>();
@@ -18,9 +19,13 @@ namespace Zen.Base.Module
 
         public void Commit() => Save();
 
-        public T Fetch(string identifier, bool ignoreCache = false)
+        public T Fetch(T referenceModel)
         {
-            T model = null;
+            return Fetch(referenceModel.Id, referenceModel);
+        }
+
+        public T Fetch(string identifier, T model = null, bool ignoreCache = false)
+        {
 
             if (identifier != null)
             {
