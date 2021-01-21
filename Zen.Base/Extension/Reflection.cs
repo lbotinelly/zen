@@ -378,35 +378,45 @@ namespace Zen.Base.Extension
             }
         }
 
-        public static void CopyListPropertiesTo<T, TU>(this IEnumerable<T> source, List<TU> dest)
+        public static void CopyListPropertiesTo<T, TU>(this IEnumerable<T> source, List<TU> target, bool ignoreNull = false)
         {
-            dest.Clear();
+            target ??= new List<TU>();
+
+            target.Clear();
 
             foreach (var i in source)
             {
                 var uo = (TU) Activator.CreateInstance(typeof(TU), null);
 
-                i.CopyPropertiesTo(uo);
-                dest.Add(uo);
+                i.CopyPropertiesTo(uo, ignoreNull);
+                target.Add(uo);
             }
         }
 
-        public static void CopyMembersTo<T>(this T source, T target)
+        public static void CopyMembersTo<T>(this T source, T target, bool ignoreNull = false)
         {
             var type = typeof(T);
             foreach (var sourceProperty in type.GetProperties())
             {
                 var targetProperty = type.GetProperty(sourceProperty.Name);
-                targetProperty.SetValue(target, sourceProperty.GetValue(source, null), null);
+
+                var value = sourceProperty.GetValue(source, null);
+                if (value == null) if (ignoreNull) continue;
+
+                targetProperty.SetValue(target, value, null);
             }
             foreach (var sourceField in type.GetFields())
             {
                 var targetField = type.GetField(sourceField.Name);
-                targetField.SetValue(target, sourceField.GetValue(source));
+
+                var value = sourceField.GetValue(source);
+                if (value == null) if (ignoreNull) continue;
+
+                targetField.SetValue(target, value);
             }
         }
 
-        public static void CopyPropertiesTo<T, TU>(this T source, TU dest)
+        public static void CopyPropertiesTo<T, TU>(this T source, TU target, bool ignoreNull = false)
         {
             var sourceProps = typeof(T).GetProperties().Where(x => x.CanRead).ToList();
             var destProps = typeof(TU).GetProperties()
@@ -422,18 +432,21 @@ namespace Zen.Base.Extension
                 var p = destProps.First(x => x.Name == sourceProp.Name);
 
                 var val = sourceProp.GetValue(source, null);
+
+                if ((val == null) & ignoreNull) continue;
+
                 var set = false;
 
                 try
                 {
-                    p.SetValue(dest, val, null);
+                    p.SetValue(target, val, null);
                     set = true;
                 } catch { }
 
                 if (!set)
                     try
                     {
-                        p.SetValue(dest, val.ToString(), null);
+                        p.SetValue(target, val.ToString(), null);
                         set = true;
                     } catch (Exception) { }
             }
