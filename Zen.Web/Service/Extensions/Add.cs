@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base;
+using Zen.Web.ApiExplorer;
 
 namespace Zen.Web.Service.Extensions
 {
@@ -12,6 +13,12 @@ namespace Zen.Web.Service.Extensions
 
             services.ResolveSettingsPackage();
             services.Configure<Configuration.Options>(options => options.GetSettings<Configuration.IOptions, Configuration.Options>("Web"));
+
+            services.AddMvc(options =>
+            {
+                options.Conventions.Add(new VisibilityEnabledConvention());
+            });
+
 
             var builder = new ZenWebBuilder(services);
 
