@@ -21,7 +21,7 @@ namespace Zen.Base.Module
 
         public T Fetch(T referenceModel)
         {
-            return Fetch(referenceModel.Id, referenceModel);
+            return Fetch(referenceModel?.Id, referenceModel);
         }
 
         public T Fetch(string identifier, T model = null, bool ignoreCache = false)
