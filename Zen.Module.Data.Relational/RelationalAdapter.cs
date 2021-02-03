@@ -26,7 +26,7 @@ namespace Zen.Module.Data.Relational
         public Dictionary<string, string> MemberMap = new Dictionary<string, string>();
         public abstract StatementMasks Masks { get; }
         public abstract Dictionary<Type, TypeDefinition> TypeDefinitionMap { get; }
-        public IDictionary<string, object> ToRawParameters(object source) => ToRawParameters(new Dictionary<string, object>(source.ToPropertyDictionary(Masks.ParameterPrefix)));
+        public IDictionary<string, object> ToRawParameters(object source) => ToRawParameters(new Dictionary<string, object>(source.ToMemberDictionary(Masks.ParameterPrefix)));
         public IDictionary<string, object> ToRawParameters(Dictionary<string, object> probe)
         {
             var res = new Dictionary<string, object>();
@@ -80,7 +80,7 @@ namespace Zen.Module.Data.Relational
                 InlineFieldSetSansKey,
                 InlineParameterSetSansKey,
                 InterspersedFieldParameterSetSansKey
-            }.ToPropertyDictionary();
+            }.ToMemberDictionary();
 
             Statements.DropSet = preCol.ReplaceIn(Statements.DropSet);
 
@@ -187,7 +187,7 @@ namespace Zen.Module.Data.Relational
                 StartPosition = pagination.Index * pagination.Size,
                 EndPosition = (pagination.Index + 1) * pagination.Size - 1,
                 OriginalQuery = sql
-            }.ToPropertyDictionary();
+            }.ToMemberDictionary();
 
             return parameters.ReplaceIn(Statements.PaginationWrapper);
         }

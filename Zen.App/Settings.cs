@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Zen.App.Core.Application;
 using Zen.Base;
+using Zen.Base.Extension;
 
 namespace Zen.App
 {
@@ -20,12 +21,22 @@ namespace Zen.App
                 {"Environment", new {Base.Current.Environment.Current.Code, Base.Current.Environment.Current.Name}},
                 {"ResourceUri", ""},
                 {"ApiUri", ""},
-                {"vTag", "?v=" + Host.ApplicationAssemblyVersion},
-                {"Session", new {Static = false, CanSignIn = true, IsExternalSession = false, IsSecureConnection = true, IsImpersonated = false}}
+                {
+                    "vTag", "?v=" + Host.ApplicationAssemblyVersion + (Host.IsDevelopment ? "." + DateTime.Now.ToString().Md5Hash() : "")
+                },
+                {
+                    "Session",
+                    new
+                    {
+                        Static = false, CanSignIn = true, IsExternalSession = false, IsSecureConnection = true,
+                        IsImpersonated = false
+                    }
+                }
             };
 
             return settings;
         }
+
         public class ApplicationSection
         {
             public bool Active;

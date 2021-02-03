@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Zen.Base.Module.Log
@@ -19,8 +20,7 @@ namespace Zen.Base.Module.Log
 
         #endregion
 
-        public string Log(string message, bool verbose = true, [CallerMemberName]
-                          string callerMemberName = null)
+        public string Log(string message, bool verbose = true, [CallerMemberName] string callerMemberName = null)
         {
             if (Host.IsDevelopment) _callerMemberName = $"[{callerMemberName}] ";
 
@@ -28,6 +28,8 @@ namespace Zen.Base.Module.Log
             CurrentMessage = message;
             return message;
         }
+
+        public string LastMessage() => this.LastOrDefault().Value;
 
         public TimeLog Start(string message = null, bool verbose = true)
         {

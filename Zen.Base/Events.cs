@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Extension;
-using Zen.Base.Module.Data.Connection;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
 
@@ -110,9 +108,12 @@ namespace Zen.Base
 
             Instances.ServiceData.EndTimeStamp = DateTime.Now;
 
-            Current.Log.KeyValuePair("Session Start", Instances.ServiceData.StartTimeStamp.ToString(), Message.EContentType.ShutdownSequence);
-            Current.Log.KeyValuePair("Session End", Instances.ServiceData.EndTimeStamp.ToString(), Message.EContentType.ShutdownSequence);
-            Current.Log.KeyValuePair("Session lifetime", Instances.ServiceData.UpTime.ToString(), Message.EContentType.ShutdownSequence);
+            Current.Log.KeyValuePair("Session Start", Instances.ServiceData.StartTimeStamp.ToString(),
+                Message.EContentType.ShutdownSequence);
+            Current.Log.KeyValuePair("Session End", Instances.ServiceData.EndTimeStamp.ToString(),
+                Message.EContentType.ShutdownSequence);
+            Current.Log.KeyValuePair("Session lifetime", Instances.ServiceData.UpTime.ToString(),
+                Message.EContentType.ShutdownSequence);
             Current.Log.Add(@"  _|\_/|  ZZZzzz", Message.EContentType.Info);
             Current.Log.Add(@"c(_(-.-)", Message.EContentType.Info);
 
@@ -124,7 +125,9 @@ namespace Zen.Base
             {
                 Environment.Exit(0);
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         public static void ScheduleShutdown(int seconds = 30)
@@ -133,7 +136,7 @@ namespace Zen.Base
 
             if (_workerThread != null) return;
 
-            _workerThread = new Thread(() => Shutdown(seconds)) { IsBackground = false };
+            _workerThread = new Thread(() => Shutdown(seconds)) {IsBackground = false};
             _workerThread.Start();
         }
 

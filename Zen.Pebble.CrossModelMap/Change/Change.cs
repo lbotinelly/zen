@@ -9,15 +9,16 @@ namespace Zen.Pebble.CrossModelMap.Change
 {
     public class ChangeEntry<T> : Data<ChangeEntry<T>>, IStorageCollectionResolver
     {
-        public enum EType
-        {
-            New,
-            Update
-        }
         public enum EResult
         {
             Success,
             Fail
+        }
+
+        public enum EType
+        {
+            New,
+            Update
         }
 
         private const string CollectionSuffix = "changeEntry";

@@ -7,11 +7,11 @@ using Zen.Web.Service.Extensions;
 
 namespace Zen.Web.Service
 {
-    [Priority(Level = -99)]
+    [Priority(Level = -98)]
     public class ZenWebAutoService : IZenAutoAddService, IZenAutoUseService
     {
-        public void Add(IServiceCollection services) { services.AddZenWeb(); }
+        public void Add(IServiceCollection services) => services.AddZenWeb();
 
-        public void Use(IApplicationBuilder app, IHostEnvironment env = null) { app.UseZenWeb(null, env); }
+        public void Use(IApplicationBuilder app, IHostEnvironment env = null) => app.UseZenWeb(null, env);
     }
 }

@@ -5,8 +5,8 @@ using Zen.Base.Module;
 using Zen.Base.Module.Data;
 
 namespace Zen.Web.Data.Controller {
-    [Route("api/[controller]")]
-    public class DataController<T, TSummary> : DataController<T> where T : Data<T>
+    [ApiController]
+    public abstract class DataController<T, TSummary> : DataController<T> where T : Data<T>
     {
         [NonAction]
         public virtual void BeforeSummaryCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<TSummary> model, string key = null) { }

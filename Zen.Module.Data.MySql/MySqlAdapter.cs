@@ -79,7 +79,7 @@ namespace Zen.Module.Data.MySql
             Settings.StorageKeyMemberName = Settings.Members[Settings.KeyMemberName].TargetName;
 
 
-            var settingsDict = Settings.ToPropertyDictionary();
+            var settingsDict = Settings.ToMemberDictionary();
 
             var res = new Dictionary<string, Dictionary<string, string>>
             {
@@ -148,7 +148,7 @@ namespace Zen.Module.Data.MySql
 
                 Current.Log.Add("Initializing schema");
 
-                var maskKeys = Masks.ToPropertyDictionary();
+                var maskKeys = Masks.ToMemberDictionary();
 
                 //Create sequence.
                 var tableRender = new StringBuilder();

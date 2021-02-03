@@ -9,7 +9,7 @@ namespace Zen.Base.Service
     [Priority(Level = 1)]
     public class ZenBaseAutoService : IZenAutoAddService, IZenAutoUseService
     {
-        public void Add(IServiceCollection services) { services.ResolveSettingsPackage(); }
+        public void Add(IServiceCollection services) => services.ResolveSettingsPackage();
         public void Use(IApplicationBuilder app, IHostEnvironment env = null) { }
     }
 }

@@ -8,10 +8,7 @@ namespace Zen.Web.GraphQL.Service
     {
         internal static IServiceCollection ResolveSettingsPackage(this IServiceCollection serviceCollection)
         {
-            serviceCollection
-                .AddZenProvider<IGraphQlProcessor>("GraphQL Processor")
-                ;
-
+            serviceCollection.AddZenProvider<IGraphQlProcessor>("GraphQL Processor");
             return serviceCollection;
         }
     }

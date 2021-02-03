@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Zen.Base;
 using Zen.Base.Common;
@@ -14,21 +15,57 @@ namespace Zen.Storage.BuiltIn
 
         public override IFileStorage ResolveStorage()
         {
-            _location = Host.DataDirectory;
+            _location = Path.Combine(Host.DataDirectory, "storage");
             return this;
         }
 
-        public override async Task<Stream> Fetch(IFileDescriptor fileDescriptor)
+        private string TargetPath(IFileDescriptor definition)
         {
-            var targetPath = Path.Combine(fileDescriptor.StoragePath, fileDescriptor.StorageName);
-            return new FileStream(targetPath, FileMode.Open);
+            var targetPath = _location;
+
+            if (definition.StoragePath != null)
+                targetPath = Path.Combine(_location, definition.StoragePath);
+
+            targetPath = Path.Combine(targetPath, definition.StorageName);
+
+
+            return targetPath;
+        }
+
+        public override async Task<Stream> Fetch(IFileDescriptor definition)
+        {
+
+
+            return new FileStream(TargetPath(definition), FileMode.Open);
+        }
+
+        public override async Task<bool> Exists(IFileDescriptor definition)
+        {
+            return File.Exists(TargetPath(definition));
         }
 
         public override async Task<string> Store(IFileDescriptor definition, Stream source)
         {
-            var targetPath = Path.Combine(definition.StoragePath, definition.StorageName);
+            var targetPath = _location;
 
-            using (Stream file = File.Create(targetPath)) { source.CopyStreamTo(file); }
+            if (definition.StoragePath != null)
+                targetPath = Path.Combine(_location, definition.StoragePath);
+
+            Directory.CreateDirectory(targetPath);
+
+            targetPath = Path.Combine(targetPath, definition.StorageName);
+
+            try
+            {
+                using (Stream file = File.Create(targetPath))
+                {
+                    source.CopyStreamTo(file);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Add(e);
+            }
 
             return definition.Locator;
         }

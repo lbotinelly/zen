@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Zen.Base.Extension;
@@ -20,8 +19,8 @@ using Zen.Web.Filter;
 
 namespace Zen.Web.Data.Controller
 {
-    [Route("api/[controller]")]
-    public class DataController<T> : ControllerBase where T : Data<T>
+    [ApiController]
+    public abstract class DataController<T> : ControllerBase where T : Data<T>
     {
         private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
 
@@ -32,7 +31,7 @@ namespace Zen.Web.Data.Controller
         {
             get
             {
-                if (_mutator!= null) return _mutator;
+                if (_mutator != null) return _mutator;
 
                 var mutator = Request.Query.ToMutator<T>();
 
@@ -64,7 +63,7 @@ namespace Zen.Web.Data.Controller
                 .AddHeaders(GetAccessHeaders(accessControl))?
                 .AddMutatorHeaders<T>(RequestMutator);
 
-            var result = new ObjectResult(content) { StatusCode = (int)status };
+            var result = new ObjectResult(content) {StatusCode = (int) status};
             return result;
         }
 
@@ -89,8 +88,8 @@ namespace Zen.Web.Data.Controller
 
                     var newDefinition = new EndpointConfiguration
                     {
-                        Security = (DataSecurityAttribute)Attribute.GetCustomAttribute(currentType, typeof(DataSecurityAttribute)),
-                        Behavior = (DataBehaviorAttribute)Attribute.GetCustomAttribute(currentType, typeof(DataBehaviorAttribute))
+                        Security = (DataSecurityAttribute) Attribute.GetCustomAttribute(currentType, typeof(DataSecurityAttribute)),
+                        Behavior = (DataBehaviorAttribute) Attribute.GetCustomAttribute(currentType, typeof(DataBehaviorAttribute))
                     };
 
                     _attributeResolutionCache.TryAdd(currentType, newDefinition);
@@ -104,7 +103,7 @@ namespace Zen.Web.Data.Controller
         {
             var configuration = Configuration;
 
-            if (key == null) key = model!= null ? Data<T>.GetDataKey(model) : null;
+            if (key == null) key = model != null ? Data<T>.GetDataKey(model) : null;
 
             if (configuration == null) return;
 
@@ -152,7 +151,7 @@ namespace Zen.Web.Data.Controller
         #region Event hooks and Behavior modifiers
 
         [NonAction]
-        public virtual bool AuthorizeAction(EHttpMethod method, EActionType pAccessType, EActionScope scope, string key, ref T model, string context) { return true; }
+        public virtual bool AuthorizeAction(EHttpMethod method, EActionType pAccessType, EActionScope scope, string key, ref T model, string context) => true;
 
         [NonAction]
         public virtual void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<T> model, string key = null) { }
@@ -167,7 +166,7 @@ namespace Zen.Web.Data.Controller
         public virtual void AfterModelAction(EHttpMethod method, EActionType type, Mutator mutator, ref T model, T originalModel = null, string key = null) { }
 
         [NonAction]
-        public virtual object BeforeModelEmit(EHttpMethod method, EActionType type, Mutator mutator, T model, T originalModel = null, string key = null) { return null; }
+        public virtual object BeforeModelEmit(EHttpMethod method, EActionType type, Mutator mutator, T model, T originalModel = null, string key = null) => null;
 
         #endregion
 
@@ -210,17 +209,17 @@ namespace Zen.Web.Data.Controller
         [HttpGet("", Order = 999)]
         public IActionResult GetCollection()
         {
-
             var tl = new TimeLog().Start();
 
             try
             {
                 var collection = FetchCollection();
 
-                var outputCollection = RequestMutator.Transform!= null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
+                var outputCollection = RequestMutator.Transform != null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
 
                 return PrepareResponse(outputCollection);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"GET: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -232,7 +231,8 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        [HttpGet("new", Order = 999), AllProperties]
+        [HttpGet("new", Order = 999)]
+        [AllProperties]
         public virtual IActionResult GetNewModel()
         {
             var tl = new TimeLog().Start();
@@ -254,7 +254,8 @@ namespace Zen.Web.Data.Controller
 
                 tl.Log("Return content");
                 return PrepareResponse(model, EActionScope.Model, model);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"GET NEW: {e.Message}");
                 Base.Current.Log.Add<T>(e);
@@ -267,7 +268,6 @@ namespace Zen.Web.Data.Controller
                 tl.End();
             }
         }
-
 
         [NonAction]
         public virtual T FetchModel(string key, ref Mutator mutator)
@@ -286,8 +286,8 @@ namespace Zen.Web.Data.Controller
             return model;
         }
 
-
-        [HttpGet("{key}", Order = 999), AllProperties]
+        [HttpGet("{key}", Order = 999)]
+        [AllProperties]
         public virtual IActionResult GetModel(string key)
         {
             try
@@ -313,6 +313,13 @@ namespace Zen.Web.Data.Controller
         {
             try
             {
+                if (model == null){
+
+                    Base.Current.Log.Warn<T>($"POST : Invalid model (NULL)");
+                    return new BadRequestResult();
+
+                }
+
                 EvaluateAuthorization(EHttpMethod.Post, EActionType.Update, EActionScope.Model, model.GetDataKey(), model);
                 var mutator = RequestMutator;
 
@@ -361,7 +368,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        internal T GetByLocatorOrKey(string referenceCode, Mutator mutator) { return typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator); }
+        internal T GetByLocatorOrKey(string referenceCode, Mutator mutator) => typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator);
 
         [HttpPatch("{key}", Order = 999)]
         public virtual ActionResult<T> PatchModel(string key, [FromBody] JsonPatchDocument<T> patchPayload)
@@ -397,6 +404,7 @@ namespace Zen.Web.Data.Controller
                 throw;
             }
         }
+
         #endregion
     }
 }

@@ -10,7 +10,7 @@ namespace Zen.Web.GraphQL.Service
     {
         public void Add(IServiceCollection services)
         {
-            services.AddGraphQL();
+            services.AddGraphQl();
         }
     }
 }

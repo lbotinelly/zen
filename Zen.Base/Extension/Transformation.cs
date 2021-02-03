@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -336,6 +337,33 @@ namespace Zen.Base.Extension
             return compiledRet;
         }
 
+        public static string ToMd5b62Hash(this string input)
+        {
+            if (input == null) return null;
+
+            using (var md5Hash = MD5.Create())
+            {
+                var data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+                return ToBase62String(data);
+            }
+        }
+
+        public static string ToBase62String(this byte[] toConvert, bool bigEndian = false)
+        {
+            //https://codereview.stackexchange.com/questions/14084/base-36-encoding-of-a-byte-array
+
+            const string characterSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            if (bigEndian) Array.Reverse(toConvert); // !BitConverter.IsLittleEndian might be an alternative
+            var dividend = new BigInteger(toConvert);
+            var builder = new StringBuilder();
+            while (dividend != 0)
+            {
+                dividend = BigInteger.DivRem(dividend, 62, out var remainder);
+                builder.Insert(0, characterSet[Math.Abs((int)remainder)]);
+            }
+            return builder.ToString();
+        }
+
         public static string HashGuid(this string input, string salt = null)
         {
             using (var md5 = MD5.Create())
@@ -344,6 +372,14 @@ namespace Zen.Base.Extension
                 var guid = new Guid(hash).ToString("N");
                 return guid;
             }
+        }
+        public static string HashGuid(this Stream inputStream)
+        {
+            using var md5 = MD5.Create();
+            inputStream.Position = 0;
+            var hash = md5.ComputeHash(inputStream);
+            var guid = new Guid(hash).ToString("N");
+            return guid;
         }
 
         public static bool IsAnyNullOrEmpty(params object[] objects)
@@ -460,6 +496,7 @@ namespace Zen.Base.Extension
         }
 
         public static ShortGuid ToShortGuid(this Guid oRef) => new ShortGuid(oRef);
+        public static string FlatExceptionMessage(this Exception source) => FancyString(source);
         public static string FancyString(this Exception source) => new StackTrace(source, true).FancyString();
 
         public static string ToSummary(this Exception ex)
@@ -535,7 +572,7 @@ namespace Zen.Base.Extension
 
         public static IDictionary<string, object> AddProperty(this object obj, string name, object value)
         {
-            var dictionary = obj.ToPropertyDictionary();
+            var dictionary = obj.ToMemberDictionary();
             dictionary.Add(name, value);
             return dictionary;
         }
@@ -584,7 +621,7 @@ namespace Zen.Base.Extension
         }
 
 
-        public static IDictionary<string, object> ToPropertyDictionary(this object obj, string memberPrefix = null)
+        public static IDictionary<string, object> ToMemberDictionary(this object obj, string memberPrefix = null)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
 

@@ -10,17 +10,14 @@ using Zen.Web.GraphQL.Attribute;
 namespace Sample04_AuthenticatedWeb.Model
 {
     [GraphQl(Alias = "person")]
-    public class SamplePersonDataContext: DataContext<SamplePerson> { }
+    public class SamplePersonDataContext : DataContext<SamplePerson> { }
 
     public class SamplePerson : Data<SamplePerson>
     {
         [Key] public string Id { get; set; } = Guid.NewGuid().ToString();
-
         [Display] public string FirstName { get; set; }
-
         public string LastName { get; set; }
         public string Email { get; set; }
-
         public Name.Gender? Gender { get; set; }
 
         public static List<SamplePerson> Generate(int count = 100)

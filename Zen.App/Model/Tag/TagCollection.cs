@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Zen.App.Model.Tag
 {
     public class TagCollection : List<string>
     {
-        public new void Add(string item)
+        public void Ensure(string item)
         {
             if (item.IndexOf(":", StringComparison.Ordinal) != -1)
             {
