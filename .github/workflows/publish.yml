@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master # Default release branch
+      - v1.*
 
 jobs:
   warmup:
