@@ -73,7 +73,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Pebble.CrossModelMap", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.App", "Zen.Web.App\Zen.Web.App.csproj", "{48C84650-8104-4861-B0FF-FBB0D46F19FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Web.SelfHost", "Zen.Web.SelfHost\Zen.Web.SelfHost.csproj", "{584D2B85-507A-4D14-AE0C-F3DBA2473333}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.SelfHost", "Zen.Web.SelfHost\Zen.Web.SelfHost.csproj", "{584D2B85-507A-4D14-AE0C-F3DBA2473333}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.OpenApi", "Zen.Web.OpenApi\Zen.Web.OpenApi.csproj", "{E1DEE553-2B52-411B-B8B5-D8646E358928}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -221,6 +223,10 @@ Global
 		{584D2B85-507A-4D14-AE0C-F3DBA2473333}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{584D2B85-507A-4D14-AE0C-F3DBA2473333}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{584D2B85-507A-4D14-AE0C-F3DBA2473333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
