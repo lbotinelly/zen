@@ -11,7 +11,7 @@ using Zen.Service.Maintenance.Attributes;
 using Zen.Service.Maintenance.Model;
 using Zen.Service.Maintenance.Shared;
 
-namespace Zen.Web.Model.State
+namespace Zen.Web.App.Model.State
 {
     [Priority(Level = -99)]
     public class ZenSession : Data<ZenSession>, IZenSession, IMaintenanceTask

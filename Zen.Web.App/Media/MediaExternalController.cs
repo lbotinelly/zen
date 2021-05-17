@@ -4,7 +4,7 @@ using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Storage.Cache;
 
-namespace Zen.Web.Media
+namespace Zen.Web.App.Media
 {
     [Route("api/media/external")]
     public class MediaExternalController : ControllerBase

@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Session;
 using Zen.Base;
 
-namespace Zen.Web.Model.State {
+namespace Zen.Web.App.Model.State
+{
     public class ZenDistributedSessionStore : ISessionStore
     {
         #region Implementation of ISessionStore

@@ -10,7 +10,7 @@ using Zen.Media.Processing;
 using Zen.Storage.Cache;
 using Zen.Storage.Model;
 
-namespace Zen.Web.Media
+namespace Zen.Web.App.Media
 {
     [Route("api/media/storage")]
     public class MediaStorageController : ControllerBase
