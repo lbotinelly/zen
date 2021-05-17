@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Zen.Base.Extension;
 using Zen.Storage.Model;
 
-namespace Zen.Web
+namespace Zen.Web.App
 {
     public static class Extensions
     {

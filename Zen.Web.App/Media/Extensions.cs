@@ -4,27 +4,27 @@ using Microsoft.AspNetCore.Http;
 using Zen.Media.Processing.Pipeline;
 using Zen.Media.Processing.Pipeline.BuiltIn;
 
-namespace Zen.Web.Media
+namespace Zen.Web.App.Media
 {
     public static class Extensions
     {
-        private static readonly string[] WidthParms = {"width", "w"};
-        private static readonly string[] HeightParms = {"height", "h"};
-        private static readonly string[] FormatParms = {"format", "f"};
-        private static readonly string[] PositionParms = {"position", "p"};
+        private static readonly string[] WidthParms = { "width", "w" };
+        private static readonly string[] HeightParms = { "height", "h" };
+        private static readonly string[] FormatParms = { "format", "f" };
+        private static readonly string[] PositionParms = { "position", "p" };
 
         public static RasterImagePipeline ToRasterImagePipeline(this IQueryCollection source, Stream stream = null,
             Crop.EPosition position = Crop.EPosition.NotSpecified)
         {
-            var ret = new RasterImagePipeline {SourceStream = stream};
+            var ret = new RasterImagePipeline { SourceStream = stream };
 
             var ws = WidthParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
             var hs = HeightParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
             var f = FormatParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
             var p = PositionParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
 
-            var w = ws != null ? int.Parse(ws) : (int?) null;
-            var h = hs != null ? int.Parse(hs) : (int?) null;
+            var w = ws != null ? int.Parse(ws) : (int?)null;
+            var h = hs != null ? int.Parse(hs) : (int?)null;
 
             if (position == Crop.EPosition.NotSpecified)
             {
@@ -53,8 +53,8 @@ namespace Zen.Web.Media
 
             if ((w ?? h) != null) // If [w]idth or [h]eight are defined,
             {
-                ret.Items.Add(new Resize {Width = w, Height = h, Proportional = true});
-                ret.Items.Add(new Crop {Width = w, Height = h, Proportional = true, Position = position});
+                ret.Items.Add(new Resize { Width = w, Height = h, Proportional = true });
+                ret.Items.Add(new Crop { Width = w, Height = h, Proportional = true, Position = position });
             }
 
             if (f != null)
@@ -67,7 +67,7 @@ namespace Zen.Web.Media
         public static RasterImagePipeline ToRasterImagePipeline(this HttpRequest source, Stream stream = null,
             Crop.EPosition position = Crop.EPosition.Center)
         {
-            return ToRasterImagePipeline(source.Query, stream, position);
+            return source.Query.ToRasterImagePipeline(stream, position);
         }
     }
 }

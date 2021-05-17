@@ -14,7 +14,6 @@ using Zen.Base.Module.Service;
 using Zen.Web.Common;
 using Zen.Web.Convention;
 using Zen.Web.Host;
-using Zen.Web.Model.State;
 using Zen.Web.Service;
 
 namespace Zen.Web
@@ -118,7 +117,7 @@ namespace Zen.Web
 
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddTransient<ISessionStore, ZenDistributedSessionStore>();
+            // services.AddTransient<ISessionStore, ZenDistributedSessionStore>();
         }
 
         public string GetState() => OperationalStatus.ToString();
