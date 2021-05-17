@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        zen-project: [Base,App,Cloud,Media,Storage,Web,Web.Auth,Web.GraphQL,Service.Maintenance,Module.Cache.Memory,Module.Cache.Redis,Module.Cloud.AWS,Module.Cloud.Google,Module.Data.LiteDB,Module.Data.MongoDB,Module.Data.MySql,Module.Data.Oracle,Module.Data.Relational,Module.Encryption.AES,Pebble.CrossModelMap,Pebble.Database,Pebble.FlexibleData,Pebble.Geo,Provider.Facebook,Provider.GitHub,Provider.Google,Provider.Microsoft,Provider.Steam,Web.SelfHost]
+        zen-project: [Base,App,Cloud,Media,Storage,Web,Web.App,Web.Auth,Web.GraphQL,Service.Maintenance,Module.Cache.Memory,Module.Cache.Redis,Module.Cloud.AWS,Module.Cloud.Google,Module.Data.LiteDB,Module.Data.MongoDB,Module.Data.MySql,Module.Data.Oracle,Module.Data.Relational,Module.Encryption.AES,Pebble.CrossModelMap,Pebble.Database,Pebble.FlexibleData,Pebble.Geo,Provider.Facebook,Provider.GitHub,Provider.Google,Provider.Microsoft,Provider.Steam,Web.SelfHost]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
