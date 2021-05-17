@@ -15,6 +15,6 @@ namespace Zen.Base.Module.Data.Connection {
         public Dictionary<string, IConnectionBundle> Bundles { get; set; }
         public EOperationalStatus OperationalStatus { get; set; } = EOperationalStatus.Operational;
         public void Initialize() { }
-        public string GetState() => $"{OperationalStatus} | Default: {DefaultBundleType.Name}";
+        public string GetState() => $"{OperationalStatus} | Default: {DefaultBundleType?.Name ?? "None"}";
     }
 }

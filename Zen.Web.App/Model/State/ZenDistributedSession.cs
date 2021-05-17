@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Zen.Base;
 
-namespace Zen.Web.Model.State
+namespace Zen.Web.App.Model.State
 {
     public class ZenDistributedSession : ISession
     {
@@ -146,7 +146,7 @@ namespace Zen.Web.Model.State
 
             try
             {
-                _sourceModel = ZenSession.Get(Id) ?? new ZenSession {Id = Id};
+                _sourceModel = ZenSession.Get(Id) ?? new ZenSession { Id = Id };
 
                 if (_sourceModel != null) FetchFromSourceModel();
 
@@ -168,7 +168,7 @@ namespace Zen.Web.Model.State
         {
             try
             {
-                var session = ZenSession.Get(Id) ?? new ZenSession {Id = Id};
+                var session = ZenSession.Get(Id) ?? new ZenSession { Id = Id };
 
                 var mustSave = _isModified || session.LastUpdate?.AddSeconds(60) < DateTime.Now;
 

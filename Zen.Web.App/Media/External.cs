@@ -6,7 +6,7 @@ using Zen.Base.Extension;
 using Zen.Media.Processing;
 using Zen.Storage.Cache;
 
-namespace Zen.Web.Media
+namespace Zen.Web.App.Media
 {
     public static class External
     {
