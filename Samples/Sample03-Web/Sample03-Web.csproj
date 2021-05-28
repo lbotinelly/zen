@@ -5,9 +5,15 @@
     <RootNamespace>Sample3_Web</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>C:\files\repo\github\zen\Samples\Sample03-Web\Sample03-Web.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj" />
+    <ProjectReference Include="..\..\Zen.Web.OpenApi\Zen.Web.OpenApi.csproj" />
     <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
 
