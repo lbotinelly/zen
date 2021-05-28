@@ -27,7 +27,7 @@ namespace Zen.Web.Data.Controller
         private static readonly object _lockObject = new object();
         private Mutator _mutator;
 
-        internal Mutator RequestMutator
+        public Mutator RequestMutator
         {
             get
             {
@@ -99,7 +99,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        internal void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
+        public void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
         {
             var configuration = Configuration;
 
@@ -125,7 +125,7 @@ namespace Zen.Web.Data.Controller
             }
 
             if (!string.IsNullOrEmpty(targetPermissionSet))
-                if (!App.Current.Orchestrator?.Person?.HasAnyPermissions(targetPermissionSet) == true)
+                if (!CheckPermissions(targetPermissionSet))
                     throw new UnauthorizedAccessException("Not authorized.");
 
             try
@@ -142,9 +142,11 @@ namespace Zen.Web.Data.Controller
             throw new UnauthorizedAccessException("Not authorized.");
         }
 
-        protected bool CanRead => Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.ReadPermission) == true;
-        protected bool CanWrite => Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.WritePermission) == true;
-        protected bool CanRemove => Configuration.Security == null || App.Current.Orchestrator.Person?.HasAnyPermissions(Configuration.Security.RemovePermission) == true;
+        protected bool CanRead => Configuration.Security == null || CheckPermissions(Configuration.Security.ReadPermission);
+        protected bool CanWrite => Configuration.Security == null || CheckPermissions(Configuration.Security.WritePermission);
+        protected bool CanRemove => Configuration.Security == null || CheckPermissions(Configuration.Security.RemovePermission);
+
+        public virtual bool CheckPermissions(string permission) => true;
 
         #endregion
 
@@ -368,7 +370,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
-        internal T GetByLocatorOrKey(string referenceCode, Mutator mutator) => typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator);
+        public T GetByLocatorOrKey(string referenceCode, Mutator mutator) => typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator);
 
         [HttpPatch("{key}", Order = 999)]
         public virtual ActionResult<T> PatchModel(string key, [FromBody] JsonPatchDocument<T> patchPayload)

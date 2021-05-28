@@ -8,8 +8,7 @@ namespace Zen.Web.GraphQL.Service.Extensions
         public static void AddGraphQl(this IServiceCollection services)
         {
             services.ResolveSettingsPackage();
-            services.Configure<Configuration.Options>(options =>
-                options.GetSettings<Configuration.IOptions, Configuration.Options>("GraphQL"));
+            services.Configure<Configuration.Options>(options => options.GetSettings<Configuration.IOptions, Configuration.Options>("GraphQL"));
         }
     }
 }

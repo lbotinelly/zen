@@ -7,7 +7,6 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>C:\files\repo\github\zen\Samples\Sample03-Web\Sample03-Web.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

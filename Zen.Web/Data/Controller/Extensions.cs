@@ -11,7 +11,7 @@ namespace Zen.Web.Data.Controller
 {
     public static class Extensions
     {
-        internal static IHeaderDictionary AddHeaders(this IHeaderDictionary headers, Dictionary<string, object> payload)
+        public static IHeaderDictionary AddHeaders(this IHeaderDictionary headers, Dictionary<string, object> payload)
         {
             if (payload == null) return headers;
 
@@ -20,7 +20,7 @@ namespace Zen.Web.Data.Controller
             return headers;
         }
 
-        internal static IHeaderDictionary AddHeader(this IHeaderDictionary headers, string key, object value)
+        public static IHeaderDictionary AddHeader(this IHeaderDictionary headers, string key, object value)
         {
             if (value == null) return headers;
             if (headers.ContainsKey(key)) headers.Remove(key);
@@ -29,7 +29,7 @@ namespace Zen.Web.Data.Controller
             return headers;
         }
 
-        internal static IHeaderDictionary AddModelHeaders<T>(this IHeaderDictionary responseHeaders, ref DataAccessControl accessControl, IQueryCollection sourceQuery, EActionScope scope, T model = null) where T : Data<T>
+        public  static IHeaderDictionary AddModelHeaders<T>(this IHeaderDictionary responseHeaders, ref DataAccessControl accessControl, IQueryCollection sourceQuery, EActionScope scope, T model = null) where T : Data<T>
         {
             var sourceParameters = sourceQuery.ToDictionary(i => i.Key, i => i.Value);
 
@@ -92,7 +92,7 @@ namespace Zen.Web.Data.Controller
             if (postProcessContent.HasValue) mutator.PipelineMetadata[postProcessContent.Value.Key] = postProcessContent.Value.Value;
         }
 
-        internal static IHeaderDictionary AddMutatorHeaders<T>(this IHeaderDictionary headers, Mutator mutator) where T : Data<T>
+        public static IHeaderDictionary AddMutatorHeaders<T>(this IHeaderDictionary headers, Mutator mutator) where T : Data<T>
         {
             if (mutator.Transform.Pagination == null) return headers;
 

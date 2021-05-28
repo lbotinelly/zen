@@ -55,15 +55,15 @@ namespace Zen.Web.SelfHost
                 //WanHttpPort = 80;
                 //WanHttpsPort = 443;
 
-                var currEnv = Web.Current.ZenWebOrchestrator.Options.GetCurrentEnvironment();
+                var currEnv = Web.Current.Options.GetCurrentEnvironment();
 
                 WanHttpPort = currEnv.HttpPort;
                 WanHttpsPort = currEnv.HttpsPort;
                 LanHttpPort = WanHttpPort;
                 LanHttpsPort = WanHttpsPort;
 
-                HttpMappingAlias = $"{App.Current.Orchestrator.Application.Name} HTTP";
-                HttpsMappingAlias = $"{App.Current.Orchestrator.Application.Name} HTTPS";
+                HttpMappingAlias = $"{Zen.Base.Host.ApplicationAssembly} HTTP";
+                HttpsMappingAlias = $"{Zen.Base.Host.ApplicationAssembly} HTTPS";
             }
 
             public string HttpsMappingAlias { get; set; }
