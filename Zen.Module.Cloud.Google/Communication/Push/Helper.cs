@@ -12,7 +12,7 @@ using Org.BouncyCastle.Security;
 using Zen.Base.Extension;
 using Zen.Module.Cloud.Google.Provider;
 using Zen.Web.Auth;
-using Zen.Web.Communication.Push;
+using Zen.Web.App.Communication.Push;
 
 namespace Zen.Module.Cloud.Google.Communication.Push
 {

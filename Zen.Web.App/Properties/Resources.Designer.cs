@@ -61,6 +61,28 @@ namespace Zen.Web.App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to /*
+        ///*
+        ///*  Push Notifications codelab
+        ///*  Copyright 2015 Google Inc. All rights reserved.
+        ///*
+        ///*  Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+        ///*  you may not use this file except in compliance with the License.
+        ///*  You may obtain a copy of the License at
+        ///*
+        ///*      https://www.apache.org/licenses/LICENSE-2.0
+        ///*
+        ///*  Unless required by applicable law or agreed to in writing, software
+        ///*  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+        ///*  WITHOUT WARRANTIES OR CONDITIONS OF [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string pushServiceWorker {
+            get {
+                return ResourceManager.GetString("pushServiceWorker", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to var loc = window.location.href + &quot;&quot;;
         ///
         ///if (loc.indexOf(&quot;http://&quot;) === 0) {
@@ -68,15 +90,15 @@ namespace Zen.Web.App.Properties {
         ///} else {
         ///
         ///    function injectJavascript(res) {
-        ///        document.write(&apos;\x3Cscript src=&quot;&apos; + res + globalAppSettings.vTag + &apos;&quot;&gt;\x3C/script&gt;&apos;);
+        ///        document.write(&apos;\x3Cscript src=&quot;&apos; + applyQuery(res, globalAppSettings.vTag) + &apos;&quot;&gt;\x3C/script&gt;&apos;);
+        ///    };
+        ///
+        ///    function injectPreconnect(res) {
+        ///        document.write(&apos;\x3Clink rel=&quot;preconnect&quot; href=&quot;&apos; + applyQuery(res, globalAppSettings.vTag) + &apos;&quot; /&gt;&apos;);
         ///    };
         ///
         ///    function injectCss(res) {
-        ///        document.write(&apos;\x3Clink href=&quot;&apos; + res + globalAppSettings.vTag + &apos;&quot; rel=&quot;stylesheet&quot; /&gt;&apos;);
-        ///    };
-        ///
-        ///    [
-        ///        globalAppSettings.ResourceUri + &quot;frontend/globalResourc [rest of string was truncated]&quot;;.
+        ///        docume [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string template {
             get {

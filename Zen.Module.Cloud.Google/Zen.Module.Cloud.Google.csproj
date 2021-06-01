@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\Zen.Web.App\Zen.Web.App.csproj" />
     <ProjectReference Include="..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
     <ProjectReference Include="..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>

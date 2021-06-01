@@ -53,9 +53,11 @@ namespace Zen.Base
 
         public static TInterface GetSettings<TInterface, TConcrete>(this TConcrete options, string sectionKey) where TInterface : class where TConcrete : TInterface
         {
-            var configOptions = (IoC.GetClassesByInterface<TInterface>(true).FirstOrDefault()?.ToInstance<TInterface>() ?? // Any concrete defined type?
-                                 Options.GetSection(sectionKey).Get<TConcrete>()) ?? // Any described option in Config?
-                                IoC.GetClassesByInterface<TInterface>().FirstOrDefault()?.ToInstance<TInterface>(); // Load from Fallback.
+            var concreteInstance = IoC.GetClassesByInterface<TInterface>(true).FirstOrDefault()?.ToInstance<TInterface>();
+            var configFileInstance = Options.GetSection(sectionKey).Get<TConcrete>(); // Any described option in Config?
+            var defaultInstance = IoC.GetClassesByInterface<TInterface>().FirstOrDefault()?.ToInstance<TInterface>(); // Load from Fallback.
+
+            var configOptions = concreteInstance ?? configFileInstance ?? defaultInstance;
 
             configOptions.CopyProperties(options);
 

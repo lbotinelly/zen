@@ -16,7 +16,7 @@ namespace Zen.Web.App.Media
         {
             if (url == null)
             {
-                var query = Current.Context.Request.Query;
+                var query = Web.Current.Context.Request.Query;
                 if (query.ContainsKey("url")) url = query["url"];
             }
 

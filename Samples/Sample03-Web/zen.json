@@ -1,0 +1,7 @@
+{
+  "Web": {
+    "Development": {
+      "UseIisIntegration": true
+    }
+  }
+}

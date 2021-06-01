@@ -12,7 +12,10 @@ namespace Zen.Web.Service.Extensions
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             services.ResolveSettingsPackage();
-            services.Configure<Configuration.Options>(options => options.GetSettings<Configuration.IOptions, Configuration.Options>("Web"));
+            services.Configure<Configuration.IOptions>(options =>
+            {
+                options.GetSettings<Configuration.IOptions, Configuration.IOptions>("Web");
+            });
 
             services.AddMvc(options =>
             {

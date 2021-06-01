@@ -5,7 +5,7 @@ using Zen.Base.Module.Service;
 
 namespace Zen.Web
 {
-    public class Configuration : IConfigureOptions<Configuration.Options>
+    public class Configuration : IConfigureOptions<Configuration.IOptions>
     {
         public enum EMode
         {
@@ -17,7 +17,7 @@ namespace Zen.Web
 
         public Configuration(IOptions<Options> options) => _options = options.Value;
 
-        public void Configure(Options options)
+        public void Configure(IOptions options)
         {
             _options.CopyMembersTo(options);
         }
@@ -40,6 +40,7 @@ namespace Zen.Web
             public static int DefaultHttpsPort = 5001;
             public string WebQualifiedServerName { get; set; } = null;
 
+
             public EnvironmentDescriptor Development { get; set; } = new EnvironmentDescriptor();
             public EnvironmentDescriptor Production { get; set; }= new EnvironmentDescriptor();
 
@@ -47,6 +48,7 @@ namespace Zen.Web
 
             public class EnvironmentDescriptor
             {
+                public bool UseIisIntegration { get; set; }
                 public BehaviorDescriptor Behavior { get; set; }
                 public string CertificateSubject { get; set; }
                 public string QualifiedServerName { get; set; }

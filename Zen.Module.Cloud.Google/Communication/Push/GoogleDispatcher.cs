@@ -1,6 +1,6 @@
 ﻿using System;
 using Zen.Base;
-using Zen.Web.Communication.Push;
+using Zen.Web.App.Communication.Push;
 
 namespace Zen.Module.Cloud.Google.Communication.Push
 {

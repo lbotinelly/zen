@@ -66,9 +66,9 @@ namespace Zen.Web.Service.Extensions
                     r.MapGet("", context =>
                     {
                         var destination = "." + rootPrefix;
-                        var currentEnvOptions = Current.ZenWebOrchestrator.Options;
+                        //var currentEnvOptions = Current.ZenWebOrchestrator.Options;
 
-                        var qualifiedServerName = Base.Host.Variables.Get(Keys.WebQualifiedServerName, currentEnvOptions.WebQualifiedServerName);
+                        string qualifiedServerName = null; // Base.Host.Variables.Get(Keys.WebQualifiedServerName, currentEnvOptions.WebQualifiedServerName);
 
                         if (qualifiedServerName != null)
                             if (context.Request.Host.Host != qualifiedServerName)
@@ -77,8 +77,8 @@ namespace Zen.Web.Service.Extensions
                                 var targetProtocol =
                                     ""; //If we omit the protocol, the client will use the one currently set.
 
-                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, currentEnvOptions.GetCurrentEnvironment().HttpPort);
-                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, currentEnvOptions.GetCurrentEnvironment().HttpsPort);
+                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Current.Options.GetCurrentEnvironment().HttpPort);
+                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Current.Options.GetCurrentEnvironment().HttpsPort);
 
                                 if (sourcePort == httpPort)
                                 {
@@ -87,8 +87,7 @@ namespace Zen.Web.Service.Extensions
                                 }
 
                                 var destinationHost = sourcePort.HasValue
-                                    ? new HostString(currentEnvOptions.Development.QualifiedServerName,
-                                        sourcePort.Value)
+                                    ? new HostString(Current.Options.Development.QualifiedServerName, sourcePort.Value)
                                     : new HostString(qualifiedServerName);
 
                                 destination = $"{targetProtocol}//{destinationHost}{rootPrefix}";
@@ -96,8 +95,7 @@ namespace Zen.Web.Service.Extensions
                                 Events.AddLog("Web root", destination);
                             }
 
-                        Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}",
-                            Message.EContentType.StartupSequence);
+                        //Log.KeyValuePair(App.Current.Orchestrator.Application.ToString(), $"Redirect: {destination}",                            Message.EContentType.StartupSequence);
 
                         context.Response.Redirect(destination, false);
                         return Task.FromResult(0);
