@@ -40,6 +40,7 @@ namespace Zen.Web
             public static int DefaultHttpsPort = 5001;
             public string WebQualifiedServerName { get; set; } = null;
 
+
             public EnvironmentDescriptor Development { get; set; } = new EnvironmentDescriptor();
             public EnvironmentDescriptor Production { get; set; }= new EnvironmentDescriptor();
 
@@ -47,6 +48,7 @@ namespace Zen.Web
 
             public class EnvironmentDescriptor
             {
+                public bool UseIisIntegration { get; set; }
                 public BehaviorDescriptor Behavior { get; set; }
                 public string CertificateSubject { get; set; }
                 public string QualifiedServerName { get; set; }
