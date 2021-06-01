@@ -9,6 +9,6 @@ namespace Zen.Web
    
         private static readonly Lazy<IHttpContextAccessor> ContextProvider = new Lazy<IHttpContextAccessor>(() => Base.Module.Service.Instances.ServiceProvider.GetService<IHttpContextAccessor>(), true);
         public static HttpContext Context => ContextProvider.Value?.HttpContext;
-        public readonly static Configuration.IOptions Options = Base.Configuration.GetSettings<Configuration.IOptions, Configuration.IOptions>(new Configuration.Options(), "Web");
+        public readonly static Configuration.IOptions Options = Base.Configuration.GetSettings<Configuration.IOptions, Configuration.Options>(new Configuration.Options(), "Web");
     }
 }
