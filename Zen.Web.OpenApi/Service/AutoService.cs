@@ -20,8 +20,12 @@ namespace Zen.Web.OpenApi.Service
         public void Use(IApplicationBuilder app, IHostEnvironment env = null)
         {
             app.UseOpenApi(); // Serves the registered OpenAPI/Swagger documents by default on `/swagger/{documentName}/swagger.json`
-            app.UseSwaggerUi3();
-            app.UseReDoc();
+
+            if (Base.Host.IsDevelopment)
+            {
+                app.UseSwaggerUi3();
+                app.UseReDoc();
+            }
         }
     }
 }
