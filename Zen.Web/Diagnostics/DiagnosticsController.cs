@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Zen.Web.Diagnostics
 {
-    [Route("api/diagnostics")]
+    [Route("diagnostics")]
     public class DiagnosticsController : ControllerBase
     {
         /// <summary>
@@ -13,7 +13,7 @@ namespace Zen.Web.Diagnostics
         /// <response code="200">The service is available.</response>
         [HttpGet("heartbeat")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        public JsonResult GetHeartbeat() { return new JsonResult("its alive!"); }
+        public JsonResult GetHeartbeat() => new(new { message = "I'm alive!" });
 
         /// <summary>
         /// Returns all host variables.

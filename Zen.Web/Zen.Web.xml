@@ -1,0 +1,526 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Zen.Web</name>
+    </assembly>
+    <members>
+        <member name="T:Zen.Web.Controller.CacheController">
+            <summary>
+            Provides cache maintenance methods.
+            </summary>
+        </member>
+        <member name="M:Zen.Web.Controller.CacheController.FlushCache">
+            <summary>
+            Clears all currently cached objects.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.Diagnostics.DiagnosticsController.GetHeartbeat">
+            <summary>
+            The heartbeat endpoint verifies that the service is available.
+            </summary>
+            <response code="200">The service is available.</response>
+        </member>
+        <member name="M:Zen.Web.Diagnostics.DiagnosticsController.GetVariables">
+            <summary>
+            Returns all host variables.
+            </summary>
+            <response code="200">Host variables compiled successfully.</response>
+        </member>
+        <member name="T:Zen.Web.Host.Builder">
+            <summary>
+                Provides an alternative way to bootstrap a Web app by loading a development time self-signed certificate and
+                using it for HTTPS requests.
+            </summary>
+        </member>
+        <member name="M:Zen.Web.Host.Builder.Start``1(System.String[])">
+            <summary>
+                <para>
+                    Initializes the http request pipeline.
+                </para>
+            </summary>
+            <typeparam name="T">
+                The class containing the Configure() and ConfigureServices() methods used to define the HTTP
+                request pipeline.
+            </typeparam>
+            <param name="args">Pass-through of start-up parameters.</param>
+        </member>
+        <member name="T:Zen.Web.OpSec.IpType">
+            <summary>
+                Response type indicating the characteristics of a given IP address.
+            </summary>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.Check(System.String)">
+            <summary>
+                Identifies the characteristics of a given IP address.
+            </summary>
+            <param name="pIp">The Address to be checked.</param>
+            <returns>An <seealso cref="T:Zen.Web.OpSec.IpType">IpType </seealso> object indicating the characteristics of a given IP address</returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Overlap(Zen.Web.OpSec.Network.IpNetwork,Zen.Web.OpSec.Network.IpNetwork)">
+            <summary>
+                return true is network2 overlap network
+            </summary>
+            <param name="network"></param>
+            <param name="network2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Print(Zen.Web.OpSec.Network.IpNetwork)">
+            <summary>
+                Print an ipnetwork in a clear representation string
+            </summary>
+            <param name="ipnetwork"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.Network">
+            <summary>
+                Network address
+            </summary>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.Netmask">
+            <summary>
+                Netmask
+            </summary>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.Broadcast">
+            <summary>
+                Broadcast address
+            </summary>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.FirstUsable">
+            <summary>
+                First usable IP adress in Network
+            </summary>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.LastUsable">
+            <summary>
+                Last usable IP adress in Network
+            </summary>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.Usable">
+            <summary>
+                Number of usable IP adress in Network
+            </summary>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.Cidr">
+            <summary>
+                The CIDR netmask notation
+            </summary>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Parse(System.String,System.String)">
+            <summary>
+                192.168.168.100 - 255.255.255.0
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Parse(System.String,System.Byte)">
+            <summary>
+                192.168.168.100/24
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Parse(System.Net.IPAddress,System.Net.IPAddress)">
+            <summary>
+                192.168.168.100 255.255.255.0
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Parse(System.String)">
+            <summary>
+                192.168.0.1/24
+                192.168.0.1 255.255.255.0
+                Network   : 192.168.0.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.0.1
+                End       : 192.168.0.254
+                Broadcast : 192.168.0.255
+            </summary>
+            <param name="network"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryParse(System.String,System.String,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.168.100 - 255.255.255.0
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryParse(System.String,System.Byte,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.168.100/24
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryParse(System.String,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.0.1/24
+                192.168.0.1 255.255.255.0
+                Network   : 192.168.0.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.0.1
+                End       : 192.168.0.254
+                Broadcast : 192.168.0.255
+            </summary>
+            <param name="network"></param>
+            <param name="ipnetwork"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryParse(System.Net.IPAddress,System.Net.IPAddress,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.0.1/24
+                192.168.0.1 255.255.255.0
+                Network   : 192.168.0.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.0.1
+                End       : 192.168.0.254
+                Broadcast : 192.168.0.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="netmask"></param>
+            <param name="ipnetwork"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.InternalParse(System.Boolean,System.String,System.String,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.168.100 - 255.255.255.0
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.InternalParse(System.Boolean,System.Net.IPAddress,System.Net.IPAddress,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.168.100 255.255.255.0
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.InternalParse(System.Boolean,System.String,System.Byte,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                192.168.168.100/24
+                Network   : 192.168.168.0
+                Netmask   : 255.255.255.0
+                Cidr      : 24
+                Start     : 192.168.168.1
+                End       : 192.168.168.254
+                Broadcast : 192.168.168.255
+            </summary>
+            <param name="ipaddress"></param>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ToUint(System.Net.IPAddress)">
+            <summary>
+                Convert an ipadress to decimal
+                0.0.0.0 -> 0
+                0.0.1.0 -> 256
+            </summary>
+            <param name="ipaddress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryToUint(System.Net.IPAddress,System.Nullable{System.UInt32}@)">
+            <summary>
+                Convert an ipadress to decimal
+                0.0.0.0 -> 0
+                0.0.1.0 -> 256
+            </summary>
+            <param name="ipaddress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ToUint(System.Byte)">
+            <summary>
+                Convert a cidr to uint netmask
+            </summary>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryToUint(System.Byte,System.Nullable{System.UInt32}@)">
+            <summary>
+                Convert a cidr to uint netmask
+            </summary>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.InternalToUint(System.Boolean,System.Byte,System.Nullable{System.UInt32}@)">
+            <summary>
+                Convert a cidr to uint netmask
+            </summary>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ToCidr(System.UInt32)">
+            <summary>
+                Convert netmask to CIDR
+                255.255.255.0 -> 24
+                255.255.0.0   -> 16
+                255.0.0.0     -> 8
+            </summary>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.InternalToCidr(System.Boolean,System.UInt32,System.Nullable{System.Byte}@)">
+            <summary>
+                Convert netmask to CIDR
+                255.255.255.0 -> 24
+                255.255.0.0   -> 16
+                255.0.0.0     -> 8
+            </summary>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ToCidr(System.Net.IPAddress)">
+            <summary>
+                Convert netmask to CIDR
+                255.255.255.0 -> 24
+                255.255.0.0   -> 16
+                255.0.0.0     -> 8
+            </summary>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryToCidr(System.Net.IPAddress,System.Nullable{System.Byte}@)">
+            <summary>
+                Convert netmask to CIDR
+                255.255.255.0 -> 24
+                255.255.0.0   -> 16
+                255.0.0.0     -> 8
+            </summary>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ToNetmask(System.Byte)">
+            <summary>
+                Convert CIDR to netmask
+                24 -> 255.255.255.0
+                16 -> 255.255.0.0
+                8 -> 255.0.0.0
+            </summary>
+            <see cref="!:http://snipplr.com/view/15557/cidr-class-for-ipv4/" />
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryToNetmask(System.Byte,System.Net.IPAddress@)">
+            <summary>
+                Convert CIDR to netmask
+                24 -> 255.255.255.0
+                16 -> 255.255.0.0
+                8 -> 255.0.0.0
+            </summary>
+            <see cref="!:http://snipplr.com/view/15557/cidr-class-for-ipv4/" />
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.BitsSet(System.UInt32)">
+            <summary>
+                Count bits set to 1 in netmask
+            </summary>
+            <see
+                cref="!:http://stackoverflow.com/questions/109023/best-algorithm-to-count-the-number-of-set-bits-in-a-32-bit-integer" />
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.BitsSet(System.Net.IPAddress)">
+            <summary>
+                Count bits set to 1 in netmask
+            </summary>
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ValidNetmask(System.Net.IPAddress)">
+            <summary>
+                return true if netmask is a valid netmask
+                255.255.255.0, 255.0.0.0, 255.255.240.0, ...
+            </summary>
+            <see cref="!:http://www.actionsnip.com/snippets/tomo_atlacatl/calculate-if-a-netmask-is-valid--as2-" />
+            <param name="netmask"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.ToIPAddress(System.UInt32)">
+            <summary>
+                Transform a uint ipaddress into IPAddress object
+            </summary>
+            <param name="ipaddress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Contains(Zen.Web.OpSec.Network.IpNetwork,System.Net.IPAddress)">
+            <summary>
+                return true if ipaddress is contained in network
+            </summary>
+            <param name="network"></param>
+            <param name="ipaddress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Contains(Zen.Web.OpSec.Network.IpNetwork,Zen.Web.OpSec.Network.IpNetwork)">
+            <summary>
+                return true is network2 is fully contained in network
+            </summary>
+            <param name="network"></param>
+            <param name="network2"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.IANA_ABLK_RESERVED1">
+            <summary>
+                10.0.0.0/8
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.IANA_BBLK_RESERVED1">
+            <summary>
+                172.12.0.0/12
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Zen.Web.OpSec.Network.IpNetwork.IANA_CBLK_RESERVED1">
+            <summary>
+                192.168.0.0/16
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.IsIANAReserved(System.Net.IPAddress)">
+            <summary>
+                return true if ipaddress is contained in
+                IANA_ABLK_RESERVED1, IANA_BBLK_RESERVED1, IANA_CBLK_RESERVED1
+            </summary>
+            <param name="ipaddress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.IsIANAReserved(Zen.Web.OpSec.Network.IpNetwork)">
+            <summary>
+                return true if ipnetwork is contained in
+                IANA_ABLK_RESERVED1, IANA_BBLK_RESERVED1, IANA_CBLK_RESERVED1
+            </summary>
+            <param name="ipnetwork"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Subnet(Zen.Web.OpSec.Network.IpNetwork,System.Byte)">
+            <summary>
+                Subnet a network into multiple nets of cidr mask
+                Subnet 192.168.0.0/24 into cidr 25 gives 192.168.0.0/25, 192.168.0.128/25
+                Subnet 10.0.0.0/8 into cidr 9 gives 10.0.0.0/9, 10.128.0.0/9
+            </summary>
+            <param name="ipnetwork"></param>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TrySubnet(Zen.Web.OpSec.Network.IpNetwork,System.Byte,Zen.Web.OpSec.Network.IpNetworkCollection@)">
+            <summary>
+                Subnet a network into multiple nets of cidr mask
+                Subnet 192.168.0.0/24 into cidr 25 gives 192.168.0.0/25, 192.168.0.128/25
+                Subnet 10.0.0.0/8 into cidr 9 gives 10.0.0.0/9, 10.128.0.0/9
+            </summary>
+            <param name="ipnetwork"></param>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Supernet(Zen.Web.OpSec.Network.IpNetwork,Zen.Web.OpSec.Network.IpNetwork)">
+            <summary>
+                Supernet two consecutive cidr equal subnet into a single one
+                192.168.0.0/24 + 192.168.1.0/24 = 192.168.0.0/23
+                10.1.0.0/16 + 10.0.0.0/16 = 10.0.0.0/15
+                192.168.0.0/24 + 192.168.0.0/25 = 192.168.0.0/24
+            </summary>
+            <param name="network1"></param>
+            <param name="network2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TrySupernet(Zen.Web.OpSec.Network.IpNetwork,Zen.Web.OpSec.Network.IpNetwork,Zen.Web.OpSec.Network.IpNetwork@)">
+            <summary>
+                Try to supernet two consecutive cidr equal subnet into a single one
+                192.168.0.0/24 + 192.168.1.0/24 = 192.168.0.0/23
+                10.1.0.0/16 + 10.0.0.0/16 = 10.0.0.0/15
+                192.168.0.0/24 + 192.168.0.0/25 = 192.168.0.0/24
+            </summary>
+            <param name="network1"></param>
+            <param name="network2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.Supernet(Zen.Web.OpSec.Network.IpNetwork[])">
+            <summary>
+                Supernet a list of subnet
+                192.168.0.0/24 + 192.168.1.0/24 = 192.168.0.0/23
+                192.168.0.0/24 + 192.168.1.0/24 + 192.168.2.0/24 + 192.168.3.0/24 = 192.168.0.0/22
+            </summary>
+            <param name="ipnetworks"></param>
+            <param name="supernet"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TrySupernet(Zen.Web.OpSec.Network.IpNetwork[],Zen.Web.OpSec.Network.IpNetwork[]@)">
+            <summary>
+                Supernet a list of subnet
+                192.168.0.0/24 + 192.168.1.0/24 = 192.168.0.0/23
+                192.168.0.0/24 + 192.168.1.0/24 + 192.168.2.0/24 + 192.168.3.0/24 = 192.168.0.0/22
+            </summary>
+            <param name="ipnetworks"></param>
+            <param name="supernet"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Zen.Web.OpSec.Network.IpNetwork.TryGuessCidr(System.String,System.Byte@)">
+            <summary>
+                Class              Leading bits    Default netmask
+                A (CIDR /8)	       00           255.0.0.0
+                A (CIDR /8)	       01           255.0.0.0
+                B (CIDR /16)	   10           255.255.0.0
+                C (CIDR /24)       11 	        255.255.255.0
+            </summary>
+            <param name="ip"></param>
+            <param name="cidr"></param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Zen.Web.OpSec.Network.IpNetwork.TryParseCidr(System.String,System.Nullable{System.Byte}@)" -->
+    </members>
+</doc>
