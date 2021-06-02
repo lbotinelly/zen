@@ -20,7 +20,7 @@ namespace Zen.Web.App
 {
     public class ZenWebOrchestrator : IZenWebOrchestrator
     {
-        public ZenWebOrchestrator(IOptions<Configuration.IOptions> options) : this(options.Value) { }
+        public ZenWebOrchestrator(IOptions<Configuration.Options> options) : this(options.Value) { }
 
         public ZenWebOrchestrator(Configuration.IOptions options) => Options = options;
 
