@@ -4,6 +4,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Zen.Base;
 using Zen.Base.Extension;
@@ -37,9 +38,30 @@ namespace Zen.Web.Host
 
             var useIisIntegration = Current.Options.GetCurrentEnvironment().UseIisIntegration;
 
-            if (!Base.Host.IsContainer)
+            if (useIisIntegration)
             {
-                var hostBuilder = new WebHostBuilder() // Pretty standard pipeline,
+                var localHostBuilder = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args);
+
+                localHostBuilder
+                    .ConfigureLogging(logging =>
+                     {
+                         logging
+                             .AddFilter("Microsoft", LogLevel.Warning)
+                             .AddFilter("System", LogLevel.Warning)
+                             .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
+                             .ClearProviders()
+                             .AddConsole()
+                             .AddEventLog();
+                     });
+
+                localHostBuilder.ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<T>(); });
+                localHostBuilder.Build().Run();
+                return;
+            }
+            else
+            {
+
+                IWebHostBuilder hostBuilder = new WebHostBuilder() // Pretty standard pipeline,
                     .UseContentRoot(Directory.GetCurrentDirectory())
                     .ConfigureLogging(logging =>
                     {
@@ -50,52 +72,54 @@ namespace Zen.Web.Host
                             .ClearProviders()
                             .AddConsole()
                             .AddEventLog();
-                    })
-                    .UseKestrel(k =>
-                    {
-
-                        var injectors = IoC.GetClassesByInterface<IKestrelConfigurationInjector>().CreateInstances<IKestrelConfigurationInjector>().ToList();
-                        foreach (var injector in injectors) injector.Handle(k);
                     });
 
-                if (useIisIntegration)
-                    hostBuilder.UseIISIntegration();
+
+
+                if (!Base.Host.IsContainer)
+                {
+                    hostBuilder
+                        .UseKestrel(k =>
+                        {
+
+                            var injectors = IoC.GetClassesByInterface<IKestrelConfigurationInjector>().CreateInstances<IKestrelConfigurationInjector>().ToList();
+                            foreach (var injector in injectors) injector.Handle(k);
+                        })
+                        .ConfigureKestrel((context, options) =>
+                        {
+                            // We'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
+                            var localAddress = IPAddress.Parse("0.0.0.0");
+
+                            var currentEnv = Current.Options.GetCurrentEnvironment();
+
+                            var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, currentEnv.HttpPort);
+                            var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, currentEnv.HttpsPort);
+
+                            options.Listen(localAddress, httpPort);
+
+                            var hostCertificate = GetCertificate();
+
+                            // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default dev cert created by VS.
+                            if (hostCertificate == null) return;
+
+                            Base.Current.Log.KeyValuePair("Certificate", $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
+
+                            options.Listen(localAddress, httpsPort,
+                                listenOptions => { listenOptions.UseHttps(hostCertificate); });
+                        });
+
+
+
+
+                }
 
                 hostBuilder.UseStartup<T>();
-
-                if (!useIisIntegration) // if using IIS integration no further Kestrel customization is required.
-                    hostBuilder
-                    .ConfigureKestrel((context, options) =>
-                    {
-                        // We'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
-                        var localAddress = IPAddress.Parse("0.0.0.0");
-
-                        var currentEnv = Current.Options.GetCurrentEnvironment();
-
-                        var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, currentEnv.HttpPort);
-                        var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, currentEnv.HttpsPort);
-
-                        options.Listen(localAddress, httpPort);
-
-                        var hostCertificate = GetCertificate();
-
-                        // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default dev cert created by VS.
-                        if (hostCertificate == null) return;
-
-                        Base.Current.Log.KeyValuePair("Certificate", $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
-
-                        options.Listen(localAddress, httpsPort,
-                            listenOptions => { listenOptions.UseHttps(hostCertificate); });
-                    });
 
                 var host = hostBuilder.Build();
 
                 host.Run();
-                return;
             }
-
-            // Vanilla stuff.
-            WebHost.CreateDefaultBuilder(args).UseStartup<T>().Build().Run();
+            return;
         }
 
         private static X509Certificate2 GetCertificate()
