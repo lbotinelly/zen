@@ -5,11 +5,9 @@ using Bogus;
 using Bogus.DataSets;
 using Zen.Base.Module;
 using Zen.Base.Module.Data.LINQ;
-using Zen.Web.GraphQL.Attribute;
 
 namespace Sample04_AuthenticatedWeb.Model
 {
-    [GraphQl(Alias = "person")]
     public class SamplePersonDataContext : DataContext<SamplePerson> { }
 
     public class SamplePerson : Data<SamplePerson>
