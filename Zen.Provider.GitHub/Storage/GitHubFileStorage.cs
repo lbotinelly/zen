@@ -133,7 +133,7 @@ namespace Zen.Provider.GitHub.Storage
                         //localRepo.Network.Push(remote, targetSpec, new PushOptions {CredentialsProvider = GitHubCredentialsProvider});
                     }
                 }
-                catch (RepositoryNotFoundException e)
+                catch (RepositoryNotFoundException)
                 {
                     Log.KeyValuePair(GetType().Name, "Local repo not found. Attempting to create.",
                         Message.EContentType.Maintenance);

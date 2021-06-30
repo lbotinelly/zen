@@ -242,7 +242,7 @@ namespace Zen.Module.Data.MongoDB
                 RegisterBsonType(probe, false);
 
                 return true;
-            } catch (Exception e) { }
+            } catch (Exception) { }
 
             return false;
         }

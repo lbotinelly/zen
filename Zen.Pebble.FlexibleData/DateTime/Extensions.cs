@@ -18,7 +18,7 @@ namespace Zen.Pebble.FlexibleData.DateTime
                     targetCalendar.GetSecond(sourceDateTime));
                 return referenceDateTime;
             }
-            catch (Exception e) { return null; }
+            catch (Exception) { return null; }
         }
         public static System.DateTime? FromCalendar(this System.DateTime sourceDateTime, Calendar targetCalendar)
         {
@@ -35,7 +35,7 @@ namespace Zen.Pebble.FlexibleData.DateTime
                 );
                 return referenceDateTime;
             }
-            catch (Exception e) { return null; }
+            catch (Exception) { return null; }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Zen.Base.Module.Service
 
 
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     
                     // throw new InvalidDataException("Error initializing " + item.GetType().FullName, e);

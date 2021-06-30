@@ -165,7 +165,7 @@ namespace Zen.Pebble.Database
                 response.Value = compiled.DynamicInvoke();
                 response.HasValue = true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // This means that this expression needs to be parsed into Container.Member format.
             }
@@ -185,7 +185,7 @@ namespace Zen.Pebble.Database
                 var compiled = lambda.Compile();
                 response = compiled.DynamicInvoke();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // This means that this expression needs to be parsed into Container.Member format.
             }
