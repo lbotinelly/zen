@@ -1,7 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AssemblyName>Zen.Module.Data.Oracle</AssemblyName>
+    <RootNamespace>Zen.Module.Data.Oracle</RootNamespace>
+    <Version>0.0.1.0</Version>
+    <Description>Microsoft SQL Server adapter for Zen</Description>
+    <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +28,17 @@
   <ItemGroup>
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\Zen.Module.Data.Relational\Zen.Module.Data.Relational.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\static\res\zen-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.3.37" />
   </ItemGroup>
 
 </Project>
