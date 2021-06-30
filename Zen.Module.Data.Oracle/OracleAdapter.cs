@@ -188,7 +188,7 @@ END;
                 foreach (var (name, memberDescriptor) in Settings.Members)
                 {
                     var pType = memberDescriptor.Type;
-                    long size = memberDescriptor.Size ?? Masks.DefaultTextSize;
+                    long size = memberDescriptor.Size != 0 ? memberDescriptor.Size : Masks.DefaultTextSize;
 
                     var pSourceName = memberDescriptor.TargetName;
 
