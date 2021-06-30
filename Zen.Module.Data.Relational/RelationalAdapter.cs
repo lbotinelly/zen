@@ -240,7 +240,7 @@ namespace Zen.Module.Data.Relational
             Execute(Statements.UpdateModel, ToRawParameters(model));
             return Get(model.GetDataKey(), mutator);
         }
-        public override bool KeyExists(string key, Mutator mutator = null) => ExecuteScalar<long>(Statements.CheckKey, KeyParameter(key)) > 0;
+        public override bool KeyExists(string key, Mutator mutator = null) => int.Parse(ExecuteScalar<object>(Statements.CheckKey, KeyParameter(key)).ToString()) > 0;
         // ReSharper disable once IdentifierTypo
         public override T Upsert(T model, Mutator mutator = null) => !KeyExists(model.GetDataKey()) ? Insert(model, mutator) : Save(model, mutator);
         public override void Remove(string key, Mutator mutator = null) => Execute(Statements.RemoveModel, KeyParameter(key));

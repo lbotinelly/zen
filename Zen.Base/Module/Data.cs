@@ -141,7 +141,9 @@ namespace Zen.Base.Module
                         var targetMember = (MemberAttribute) Attribute.GetCustomAttribute(property, typeof(MemberAttribute)) ?? new MemberAttribute {TargetName = property.Name};
                         targetMember.SourceName = property.Name;
                         targetMember.Interface = EMemberType.Property;
-                        targetMember.Type = property.PropertyType;
+                        targetMember.Type =  property.PropertyType;
+
+                        
 
                         memberMap.Add(property.Name, targetMember);
                     }

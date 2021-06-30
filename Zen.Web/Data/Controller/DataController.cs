@@ -99,6 +99,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
+        [NonAction]
         public void EvaluateAuthorization(EHttpMethod method, EActionType accessType, EActionScope scope, string key = null, T model = null, string context = null)
         {
             var configuration = Configuration;
@@ -146,6 +147,7 @@ namespace Zen.Web.Data.Controller
         protected bool CanWrite => Configuration.Security == null || CheckPermissions(Configuration.Security.WritePermission);
         protected bool CanRemove => Configuration.Security == null || CheckPermissions(Configuration.Security.RemovePermission);
 
+        [NonAction]
         public virtual bool CheckPermissions(string permission) => true;
 
         #endregion
@@ -190,6 +192,7 @@ namespace Zen.Web.Data.Controller
             return collection;
         }
 
+        [NonAction]
         private static object TransformResult(IEnumerable<T> collection, string transform)
         {
             object ret = collection;
@@ -370,6 +373,7 @@ namespace Zen.Web.Data.Controller
             }
         }
 
+        [NonAction]
         public T GetByLocatorOrKey(string referenceCode, Mutator mutator) => typeof(IDataLocator).IsAssignableFrom(typeof(T)) ? Data<T>.GetByLocator(referenceCode, mutator) ?? Data<T>.Get(referenceCode, mutator) : Data<T>.Get(referenceCode, mutator);
 
         [HttpPatch("{key}", Order = 999)]
