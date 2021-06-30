@@ -77,6 +77,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.SelfHost", "Zen.Web
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.OpenApi", "Zen.Web.OpenApi\Zen.Web.OpenApi.csproj", "{E1DEE553-2B52-411B-B8B5-D8646E358928}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Module.Data.SqlServer", "Zen.Module.Data.SqlServer\Zen.Module.Data.SqlServer.csproj", "{58F1F994-2543-437F-8544-93D495236DBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,10 @@ Global
 		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1DEE553-2B52-411B-B8B5-D8646E358928}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58F1F994-2543-437F-8544-93D495236DBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F1F994-2543-437F-8544-93D495236DBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F1F994-2543-437F-8544-93D495236DBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F1F994-2543-437F-8544-93D495236DBE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
