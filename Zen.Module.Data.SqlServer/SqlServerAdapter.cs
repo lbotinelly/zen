@@ -21,6 +21,9 @@ namespace Zen.Module.Data.SqlServer
         private Configuration.IOptions _options;
         private bool _useAdmin;
 
+
+        public override RelationalStatements Statements {get;} = new SqlServerRelationalStatements();
+
         public override StatementMasks Masks { get; } = new StatementMasks
         {
             ParameterPrefix = "@p_",
@@ -42,7 +45,6 @@ namespace Zen.Module.Data.SqlServer
             {typeof(DateTime), new TypeDefinition("DATETIME")},
             {typeof(string), new TypeDefinition("NVARCHAR ({targetSize})") {InlineAutoSchema = "SYS_GUID()"}},
             {typeof(object), new TypeDefinition("IMAGE")},
-
         };
 
         #region Overrides of RelationalAdapter
