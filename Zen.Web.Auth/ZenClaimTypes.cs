@@ -1,4 +1,4 @@
-﻿namespace Zen.App.BaseAuth
+﻿namespace Zen.Web.Auth
 {
     public static class ZenClaimTypes
     {
