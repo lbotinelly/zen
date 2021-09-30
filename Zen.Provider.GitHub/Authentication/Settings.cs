@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.App.BaseAuth;
-using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Web.Auth;
@@ -22,7 +20,7 @@ namespace Zen.Provider.GitHub.Authentication
             var cst = Instances.Options?.Provider?.Val(ProviderKey)?.Val("ClientSecret");
 
             if (cid == null || cst == null)
-                Current.Log.KeyValuePair("Zen.Provider.GitHub.Authentication", "Missing ClientId/ClientSecret", Message.EContentType.Warning);
+                Zen.Base.Current.Log.KeyValuePair("Zen.Provider.GitHub.Authentication", "Missing ClientId/ClientSecret", Message.EContentType.Warning);
             else
                 Instances.AuthenticationBuilder.AddGitHub(ProviderKey, options =>
                 {

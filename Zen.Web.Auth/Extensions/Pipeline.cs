@@ -7,7 +7,6 @@ using AspNet.Security.OpenId;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
-using Zen.App.BaseAuth;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;

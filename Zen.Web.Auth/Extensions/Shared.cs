@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using Zen.App.BaseAuth;
 using Zen.Web.Auth.Model;
 
 namespace Zen.Web.Auth.Extensions
