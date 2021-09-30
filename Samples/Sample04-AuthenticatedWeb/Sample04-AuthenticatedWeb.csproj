@@ -17,7 +17,6 @@
     <ProjectReference Include="..\..\Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj" />
     <ProjectReference Include="..\..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Facebook\Zen.Provider.Facebook.csproj" />
-    <ProjectReference Include="..\..\Zen.Provider.GitHub\Zen.Provider.GitHub.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Google\Zen.Provider.Google.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Microsoft\Zen.Provider.Microsoft.csproj" />
     <ProjectReference Include="..\..\Zen.Provider.Steam\Zen.Provider.Steam.csproj" />
