@@ -27,10 +27,10 @@ namespace Zen.Web.Auth.Controller
         }
 
         [HttpGet("signin")]
-        public object SignIn()
+        public object SignIn([FromQuery] string provider, [FromQuery] string returnUrl)
         {
-            var returnUrl = Request.Query["sourceUrl"].FirstOrDefault() ?? Url.Content("~/");
-            var provider = Request.Query["provider"].FirstOrDefault() ?? "Google";
+            returnUrl = returnUrl ?? Url.Content("~/");
+            provider = provider ?? "Google";
 
             var postConfirmationUrl = $"confirm?returnUrl={WebUtility.UrlEncode(returnUrl)}";
 
