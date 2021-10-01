@@ -1,0 +1,8 @@
+<div class="slimForm">
+    <div class="list-group slimFormList">
+        <a class="list-group-item" ng-repeat="i in (data.filteredItems || data.items) | orderBy: config.sort.term" href="#" ui-sref=".detail({id:i.Id,verb:'view'})">
+            <span class="badge">{{i.Email}}</span>
+            {{i.Name}} {{i.LastName}}
+        </a>
+    </div>
+</div>

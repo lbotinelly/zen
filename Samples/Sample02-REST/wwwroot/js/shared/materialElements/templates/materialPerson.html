@@ -1,0 +1,9 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit'">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+        <div class="m-b-10" person-picker ng-if="mode === 'edit'" ng-model="$parent.$parent.localModel" config="config" model-property="Locator" focus-on-show="true" ng-required="required"></div>
+        <div class="itemPerson" ng-if="!!localModel" locator="$parent.$parent.localModel"></div>
+    </div>
+</div>
