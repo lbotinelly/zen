@@ -2,5 +2,7 @@
 
 namespace Zen.Module.Data.SqlServer.Statement
 {
-    public class SqlServerStatement<T> : ModelRender<T, SqlServerStatementFragments, SqlServerWherePart> { }
+    public class SqlServerStatement<T> : ModelRender<T, SqlServerStatementFragments, SqlServerWherePart>
+    {
+    }
 }

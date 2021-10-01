@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Web.Auth;
@@ -21,7 +20,7 @@ namespace Zen.Provider.Facebook.Authentication
             var ast = Instances.Options.Provider.Val(ProviderKey)?.Val("AppSecret");
 
             if (aid == null || ast == null)
-                Current.Log.KeyValuePair("Zen.Provider.Facebook.Authentication", "Missing AppId/AppSecret", Message.EContentType.Warning);
+                Base.Current.Log.KeyValuePair("Zen.Provider.Facebook.Authentication", "Missing AppId/AppSecret", Message.EContentType.Warning);
             else
                 Instances.AuthenticationBuilder.AddFacebook(ProviderKey, options =>
                 {

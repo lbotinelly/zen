@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,8 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Zen.App.Provider;
-using Zen.Base.Extension;
 using Zen.Web.Auth.Configuration;
 
 // ReSharper disable InconsistentlySynchronizedField
@@ -30,10 +27,10 @@ namespace Zen.Web.Auth.Controller
         }
 
         [HttpGet("signin")]
-        public object SignIn()
+        public object SignIn([FromQuery] string provider, [FromQuery] string returnUrl)
         {
-            var returnUrl = Request.Query["sourceUrl"].FirstOrDefault() ?? Url.Content("~/");
-            var provider = Request.Query["provider"].FirstOrDefault() ?? "Google";
+            returnUrl = returnUrl ?? Url.Content("~/");
+            provider = provider ?? "Google";
 
             var postConfirmationUrl = $"confirm?returnUrl={WebUtility.UrlEncode(returnUrl)}";
 
@@ -62,8 +59,7 @@ namespace Zen.Web.Auth.Controller
 
             await _signInManager.SignInAsync(user, props);
 
-            var person = App.Current.Orchestrator.SigninPersonByIdentity(info.Principal.Identity);
-            Base.Current.Log.Add(person.ToJson());
+            Current.AuthEventHandler?.OnConfirmSignIn(info.Principal.Identity);
 
             return LocalRedirect(returnUrl);
         }
@@ -76,14 +72,14 @@ namespace Zen.Web.Auth.Controller
             if (Instances.Options.Mode == Options.EMode.StandAlone)
             {
                 await _signInManager.SignOutAsync();
-                Current.Context.Session.Clear();
-
+                Current.AuthEventHandler?.OnSignOut();
                 return Ok();
             }
 
             try
             {
-                return LocalRedirect(App.Current.Orchestrator.GetApiUri() + "/framework/auth/signout");
+                string targetUrl = Current.AuthEventHandler?.GetSignOutRedirectUri();
+                return targetUrl != null ? LocalRedirect(targetUrl) : (IActionResult)Ok();
             }
             catch (Exception e)
             {
@@ -95,19 +91,13 @@ namespace Zen.Web.Auth.Controller
         [HttpGet("maintenance/start")]
         public object DoMaintenance()
         {
-            App.Current.Orchestrator.CompileAllPeoplePermissions();
-
-            return true;
+            return Current.AuthEventHandler?.OnMaintenanceRequest();
         }
 
         [HttpGet("identity")]
         public object GetIdentity()
         {
-            var tmp = App.Current.Orchestrator.Person?.ToMemberDictionary() ?? new ConcurrentDictionary<string, object>();
-
-            tmp["IsAuthenticated"] = App.Current.Orchestrator.Person != null;
-
-            return tmp;
+            return Current.AuthEventHandler?.GetIdentity();
         }
 
         [HttpGet("providers")]

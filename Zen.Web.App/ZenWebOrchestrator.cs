@@ -68,19 +68,6 @@ namespace Zen.Web.App
                     {
                         if (usePrefix) options.UseCentralRoutePrefix(new RouteAttribute(prefix + "/"));
                     })
-                    .AddNewtonsoftJson(options =>
-                    {
-                        //Json serializer settings Enum as string, omit nulls.
-                        // https://gist.github.com/regisdiogo/27f62ef83a804668eb0d9d0f63989e3e
-                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-
-                        // Return JSON responses in LowerCase?
-                        options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-
-                        // Resolve Looping navigation properties
-                        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                    })
                     // Disable inference rules
                     // https://docs.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-2.2
                     .ConfigureApiBehaviorOptions(options =>

@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
-using Zen.App.BaseAuth;
-using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
 using Zen.Web.Auth;
@@ -20,7 +18,7 @@ namespace Zen.Provider.Steam.Authentication
             var applicationKey = Instances.Options.Provider.Val(ProviderKey)?.Val("ApplicationKey");
 
             if (applicationKey == null)
-                Current.Log.KeyValuePair("Zen.Provider.Steam.Authentication", "Missing ApplicationKey", Message.EContentType.Warning);
+                Base.Current.Log.KeyValuePair("Zen.Provider.Steam.Authentication", "Missing ApplicationKey", Message.EContentType.Warning);
             else
                 Instances.AuthenticationBuilder.AddSteam(options =>
                 {

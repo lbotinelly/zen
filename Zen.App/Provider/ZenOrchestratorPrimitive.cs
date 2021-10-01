@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using Zen.App.BaseAuth;
 using Zen.App.Core.Application;
 using Zen.App.Core.Group;
 using Zen.App.Core.Person;
@@ -230,7 +229,7 @@ namespace Zen.App.Provider
         {
             // Claims are just a bunch of strings mapped to declared ClaimTypes, so let's look for the obvious stuff.
 
-            var id = modelClaims[ZenClaimTypes.Stamp];
+            var id = modelClaims["/stamp"];
 
             var model = Model.Core.Person.Get(id) ?? new Person { Id = id };
 
