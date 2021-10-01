@@ -17,7 +17,15 @@
       "Microsoft": {
         "ClientId": "f16567ab-7850-4744-8b38-6c76db02399e",
         "ClientSecret": "4a3mb:2Pm[WQJ?fjYyhb0?BVQpIcdB.H"
-      }
+      },
+      "OpenId": [
+        {
+          "Provider": "Google",
+          "Authority": "https://accounts.google.com",
+          "ClientId": "430544352174-mkmeh6db1u3ten9fhi56hij52jmf7f0f.apps.googleusercontent.com",
+          "ClientSecret": "CLyEyaNyttKmsPyeF1_oChgn"
+        }
+      ]
     }
   }
 }
