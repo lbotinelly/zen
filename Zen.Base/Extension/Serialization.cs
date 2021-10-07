@@ -511,7 +511,7 @@ namespace Zen.Base.Extension
                     if (probe != null) return probe;
 
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw;
                 }

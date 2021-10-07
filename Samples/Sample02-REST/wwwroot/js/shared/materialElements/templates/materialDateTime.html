@@ -1,0 +1,17 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <!--<div class="actions">
+            <a ng-if="(mode === 'edit') && (!!$parent.localModel)" ng-click="clear()">
+                <i class="zmdi zmdi-close"></i>
+            </a>
+            <a href="" ng-click="onIconClick({icon: 'empty'})" ng-if="iconSet.empty && (mode === 'edit')">
+                <i class="zmdi" ng-class="iconSet.empty"></i>
+            </a>
+        </div>-->
+        <input type="datetime-local" class="form-control" ng-if="!readOnly && mode === 'edit'" id="{{elemId}}" name="{{elemId}}" ng-maxlength="{{ngMaxlength}}" placeholder="{{placeholder}}" ng-model="$parent.$parent.localModel" ng-required="required">
+        <div class="form-label" ng-if="mode !== 'edit' || !!readOnly">
+            <span ng-if="(localModel != modelCopy) && compare" processing-diff right-obj="localModel" left-obj="modelCopy"></span>
+            <span ng-if="(localModel == modelCopy) && compare || !compare" ng-class="{'filter-setting':filterSetting}" ng-click="setFilter()">{{localModel | date:'medium'}} <small am-time-ago="localModel" class="faded"></small></span>
+        </div>
+    </div>
+</div>

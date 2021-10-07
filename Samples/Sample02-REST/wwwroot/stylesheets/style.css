@@ -1,0 +1,50 @@
+body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #00B7FF;
+}
+
+.faded {
+    opacity: 50%;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.navbar-default {
+    background-image: initial;
+}
+
+.pull-right {
+    float: right !important;
+}
+
+.ellipsed-text {
+    opacity: .6;
+    margin-bottom: .5em;
+    display: block;
+}
+
+.navbar-default {
+    color: gray !important;
+}
+
+    .navbar-default .navbar-brand,
+    .navbar-default .navbar-nav > li > a {
+        color: gray !important;
+    }
+
+        .navbar-default .navbar-brand:hover,
+        .navbar-default .navbar-nav > li > a:hover {
+            color: #00bc8c !important;
+        }
+
+
+.code .form-label {
+    font-family: "Lucida Console", Monaco, monospace;
+    line-height: 1.2;
+        }

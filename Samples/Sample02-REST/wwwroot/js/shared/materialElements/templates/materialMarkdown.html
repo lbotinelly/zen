@@ -1,0 +1,10 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit'">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+        <markdown-editor class="form-control fg-input" ng-if="mode === 'edit'" id="{{elemId}}" placeholder="{{placeholder}}" ng-model="$parent.$parent.localModel" ng-required="required"></markdown-editor>
+        <span ng-if="mode !== 'edit'&& (localModel == modelCopy)" class="markdown-content" btf-markdown="$parent.$parent.localModel"></span>
+        <span ng-if="mode !== 'edit' && (localModel != modelCopy)" processing-diff right-obj="localModel" left-obj="modelCopy"></span>
+    </div>
+</div>

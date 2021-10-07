@@ -1,0 +1,33 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div ng-if="mode === 'edit'">
+            <div class="actions">
+                <a ng-if="!!$parent.$parent.localModel" ng-click="clear()">
+                    <i class="zmdi zmdi-close"></i>
+                </a>
+            </div>
+
+            <div class="select">
+                
+                <!--<input type="text" ng-model="$parent.$parent.$parent.localModel"
+                       uib-typeahead="i for i in lists | notInCollectionByKey:targetLists:'Id':'Id' | filter:$viewValue | limitTo:8" class="form-control"
+                       typeahead-append-to-body="true"
+                       typeahead-template-url="listItem.html"
+                       typeahead-on-select="selectList(_targetList);_targetList = '';">-->
+                
+                
+
+                <select class="form-control" ng-model="$parent.$parent.$parent.localModel" ng-if="!arraySource">
+                    <option ng-repeat="item in selectSource" value="{{$eval(keyProperty)}}">{{$eval(displayProperty)}}</option>
+                </select>
+                <select class="form-control" ng-model="$parent.$parent.$parent.localModel" ng-if="!!arraySource">
+                    <option ng-repeat="(k,v) in selectSource" value="{{$eval(keyProperty)}}">{{$eval(displayProperty)}}</option>
+                </select>
+            </div>
+        </div>
+        <div ng-if="mode !== 'edit'">
+            <span ng-if="!arraySource" ng-class="{'filter-setting':filterSetting}" ng-click="setFilter()">{{selectedItem[displayPropertyLocal]}}</span>
+            <span ng-if="!!arraySource" ng-class="{'filter-setting':filterSetting}" ng-click="setFilter()">{{localModel}}</span>
+        </div>
+    </div>
+</div>

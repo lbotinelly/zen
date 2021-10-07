@@ -122,7 +122,7 @@ namespace Zen.Module.Data.MySql
                     var tableCount = QuerySingleValue<int>($"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{tableName}'");
                     if (tableCount != 0) return;
                 }
-                catch (MySqlException e)
+                catch (MySqlException)
                 {
                     if (!_options.AttempSchemaSetup) throw;
 

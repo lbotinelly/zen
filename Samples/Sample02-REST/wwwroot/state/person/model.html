@@ -1,0 +1,13 @@
+<div class="slimFormItem">
+    <div class="card-body card-padding">
+        <input class="materialInput" format="text" label="Name" ng-model="data.item.Name" />
+        <input class="materialInput" format="text" label="Last Name" ng-model="data.item.LastName" />
+        <input class="materialInput" format="text" label="Email" ng-model="data.item.Email" />
+
+    </div>
+
+<pre>
+{{data.item | jsonObject | prettyJson}}
+</pre>
+
+</div>

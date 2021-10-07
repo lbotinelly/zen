@@ -150,7 +150,7 @@ END;
                     var tableCount = QuerySingleValue<int>($"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{tableName}'");
                     if (tableCount != 0) return;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (!_options.AttempSchemaSetup) throw;
 

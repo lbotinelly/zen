@@ -1,0 +1,10 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="p-t-15 p-b-5"  ng-if="mode !== 'view'">
+            <div slider class="input-slider" ng-model="$parent.$parent.localModel" start="0" end="4"></div>
+        </div>
+        <div ng-if="mode !== 'edit'">
+            <span>{{$parent.$parent.localModel}}</span>
+        </div>
+    </div>
+</div>

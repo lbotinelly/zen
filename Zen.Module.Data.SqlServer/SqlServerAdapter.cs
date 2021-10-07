@@ -123,7 +123,7 @@ namespace Zen.Module.Data.SqlServer
                     var tableCount = QuerySingleValue<int>(probe);
                     if (tableCount != 0) return;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (!_options.AttempSchemaSetup) throw;
 

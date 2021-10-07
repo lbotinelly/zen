@@ -1,0 +1,14 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="toggleable waves-effect p-10" ng-click="$parent.$parent.localModel = !$parent.$parent.localModel" ng-class="{'ui-disabled': mode !== 'edit'}">
+
+            <span ng-if="!!switchStates">{{$parent.localModel ? switchStates[0]: switchStates[1]}}</span>
+            <span ng-if="!switchStates">{{placeholder}}</span>
+
+            <div class="toggle-switch" data-ts-color="blue">
+                <input id="{{$parent.elemId}}" type="checkbox" hidden="hidden" ng-model="$parent.localModel">
+                <label for="{{$parent.elemId}}" class="ts-helper"></label>
+            </div>
+        </div>
+    </div>
+</div>

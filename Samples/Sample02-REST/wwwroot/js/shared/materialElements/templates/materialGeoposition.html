@@ -1,0 +1,77 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit'">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+
+        <input type="text" class="form-control" placeholder="Search for places and addresses..." ng-model="$parent.search.term" ng-model-options="{ debounce: 500 }" ng-if="mode === 'edit'">
+
+        <ul class="simple-list">
+            <li class="selectable-item clickable p-5 m-5" ng-repeat="i in search.results" ng-click="elementHandler.create(i.geometry.location.lat, i.geometry.location.lng, true, i.formatted_address)">
+                <div class="selectable-item-content">
+                    <i class="zmdi zmdi-pin faded"></i> {{i.formatted_address}}
+                </div>
+            </li>
+        </ul>
+
+        <input type="text" class="form-control" placeholder="Address description" ng-model="$parent._focusReference.description" ng-if="mode === 'edit'" ng-blur="ensureModelSet()">
+
+        <ui-gmap-google-map center="map.center"
+                            zoom="map.zoom"
+                            events="map.events"
+                            options="map.options"
+                            bounds="map.bounds"
+                            pan="true"
+                            style="height: 400px;">
+
+            <ui-gmap-marker ng-repeat="m in map.markers track by m.id"
+                            coords="m.coords"
+                            icon="m.icon"
+                            idkey="m.id"
+                            events="m.events"
+                            static="$parent.$parent.isView">
+            </ui-gmap-marker>
+
+            <ui-gmap-circle ng-repeat="c in map.circles track by c.id"
+                            idkey="c.id"
+                            center="c.center"
+                            radius="c.radius"
+                            stroke="p.id == $parent._focusReference.id ? map.colors.hilight.stroke : p.stroke"
+                            fill="p.id == $parent._focusReference.id ? map.colors.hilight.fill : p.fill"
+                            clickable="isEdit"
+                            draggable="isEdit"
+                            editable="isEdit"
+                            visible="c.visible"
+                            events="c.events"
+                            static="isView">
+            </ui-gmap-circle>
+
+            <ui-gmap-polygon ng-repeat="p in map.polygons track by p.id"
+                             idkey="p.id"
+                             stroke="p.id == $parent._focusReference.id ? map.colors.hilight.stroke : p.stroke"
+                             fill="p.id == $parent._focusReference.id ? map.colors.hilight.fill : p.fill"
+                             path="p.path"
+                             visible="p.visible"
+                             geodesic="p.geodesic"
+                             fit="false"
+                             editable="isEdit"
+                             draggable="isEdit"
+                             events="p.events"
+                             static="isView">
+            </ui-gmap-polygon>
+
+        </ui-gmap-google-map>
+        <div ng-if="multiple">
+
+            <div ng-repeat="i in localModel" class="selectable-item" style="min-height: inherit;">
+                <div class="selectable-item-content p-5"
+                     ng-class="{'c-white bgm-blue ':i == $parent._focusReference}"
+                     ng-mouseover="elementHandler.setFocusReference(i)"
+                     >
+                    {{i.description}}
+                </div>
+            </div>
+        </div>
+        <!--<div class="form-label" ng-if="mode !== 'edit'">{{localModel}}</div>-->
+    </div>
+</div>
