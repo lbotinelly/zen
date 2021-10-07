@@ -497,6 +497,21 @@ namespace Zen.Base.Module
             return Info<T>.Settings.Adapter.Count(mutator);
         }
 
+        public static bool Exists(string key, Mutator mutator = null)
+        {
+            ValidateState(EActionType.Read);
+
+            if (key == null) return false;
+
+            if (Info<T>.Settings.KeyMemberName == null)
+            {
+                if (!Info<T>.Settings.Silent) Current.Log.Warn<T>($"Invalid operation; key not set for {typeof(T).FullName}");
+                throw new MissingPrimaryKeyException($"Key not set for {typeof(T).FullName}");
+            }
+
+            return Info<T>.Settings.Adapter.KeyExists(key, mutator);
+        }
+
         public static T Get(string key, Mutator mutator = null, bool bypassCache = false)
         {
             ValidateState(EActionType.Read);
@@ -505,8 +520,8 @@ namespace Zen.Base.Module
 
             if (Info<T>.Settings.KeyMemberName == null)
             {
-                if (!Info<T>.Settings.Silent) Current.Log.Warn<T>("Invalid operation; key not set");
-                throw new MissingPrimaryKeyException("Key not set for " + typeof(T).FullName);
+                if (!Info<T>.Settings.Silent) Current.Log.Warn<T>($"Invalid operation; key not set for {typeof(T).FullName}");
+                throw new MissingPrimaryKeyException($"Key not set for {typeof(T).FullName}");
             }
 
             var fullKey = mutator?.KeyPrefix + key;

@@ -6,6 +6,7 @@ using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 using Zen.Base.Module.Data.Pipeline;
+using static Zen.Base.Module.Data.QueryTransform;
 
 namespace Zen.Web.Data.Controller
 {
@@ -77,7 +78,17 @@ namespace Zen.Web.Data.Controller
                     Size = source.ContainsKey("size") ? Convert.ToInt32(source["size"]) : source.ContainsKey("limit") ? Convert.ToInt32(source["limit"]) : 50
                 };
 
-            if (source.ContainsKey("output")) modifier.Transform.OutputFormat = source["output"];
+            if (source.ContainsKey("outputMapping"))
+            {
+                var outputMapping = source["outputMapping"];
+
+                var mappingAttempt = Enum.TryParse(outputMapping, out EOutputMapping mapping);
+
+                if (mappingAttempt)
+                    modifier.Transform.OutputMapping = mapping;
+                else
+                    throw new ArgumentException($"unknown mapping type '{outputMapping}'", "outputMapping");
+            }
 
             if (source.ContainsKey("filter")) modifier.Transform.Filter = source["filter"];
 
