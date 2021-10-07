@@ -4,8 +4,8 @@
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <AssemblyName>Zen.Module.Data.Oracle</AssemblyName>
-    <RootNamespace>Zen.Module.Data.Oracle</RootNamespace>
+    <AssemblyName>Zen.Module.Data.SqlServer</AssemblyName>
+    <RootNamespace>Zen.Module.Data.SqlServer</RootNamespace>
     <Version>0.0.1.0</Version>
     <Description>Microsoft SQL Server adapter for Zen</Description>
     <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
