@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
@@ -12,6 +13,7 @@ using Zen.Base.Module.Data.CommonAttributes;
 using Zen.Base.Module.Log;
 using Zen.Web.Data.Controller.Attributes;
 using Zen.Web.Filter;
+using static Zen.Base.Module.Data.QueryTransform;
 
 // ReSharper disable InconsistentlySynchronizedField
 // ReSharper disable StaticMemberInGenericType
@@ -63,7 +65,7 @@ namespace Zen.Web.Data.Controller
                 .AddHeaders(GetAccessHeaders(accessControl))?
                 .AddMutatorHeaders<T>(RequestMutator);
 
-            var result = new ObjectResult(content) {StatusCode = (int) status};
+            var result = new ObjectResult(content) { StatusCode = (int)status };
             return result;
         }
 
@@ -88,8 +90,8 @@ namespace Zen.Web.Data.Controller
 
                     var newDefinition = new EndpointConfiguration
                     {
-                        Security = (DataSecurityAttribute) Attribute.GetCustomAttribute(currentType, typeof(DataSecurityAttribute)),
-                        Behavior = (DataBehaviorAttribute) Attribute.GetCustomAttribute(currentType, typeof(DataBehaviorAttribute))
+                        Security = (DataSecurityAttribute)Attribute.GetCustomAttribute(currentType, typeof(DataSecurityAttribute)),
+                        Behavior = (DataBehaviorAttribute)Attribute.GetCustomAttribute(currentType, typeof(DataBehaviorAttribute))
                     };
 
                     _attributeResolutionCache.TryAdd(currentType, newDefinition);
@@ -193,17 +195,17 @@ namespace Zen.Web.Data.Controller
         }
 
         [NonAction]
-        private static object TransformResult(IEnumerable<T> collection, string transform)
+        private static object TransformResult(IEnumerable<T> collection, EOutputMapping transform)
         {
             object ret = collection;
 
             switch (transform)
             {
-                case "hashmap":
+                case EOutputMapping.Hashmap:
                     ret = collection.ToReference().ToDictionary(i => i.Key, i => i.Display);
                     break;
 
-                case "map":
+                case EOutputMapping.Map:
                     ret = collection.ToReference();
                     break;
             }
@@ -219,8 +221,24 @@ namespace Zen.Web.Data.Controller
             try
             {
                 var collection = FetchCollection();
+                object outputCollection = collection;
 
-                var outputCollection = RequestMutator.Transform != null ? TransformResult(collection, RequestMutator.Transform.OutputFormat) : collection;
+
+                if (RequestMutator.Transform != null)
+                    if (RequestMutator.Transform.OutputMapping != EOutputMapping.NotSpecified)
+                        outputCollection = TransformResult(collection, RequestMutator.Transform.OutputMapping);
+                    else
+                        if (Interceptors.DataControllerPostFetchInterceptors.Count > 0)
+                    {
+                        var mutator = Request.Query.ToMutator<T>();
+
+                        List<JObject> bufferCollection = collection.Select(i => (JObject)JToken.FromObject(i)).ToList();
+
+                        foreach (var interceptor in Interceptors.DataControllerPostFetchInterceptors)
+                            bufferCollection = interceptor.HandleCollection(bufferCollection, Request) ?? bufferCollection;
+
+                        outputCollection = bufferCollection;
+                    }
 
                 return PrepareResponse(outputCollection);
             }
@@ -318,7 +336,8 @@ namespace Zen.Web.Data.Controller
         {
             try
             {
-                if (model == null){
+                if (model == null)
+                {
 
                     Base.Current.Log.Warn<T>($"POST : Invalid model (NULL)");
                     return new BadRequestResult();

@@ -6,11 +6,18 @@ namespace Zen.Base.Module.Data
 {
     public class QueryTransform
     {
+        public enum EOutputMapping
+        {
+            NotSpecified,
+            Hashmap,
+            Map,
+        }
+
         public string Filter;
         public string OmniQuery;
         public string OrderBy;
         public string Statement;
-        public string OutputFormat;
+        public EOutputMapping OutputMapping = EOutputMapping.NotSpecified;
         public string OutputMembers;
 
         public Pagination Pagination = null;
