@@ -5,10 +5,7 @@
                 version: { tag: "?v=.1" }
             },
             features: {
-                swagger: true,
-                serviceNow: {
-                    link: "https://geisingerprod.service-now.com/nav_to.do?uri=%2Fcom.glideapp.servicecatalog_cat_item_view.do%3Fv%3D1%26sysparm_id%3Dd63ef383db0ec74041e073198c9619fc%26sysparm_link_parent%3D680f2716db27878041e073198c96194f%26sysparm_catalog%3De0d08b13c3330100c8b837659bba8fb4%26sysparm_catalog_view%3Dcatalog_Service_Catalog%26sysparm_view%3Dcatalogs_default"
-                }
+                swagger: true
             },
             resources: { baseUri: "" }
         };
