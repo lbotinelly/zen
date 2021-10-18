@@ -15,9 +15,9 @@ namespace Zen.Web.App.Media
     [Route("api/media/storage")]
     public class MediaStorageController : ControllerBase
     {
-        [ResponseCache(Duration = int.MaxValue, Location = ResponseCacheLocation.Any, NoStore = false)]
+        [ResponseCache(Duration = int.MaxValue, Location = ResponseCacheLocation.Client, NoStore = false)]
         [HttpGet]
-        public object Get([FromQuery] string id)
+        public ActionResult Get([FromQuery] string id)
         {
             // First, prep.
 

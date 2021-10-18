@@ -10,7 +10,7 @@ namespace Zen.Web.Auth.Extensions
         {
             var model = new IdentityUser
             {
-                Id = user.InternalId,
+                Id = source.Claim(ZenClaimTypes.Stamp),
                 Email = source.Claim(ClaimTypes.Email),
                 UserName = source.Claim(ClaimTypes.GivenName),
                 EmailConfirmed = source.Claim(ZenClaimTypes.EmailConfirmed) == "true"

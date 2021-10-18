@@ -10,7 +10,7 @@ namespace Zen.Web.Auth.Service.Extensions
             Web.Instances.BeforeUseEndpoints.Add(() => app.UseAuthorization());
 
             app.UseCookiePolicy();
-            app.UseSession();
+            //app.UseSession();
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Zen.Web.Auth.Configuration;
@@ -30,7 +30,7 @@ namespace Zen.Web.Auth.Controller
         public object SignIn([FromQuery] string provider, [FromQuery] string returnUrl)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
-            provider = provider ?? "Google";
+            provider = provider ?? "google";
 
             var postConfirmationUrl = $"confirm?returnUrl={WebUtility.UrlEncode(returnUrl)}";
 
@@ -97,7 +97,7 @@ namespace Zen.Web.Auth.Controller
         [HttpGet("identity")]
         public object GetIdentity()
         {
-            return Current.AuthEventHandler?.GetIdentity();
+            return Current.AuthEventHandler?.GetIdentity(User);
         }
 
         [HttpGet("providers")]

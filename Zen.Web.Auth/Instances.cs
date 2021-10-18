@@ -9,3 +9,4 @@ namespace Zen.Web.Auth
         public static Options Options;
     }
 }
+
