@@ -68,17 +68,17 @@ namespace Zen.Module.Data.MongoDB
 
             var storageName = MongoUrl.Create(statementsConnectionString).DatabaseName;
 
-            if (SourceBundle is IStorageContainerResolver) storageName = ((IStorageContainerResolver) SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
+            if (SourceBundle is IStorageContainerResolver) storageName = ((IStorageContainerResolver)SourceBundle).GetStorageContainerName(_statements?.EnvironmentCode);
 
             if (string.IsNullOrEmpty(storageName)) storageName = "storage";
 
             // https://jira.mongodb.org/browse/CSHARP-965
             // http://stackoverflow.com/questions/19521626/mongodb-convention-packs
 
-            ConventionRegistry.Register("EnumStringConvention", new ConventionPack {new EnumRepresentationConvention(BsonType.String)}, t => true);
-            ConventionRegistry.Register("ignore extra elements", new ConventionPack {new IgnoreExtraElementsConvention(true)}, t => true);
-            ConventionRegistry.Register("DictionaryRepresentationConvention", new ConventionPack {new DictionaryRepresentationConvention(DictionaryRepresentation.ArrayOfArrays)}, _ => true);
-            ConventionRegistry.Register("EnumStringConvention", new ConventionPack {new EnumRepresentationConvention(BsonType.String)}, t => true);
+            ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
+            ConventionRegistry.Register("ignore extra elements", new ConventionPack { new IgnoreExtraElementsConvention(true) }, t => true);
+            ConventionRegistry.Register("DictionaryRepresentationConvention", new ConventionPack { new DictionaryRepresentationConvention(DictionaryRepresentation.ArrayOfArrays) }, _ => true);
+            ConventionRegistry.Register("EnumStringConvention", new ConventionPack { new EnumRepresentationConvention(BsonType.String) }, t => true);
 
             Database = _client.GetDatabase(storageName);
 
@@ -87,7 +87,7 @@ namespace Zen.Module.Data.MongoDB
             _statements = Info<T>.Settings;
             _tabledata = Info<T>.Configuration;
 
-            if (_tabledata.IgnoreEnvironmentPrefix != true) _collectionPrefix = $"{_statements.EnvironmentCode}.";
+            if (_tabledata.IgnoreEnvironmentPrefix != true && _statements.EnvironmentCode != null) _collectionPrefix = $"{_statements.EnvironmentCode}.";
 
             RegisterGenericChain(typeof(T));
 
@@ -106,7 +106,7 @@ namespace Zen.Module.Data.MongoDB
             _collectionNamespace = _tabledata?.SetPrefix ?? _statements.TypeNamespace;
             var typeName = _tabledata?.SetName ?? _statements.TypeName;
 
-            if (typeof(IStorageCollectionResolver).GetTypeInfo().IsAssignableFrom(_refType.GetTypeInfo())) typeName = ((IStorageCollectionResolver) _refType.CreateInstance()).GetStorageCollectionName();
+            if (typeof(IStorageCollectionResolver).GetTypeInfo().IsAssignableFrom(_refType.GetTypeInfo())) typeName = ((IStorageCollectionResolver)_refType.CreateInstance()).GetStorageCollectionName();
 
             _collectionName = typeName;
 
@@ -116,7 +116,12 @@ namespace Zen.Module.Data.MongoDB
         private string GetCollectionName(string suffix = "")
         {
             var parsedSuffix = !string.IsNullOrEmpty(suffix) ? _collectionPrefixSeparator + suffix : "";
-            return $"{_collectionPrefix}{_collectionNamespace}.{_collectionName}{parsedSuffix}";
+
+            var prefix = $"{_collectionPrefix}{_collectionNamespace}";
+            if (prefix != "") prefix += ".";
+
+
+            return $"{prefix}{_collectionName}{parsedSuffix}";
         }
 
         private string _collectionPrefix = "";
@@ -132,7 +137,7 @@ namespace Zen.Module.Data.MongoDB
 
             var classMapDefinition = typeof(BsonClassMap<>);
             var classMapType = classMapDefinition.MakeGenericType(type);
-            var classMap = (BsonClassMap) Activator.CreateInstance(classMapType);
+            var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
 
             try
             {
@@ -140,7 +145,8 @@ namespace Zen.Module.Data.MongoDB
                 if (mapId) classMap.MapIdProperty(Key);
 
                 BsonClassMap.RegisterClassMap(classMap);
-            } catch (Exception e) { Log.KeyValuePair(type.FullName, e.Message, Message.EContentType.Warning); }
+            }
+            catch (Exception e) { Log.KeyValuePair(type.FullName, e.Message, Message.EContentType.Warning); }
         }
 
         private void RegisterGenericChain(Type type)
@@ -162,7 +168,8 @@ namespace Zen.Module.Data.MongoDB
 
                     type = type.BaseType;
                 }
-            } catch (Exception e) { Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message); }
+            }
+            catch (Exception e) { Current.Log.Add(e, "Error registering class " + type?.Name + ": " + e.Message); }
         }
 
         private void ClassMapInitializer(BsonClassMap<MongoDbAdapter<T>> cm)
@@ -197,11 +204,13 @@ namespace Zen.Module.Data.MongoDB
                 }
 
                 return model == null ? null : BsonSerializer.Deserialize<T>(model);
-            } catch (FormatException e)
+            }
+            catch (FormatException e)
             {
                 if (TryRegisterByException(e)) return Get(key, mutator);
                 throw;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Current.Log.Add($"{Database.Client.Settings.Credential.Username}@{Database.DatabaseNamespace} - {Collection(mutator).CollectionNamespace}:{key} {e.Message}", Message.EContentType.Warning);
                 throw;
@@ -222,7 +231,8 @@ namespace Zen.Module.Data.MongoDB
 
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
-            try { return Collection<T>(mutator).AsQueryable().Where(predicate).ToList(); } catch (FormatException e)
+            try { return Collection<T>(mutator).AsQueryable().Where(predicate).ToList(); }
+            catch (FormatException e)
             {
                 if (TryRegisterByException(e)) return Where(predicate, mutator);
 
@@ -242,7 +252,8 @@ namespace Zen.Module.Data.MongoDB
                 RegisterBsonType(probe, false);
 
                 return true;
-            } catch (Exception) { }
+            }
+            catch (Exception) { }
 
             return false;
         }
@@ -260,7 +271,8 @@ namespace Zen.Module.Data.MongoDB
 
                 var res = colRes.Result.AsParallel().Select(v => BsonSerializer.Deserialize<TU>(v)).ToList();
                 return res;
-            } catch (FormatException e)
+            }
+            catch (FormatException e)
             {
                 if (TryRegisterByException(e)) return Query<TU>(mutator);
                 throw;
@@ -307,7 +319,8 @@ namespace Zen.Module.Data.MongoDB
                 }
 
                 return obj;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Current.Log.Warn<T>($"{Database.Client.Settings?.Credential?.Username}@{Database?.DatabaseNamespace} - {Collection(mutator).CollectionNamespace}:{id} {e.Message}");
                 Current.Log.Warn<T>($"{obj.ToJson()}");
@@ -329,10 +342,11 @@ namespace Zen.Module.Data.MongoDB
 
                 try
                 {
-                    var indexOptions = new CreateIndexOptions {Unique = false, Name = "fullTextSearch", Background = true};
+                    var indexOptions = new CreateIndexOptions { Unique = false, Name = "fullTextSearch", Background = true };
                     var model = new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Text("$**"), indexOptions);
                     _collectionCache[referenceCode].Indexes.CreateOne(model);
-                } catch (Exception e) { Current.Log.Info<T>(e.Message); }
+                }
+                catch (Exception e) { Current.Log.Info<T>(e.Message); }
 
                 return _collectionCache[referenceCode];
             }
@@ -380,14 +394,15 @@ namespace Zen.Module.Data.MongoDB
                         new ReplaceOneModel<BsonDocument>(
                                 Builders<BsonDocument>.Filter.Eq("_id", i.GetDataKey()),
                                 BsonSerializer.Deserialize<BsonDocument>(i.ToJson()))
-                            {IsUpsert = true});
+                        { IsUpsert = true });
                     returnModelBuffer.Add(i);
                 }
 
                 Collection(mutator).BulkWrite(replacementBuffer.ToArray());
 
                 return returnModelBuffer;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Current.Log.Warn<T>($"{Collection(mutator).CollectionNamespace}:BulkSave {c}/{enumerable.Count} items: {e.Message}");
                 Current.Log.Warn<T>($"{current.ToJson()}");

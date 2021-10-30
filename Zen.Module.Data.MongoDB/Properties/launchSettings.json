@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Zen.Module.Data.MongoDB": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

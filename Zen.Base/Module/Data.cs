@@ -47,7 +47,7 @@ namespace Zen.Base.Module
 
                     // First we prepare a registry containing all necessary information for it to operate.
 
-                    TypeConfigurationCache<T>.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings<T>, DataConfigAttribute>(new Settings<T>(), (DataConfigAttribute) Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
+                    TypeConfigurationCache<T>.ClassRegistration.TryAdd(typeof(T), new Tuple<Settings<T>, DataConfigAttribute>(new Settings<T>(), (DataConfigAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(DataConfigAttribute)) ?? new DataConfigAttribute()));
 
                     _settings = Info<T>.Settings;
 
@@ -138,12 +138,12 @@ namespace Zen.Base.Module
                     var memberMap = new Dictionary<string, MemberAttribute>();
                     foreach (var property in typeof(T).GetProperties())
                     {
-                        var targetMember = (MemberAttribute) Attribute.GetCustomAttribute(property, typeof(MemberAttribute)) ?? new MemberAttribute {TargetName = property.Name};
+                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(property, typeof(MemberAttribute)) ?? new MemberAttribute { TargetName = property.Name };
                         targetMember.SourceName = property.Name;
                         targetMember.Interface = EMemberType.Property;
-                        targetMember.Type =  property.PropertyType;
+                        targetMember.Type = property.PropertyType;
 
-                        
+
 
                         memberMap.Add(property.Name, targetMember);
                     }
@@ -151,7 +151,7 @@ namespace Zen.Base.Module
                     // and then add Fields.
                     foreach (var field in typeof(T).GetFields())
                     {
-                        var targetMember = (MemberAttribute) Attribute.GetCustomAttribute(field, typeof(MemberAttribute)) ?? new MemberAttribute {TargetName = field.Name};
+                        var targetMember = (MemberAttribute)Attribute.GetCustomAttribute(field, typeof(MemberAttribute)) ?? new MemberAttribute { TargetName = field.Name };
                         targetMember.SourceName = field.Name;
                         targetMember.Interface = EMemberType.Field;
                         targetMember.Type = field.FieldType;
@@ -184,7 +184,7 @@ namespace Zen.Base.Module
 
                     _settings.EnvironmentMapping = Attribute
                         .GetCustomAttributes(typeof(T), typeof(DataEnvironmentMappingAttribute))
-                        .Select(i => (DataEnvironmentMappingAttribute) i)
+                        .Select(i => (DataEnvironmentMappingAttribute)i)
                         .ToList();
 
                     var persistentEnvironmentCode = Info<T>.Configuration?.PersistentEnvironmentCode;
@@ -313,7 +313,7 @@ namespace Zen.Base.Module
         public override string ToString() => $"{GetDataKey()} : {GetDataDisplay() ?? this.ToJson()}";
         #endregion
 
-        public static T New() => (T) Activator.CreateInstance(typeof(T));
+        public static T New() => (T)Activator.CreateInstance(typeof(T));
 
         public static IEnumerable<T> GetByLocator(IEnumerable<string> locators, Mutator mutator = null)
         {
@@ -598,7 +598,7 @@ namespace Zen.Base.Module
 
             if (modelSet.Count == 0) return null;
 
-            var resultPackage = new BulkDataOperation<T> {Type = type};
+            var resultPackage = new BulkDataOperation<T> { Type = type };
 
             // First let's obtain any ServiceTokenGuid set by the user.
 
@@ -619,37 +619,37 @@ namespace Zen.Base.Module
 
                     if (!rawMode)
                     {
-                        Parallel.ForEach(modelSet, new ParallelOptions {MaxDegreeOfParallelism = 5}, item =>
-                        {
-                            paralelizableClicker?.Click();
+                        Parallel.ForEach(modelSet, new ParallelOptions { MaxDegreeOfParallelism = 5 }, item =>
+                          {
+                              paralelizableClicker?.Click();
 
-                            if (item.IsNew())
-                            {
-                                var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
+                              if (item.IsNew())
+                              {
+                                  var tempKey = mutator?.KeyPrefix + item.ToJson().Sha512Hash();
 
-                                if (resultPackage.Control.ContainsKey(tempKey))
-                                {
-                                    if (!silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
-                                    failureSet.Add(item);
-                                }
-                                else
-                                {
-                                    resultPackage.Control[tempKey] = new DataOperationControl<T> {Current = item, IsNew = true, Original = null};
-                                }
+                                  if (resultPackage.Control.ContainsKey(tempKey))
+                                  {
+                                      if (!silent) Current.Log.Warn<T>(_timed.Log($"    [Warm-up] duplicated key: {tempKey}"));
+                                      failureSet.Add(item);
+                                  }
+                                  else
+                                  {
+                                      resultPackage.Control[tempKey] = new DataOperationControl<T> { Current = item, IsNew = true, Original = null };
+                                  }
 
-                                return;
-                            }
+                                  return;
+                              }
 
-                            var modelKey = mutator?.KeyPrefix + item.GetDataKey();
+                              var modelKey = mutator?.KeyPrefix + item.GetDataKey();
 
-                            if (resultPackage.Control.ContainsKey(modelKey))
-                            {
-                                if (!silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
-                                return;
-                            }
+                              if (resultPackage.Control.ContainsKey(modelKey))
+                              {
+                                  if (!silent) Current.Log.Warn<T>(_timed.Log($"Repeated Identifier: {modelKey}. Data: {item.ToJson()}"));
+                                  return;
+                              }
 
-                            resultPackage.Control[modelKey] = new DataOperationControl<T> {Current = item};
-                        });
+                              resultPackage.Control[modelKey] = new DataOperationControl<T> { Current = item };
+                          });
 
                         logClicker?.End();
 
@@ -744,31 +744,35 @@ namespace Zen.Base.Module
 
                         logStep = _timed.Log("post-processing individual models");
 
-                        Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions {MaxDegreeOfParallelism = 5}, controlModel =>
-                        {
-                            var key = controlModel.Key;
-                            if (!silent) logClicker.Click();
+                        Parallel.ForEach(resultPackage.Control.Where(i => i.Value.Success), new ParallelOptions { MaxDegreeOfParallelism = 5 }, controlModel =>
+                          {
+                              var key = controlModel.Key;
+                              if (!silent) logClicker.Click();
 
-                            if (type == EActionType.Remove)
-                            {
-                                controlModel.Value.Current.AfterRemove();
-                                ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                            }
-                            else
-                            {
-                                if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
-                                else controlModel.Value.Current.AfterUpdate(key);
+                              if (type == EActionType.Remove)
+                              {
+                                  controlModel.Value.Current.AfterRemove();
+                                  ProcAfterPipeline(EActionType.Remove, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                              }
+                              else
+                              {
+                                  if (controlModel.Value.IsNew) controlModel.Value.Current.AfterInsert(key);
+                                  else controlModel.Value.Current.AfterUpdate(key);
 
-                                controlModel.Value.Current.AfterSave(key);
+                                  controlModel.Value.Current.AfterSave(key);
 
-                                ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
-                            }
+                                  ProcAfterPipeline(controlModel.Value.IsNew ? EActionType.Insert : EActionType.Update, EActionScope.Model, mutator, controlModel.Value.Current, controlModel.Value.Original);
+                              }
 
-                            CacheFactory.FlushModel<T>(key);
-                        });
+                              CacheFactory.FlushModel<T>(key);
+                          });
 
                         resultPackage.Success = successSet;
                         resultPackage.Failure = failureSet;
+
+                        if (typeof(IDataSetMaintenance).IsAssignableFrom(typeof(T)))
+                            if (resultPackage.Success.Any())
+                                ((IDataSetMaintenance)resultPackage.Success.FirstOrDefault()).DoCollectionMaintenance(successSet);
 
                         logStep = _timed.Log($"{type} bulk operation complete. Success: {resultPackage.Success.Count} | Failure: {resultPackage.Failure.Count}");
 
@@ -812,7 +816,7 @@ namespace Zen.Base.Module
             var fetchKeys = keys.ToList();
 
             // First we create a map to accomodate all the requested records.
-            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T) null);
+            var fetchMap = fetchKeys.ToDictionary(i => i, i => (T)null);
 
             //Then we proceed to probe the cache for individual model copies if the user didn't decided to ignore cache.
             var cacheKeyPrefix = mutator?.KeyPrefix;
@@ -895,7 +899,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Update);
 
-            var localModel = (T) this;
+            var localModel = (T)this;
             T storedModel = null;
             var isNew = IsNew(ref storedModel, mutator);
 
@@ -933,7 +937,7 @@ namespace Zen.Base.Module
 
             ValidateState(EActionType.Insert);
 
-            var localModel = (T) this;
+            var localModel = (T)this;
 
             var targetActionType = EActionType.Insert;
 
@@ -965,7 +969,7 @@ namespace Zen.Base.Module
         {
             ValidateState(EActionType.Remove);
 
-            var localModel = (T) this;
+            var localModel = (T)this;
             if (_isDeleted) return null;
 
             T storedModel = null;
