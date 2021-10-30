@@ -14,6 +14,7 @@ namespace Zen.Provider.Google.Authentication
 
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
+
             if (Instances.Options?.WhitelistedProviders != null && Instances.Options?.WhitelistedProviders?.Contains(ProviderKey) != true) return services;
 
             var cid = Instances.Options?.Provider?.Val(ProviderKey)?.Val("ClientId");

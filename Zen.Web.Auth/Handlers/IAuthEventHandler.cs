@@ -1,5 +1,7 @@
-﻿using System.Security.Principal;
+﻿using System.Collections.Generic;
+using System.Security.Principal;
 using Zen.Base.Common;
+using Zen.Base.Module;
 
 namespace Zen.Web.Auth.Handlers
 {
@@ -9,7 +11,8 @@ namespace Zen.Web.Auth.Handlers
         void OnSignOut();
         string GetSignOutRedirectUri();
         object OnMaintenanceRequest();
-        object GetIdentity();
+        object GetIdentity(System.Security.Claims.ClaimsPrincipal user);
+        T GetIdentity<T>(System.Security.Claims.ClaimsPrincipal user);
         bool OnboardIdentity(Model.Identity model);
     }
 }

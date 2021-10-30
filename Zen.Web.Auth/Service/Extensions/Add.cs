@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +20,19 @@ namespace Zen.Web.Auth.Service.Extensions
         {
             services.AddTransient<IUserStore<IdentityUser>, IdentityUserStore>();
 
-            Instances.Options = Base.Configuration.Options.GetSection("Authentication").Get<Options>();
+            try
+            {
+
+
+                Instances.Options = Base.Configuration.Options.GetSection("Authentication").Get<Options>();
+
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+
 
             Instances.Options?.Evaluate();
 
@@ -41,18 +56,15 @@ namespace Zen.Web.Auth.Service.Extensions
             // services.AddRazorPages();
 
             Instances.AuthenticationBuilder = services
-                .AddAuthentication(options =>
-                {
-                    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                })
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    //options.LoginPath = "/Account/Unauthorized/";
-                    //options.AccessDeniedPath = "/Account/Forbidden/";
-                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                    options.SlidingExpiration = true;
+                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
                 });
+
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Base.Host.DataDirectory, "keys")));
 
             services
                 .AddDistributedMemoryCache()

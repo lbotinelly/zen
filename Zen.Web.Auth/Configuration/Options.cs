@@ -2,7 +2,7 @@
 
 namespace Zen.Web.Auth.Configuration
 {
-    public class Options
+    public class Options 
     {
         public enum EMode
         {
@@ -12,7 +12,7 @@ namespace Zen.Web.Auth.Configuration
 
         public EMode Mode { get; set; } = EMode.Client;
 
-        public List<string> WhitelistedProviders { get; set; } 
+        public List<string> WhitelistedProviders { get; set; }
         public Dictionary<string, Dictionary<string, string>> Provider { get; set; } = new Dictionary<string, Dictionary<string, string>>();
 
         public void Evaluate()

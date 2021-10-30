@@ -28,12 +28,8 @@ namespace Zen.Base.Module.Data.Adapter
 
             var envCode = settings.EnvironmentCode;
 
-            if (!settings.ConnectionCypherKeys?.ContainsKey(envCode) == true)
-            {
-                if (settings.ConnectionCypherKeys.ContainsKey("STA")) //There is a standard code available.
-                    envCode = "STA";
-                else Current.Log.KeyValuePair(typeof(T).FullName, "No ConnectionCypherKeys for [STA] environment", Message.EContentType.Warning);
-            }
+            //if (!settings.ConnectionCypherKeys?.ContainsKey(envCode) == true)
+            //    Current.Log.KeyValuePair(typeof(T).FullName, "No ConnectionCypherKeys for default environment", Message.EContentType.Warning);
 
             if (settings.ConnectionCypherKeys?.ContainsKey(envCode) == true) settings.ConnectionString = settings.ConnectionCypherKeys[envCode];
 
@@ -45,7 +41,7 @@ namespace Zen.Base.Module.Data.Adapter
 
             // if (string.IsNullOrEmpty(settings.ConnectionString)) Current.Log.KeyValuePair(typeof(T).FullName, "Connection Cypher Key not set", Message.EContentType.Warning);
 
-            if (!settings.CredentialCypherKeys.ContainsKey(envCode)) return;
+            if (!settings.CredentialCypherKeys.ContainsKey(envCode??"default")) return;
 
             //Handling credentials
             // if (settings.ConnectionString.IndexOf("{credentials}", StringComparison.Ordinal) == -1) Current.Log.Warn("Credentials set, but no placeholder found on connection string");

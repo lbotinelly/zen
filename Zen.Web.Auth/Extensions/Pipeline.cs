@@ -30,6 +30,8 @@ namespace Zen.Web.Auth.Extensions
 
                 context.Properties.StoreTokens(tokens);
 
+                Base.Current.Log.Info("OAuthEventHandler.OnCreatingTicket");
+
                 Base.Current.Log.Add(context.User.ToString());
 
                 context.RunClaimActions(context.User);
@@ -63,7 +65,8 @@ namespace Zen.Web.Auth.Extensions
         public static string StampValue(string provider, string key)
         {
             var rawKey = $"{provider}::{key}";
-            var stamp = rawKey.ToGuid().ToString();
+            //var stamp = rawKey.ToGuid().ToString();
+            var stamp = rawKey;
 
             Log.KeyValuePair(stamp, rawKey, Message.EContentType.StartupSequence);
 
@@ -95,8 +98,6 @@ namespace Zen.Web.Auth.Extensions
             model.SyncWithLocalStore();
 
             model.IdentityUser = Shared.ToIdentityUser(ci, model);
-
-            model.Save();
 
             return model.Save();
         }
