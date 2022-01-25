@@ -22,28 +22,36 @@ namespace Zen.Module.Data.Relational
             return mutator;
         }
 
-        public static SqlBuilder.Template ToSqlBuilderTemplate<T>(this Mutator mutator, Settings<T> settings, StatementMasks masks) where T : Data<T> => mutator.ToSqlBuilderTemplate(settings.Members, masks);
+        public static SqlBuilder.Template ToSqlBuilderTemplate<T>(this Mutator mutator, Settings<T> settings, StatementMasks statementMasks, RelationalStatements relationalStatements) where T : Data<T> => mutator.ToSqlBuilderTemplate(settings.Members, statementMasks, relationalStatements);
 
-        public static SqlBuilder.Template ToSqlBuilderTemplate(this Mutator mutator, Dictionary<string, MemberAttribute> settingsMembers = null, StatementMasks masks = null)
+        public static SqlBuilder.Template ToSqlBuilderTemplate(this Mutator mutator, Dictionary<string, MemberAttribute> settingsMembers = null, StatementMasks statementMasks = null, RelationalStatements relationalStatements = null)
         {
             if (mutator == null) return null;
 
-            var ret = new SqlBuilder();
+            var sqlBuilder = new SqlBuilder();
 
             var template = mutator.Transform.Statement;
+            string parameterPrefix = statementMasks.ParameterPrefix;
 
             if (mutator.Transform?.Filter != null)
             {
                 if (!template.Contains("where", StringComparison.InvariantCultureIgnoreCase)) template += " /**where**/";
 
-                var parameterPrefix = masks.ParameterPrefix;
+                Dictionary<string, object> filterSet = mutator.Transform?.Filter.FromJson<Dictionary<string, object>>();
+                IDictionary<string, object> parameterSet = filterSet.AddPrefix(parameterPrefix);
 
-                var filter = mutator.Transform?.Filter.FromJson<Dictionary<string, object>>();
-                var filterParameters = filter.AddPrefix(parameterPrefix);
+                string fieldSet = string.Join(", ", filterSet.Keys.Select(i => $"{i} = {parameterPrefix}{i}"));
 
-                var fieldSet = string.Join(", ", filter.Keys.Select(i => $"{i} = {parameterPrefix}{i}"));
+                sqlBuilder.Where(fieldSet, parameterSet);
+            }
 
-                ret.OrWhere(fieldSet, filterParameters);
+            if (mutator.Transform?.OmniQuery.IsNullOrEmpty() != true)
+            {
+                if (!template.Contains("where", StringComparison.InvariantCultureIgnoreCase)) template += " /**where**/";
+                string omniDefinition = relationalStatements.OmniTextSearch;
+                var omniPayload = new Dictionary<string, object>() { { parameterPrefix + "OmniQuery", mutator.Transform.OmniQuery } };
+
+                sqlBuilder.Where(omniDefinition, omniPayload);
             }
 
             if (!string.IsNullOrEmpty(mutator.Transform.OrderBy))
@@ -64,11 +72,11 @@ namespace Zen.Module.Data.Relational
                 if (settingsMembers != null)
                     if (settingsMembers.ContainsKey(field))
                         field = settingsMembers[field].TargetName;
-                ret.OrderBy(field + direction);
+                sqlBuilder.OrderBy(field + direction);
             }
 
-            var selector = ret.AddTemplate(template);
-            ret.Select(mutator.Transform?.OutputMembers ?? "*");
+            var selector = sqlBuilder.AddTemplate(template);
+            sqlBuilder.Select(mutator.Transform?.OutputMembers ?? "*");
 
             return selector;
         }

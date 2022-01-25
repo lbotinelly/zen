@@ -63,6 +63,8 @@ namespace Zen.Module.Data.Relational
             var InlineParameterSet = string.Join(", ", Settings.Members.Select(i => Masks.ParameterPrefix + i.Value.SourceName));
             var InterspersedFieldParameterSet = string.Join(", ", Settings.Members.Select(i => i.Value.TargetName + Masks.Markers.Assign + Masks.ParameterPrefix + i.Value.SourceName));
 
+            var OmniSearchableFields = Statements.OmniTextSearchMask.format(Settings.DisplayMemberName, Masks.ParameterPrefix + "OmniQuery");
+
             var InlineFieldSetSansKey = string.Join(", ", membersSansKey.Select(i => i.Value.TargetName));
             var InlineParameterSetSansKey = string.Join(", ", membersSansKey.Select(i => Masks.ParameterPrefix + i.Value.SourceName));
             var InterspersedFieldParameterSetSansKey = string.Join(", ", membersSansKey.Select(i => i.Value.TargetName + Masks.Markers.Assign + Masks.ParameterPrefix + i.Value.SourceName));
@@ -79,7 +81,8 @@ namespace Zen.Module.Data.Relational
                 InterspersedFieldParameterSet,
                 InlineFieldSetSansKey,
                 InlineParameterSetSansKey,
-                InterspersedFieldParameterSetSansKey
+                InterspersedFieldParameterSetSansKey,
+                OmniSearchableFields
             }.ToMemberDictionary();
 
             Statements.DropSet = preCol.ReplaceIn(Statements.DropSet);
@@ -99,6 +102,8 @@ namespace Zen.Module.Data.Relational
 
             Statements.GetSetByWhere = preCol.ReplaceIn(Statements.GetSetByWhere);
             Statements.GetSetComplete = preCol.ReplaceIn(Statements.GetSetComplete);
+
+            Statements.OmniTextSearch = preCol.ReplaceIn(Statements.OmniTextSearch);
         }
 
         public class TypeDefinition
@@ -151,8 +156,14 @@ namespace Zen.Module.Data.Relational
                 {
                     conn.Open();
 
+                    if (Host.IsDevelopment)
+                    {
+                        Current.Log.Add(statement, Message.EContentType.Debug);
+                        if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Debug);
+                    }
+
                     var o = conn.Query(statement, parameters)
-                        .Select(a => (IDictionary<string, object>) a)
+                        .Select(a => (IDictionary<string, object>)a)
                         .ToList();
                     conn.Close();
 
@@ -160,7 +171,8 @@ namespace Zen.Module.Data.Relational
 
                     return ret;
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Current.Log.Add(statement, Message.EContentType.Exception);
                 if (parameters != null) Current.Log.Add(parameters.ToJson(), Message.EContentType.Exception);
@@ -171,7 +183,7 @@ namespace Zen.Module.Data.Relational
         public List<TU> AdapterQuery<TU>(string statement, Mutator mutator = null)
         {
             mutator = mutator.SetStatement(statement);
-            var builder = mutator.ToSqlBuilderTemplate(Settings, Masks);
+            var builder = mutator.ToSqlBuilderTemplate(Settings, Masks, Statements);
             var sql = builder.RawSql;
 
             if (mutator.Transform?.Pagination?.Size > 0) sql = AddPaginationWrapper(sql, mutator.Transform.Pagination);
@@ -285,7 +297,20 @@ namespace Zen.Module.Data.Relational
         public override IEnumerable<T> Query(string statement) => RawQuery<T>(statement, null);
         public override IEnumerable<T> Query(Mutator mutator = null) => Query<T>(Statements.GetSetComplete);
         public override IEnumerable<TU> Query<TU>(string statement) => AdapterQuery<TU>(Statements.GetSetComplete);
-        public override IEnumerable<TU> Query<TU>(Mutator mutator = null) => AdapterQuery<TU>(Statements.GetSetComplete, mutator);
+        public override IEnumerable<TU> Query<TU>(Mutator mutator = null)
+        {
+            var hasOmni = mutator?.Transform?.OmniQuery.IsNullOrEmpty() == false;
+
+            if (!hasOmni)
+                return AdapterQuery<TU>(Statements.GetSetComplete, mutator);
+
+            var whereWrapper = Statements.GetSetByWhere.format(Statements.OmniTextSearch);
+            //return AdapterQuery<TU>(Statements.GetSetByWhere, mutator);
+
+            return AdapterQuery<TU>(Statements.GetSetComplete, mutator);
+
+        }
+
         public override IEnumerable<T> Where(Expression<Func<T, bool>> predicate, Mutator mutator = null)
         {
             var parts = ModelRender.Render(predicate);
