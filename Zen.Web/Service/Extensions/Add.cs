@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Zen.Base;
+using Zen.Base.Extension;
+using Zen.Base.Module.Service;
+using Zen.Web.Diagnostics;
 
 namespace Zen.Web.Service.Extensions
 {
@@ -19,8 +23,9 @@ namespace Zen.Web.Service.Extensions
                 options.GetSettings<Configuration.IOptions, Configuration.IOptions>("Web");
             });
 
-            services.AddMvc(options => { })
-                .AddNewtonsoftJson(options =>
+            var mvcBuilder = services.AddMvc(options => { });
+
+            mvcBuilder.AddNewtonsoftJson(options =>
                 {
                     //Json serializer settings Enum as string, omit nulls.
                     // https://gist.github.com/regisdiogo/27f62ef83a804668eb0d9d0f63989e3e
@@ -32,7 +37,19 @@ namespace Zen.Web.Service.Extensions
 
                     // Resolve Looping navigation properties
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                }); ;
+                });
+
+            var hcBuilder = services.AddHealthChecks();
+            //Load all automatic custom healthcheck implementations and instance
+
+            var hcTypes = IoC.GetClassesByInterface<IZenHealthCheck>(false);
+            var hcInstances = hcTypes.CreateInstances<IZenHealthCheck>().ToList();
+
+            hcInstances.ForEach(i => hcBuilder.AddCheck(i.Name, i, i.FailureStatus, i.Tags   ));
+
+            services.AddHeaderPropagation(options => {
+                options.Headers.Add("X-Correlation-ID");
+            });
 
             var builder = new ZenWebBuilder(services);
 
