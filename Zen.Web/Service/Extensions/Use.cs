@@ -2,9 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -53,7 +55,7 @@ namespace Zen.Web.Service.Extensions
 
                     app.UseDefaultFiles(
                         fOptions); // This will allow default (index.html, etc.) requests on the new mapping
-                    app.UseStaticFiles(new StaticFileOptions {FileProvider = fileProvider, RequestPath = rootPrefix});
+                    app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
                 }
                 else
                 {
@@ -103,6 +105,9 @@ namespace Zen.Web.Service.Extensions
                 });
             }
 
+            //Propagates headers from incoming to outgoing requests.
+            app.UseHeaderPropagation();
+
             app.UseRouting();
 
             //UseAuthentication needs to be run between UseRouting and UseEndpoints. Sooo...
@@ -112,6 +117,16 @@ namespace Zen.Web.Service.Extensions
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
+                endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions()
+                { 
+                    AllowCachingResponses = false,
+                    ResponseWriter = Diagnostics.HealthCheck.WriteResponse,
+                    ResultStatusCodes = {
+                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                        [HealthStatus.Degraded] = StatusCodes.Status200OK,
+                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                    }
+                });
             });
 
             if (Base.Host.IsDevelopment)

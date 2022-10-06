@@ -143,8 +143,6 @@ namespace Zen.Base.Module
                         targetMember.Interface = EMemberType.Property;
                         targetMember.Type = property.PropertyType;
 
-
-
                         memberMap.Add(property.Name, targetMember);
                     }
 

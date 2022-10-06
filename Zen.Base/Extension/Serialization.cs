@@ -465,7 +465,7 @@ namespace Zen.Base.Extension
             var et = source.GetType();
             return Enum.GetValues(et).Cast<int>().ToDictionary(i => i, i => Enum.GetName(et, i));
         }
-        public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None)
+        public static string ToJson(this object obj, int pLevels = 0, bool ignoreEmptyStructures = false, Formatting format = Formatting.None, bool enumToString = false)
         {
             //var s = new JavaScriptSerializer {MaxJsonLength = 50000000};
             //if (pLevels != 0) s.RecursionLimit = pLevels;
@@ -477,6 +477,7 @@ namespace Zen.Base.Extension
             {
                 settings.NullValueHandling = NullValueHandling.Ignore;
                 settings.DefaultValueHandling = DefaultValueHandling.Ignore;
+                if (enumToString) settings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
             }
 
             try
