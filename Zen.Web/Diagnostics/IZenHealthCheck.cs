@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Zen.Web.Diagnostics
 {
-    interface IZenHealthCheck : IHealthCheck
+    public interface IZenHealthCheck : IHealthCheck
     {
         string Name { get; }
         HealthStatus? FailureStatus { get; }
