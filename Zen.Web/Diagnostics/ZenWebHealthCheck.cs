@@ -16,15 +16,15 @@ namespace Zen.Web.Diagnostics
 
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            var payload = new Dictionary<string, object>();
+            //var payload = new Dictionary<string, object>();
 
-            foreach(var i in Base.Host.Variables)
-            {
-                var probe = i.Value.ToJson(0,false, Newtonsoft.Json.Formatting.Indented);
-                if (probe != null) payload.Add(i.Key, i.Value);
-            }
+            //foreach(var i in Base.Host.Variables)
+            //{
+            //    var probe = i.Value.ToJson(0,false, Newtonsoft.Json.Formatting.Indented);
+            //    if (probe != null) payload.Add(i.Key, i.Value);
+            //}
 
-            return Task.FromResult(HealthCheckResult.Healthy("Operational", payload));
+            return Task.FromResult(HealthCheckResult.Healthy("Operational"));
         }
     }
 }
