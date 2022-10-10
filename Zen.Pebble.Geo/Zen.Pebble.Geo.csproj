@@ -15,7 +15,7 @@
     <Version>0.0.1.0</Version>
     <Description>A Geolocation Zen pebble.</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020-2022 Zen Development Team</Copyright>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
