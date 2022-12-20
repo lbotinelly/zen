@@ -5,6 +5,7 @@ using Zen.Base;
 using Zen.Base.Common;
 using Zen.Base.Extension;
 using Zen.Storage.Provider.File;
+using static Zen.Storage.Provider.File.IFileStorage;
 
 namespace Zen.Storage.BuiltIn
 {
@@ -44,7 +45,7 @@ namespace Zen.Storage.BuiltIn
             return File.Exists(TargetPath(definition));
         }
 
-        public override async Task<string> Store(IFileDescriptor definition, Stream source)
+        public override async Task<StoreResult> Store(IFileDescriptor definition, Stream source)
         {
             var targetPath = _location;
 
@@ -67,7 +68,9 @@ namespace Zen.Storage.BuiltIn
                 Log.Add(e);
             }
 
-            return definition.Locator;
+            var res = new StoreResult() { Name = definition.Locator };
+
+            return res;
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Zen.Web.App.Media
         {
             var files = Request.Form.Files;
 
-            var mediaObjects = files.Select(sceneFile => sceneFile.ToZenFile()).ToList();
+            List<ZenFile> mediaObjects = files.Select(sceneFile => sceneFile.ToZenFile()).ToList();
 
             Log.KeyValuePair("Media Storage", $"{mediaObjects.Count} object(s)");
 
