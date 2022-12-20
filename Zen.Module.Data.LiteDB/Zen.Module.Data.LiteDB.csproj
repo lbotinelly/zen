@@ -6,7 +6,7 @@
     <Description>LiteDB database provider for Zen</Description>
     <Authors>Zen Development Team</Authors>
     <Company>Zen Development Team</Company>
-    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020-2022 Zen Development Team</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.2</LangVersion>
     <PackageIcon>zen-icon.png</PackageIcon>
@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteDB" Version="5.0.9" />
+    <PackageReference Include="LiteDB" Version="5.0.12" />
   </ItemGroup>
 
   <ItemGroup>

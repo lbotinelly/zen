@@ -40,7 +40,7 @@ namespace Zen.Module.Data.Relational
                 Dictionary<string, object> filterSet = mutator.Transform?.Filter.FromJson<Dictionary<string, object>>();
                 IDictionary<string, object> parameterSet = filterSet.AddPrefix(parameterPrefix);
 
-                string fieldSet = string.Join(", ", filterSet.Keys.Select(i => $"{i} = {parameterPrefix}{i}"));
+                string fieldSet = string.Join(" AND ", filterSet.Keys.Select(i => $"{i} = {parameterPrefix}{i}"));
 
                 sqlBuilder.Where(fieldSet, parameterSet);
             }

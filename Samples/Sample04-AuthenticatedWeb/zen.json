@@ -11,8 +11,8 @@
         "ClientSecret": "{{GitHubClientSecret}}"
       },
       "google": {
-        "ClientId": "741518155670-ga8ash7f1k8bg7aep2ed1s4h51c46v8n.apps.googleusercontent.com",
-        "ClientSecret": "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"
+        "ClientId": "{{GoogleClientId}}",
+        "ClientSecret": "{{GoogleClientSecret}}"
       },
       "Microsoft": {
         "ClientId": "{{MicrosoftClientId}}",

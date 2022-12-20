@@ -17,13 +17,13 @@
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2020 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020-2022 Zen Development Team</Copyright>
     <PackageIcon>zen-icon.png</PackageIcon>
     <Authors>Zen Development Team</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.78" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
     <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
@@ -43,10 +43,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Builder\" />
   </ItemGroup>
 
   <ItemGroup>
