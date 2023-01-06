@@ -1,4 +1,6 @@
-﻿namespace Zen.Base.Service
+﻿using Zen.Base.Module.Log;
+
+namespace Zen.Base.Service
 {
     public class ZenOptions
     {
@@ -10,6 +12,8 @@
 
         public string DefaultScheme { get; set; }
         public int MaxParallelProcesses { get; set; }
+
+        public Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Undefined;
     }
 
     public interface IZenOption { }

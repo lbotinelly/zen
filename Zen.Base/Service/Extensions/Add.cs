@@ -10,7 +10,16 @@ namespace Zen.Base.Service.Extensions
     {
         public static ZenBuilder AddZen(this IServiceCollection services, string defaultScheme)
         {
-            return services.AddZen(o => o.DefaultScheme = defaultScheme);
+
+            services.Configure<ZenOptions>(options =>
+            {
+                options.GetSettings<ZenOptions, ZenOptions>("Base");
+            });
+
+            return services.AddZen(o =>
+            {
+                o.DefaultScheme = defaultScheme;
+            });
         }
 
         public static ZenBuilder AddZen(this IServiceCollection services, Action<ZenOptions> configureOptions = null)
@@ -23,7 +32,14 @@ namespace Zen.Base.Service.Extensions
 
             var builder = new ZenBuilder(services);
 
-            if (configureOptions != null) services.Configure(configureOptions);
+            if (configureOptions != null) 
+                services.Configure(configureOptions);
+            else
+                services.Configure<ZenOptions>(options =>
+                {
+                    options.GetSettings<ZenOptions, ZenOptions>("Base");
+                });
+
 
             services.AddHostedService<ApplicationLifetimeHostedService>();
 

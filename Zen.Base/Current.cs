@@ -5,6 +5,7 @@ using Zen.Base.Module.Encryption;
 using Zen.Base.Module.Environment;
 using Zen.Base.Module.Log;
 using Zen.Base.Module.Service;
+using Zen.Base.Service;
 
 namespace Zen.Base
 {
@@ -16,6 +17,8 @@ namespace Zen.Base
         public static IEnvironmentProvider Environment => _environmentProvider.Value;
         public static IEncryptionProvider Encryption => _IEncryptionProvider.Value;
         public static ILogProvider Log => _ILogProvider.Value;
+
+        public readonly static ZenOptions Options = Configuration.GetSettings<ZenOptions, ZenOptions>(new ZenOptions(), "Base");
 
         // ReSharper disable InconsistentNaming
         private static readonly Lazy<ICacheProvider> _cacheProvider = new Lazy<ICacheProvider>(() => Instances.ServiceProvider.GetService<ICacheProvider>(), true);
