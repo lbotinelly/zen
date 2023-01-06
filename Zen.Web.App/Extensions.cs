@@ -22,7 +22,11 @@ namespace Zen.Web.App
             res.MimeType = formFile.ContentType;
             res.Creation = DateTime.Now;
             stream.Position = 0;
-            res.Store(stream).Wait();
+
+            Storage.Provider.File.IFileStorage.StoreResult storeRes = res.Store(stream).Result;
+            res.Metadata = storeRes.Metadata;
+
+
             res.Save();
 
             return res;

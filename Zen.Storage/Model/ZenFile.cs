@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Zen.App.Model.Audience;
 using Zen.App.Model.Tag;
@@ -28,6 +29,7 @@ namespace Zen.Storage.Model
         public string StoragePath { get; set; }
         public string MimeType { get; set; }
         public long FileSize { get; set; }
+        public Dictionary<string,string> Metadata { get; set; }
         public DateTime Creation { get; set; } = DateTime.Now;
         public EStorageEntityType Type { get; set; } = EStorageEntityType.Item;
         public TagCollection Tags { get; set; }

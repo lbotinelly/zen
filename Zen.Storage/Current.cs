@@ -16,5 +16,8 @@ namespace Zen.Storage
 
         //private static readonly Lazy<IZenFileDescriptor> LazyFileDescriptor = new Lazy<IZenFileDescriptor>(() => Instances.ServiceProvider.GetService<IZenFileDescriptor>(), true);
         //public static IZenFileDescriptor FileDescriptor = LazyFileDescriptor.Value;
+
+        public readonly static Configuration.IOptions Options = Base.Configuration.GetSettings<Configuration.IOptions, Configuration.Options>(new Configuration.Options(), "Storage");
+
     }
 }

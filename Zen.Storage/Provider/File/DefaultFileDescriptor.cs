@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using Zen.App.Model.Audience;
 using Zen.App.Model.Tag;
-using Zen.Base.Common;
 
 namespace Zen.Storage.Provider.File
 {
@@ -39,6 +35,8 @@ namespace Zen.Storage.Provider.File
         public long FileSize { get; set; }
         public TagCollection Tags { get; set; }
         public AudienceDefinition Audience { get; set; }
+        public Dictionary<string, string> Metadata { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public IFileDescriptor GetNewInstance()
         {
             throw new NotImplementedException();
