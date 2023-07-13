@@ -911,7 +911,7 @@ namespace Zen.Base.Module
             else BeforeUpdate();
             BeforeSave();
 
-            var postKey = Info<T>.Settings.Adapter.Upsert(localModel).GetDataKey();
+            var postKey = Info<T>.Settings.Adapter.Upsert(localModel, mutator).GetDataKey();
 
             Info<T>.TryFlushCachedModel(localModel);
 

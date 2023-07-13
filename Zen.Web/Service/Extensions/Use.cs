@@ -136,10 +136,20 @@ namespace Zen.Web.Service.Extensions
             else
             {
                 app.UseExceptionHandler("/Error");
-                app.UseHsts();
+
+                if (options.Hsts)
+                {
+                    app.UseHsts();
+                    Events.AddLog("HSTS", "enabled");
+                }
             }
 
-            if (!Base.Host.IsContainer) app.UseHttpsRedirection();
+            if (!Base.Host.IsContainer)
+                if (options.HttpsRedirection)
+                {
+                    app.UseHttpsRedirection();
+                    Events.AddLog("HTTPS Redirection", "enabled");
+                }
 
             configuration?.Invoke(builder);
         }
