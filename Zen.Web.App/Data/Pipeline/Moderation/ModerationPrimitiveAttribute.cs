@@ -77,7 +77,7 @@ namespace Zen.Web.App.Data.Pipeline.Moderation
                 ctx.Add("baseUrl", path);
             }
 
-            var ret = new Dictionary<string, object> { { "x-zen-moderation", ctx } };
+            var ret = new Dictionary<string, object> { { "x-moderation", ctx } };
 
             return ret;
         }

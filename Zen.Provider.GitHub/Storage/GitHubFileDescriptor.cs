@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Zen.App.Model.Audience;
 using Zen.App.Model.Tag;
 using Zen.Storage.Provider.File;
@@ -17,6 +18,8 @@ namespace Zen.Provider.GitHub.Storage {
         public EStorageEntityType Type { get; set; } = EStorageEntityType.Item;
         public TagCollection Tags { get; set; }
         public AudienceDefinition Audience { get; set; }
+        public Dictionary<string, string> Metadata { get ; set ; }
+
         public IFileDescriptor GetNewInstance() { throw new NotImplementedException(); }
         public override string ToString() => $"[F] {StorageName} ({StoragePath})";
     }

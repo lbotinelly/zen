@@ -32,5 +32,28 @@ namespace Zen.Base.Service.Extensions
 
             return app;
         }
+
+        public static IHost UseZen(this IHost app, Action<IZenBuilder> configuration = null, IHostEnvironment env = null)
+        {
+            configuration = configuration ?? (x => { });
+
+            Instances.Host = app;
+
+            var optionsProvider = app.Services.GetService<IOptions<ZenOptions>>();
+
+            var options = new ZenOptions(optionsProvider.Value);
+
+            AutoService.UseAll(app, env);
+
+            var builder = new ZenBuilder(app, options);
+
+            configuration.Invoke(builder);
+
+            Current.State = Status.EState.Running;
+
+            Current.Log.Add(Current.State.ToString(), Message.EContentType.StartupSequence, Host.ApplicationAssemblyName);
+
+            return app;
+        }
     }
 }

@@ -174,6 +174,12 @@ namespace Zen.Web.Data.Controller
         [NonAction]
         public virtual object BeforeModelEmit(EHttpMethod method, EActionType type, Mutator mutator, T model, T originalModel = null, string key = null) => null;
 
+        [NonAction]
+        public virtual object BeforeCollectionEmit(EHttpMethod method, EActionType type, Mutator mutator, List<JObject> set) => null;
+
+        [NonAction]
+        public virtual void BeforeModelFetch(EHttpMethod method, EActionType type, ref Mutator mutator, ref string key) { }
+
         #endregion
 
         #region HTTP Methods
@@ -236,6 +242,8 @@ namespace Zen.Web.Data.Controller
 
                         foreach (var interceptor in Interceptors.DataControllerPostFetchInterceptors)
                             bufferCollection = interceptor.HandleCollection(bufferCollection, Request) ?? bufferCollection;
+
+                        var payload = BeforeCollectionEmit(EHttpMethod.Get, EActionType.Read, mutator, bufferCollection) ?? bufferCollection;
 
                         outputCollection = bufferCollection;
                     }
@@ -363,14 +371,25 @@ namespace Zen.Web.Data.Controller
             }
         }
 
+        [HttpDelete(Order = 998)]
+        public virtual ActionResult<T> RemoveModelByQuery([FromQuery] string key)
+        {
+            if (key == null) return new BadRequestResult();
+
+            return RemoveModel(key);
+        }
+
         [HttpDelete("{key}", Order = 999)]
         public virtual ActionResult<T> RemoveModel(string key)
         {
             try
             {
+
                 EvaluateAuthorization(EHttpMethod.Delete, EActionType.Remove, EActionScope.Model, key);
 
                 var mutator = RequestMutator;
+
+                BeforeModelFetch(EHttpMethod.Delete, EActionType.Remove, ref mutator, ref key);
 
                 var model = GetByLocatorOrKey(key, mutator);
 
@@ -403,6 +422,8 @@ namespace Zen.Web.Data.Controller
                 EvaluateAuthorization(EHttpMethod.Patch, EActionType.Update, EActionScope.Model, key);
 
                 var mutator = RequestMutator;
+
+                BeforeModelFetch(EHttpMethod.Patch, EActionType.Update, ref mutator, ref key);
 
                 var originalModel = GetByLocatorOrKey(key, mutator);
                 if (originalModel == null) return NotFound();

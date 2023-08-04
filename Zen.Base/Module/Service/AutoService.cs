@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +41,11 @@ namespace Zen.Base.Module.Service
         }
 
         public static void UseAll(IApplicationBuilder app, IHostEnvironment env)
+        {
+            foreach (var item in UseQueue) item.Use(app, env);
+        }
+
+        public static void UseAll(IHost app, IHostEnvironment env)
         {
             foreach (var item in UseQueue) item.Use(app, env);
         }

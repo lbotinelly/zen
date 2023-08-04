@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Zen.Base.Module.Service
 {
@@ -12,6 +13,7 @@ namespace Zen.Base.Module.Service
         public static IServiceCollection ServiceCollection { get => _serviceCollection ?? (_serviceCollection = new ServiceCollection()); internal set => _serviceCollection = value; }
         public static ServiceProvider ServiceProvider { get; internal set; }
         public static IApplicationBuilder ApplicationBuilder { get; internal set; }
+        public static IHost Host { get; internal set; }
 
         internal class ServiceDataBag
         {

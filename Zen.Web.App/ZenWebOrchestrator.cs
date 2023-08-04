@@ -1,14 +1,12 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using Zen.Base.Common;
 using Zen.Base.Module.Service;
 using Zen.Web.App.Common;
@@ -29,7 +27,7 @@ namespace Zen.Web.App
 
         public void Initialize()
         {
-            var ctxConfig = Options.GetCurrentEnvironment();
+            var ctxConfig = Options;
 
             var appCode = Zen.App.Current.Configuration?.Code?.ToLower() ?? Base.Host.ApplicationAssemblyName;
 
@@ -99,6 +97,11 @@ namespace Zen.Web.App
             services
                 .AddRazorPages();
             //.AddRazorRuntimeCompilation();
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/dist"; });
 

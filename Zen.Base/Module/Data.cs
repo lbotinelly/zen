@@ -357,11 +357,29 @@ namespace Zen.Base.Module
 
         // ReSharper disable once StaticMemberInGenericType
 
-        public static string GetDataKey(Data<T> oRef) =>
-            oRef == null
-                ? null
-                : (oRef.GetType().GetProperty(Info<T>.Settings.KeyMemberName)?.GetValue(oRef, null) ?? "")
-                .ToString();
+        public static string GetDataKey(Data<T> oRef)
+        {
+
+            string result = null;
+
+            try
+            {
+
+                result = oRef == null ? null : (oRef.GetType().GetProperty(Info<T>.Settings.KeyMemberName)?.GetValue(oRef, null) ?? "").ToString();
+
+            }
+            catch (Exception e)
+            {
+                Zen.Base.Log.Add(e);
+
+                throw e;
+            }
+
+
+            return result;
+        
+        
+        }
 
         public static string GetDataDisplay(Data<T> oRef)
         {
@@ -911,7 +929,9 @@ namespace Zen.Base.Module
             else BeforeUpdate();
             BeforeSave();
 
-            var postKey = Info<T>.Settings.Adapter.Upsert(localModel, mutator).GetDataKey();
+            var adapter = Info<T>.Settings.Adapter;
+            var adapterModel = adapter.Upsert(localModel, mutator);
+            var postKey = adapterModel.GetDataKey();
 
             Info<T>.TryFlushCachedModel(localModel);
 

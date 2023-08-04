@@ -13,7 +13,16 @@ namespace Zen.Media.Processing.Pipeline
         public ImagePackage SourcePackage { get; set; }
         public IImageFormat Format { get; set; }
 
-        public Stream Process()
+        public class Info
+        {
+            public MemoryStream Stream { get; set; }
+            public int Height { get; internal set; }
+            public int Width { get; internal set; }
+        }
+
+
+
+        public Info Process()
         {
             if (SourceStream!= null)
                 if (SourceImage == null)
@@ -33,12 +42,19 @@ namespace Zen.Media.Processing.Pipeline
 
             foreach (var item in Items) SourceImage = item.Process(SourceImage);
 
-            var memoryStream = new MemoryStream();
-            SourceImage.Save(memoryStream, Format);
 
-            memoryStream.Position = 0;
+            var response = new Info
+            {
+                Stream = new MemoryStream(),
+                Height = SourceImage.Height,
+                Width = SourceImage.Width
+            };
 
-            return memoryStream;
+            SourceImage.Save(response.Stream, Format);
+
+            response.Stream.Position = 0;
+
+            return response;
         }
     }
 }

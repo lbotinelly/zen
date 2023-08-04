@@ -1,5 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Zen.Base.Extension;
 using Zen.Base.Module.Log;
@@ -25,9 +29,34 @@ namespace Zen.Provider.Google.Authentication
             else
                 Instances.AuthenticationBuilder.AddGoogle(ProviderKey, options =>
                 {
+
+                    options.Events.OnCreatingTicket = (arg) =>
+                    {
+                        
+
+                        return Task.CompletedTask;
+                    };
+
+
+
+                    options.Events.OnRedirectToAuthorizationEndpoint = (arg) =>
+                    {
+                        if (!arg.RedirectUri.Contains("redirect_uri=https", StringComparison.OrdinalIgnoreCase))
+                        {
+                            arg.RedirectUri = arg.RedirectUri.Replace("redirect_uri=http", "redirect_uri=https", StringComparison.OrdinalIgnoreCase);
+                        }
+
+                        arg.HttpContext.Response.Redirect(arg.RedirectUri);
+
+                        return Task.CompletedTask;
+                    };
+
                     options.ClientId = cid;
                     options.ClientSecret = cst;
-                    options.CallbackPath = $"/auth/signin/{ProviderKey}";
+
+                    options.SignInScheme = Microsoft.AspNetCore.Identity.IdentityConstants.ExternalScheme;
+
+                    options.CallbackPath = $"/api/auth/signin/{ProviderKey}";
 
                     options.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
 
@@ -46,6 +75,14 @@ namespace Zen.Provider.Google.Authentication
 
                     options.Events = Pipeline.OAuthEventHandler;
                 });
+
+            //Cookie Policy needed for External Auth
+            //services.Configure<CookiePolicyOptions>(options =>
+            //{
+            //    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+            //    options.CheckConsentNeeded = context => true;
+            //    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+            //});
 
             return services;
         }

@@ -50,7 +50,7 @@ namespace Zen.App.Data.Pipeline.SetVersioning
                 accessControl.Remove = false;
             }
 
-            return new Dictionary<string, object> { { "x-zen-setversion", ctx } };
+            return new Dictionary<string, object> { { "x-setversion", ctx } };
         }
 
         #endregion
