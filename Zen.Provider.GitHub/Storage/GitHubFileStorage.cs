@@ -223,6 +223,7 @@ namespace Zen.Provider.GitHub.Storage
             return Task.FromResult(castBuffer);
         }
 
+
         public override async Task<string> Store(IFileDescriptor definition, Stream source)
         {
             var fullPath = Path.Combine(LocalStoragePath, definition.StoragePath.Replace("/", "\\"),

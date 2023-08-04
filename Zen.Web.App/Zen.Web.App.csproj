@@ -25,8 +25,6 @@
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
     <ProjectReference Include="..\Zen.Media\Zen.Media.csproj" />
     <ProjectReference Include="..\Zen.Storage\Zen.Storage.csproj" />
-    <ProjectReference Include="..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
-    <ProjectReference Include="..\Zen.Web.GraphQL\Zen.Web.GraphQL.csproj" />
     <ProjectReference Include="..\Zen.Web\Zen.Web.csproj" />
   </ItemGroup>
 
@@ -39,6 +37,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenGraph-Net" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,5 +21,18 @@ namespace Zen.Web.Auth.Model
         public Dictionary<string, string> Claims { get; set; }
         public bool IsAuthenticated { get; set; }
         public override void BeforeSave() => ConcurrencyStamp = IdentityUser?.ConcurrencyStamp;
+
+        public static implicit operator Identity(IdentityUser source)
+        {
+
+            var model = new Identity
+            {
+             
+            };
+
+            return model;
+        }
+
+
     }
 }

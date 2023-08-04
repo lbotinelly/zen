@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -36,7 +35,7 @@ namespace Zen.Web.Host
 
             Log.Add("Zen | Startup-Sequence START");
 
-            var useIisIntegration = Current.Options.GetCurrentEnvironment().UseIisIntegration;
+            var useIisIntegration = Current.Options.UseIisIntegration;
 
             if (useIisIntegration)
             {
@@ -90,7 +89,7 @@ namespace Zen.Web.Host
                             // We'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
                             var localAddress = IPAddress.Parse("0.0.0.0");
 
-                            var currentEnv = Current.Options.GetCurrentEnvironment();
+                            var currentEnv = Current.Options;
 
                             var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, currentEnv.HttpPort);
                             var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, currentEnv.HttpsPort);
@@ -100,17 +99,16 @@ namespace Zen.Web.Host
                             var hostCertificate = GetCertificate();
 
                             // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default dev cert created by VS.
-                            if (hostCertificate == null) return;
+                            if (hostCertificate == null)
+                            {
+                                Base.Current.Log.KeyValuePair("Certificate", "No certificate found. HTTPS disabled.");
+                                return;
+                            }
 
                             Base.Current.Log.KeyValuePair("Certificate", $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
 
-                            options.Listen(localAddress, httpsPort,
-                                listenOptions => { listenOptions.UseHttps(hostCertificate); });
+                            options.Listen(localAddress, httpsPort, listenOptions => { listenOptions.UseHttps(hostCertificate); });
                         });
-
-
-
-
                 }
 
                 hostBuilder.UseStartup<T>();
@@ -126,19 +124,27 @@ namespace Zen.Web.Host
         {
             X509Certificate2 targetCertificate = null;
 
-            if (Base.Host.IsDevelopment)
-            {
-                var targetSubject = Current.Options?.Development?.CertificateSubject ?? "localhost";
+            var targetSubject = Current.Options?.CertificateSubject;
 
-                targetCertificate = new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() ??
-                                    new X509Store(StoreName.My).BySubject(targetSubject).FirstOrDefault() ??
-                                    new X509Store(StoreName.My).BySubject("localhost").FirstOrDefault();
+            if (targetSubject != null)
+                targetCertificate = new X509Store(StoreName.My).BySubject(targetSubject).FirstOrDefault()
+                    //new X509Store(StoreName.Root).BySubject(targetSubject).FirstOrDefault() 
+                    //new X509Store(StoreName.CertificateAuthority).BySubject(targetSubject).FirstOrDefault() ??
+                    //new X509Store(StoreName.TrustedPeople).BySubject(targetSubject).FirstOrDefault() ??
+                    //new X509Store(StoreName.TrustedPublisher).BySubject(targetSubject).FirstOrDefault()
+                    ;
+
+            //if (Base.Host.IsDevelopment)
+            //    if (targetCertificate == null)
+            //        targetCertificate = new X509Store(StoreName.My).BySubject("localhost").FirstOrDefault();
+
+            if (targetCertificate != null)
+            {
+                Log.KeyValuePair("X509Store certificate", targetCertificate.ToString(), Base.Module.Log.Message.EContentType.Info);
+                return targetCertificate;
             }
 
-            if (!Base.Host.IsProduction) return targetCertificate;
-
-            var certPath =
-                $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
+            var certPath = $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
 
             if (!Directory.Exists(certPath))
             {
@@ -151,7 +157,12 @@ namespace Zen.Web.Host
                 if (certFile == null)
                     Log.Warn($"No certificate in physical storage [{certPath}]");
                 else
-                    targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile));
+                {
+                    Log.KeyValuePair("Physical certificate", certFile, Base.Module.Log.Message.EContentType.Info);
+
+                    if (Current.Options?.CertificatePassword != null)
+                    targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile), Current.Options?.CertificatePassword);
+                }
             }
 
             return targetCertificate;

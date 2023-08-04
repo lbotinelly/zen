@@ -71,10 +71,10 @@ namespace Zen.Web.App.Media
             var pipeline = Request.Query.ToRasterImagePipeline();
 
             pipeline.SourcePackage = stream.ToImagePackage();
-            using var resultStream = pipeline.Process();
+            var resultStream = pipeline.Process();
 
             // Save in cache.
-            Local.Write(cacheTag, resultStream);
+            Local.Write(cacheTag, resultStream.Stream);
             Local.WriteString(mimeCacheTag, pipeline.Format.DefaultMimeType);
             Log.KeyValuePair(pipeline.Format.DefaultMimeType + " media cache ", mimeCacheTag);
 
@@ -91,7 +91,7 @@ namespace Zen.Web.App.Media
         {
             var files = Request.Form.Files;
 
-            var mediaObjects = files.Select(sceneFile => sceneFile.ToZenFile()).ToList();
+            List<ZenFile> mediaObjects = files.Select(sceneFile => sceneFile.ToZenFile()).ToList();
 
             Log.KeyValuePair("Media Storage", $"{mediaObjects.Count} object(s)");
 

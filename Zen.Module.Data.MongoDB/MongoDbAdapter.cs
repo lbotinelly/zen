@@ -314,7 +314,7 @@ namespace Zen.Module.Data.MongoDB
                     else
                     {
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-                        targetCollection.ReplaceOne(filter, document);
+                        var result = targetCollection.ReplaceOne(filter, document);
                     }
                 }
 
@@ -422,7 +422,9 @@ namespace Zen.Module.Data.MongoDB
         public override void Remove(string locator, Mutator mutator = null)
         {
             var filter = Builders<BsonDocument>.Filter.Eq("_id", locator);
-            Collection(mutator).DeleteOne(filter);
+            var collection = Collection(mutator);
+
+            var result = collection.DeleteOne(filter);
         }
 
         public override void Remove(T model, Mutator mutator = null) => Remove(model.GetDataKey(), mutator);

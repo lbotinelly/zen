@@ -8,14 +8,12 @@ namespace Zen.Web.Service
     {
         public ZenWebBuilder(IServiceCollection services) { Services = services; }
 
-        public ZenWebBuilder(IApplicationBuilder applicationBuilder, ZenWebOptions options)
+        public ZenWebBuilder(IApplicationBuilder applicationBuilder)
         {
             ApplicationBuilder = applicationBuilder ?? throw new ArgumentNullException(nameof(applicationBuilder));
-            Options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public virtual IServiceCollection Services { get; }
         public IApplicationBuilder ApplicationBuilder { get; }
-        public ZenWebOptions Options { get; }
     }
 }

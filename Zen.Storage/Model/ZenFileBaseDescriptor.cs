@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Zen.Base.Extension;
 using Zen.Base.Module;
 using Zen.Storage.Provider.File;
+using static Zen.Storage.Provider.File.IFileStorage;
 
 namespace Zen.Storage.Model
 {
@@ -22,9 +23,10 @@ namespace Zen.Storage.Model
                 _attribute.StorageType == null ? Current.FileStorageProvider : _attribute.StorageType.CreateInstance<FileStoragePrimitive>();
         }
 
-        public async Task<Stream> Fetch() { return await _provider.Fetch((IFileDescriptor) this); }
+        public async Task<Stream> Fetch() { return await _provider.Fetch((IFileDescriptor)this); }
+        public async Task<string> GetPath() { return await _provider.GetPath((IFileDescriptor)this); }
 
-        public async Task<string> Store(Stream source) { return await _provider.Store((IFileDescriptor) this, source); }
+        public async Task<StoreResult> Store(Stream source) { return await _provider.Store((IFileDescriptor) this, source); }
         public async Task<bool> Exists() { return await _provider.Exists((IFileDescriptor) this); }
     }
 }

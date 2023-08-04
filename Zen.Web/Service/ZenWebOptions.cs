@@ -28,5 +28,7 @@ namespace Zen.Web.Service
         public string SourcePath { get; set; }
         public bool UseHtml5 { get; set; }
         public bool UseSpa { get; set; } = true;
+        public bool Hsts { get; set; } = true;
+        public bool HttpsRedirection { get; set; } = true;
     }
 }

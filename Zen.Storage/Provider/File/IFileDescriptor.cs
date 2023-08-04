@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Zen.App.Model.Audience;
 using Zen.App.Model.Tag;
 using Zen.Base.Module.Data.CommonAttributes;
@@ -12,6 +13,8 @@ namespace Zen.Storage.Provider.File
         long FileSize { get; set; }
         TagCollection Tags { get; set; }
         AudienceDefinition Audience { get; set; }
+        Dictionary<string, string> Metadata { get; set; }
+
         IFileDescriptor GetNewInstance();
     }
 

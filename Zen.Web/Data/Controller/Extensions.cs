@@ -53,7 +53,7 @@ namespace Zen.Web.Data.Controller
             if (accessControl.Write) payload.Add("write");
             if (accessControl.Remove) payload.Add("remove");
 
-            return new Dictionary<string, object> { { "x-zen-allowed", payload } };
+            return new Dictionary<string, object> { { "x-allowed", payload } };
         }
 
 
@@ -110,7 +110,7 @@ namespace Zen.Web.Data.Controller
             var count = Data<T>.Count(mutator);
             var pages = count < 2 ? count : (int)((count - 1) / mutator.Transform.Pagination.Size) + 1;
 
-            headers.AddHeader("x-zen-pagination",
+            headers.AddHeader("x-pagination",
                              new
                              {
                                  page = mutator.Transform.Pagination.Index,

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Zen.Base.Extension;
 
 namespace Zen.Web.Diagnostics
 {

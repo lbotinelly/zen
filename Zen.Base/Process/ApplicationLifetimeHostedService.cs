@@ -22,7 +22,7 @@ namespace Zen.Base.Process
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Log.KeyValuePair(Host.ApplicationAssemblyName, "Started!", Message.EContentType.StartupSequence);
+            Log.KeyValuePair(Host.ApplicationAssemblyName, "Started", Message.EContentType.StartupSequence);
 
             _appLifetime.ApplicationStarted.Register(OnStarted);
             _appLifetime.ApplicationStopping.Register(OnStopping);

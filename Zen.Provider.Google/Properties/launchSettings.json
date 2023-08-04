@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Zen.Provider.Google": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:58172;http://localhost:58175"
+    }
+  }
+}

@@ -14,8 +14,8 @@ namespace Zen.App.Service
             services.ResolveSettingsPackage();
         }
 
-        public void Use(IApplicationBuilder app, IHostEnvironment env = null)
-        {
-        }
+        public void Use(IApplicationBuilder app, IHostEnvironment env = null) { }
+
+        public void Use(IHost app, IHostEnvironment env = null) { }
     }
 }

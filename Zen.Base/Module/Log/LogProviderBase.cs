@@ -17,7 +17,7 @@ namespace Zen.Base.Module.Log
         private bool _initialized;
         private Logger _logger;
 
-        public virtual Message.EContentType MaximumLogLevel { get; set; } = Message.EContentType.Debug;
+        public virtual Message.EContentType MaximumLogLevel { get; set; } = Current.Options?.MaximumLogLevel?? Message.EContentType.Undefined;
 
         public virtual void Add(Message message)
         {
@@ -98,7 +98,6 @@ namespace Zen.Base.Module.Log
 
                 default: throw new ArgumentOutOfRangeException();
             }
-
             _logger.Write(targetLevel, (m.Topic != null ? $"{m.Topic} | " : "") + m.Content);
         }
 
