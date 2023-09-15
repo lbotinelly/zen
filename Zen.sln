@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29326.143
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.MongoDB", "Zen.Module.Data.MongoDB\Zen.Module.Data.MongoDB.csproj", "{954AC04B-08F1-4804-A7B4-F0B225793CAF}"
 EndProject
@@ -79,7 +79,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Web.OpenApi", "Zen.Web.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.Data.SqlServer", "Zen.Module.Data.SqlServer\Zen.Module.Data.SqlServer.csproj", "{58F1F994-2543-437F-8544-93D495236DBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Provider.OpenId", "Zen.Provider.OpenId\Zen.Provider.OpenId.csproj", "{A0FFD652-91A4-4268-8ECC-4DCBA416FF39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.OpenId", "Zen.Provider.OpenId\Zen.Provider.OpenId.csproj", "{A0FFD652-91A4-4268-8ECC-4DCBA416FF39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zen.Provider.Discord", "Zen.Provider.Discord\Zen.Provider.Discord.csproj", "{480AC12F-C560-41A8-800F-5B2E3B4A2748}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -239,6 +241,10 @@ Global
 		{A0FFD652-91A4-4268-8ECC-4DCBA416FF39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0FFD652-91A4-4268-8ECC-4DCBA416FF39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0FFD652-91A4-4268-8ECC-4DCBA416FF39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{480AC12F-C560-41A8-800F-5B2E3B4A2748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{480AC12F-C560-41A8-800F-5B2E3B4A2748}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{480AC12F-C560-41A8-800F-5B2E3B4A2748}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{480AC12F-C560-41A8-800F-5B2E3B4A2748}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
