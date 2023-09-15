@@ -1,9 +1,5 @@
 ﻿namespace Zen.Web.Common
 {
-    public interface IZenWebCardRender
-    {
-        ZenWebCardDetails GetCardDetails(string path, string queryString);
-    }
 
     public class ZenWebCardDetails
     {
