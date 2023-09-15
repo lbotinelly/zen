@@ -9,7 +9,7 @@ namespace Zen.Provider.Steam.Authentication
 {
     public static class Settings
     {
-        private const string ProviderKey = "Steam";
+        private const string ProviderKey = "steam";
 
         internal static IServiceCollection Configure(this IServiceCollection services)
         {
@@ -23,7 +23,7 @@ namespace Zen.Provider.Steam.Authentication
                 Instances.AuthenticationBuilder.AddSteam(options =>
                 {
                     options.ApplicationKey = applicationKey;
-                    options.CallbackPath = "/auth/signin/steam";
+                    options.CallbackPath = "/api/auth/signin/steam";
 
                     options.SaveTokens = true;
 
