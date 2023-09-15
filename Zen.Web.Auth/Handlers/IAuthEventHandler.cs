@@ -5,7 +5,7 @@ namespace Zen.Web.Auth.Handlers
 {
     public interface IAuthEventHandler : IZenProvider
     {
-        void OnConfirmSignIn(IIdentity identity);
+        IIdentity OnConfirmSignIn(IIdentity identity);
         void OnSignOut();
         string GetSignOutRedirectUri();
         object OnMaintenanceRequest();
