@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Zen.Storage": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:58179;http://localhost:58180"
+    }
+  }
+}

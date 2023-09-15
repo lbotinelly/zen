@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
 
-namespace Zen.Web.Data.Controller {
+namespace Zen.Web.Data.Controller
+{
     [ApiController]
     public abstract class DataController<T, TSummary> : DataController<T> where T : Data<T>
     {
@@ -28,13 +30,19 @@ namespace Zen.Web.Data.Controller {
 
                 AfterSummaryCollectionAction(EHttpMethod.Get, EActionType.Read, mutator, ref collection);
 
-                return PrepareResponse(collection);
-            } catch (Exception e)
+                var response = BeforeSummaryCollectionEmit(EHttpMethod.Get, EActionType.Read, mutator, collection) ?? collection;
+
+                return PrepareResponse(response);
+            }
+            catch (Exception e)
             {
                 Base.Current.Log.Warn<T>($"SUMMARY: {e.Message}");
                 Base.Current.Log.Add<T>(e);
                 throw;
             }
         }
+        [NonAction]
+        public virtual object BeforeSummaryCollectionEmit(EHttpMethod method, EActionType type, Mutator mutator, IEnumerable<TSummary> set) => null;
+
     }
 }

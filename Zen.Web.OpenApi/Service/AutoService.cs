@@ -40,5 +40,10 @@ namespace Zen.Web.OpenApi.Service
                 app.UseReDoc();
             }
         }
+
+        public void Use(IHost app, IHostEnvironment env = null)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Zen.Base;
 using Zen.Base.Extension;
 using Zen.Web.Auth.Configuration;
@@ -22,15 +24,11 @@ namespace Zen.Web.Auth.Service.Extensions
 
             try
             {
-
-
                 Instances.Options = Base.Configuration.Options.GetSection("Authentication").Get<Options>();
-
             }
             catch (Exception e)
             {
-
-                throw;
+                Base.Current.Log.Add(e);
             }
 
 
@@ -52,29 +50,46 @@ namespace Zen.Web.Auth.Service.Extensions
                 Base.Current.Log.Add(e);
             }
 
-
-            // services.AddRazorPages();
+            var _key = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("key").Value;
+            var _issuer = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("issuer").Value;
 
             Instances.AuthenticationBuilder = services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+                .AddAuthentication(x=>
                 {
-                    options.SlidingExpiration = true;
-                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-                });
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+            .AddJwtBearer(options =>
+            {
+                var sharedKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+                var credentials = new SigningCredentials(sharedKey, SecurityAlgorithms.HmacSha256);
+                options.IncludeErrorDetails = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = sharedKey,
+                    ValidateIssuer = false,
+                    ValidateAudience = true,
+                    ValidIssuer = _issuer,
+                    ValidAudience = _issuer,
+                };
+            })
+            ;
+
+
 
             services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Base.Host.DataDirectory, "keys")));
 
             services
                 .AddDistributedMemoryCache()
-                .AddSession(options =>
-                {
-                    options.IdleTimeout = TimeSpan.FromHours(12);
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.IsEssential = true;
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                });
+                //.AddSession(options =>
+                //{
+                //    options.IdleTimeout = TimeSpan.FromHours(12);
+                //    options.Cookie.HttpOnly = true;
+                //    options.Cookie.IsEssential = true;
+                //    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                //});
 
             ;
         }

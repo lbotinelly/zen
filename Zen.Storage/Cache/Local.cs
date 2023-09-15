@@ -6,7 +6,7 @@ namespace Zen.Storage.Cache
 {
     public static class Local
     {
-        public static readonly string BasePath = $"{Host.DataDirectory}{Path.DirectorySeparatorChar}cache{Path.DirectorySeparatorChar}";
+        public static readonly string BasePath = Base.Current.Options.CachePath ?? $"{Host.DataDirectory}{Path.DirectorySeparatorChar}cache{Path.DirectorySeparatorChar}";
 
         public static string WriteString(string key, string source) { return Write(key, new MemoryStream(Encoding.UTF8.GetBytes(source))); }
 

@@ -6,8 +6,16 @@ namespace Zen.App.Model.Tag
 {
     public class TagCollection : List<string>
     {
+
+        public void Ensure(List<string> items)
+        {
+            items.ForEach(i => Ensure(i));
+        }
+
         public void Ensure(string item)
         {
+            if (item == null) return;
+
             if (item.IndexOf(":", StringComparison.Ordinal) != -1)
             {
                 var parts = item.Split(':');
@@ -42,7 +50,7 @@ namespace Zen.App.Model.Tag
 
                 if (probe!= null) base.Remove(probe);
             }
-            else { base.Add(item); }
+            else { base.Remove(item); }
         }
     }
 }

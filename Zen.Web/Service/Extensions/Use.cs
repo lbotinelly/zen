@@ -1,33 +1,35 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Zen.Base;
 using Zen.Base.Extension;
-using Zen.Base.Module.Log;
 using Zen.Web.Host;
+using Zen.Web.Middleware;
 
 namespace Zen.Web.Service.Extensions
 {
     public static class Use
     {
-        public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null,
-            IHostEnvironment env = null)
+        public static void UseZenWeb(this IApplicationBuilder app, Action<IZenWebBuilder> configuration = null, IHostEnvironment env = null)
         {
-            var optionsProvider = app.ApplicationServices.GetService<IOptions<ZenWebOptions>>();
+            var options = Current.Options;
 
-            var options = new ZenWebOptions(optionsProvider.Value);
-            var builder = new ZenWebBuilder(app, options);
+            var builder = new ZenWebBuilder(app);
 
             var usePrefix = Base.Host.Variables.Get(Keys.WebUsePrefix, false);
+
+            Events.AddLog("usePrefix", usePrefix.ToString());
+
+            if (options.EnableHtml5)
+                app.UseHtml5Routing();
 
             if (!usePrefix)
             {
@@ -40,8 +42,8 @@ namespace Zen.Web.Service.Extensions
                 // The App code will be used as prefix for all requests, so let's move the root:
                 var rootPrefix = Base.Host.Variables.Get(Keys.WebRootPrefix, "");
                 Events.AddLog("Web RootPrefix", rootPrefix);
-                var path = Path.Combine(Directory.GetCurrentDirectory(),
-                    "wwwroot"); // We're still using the default wwwroot folder
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"); // We're still using the default wwwroot folder
                 Events.AddLog("Host path", path);
 
                 if (Directory.Exists(path))
@@ -53,8 +55,7 @@ namespace Zen.Web.Service.Extensions
                         RequestPath = rootPrefix
                     };
 
-                    app.UseDefaultFiles(
-                        fOptions); // This will allow default (index.html, etc.) requests on the new mapping
+                    app.UseDefaultFiles(fOptions); // This will allow default (index.html, etc.) requests on the new mapping
                     app.UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider, RequestPath = rootPrefix });
                 }
                 else
@@ -67,6 +68,7 @@ namespace Zen.Web.Service.Extensions
                 {
                     r.MapGet("", context =>
                     {
+
                         var destination = "." + rootPrefix;
                         //var currentEnvOptions = Current.ZenWebOrchestrator.Options;
 
@@ -79,8 +81,8 @@ namespace Zen.Web.Service.Extensions
                                 var targetProtocol =
                                     ""; //If we omit the protocol, the client will use the one currently set.
 
-                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Current.Options.GetCurrentEnvironment().HttpPort);
-                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Current.Options.GetCurrentEnvironment().HttpsPort);
+                                var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, Current.Options.HttpPort);
+                                var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, Current.Options.HttpsPort);
 
                                 if (sourcePort == httpPort)
                                 {
@@ -89,7 +91,7 @@ namespace Zen.Web.Service.Extensions
                                 }
 
                                 var destinationHost = sourcePort.HasValue
-                                    ? new HostString(Current.Options.Development.QualifiedServerName, sourcePort.Value)
+                                    ? new HostString(Current.Options.QualifiedServerName, sourcePort.Value)
                                     : new HostString(qualifiedServerName);
 
                                 destination = $"{targetProtocol}//{destinationHost}{rootPrefix}";
@@ -110,15 +112,43 @@ namespace Zen.Web.Service.Extensions
 
             app.UseRouting();
 
+            app.UseForwardedHeaders();
+
+            Events.AddLog("Base.Host.IsDevelopment", Base.Host.IsDevelopment.ToString());
+
+
+            if (Base.Host.IsDevelopment)
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+
+                if (options.EnableHsts)
+                {
+                    app.UseHsts();
+                    Events.AddLog("HSTS", "enabled");
+                }
+            }
+
+            if (!Base.Host.IsContainer)
+                if (options.EnableHttpsRedirection)
+                {
+                    //app.UseHttpsRedirection();
+                    Events.AddLog("HTTPS Redirection", "enabled");
+                }
+
             //UseAuthentication needs to be run between UseRouting and UseEndpoints. Sooo...
-            foreach (var function in Instances.BeforeUseEndpoints) function();
+            if (Instances.BeforeUseEndpoints.Any()) foreach (var function in Instances.BeforeUseEndpoints) function();
 
             app.UseEndpoints(endpoints =>
             {
+
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
                 endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions()
-                { 
+                {
                     AllowCachingResponses = false,
                     ResponseWriter = Diagnostics.HealthCheck.WriteResponse,
                     ResultStatusCodes = {
@@ -129,27 +159,6 @@ namespace Zen.Web.Service.Extensions
                 });
             });
 
-            if (Base.Host.IsDevelopment)
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-
-                if (options.Hsts)
-                {
-                    app.UseHsts();
-                    Events.AddLog("HSTS", "enabled");
-                }
-            }
-
-            if (!Base.Host.IsContainer)
-                if (options.HttpsRedirection)
-                {
-                    app.UseHttpsRedirection();
-                    Events.AddLog("HTTPS Redirection", "enabled");
-                }
 
             configuration?.Invoke(builder);
         }

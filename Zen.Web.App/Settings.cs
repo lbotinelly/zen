@@ -26,32 +26,12 @@ namespace Zen.Web.App
                         Version = Base.Host.ApplicationAssembly.GetName().Version.ToString(),
                         Groups = app?.GetGroups()
                     },
-                    Server = new
-                    {
-                        Environment.MachineName,
-                        Environment.Version
-                    },
                     Client = new
                     {
                         Base.Current.State
                     },
-                    //Setup.Auth.Environment.BasePath,
-                    Environment = new
-                    {
-                        Base.Current.Environment.CurrentCode,
-                        Base.Current.Environment.Current.Name
-                    },
-                    //Session = new
-                    //{
-                    //    Static = Session.IsExternalSession,
-                    //    Session.CanSignIn,
-                    //    Session.IsExternalSession,
-                    //    Session.IsSecureConnection,
-                    //    Session.IsImpersonated
-                    //},
                     Session = new
                     {
-                        Static = false,
                         CanSignIn = true,
                         IsExternalSession = true,
                         IsSecureConnection = true,

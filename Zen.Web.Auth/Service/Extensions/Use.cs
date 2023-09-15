@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using System.Threading;
 
 namespace Zen.Web.Auth.Service.Extensions
 {
@@ -6,11 +7,14 @@ namespace Zen.Web.Auth.Service.Extensions
     {
         public static void UseZenWebAuth(this IApplicationBuilder app)
         {
-            Web.Instances.BeforeUseEndpoints.Add(() => app.UseAuthentication());
-            Web.Instances.BeforeUseEndpoints.Add(() => app.UseAuthorization());
+            Web.Instances.BeforeUseEndpoints.Add(() =>
+            {
 
-            app.UseCookiePolicy();
-            //app.UseSession();
+                app.UseAuthentication();
+                app.UseAuthorization();
+                Base.Log.KeyValuePair("Auth", "['UseAuthentication','UseAuthorization']");
+
+            });
         }
     }
 }

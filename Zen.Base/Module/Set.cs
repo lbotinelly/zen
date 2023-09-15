@@ -8,7 +8,7 @@ namespace Zen.Base.Module
 {
     public sealed class Set<T> : ISetSave where T : Data<T>, IDataId
     {
-        internal Dictionary<string, T> Cache = new Dictionary<string, T>();
+        public Dictionary<string, T> Cache = new Dictionary<string, T>();
         private readonly Dictionary<string, string> _checkSum = new Dictionary<string, string>();
 
         #region Overrides of Object
@@ -17,7 +17,11 @@ namespace Zen.Base.Module
 
         #endregion
 
+        public List<T> Items => Cache.Select(i => i.Value).ToList();
+
         public void Commit() => Save();
+
+        public int Count => Cache.Count;
 
         public T Fetch(T referenceModel)
         {

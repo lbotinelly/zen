@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Zen.Base.Extension;
 using Zen.Web.Auth.Configuration;
 
 // ReSharper disable InconsistentlySynchronizedField
@@ -14,16 +22,20 @@ using Zen.Web.Auth.Configuration;
 
 namespace Zen.Web.Auth.Controller
 {
-    [Route("auth")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+        private IConfiguration _config;
+
+
+        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IConfiguration config)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _config = config;
         }
 
         [HttpGet("signin")]
@@ -45,21 +57,28 @@ namespace Zen.Web.Auth.Controller
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             // Get the information about the user from the external login provider
-            var info = await _signInManager.GetExternalLoginInfoAsync();
+            ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
 
             if (info == null) return Problem("Error loading external login information during confirmation.");
 
             if (!ModelState.IsValid) return LocalRedirect(returnUrl);
 
-            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            IdentityUser user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
             var props = new AuthenticationProperties();
             props.StoreTokens(info.AuthenticationTokens);
             props.IsPersistent = true;
 
+            //await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             await _signInManager.SignInAsync(user, props);
 
             Current.AuthEventHandler?.OnConfirmSignIn(info.Principal.Identity);
+
+            var jwt = new JwtService();
+            var token = jwt.GenerateSecurityToken((ClaimsIdentity)info.Principal.Identity);
+            Response.Cookies.Append("_zen_auth_bearer", token, new CookieOptions { IsEssential = true, Secure = true });
+
+            Base.Log.KeyValuePair("Auth Token Issued", token.ToString());
 
             return LocalRedirect(returnUrl);
         }
@@ -94,13 +113,59 @@ namespace Zen.Web.Auth.Controller
             return Current.AuthEventHandler?.OnMaintenanceRequest();
         }
 
+        [Authorize]
         [HttpGet("identity")]
         public object GetIdentity()
         {
-            return Current.AuthEventHandler?.GetIdentity(User);
+            var user = Current.AuthEventHandler?.GetIdentity(User).ToJson().FromJson<Dictionary<string, object>>();
+
+            if (user == null) return null;
+
+            var result = new { Email = user["Email"] , Id = user["Id"] };
+
+            return result;
+        }
+
+        [HttpGet("token")]
+        public object GetToken()
+        {
+            return Request.Cookies.ContainsKey("_zen_auth_bearer") ? Request.Cookies["_zen_auth_bearer"] : null;
         }
 
         [HttpGet("providers")]
         public IEnumerable<AuthenticationScheme> GetProviders() => _signInManager.GetExternalAuthenticationSchemesAsync().Result;
+    }
+
+    public class JwtService
+    {
+        private readonly string _key;
+        private readonly string _issuer;
+        private readonly string _expDate;
+
+        public JwtService()
+        {
+
+            _key = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("key").Value;
+            _issuer = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("issuer").Value;
+            _expDate = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("expirationInMinutes").Value;
+        }
+
+        public string GenerateSecurityToken(ClaimsIdentity source)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_key);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = source,
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_expDate)),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Audience = _issuer
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
+
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.IO;
 using System.Net.Http;
 using Zen.Base;
@@ -12,14 +13,8 @@ namespace Zen.Web.App.Media
     {
         // private const int _MaxSize = 67108864;
 
-        public static ImagePackage FetchImagePackage(string url = null, bool useCache = true)
+        public static ImagePackage FetchImagePackage(string url, bool useCache = true)
         {
-            if (url == null)
-            {
-                var query = Web.Current.Context.Request.Query;
-                if (query.ContainsKey("url")) url = query["url"];
-            }
-
             if (url == null) return null;
 
             Stream stream = null;
@@ -59,5 +54,6 @@ namespace Zen.Web.App.Media
 
             return package;
         }
+
     }
 }
