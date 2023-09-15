@@ -8,5 +8,6 @@
         public static string Locale = ClaimTypeNamespace + "/locale";
         public static string EmailConfirmed = ClaimTypeNamespace + "/emailconfirmed";
         public static string Stamp = ClaimTypeNamespace + "/stamp";
+        public static string Role = ClaimTypeNamespace + "/role";
     }
 }
