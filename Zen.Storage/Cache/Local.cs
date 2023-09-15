@@ -21,21 +21,23 @@ namespace Zen.Storage.Cache
             var targetFile = Path.Combine(BasePath, key);
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
 
-            using var fileStream = File.Create(targetFile);
-            source.Seek(0, SeekOrigin.Begin);
-            source.CopyTo(fileStream);
-            fileStream.Close();
+            using (var fileStream = File.Create(targetFile))
+            {
+                source.Seek(0, SeekOrigin.Begin);
+                source.CopyTo(fileStream);
+                fileStream.Close();
 
-            source.Seek(0, SeekOrigin.Begin);
+                source.Seek(0, SeekOrigin.Begin);
+            }
 
             return targetFile;
         }
 
         public static Stream Read(string key)
         {
-            var path = BasePath + key;
+            var path = Path.Combine(BasePath, key);
 
-            return !File.Exists(path) ? null : File.OpenRead(path);
+            return !File.Exists(path) ? null : File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
     }
 }
