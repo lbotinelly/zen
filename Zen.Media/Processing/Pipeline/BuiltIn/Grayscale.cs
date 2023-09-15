@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Zen.Media.Processing.Pipeline.BuiltIn
 {
-    public class Grayscale : IRasterImagePipelineItem
+    public class Grayscale : IRasterMediaPipelineItem
     {
         #region Implementation of IRasterImagePipelineItem
 

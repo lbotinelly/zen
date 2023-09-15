@@ -9,22 +9,22 @@ using Zen.Media.Processing;
 using Zen.Base;
 using SixLabors.ImageSharp;
 using Zen.Media.Model;
-using Zen.Service.Maintenance.Model;
+using static Zen.Media.Processing.RasterMedia;
 
 namespace Zen.Media
 {
     public static class Helpers
     {
-        public static ImagePackage FetchImagePackage(string url, bool useCache = true)
+        public static MediaPackage FetchMediaPackage(string url, bool useCache = true)
         {
             if (url == null) return null;
 
             Stream stream = null;
-            var logPrefix = "";
             var localCacheKey = url.Sha512Hash();
 
-            if (useCache) stream = Zen.Storage.Cache.Local.Read(localCacheKey);
+            if (useCache) stream = Storage.Cache.Local.Read(localCacheKey);
 
+            string logPrefix;
             if (stream == null)
             {
                 if (url.IndexOf("http", StringComparison.Ordinal) == -1) url = $"http://{url}";
@@ -44,26 +44,32 @@ namespace Zen.Media
                     stream.Seek(0, SeekOrigin.Begin);
                 }
 
-                logPrefix = "web-fetch";
+                logPrefix = "GET";
             }
-            else { logPrefix = "cached"; }
+            else { logPrefix = "C"; }
 
-            var package = stream.ToImagePackage();
+            var package = stream.ToMediaPackage();
 
-            // if (image.Width * image.Height > _MaxSize) throw new ArgumentException($"Combined size is invalid. Limit pixel count to {_MaxSize}, or 64Mb (width x height).");
+            //if (package.Image.Width * package.Image.Height > _MaxSize) throw new ArgumentException($"Combined size is invalid. Limit pixel count to {_MaxSize}, or 64Mb (width x height).");
 
-            // Log.KeyValuePair($"{logPrefix} {package.Image.Width}x{package.Image.Height} {package.Format.DefaultMimeType}", url);
+            if (package == null)
+            {
+                Log.KeyValuePair($"Helpers.FetchImagePackage", "No package generated.", Base.Module.Log.Message.EContentType.Warning);
+                return null;
+            }
+
+            Log.KeyValuePair($"{logPrefix} {package.Image.Width}x{package.Image.Height} {package.Format}", url);
 
             return package;
         }
 
 
 
-        public static RasterImagePipeline ToRasterImagePipeline(string url, Stream stream = null, Crop.EPosition position = Crop.EPosition.NotSpecified)
+        public static RasterMediaPipeline ToRasterImagePipeline(string url, Stream stream = null, Crop.EPosition position = Crop.EPosition.NotSpecified)
         {
             var dict = new Dictionary<string, string> { ["url"] = url };
 
-            return dict.ToRasterImagePipeline(stream, position);
+            return dict.ToRasterMediaPipeline(stream, position);
         }
 
 
@@ -75,31 +81,51 @@ namespace Zen.Media
 
         public static LocalResource GetExternalResource(Dictionary<string, string> dictQuery, string cacheTag = null)
         {
-
             var url = dictQuery["url"];
 
-            if (cacheTag == null) cacheTag = dictQuery.ToJson().Sha512Hash();
-            var mimeCacheTag = cacheTag + "_mimeType";
-
-            var pipeline = dictQuery.ToRasterImagePipeline();
-
-            pipeline.SourcePackage = FetchImagePackage(url);
-            var result = pipeline.Process();
-
-            Storage.Cache.Local.Write(cacheTag, result.Stream);
-            Storage.Cache.Local.WriteString(mimeCacheTag, pipeline.Format.DefaultMimeType);
-
-            new MediaCacheData() { Id = cacheTag, Width = result.Width, Height = result.Height, Success = true }.Save();
-
-
-            return new LocalResource()
+            try
             {
-                Query = dictQuery,
-                MimeType = pipeline.Format.DefaultMimeType,
-                Stream = result.Stream,
-                CacheTag = cacheTag,
-                Pipeline = result
-            };
+                if (cacheTag == null) cacheTag = dictQuery.ToJson().Sha512Hash();
+
+                var pipeline = dictQuery.ToRasterMediaPipeline();
+
+                if (pipeline == null)
+                {
+                    Zen.Base.Log.KeyValuePair("FetchImagePackage.GetExternalResource", "No pipeline generated, aborting.");
+                    return null;
+                }
+
+
+                pipeline.SourcePackage = FetchMediaPackage(url);
+
+
+                var result = pipeline.Process();
+
+
+                if (result == null)
+                {
+                    Log.KeyValuePair("Helpers.GetExternalResource", "No pipeline received.", Base.Module.Log.Message.EContentType.Warning);
+                    return null;
+
+                }
+
+                return new LocalResource()
+                {
+                    Query = dictQuery,
+                    MimeType = pipeline.Format,
+                    Stream = result.Stream,
+                    CacheTag = cacheTag,
+                    Pipeline = result
+                };
+
+            }
+            catch (Exception e)
+            {
+                Log.KeyValuePair($"Helpers.GetExternalResource: {url}", e.Message, Base.Module.Log.Message.EContentType.Warning);
+                return null;
+            }
+
+
         }
 
         public class LocalResource
@@ -108,7 +134,7 @@ namespace Zen.Media
             public string MimeType { get; set; }
             public string CacheTag { get; set; }
             public Dictionary<string, string> Query { get; set; }
-            public RasterImagePipeline.Info Pipeline { get; internal set; }
+            public RasterMediaPipeline.Info Pipeline { get; internal set; }
         }
 
         public static LocalResource GetAndCacheExternalResource(string url, bool ignoreCached = false, bool fetchImageInfoIfCached = false)
@@ -123,6 +149,8 @@ namespace Zen.Media
             var cacheTag = dictQuery.ToJson().Sha512Hash();
             var mimeCacheTag = cacheTag + "_mimeType";
 
+            LocalResource result;
+
             if (!ignoreCached)
             {
                 var targetStream = Storage.Cache.Local.Read(cacheTag);
@@ -130,8 +158,7 @@ namespace Zen.Media
 
                 if (targetStream != null && targetStreamMimeType != null)
                 {
-
-                    var result = new LocalResource
+                    result = new LocalResource
                     {
                         Query = dictQuery,
                         CacheTag = cacheTag,
@@ -152,7 +179,7 @@ namespace Zen.Media
                                 cachedData.Save();
                             }
 
-                            result.Pipeline = new RasterImagePipeline.Info
+                            result.Pipeline = new RasterMediaPipeline.Info
                             {
                                 Width = cachedData.Width,
                                 Height = cachedData.Height
@@ -164,7 +191,7 @@ namespace Zen.Media
 
                             new MediaCacheData() { Id = cacheTag, Width = 0, Height = 0, Success = false, Message = e.Message }.Save();
 
-                            result.Pipeline = new RasterImagePipeline.Info
+                            result.Pipeline = new RasterMediaPipeline.Info
                             {
                                 Width = 0,
                                 Height = 0
@@ -174,9 +201,32 @@ namespace Zen.Media
 
                     return result;
                 }
+
+                targetStream?.Dispose();
             }
 
-            return GetExternalResource(dictQuery, cacheTag);
+            result = GetExternalResource(dictQuery, cacheTag);
+
+            if (result == null)
+            {
+                Log.KeyValuePair("LocalResource.GetAndCacheExternalResource", "No External resource returned.", Base.Module.Log.Message.EContentType.Warning);
+                return null;
+            }
+
+            if (result.MimeType == null)
+            {
+                Log.KeyValuePair("LocalResource.GetAndCacheExternalResource", "No MIME type detected.", Base.Module.Log.Message.EContentType.Warning);
+                return null;
+            }
+
+
+            Storage.Cache.Local.Write(cacheTag, result.Stream);
+            Storage.Cache.Local.WriteString(mimeCacheTag, result.MimeType);
+
+            new MediaCacheData() { Id = cacheTag, Width = result.Pipeline.Width, Height = result.Pipeline.Height, Success = true }.Save();
+
+
+            return result;
         }
     }
 }
