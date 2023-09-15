@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Zen.Base.Module;
 using Zen.Base.Module.Data;
+using Zen.Web.Filter;
 
 namespace Zen.Web.Data.Controller
 {
@@ -16,6 +16,7 @@ namespace Zen.Web.Data.Controller
         public virtual void AfterSummaryCollectionAction(EHttpMethod method, EActionType type, Mutator mutator, ref IEnumerable<TSummary> model, string key = null) { }
 
         [HttpGet("summary", Order = 998)]
+        [AllProperties]
         public virtual IActionResult GetSummary()
         {
             try
