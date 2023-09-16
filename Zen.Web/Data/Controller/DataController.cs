@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Zen.Base.Extension;
 using Zen.Base.Module;
@@ -25,7 +27,6 @@ namespace Zen.Web.Data.Controller
     public abstract class DataController<T> : ControllerBase where T : Data<T>
     {
         private static readonly ConcurrentDictionary<Type, EndpointConfiguration> _attributeResolutionCache = new ConcurrentDictionary<Type, EndpointConfiguration>();
-
         private static readonly object _lockObject = new object();
         private Mutator _mutator;
 
@@ -238,7 +239,9 @@ namespace Zen.Web.Data.Controller
                     {
                         var mutator = Request.Query.ToMutator<T>();
 
-                        List<JObject> bufferCollection = collection.Select(i => (JObject)JToken.FromObject(i)).ToList();
+                        var serializer = JsonSerializer.CreateDefault(new JsonSerializerSettings { Converters = { new StringEnumConverter() } });
+
+                        List<JObject> bufferCollection = collection.Select(i => (JObject)JToken.FromObject(i, serializer) ).ToList();
 
                         foreach (var interceptor in Interceptors.DataControllerPostFetchInterceptors)
                             bufferCollection = interceptor.HandleCollection(bufferCollection, Request) ?? bufferCollection;

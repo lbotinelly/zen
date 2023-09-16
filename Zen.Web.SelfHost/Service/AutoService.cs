@@ -19,5 +19,10 @@ namespace Zen.Web.SelfHost.Service
         {
             app.UseZenWebSelfHost();
         }
+
+        public void Use(IHost app, IHostEnvironment env = null)
+        {
+            throw new System.NotImplementedException("Web Selfhost only available for Web projects.");
+        }
     }
 }
