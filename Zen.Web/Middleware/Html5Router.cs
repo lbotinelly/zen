@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Zen.Base.Extension;
 using Zen.Base.Module.Service;
 using Zen.Web.Common;
-using Zen.Web.Model;
 
 namespace Zen.Web.Middleware
 {
@@ -54,12 +51,14 @@ namespace Zen.Web.Middleware
 
         public static void UseHtml5Routing(this IApplicationBuilder app)
         {
+
             app.Use(async (context, next) =>
             {
-                var path = context.Request.Path.ToString().ToLower();
-                var physicalPath = Path.Combine("wwwroot" + path);
 
-                await LogRequest(context);
+                var path = context.Request.Path.ToString().ToLower();
+
+
+                var physicalPath = Path.Combine("wwwroot" + path);
 
                 if (File.Exists(physicalPath) ||
                 path.StartsWith("/api") ||
@@ -70,13 +69,14 @@ namespace Zen.Web.Middleware
                     return;
                 }
 
+
                 if (context.Request.Headers.ContainsKey("user-agent"))
                 {
                     var sig = _botSignatures.FirstOrDefault(i => context.Request.Headers["user-agent"].ToString().Contains(i));
 
                     if (sig != null)
                     {
-                        var result = cardRender.GetCardDetails(context.Request).Render(context.Request);
+                        var result = cardRender.GetCardDetails(path, context.Request.QueryString.ToString()).Render(context.Request);
                         Base.Log.KeyValuePair("Card Generator", sig + "::" + path);
                         context.Response.ContentType = "text/html; charset=utf-8";
                         await context.Response.WriteAsync(result);
@@ -84,26 +84,16 @@ namespace Zen.Web.Middleware
                     }
                 }
 
+
+
                 context.Request.Path = "/";
+
 
                 await next.Invoke();
             });
-        }
-
-        private static async Task LogRequest(HttpContext context)
-        {
-            var url = context.Request.GetDisplayUrl();
-
-            if (url.Contains(".js")) return;
-            if (url.Contains(".css")) return;
-            if (url.Contains(".html")) return;
-
-            try
-            {
-                new RequestLog() { Referer = context.Request.Headers["referer"].ToString(), Url = context.Request.GetDisplayUrl(), }.Save();
-            }
-            catch (Exception) { }
 
         }
     }
+
+
 }

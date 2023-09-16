@@ -6,7 +6,8 @@ using System.Linq;
 namespace Zen.Web.Auth.Handlers
 {
     [Priority(Level = -99)]
-    public class ZenAuthEventHandler : IAuthEventHandler
+    public class ZenAuthEventHandler : 
+        IAuthEventHandler
     {
         public bool OnboardIdentity(Model.Identity model)
         {
@@ -18,6 +19,8 @@ namespace Zen.Web.Auth.Handlers
         public string GetSignOutRedirectUri() => null;
         public string GetState() => null;
         public void Initialize() { }
+        public void OnConfirmSignIn(IIdentity identity) {
+        }
         public object OnMaintenanceRequest() => null;
         public void OnSignOut() { }
 
@@ -33,11 +36,6 @@ namespace Zen.Web.Auth.Handlers
         }
 
         public string GetIdentifier(ClaimsPrincipal user)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IIdentity OnConfirmSignIn(IIdentity identity)
         {
             throw new System.NotImplementedException();
         }

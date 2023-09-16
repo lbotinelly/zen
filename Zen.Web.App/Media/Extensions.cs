@@ -9,15 +9,15 @@ namespace Zen.Web.App.Media
 {
     public static class Extensions
     {
-        public static RasterMediaPipeline ToRasterMediaPipeline(this IQueryCollection source, Stream stream = null, Crop.EPosition cropPosition = Crop.EPosition.NotSpecified)
+        public static RasterImagePipeline ToRasterImagePipeline(this IQueryCollection source, Stream stream = null, Crop.EPosition cropPosition = Crop.EPosition.NotSpecified)
         {
             var dictQuery = source.OrderBy(i => i.Key).ToDictionary(i => i.Key, i => i.Value.ToString());
-            return dictQuery.ToRasterMediaPipeline(stream, cropPosition);
+            return dictQuery.ToRasterImagePipeline(stream, cropPosition);
         }
 
-        public static RasterMediaPipeline ToRasterMediaPipeline(this HttpRequest source, Stream stream = null, Crop.EPosition cropPosition = Crop.EPosition.Center)
+        public static RasterImagePipeline ToRasterImagePipeline(this HttpRequest source, Stream stream = null, Crop.EPosition cropPosition = Crop.EPosition.Center)
         {
-            return source.Query.ToRasterMediaPipeline(stream, cropPosition);
+            return source.Query.ToRasterImagePipeline(stream, cropPosition);
         }
     }
 }
