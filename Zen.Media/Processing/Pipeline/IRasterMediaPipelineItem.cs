@@ -2,7 +2,7 @@
 
 namespace Zen.Media.Processing.Pipeline
 {
-    public interface IRasterImagePipelineItem
+    public interface IRasterMediaPipelineItem
     {
         Image Process(Image source);
     }

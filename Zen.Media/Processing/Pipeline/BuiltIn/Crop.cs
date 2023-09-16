@@ -4,7 +4,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Zen.Media.Processing.Pipeline.BuiltIn
 {
-    public class Crop : IRasterImagePipelineItem
+    public class Crop : IRasterMediaPipelineItem
     {
         [Flags]
         public enum EPosition
@@ -30,6 +30,8 @@ namespace Zen.Media.Processing.Pipeline.BuiltIn
 
         public Image Process(Image source)
         {
+            if (source == null) return null;
+
             // Let's first determine the original image's ratio:
             var sourceRatio = source.Width / (decimal) source.Height;
 

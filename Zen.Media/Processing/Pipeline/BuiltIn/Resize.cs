@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Zen.Media.Processing.Pipeline.BuiltIn
 {
-    public class Resize : IRasterImagePipelineItem
+    public class Resize : IRasterMediaPipelineItem
     {
         #region Implementation of IRasterImagePipelineItem
 
@@ -14,6 +14,8 @@ namespace Zen.Media.Processing.Pipeline.BuiltIn
 
         public Image Process(Image source)
         {
+            if (source == null) return null;
+
             var sourceRatio = source.Width / (decimal) source.Height;
 
             if (Width.HasValue && !Height.HasValue) // Only width was provided
