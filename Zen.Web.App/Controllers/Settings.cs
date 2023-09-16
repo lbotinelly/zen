@@ -13,11 +13,15 @@ namespace Zen.Web.App.Controllers
 
         [Route("{variableName}/js")]
         [Route("{variableName}.js")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [HttpGet]
         public JavaScriptResult SettingsVariableJavaScript(string variableName) => JavaScriptSettingsPayload(variableName);
 
         internal JavaScriptResult JavaScriptSettingsPayload(string variableName)
         {
+
+            Base.Log.KeyValuePair("JavaScriptSettingsPayload","New Instance");
+
 
             var zen_ver = "";
 

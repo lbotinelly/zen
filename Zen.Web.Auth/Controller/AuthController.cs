@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
@@ -70,12 +71,12 @@ namespace Zen.Web.Auth.Controller
             props.IsPersistent = true;
 
             //await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await _signInManager.SignInAsync(user, props);
+            //await _signInManager.SignInAsync(user, props);
 
-            Current.AuthEventHandler?.OnConfirmSignIn(info.Principal.Identity);
+            var identity = Current.AuthEventHandler?.OnConfirmSignIn(info.Principal.Identity) ?? info.Principal.Identity;
 
             var jwt = new JwtService();
-            var token = jwt.GenerateSecurityToken((ClaimsIdentity)info.Principal.Identity);
+            var token = jwt.GenerateSecurityToken((ClaimsIdentity)identity);
             Response.Cookies.Append("_zen_auth_bearer", token, new CookieOptions { IsEssential = true, Secure = true });
 
             Base.Log.KeyValuePair("Auth Token Issued", token.ToString());
@@ -115,13 +116,19 @@ namespace Zen.Web.Auth.Controller
 
         [Authorize]
         [HttpGet("identity")]
-        public object GetIdentity()
+        public new Dictionary<string, string> GetIdentity()
         {
             var user = Current.AuthEventHandler?.GetIdentity(User).ToJson().FromJson<Dictionary<string, object>>();
 
             if (user == null) return null;
 
-            var result = new { Email = user["Email"] , Id = user["Id"] };
+            var result = new Dictionary<string, string>
+            {
+                ["Email"] = user.TryGet("Email")?.ToString(),
+                ["Id"] = user.TryGet("Id")?.ToString(),
+                ["Name"] = user.TryGet("Name")?.ToString(),
+                ["Roles"] = user.TryGet("Roles")?.ToString(),
+            };
 
             return result;
         }
@@ -133,7 +140,7 @@ namespace Zen.Web.Auth.Controller
         }
 
         [HttpGet("providers")]
-        public IEnumerable<AuthenticationScheme> GetProviders() => _signInManager.GetExternalAuthenticationSchemesAsync().Result;
+        public IEnumerable<AuthenticationScheme> GetProviders() => _signInManager.GetExternalAuthenticationSchemesAsync().Result.OrderBy(i=> i.Name);
     }
 
     public class JwtService
@@ -144,7 +151,6 @@ namespace Zen.Web.Auth.Controller
 
         public JwtService()
         {
-
             _key = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("key").Value;
             _issuer = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("issuer").Value;
             _expDate = Base.Configuration.Options.GetSection("Authentication").GetSection("JWT").GetSection("expirationInMinutes").Value;
