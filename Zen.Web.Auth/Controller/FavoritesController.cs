@@ -26,7 +26,7 @@ namespace Zen.Web.Auth.Controller
 
         public override void BeforeCollectionAction(EHttpMethod method, EActionType type, ref Mutator mutator, ref IEnumerable<Favorites> model, string key = null)
         {
-            if (mutator.Transform == null) mutator.Transform = new QueryTransform() ;
+            mutator.Transform = new QueryTransform() ;
             mutator.Transform.AddFilter(new { User = UserId });
 
             base.BeforeCollectionAction(method, type, ref mutator, ref model, key);

@@ -3,7 +3,6 @@ using System.IO;
 using Zen.Media.Processing.Pipeline.BuiltIn;
 using Zen.Media.Processing.Pipeline;
 using System.Linq;
-using Zen.Base.Extension;
 
 namespace Zen.Media
 {
@@ -17,13 +16,9 @@ namespace Zen.Media
 
 
 
-        public static RasterMediaPipeline ToRasterMediaPipeline(this Dictionary<string, string> source, Stream stream = null, Crop.EPosition cropPosition = Crop.EPosition.NotSpecified)
+        public static RasterImagePipeline ToRasterImagePipeline(this Dictionary<string, string> source, Stream stream = null, Crop.EPosition cropPosition = Crop.EPosition.NotSpecified)
         {
-            var ret = new RasterMediaPipeline { SourceStream = stream };
-
-            try
-            {
-
+            var ret = new RasterImagePipeline { SourceStream = stream };
 
             var ws = WidthParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
             var hs = HeightParms.Where(source.ContainsKey).Select(i => source[i].ToString()).FirstOrDefault();
@@ -65,17 +60,10 @@ namespace Zen.Media
             }
 
             if (f != null)
-                ret.Format = SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.FindFormatByFileExtension(f).ToString();
+                ret.Format = SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.FindFormatByFileExtension(f);
 
             return ret;
-
-            }
-            catch (System.Exception e)
-            {
-                Zen.Base.Log.KeyValuePair("ToRasterMediaPipeline", e.FancyString(), Base.Module.Log.Message.EContentType.Warning);
-                Zen.Base.Log.Add(source.ToJson(), Base.Module.Log.Message.EContentType.Info);
-                return null;
-            }
         }
+
     }
 }
