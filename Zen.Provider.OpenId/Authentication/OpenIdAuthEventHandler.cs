@@ -32,5 +32,15 @@ namespace Zen.Provider.OpenId.Authentication
         {
             throw new System.NotImplementedException();
         }
+
+        IIdentity IAuthEventHandler.OnConfirmSignIn(IIdentity identity)
+        {
+            return null;
+        }
+
+        public string GetIdentifier(ClaimsPrincipal user)
+        {
+            return null;
+        }
     }
 }
