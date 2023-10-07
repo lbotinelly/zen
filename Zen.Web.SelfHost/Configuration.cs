@@ -26,8 +26,6 @@ namespace Zen.Web.SelfHost
         {
             EMode Mode { get; set; }
             int DiscoveryTimeOut { get; set; }
-            int WanHttpsPort { get; set; }
-            int WanHttpPort { get; set; }
             string LocalCertificateStoragePassword { get; set; }
             void Evaluate();
         }
@@ -55,10 +53,6 @@ namespace Zen.Web.SelfHost
                 //WanHttpPort = 80;
                 //WanHttpsPort = 443;
 
-                var currEnv = Web.Current.Options.GetCurrentEnvironment();
-
-                WanHttpPort = currEnv.HttpPort;
-                WanHttpsPort = currEnv.HttpsPort;
                 LanHttpPort = WanHttpPort;
                 LanHttpsPort = WanHttpsPort;
 
