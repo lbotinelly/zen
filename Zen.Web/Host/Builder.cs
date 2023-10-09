@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -59,7 +60,9 @@ namespace Zen.Web.Host
             else
             {
 
-                IWebHostBuilder hostBuilder = new WebHostBuilder() // Pretty standard pipeline,
+                
+
+                IWebHostBuilder hostBuilder = WebHost.CreateDefaultBuilder() // Pretty standard pipeline,
                     .UseContentRoot(Directory.GetCurrentDirectory())
                     .ConfigureLogging(logging =>
                     {
