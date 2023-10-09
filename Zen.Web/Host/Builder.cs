@@ -49,8 +49,7 @@ namespace Zen.Web.Host
                              .AddFilter("System", LogLevel.Warning)
                              .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
                              .ClearProviders()
-                             .AddConsole()
-                             .AddEventLog();
+                             .AddConsole();
                      });
 
                 localHostBuilder.ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<T>(); });
@@ -69,8 +68,7 @@ namespace Zen.Web.Host
                             .AddFilter("System", LogLevel.Warning)
                             .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
                             .ClearProviders()
-                            .AddConsole()
-                            .AddEventLog();
+                            .AddConsole();
                     });
 
 
