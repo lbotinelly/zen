@@ -34,6 +34,9 @@ namespace Zen.Module.Data.MongoDB
         private DataConfigAttribute _tabledata;
         public IMongoDatabase Database;
 
+        private Configuration.IOptions _options;
+
+
         private string Key
         {
             get
@@ -46,9 +49,13 @@ namespace Zen.Module.Data.MongoDB
 
         public override void Setup(Settings<T> statements)
         {
+
+            var pre = new Configuration.Options();
+            _options = pre.GetSettings<Configuration.IOptions, Configuration.Options>("Database:MongoDB");
+
             _statements = statements;
 
-            var statementsConnectionString = _statements.ConnectionString ?? "mongodb://localhost:27017/default";
+            var statementsConnectionString = _statements.ConnectionString ?? _options.ConnectionString;
 
             _refType = typeof(T);
 
