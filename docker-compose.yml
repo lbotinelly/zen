@@ -1,8 +1,27 @@
 version: '3.4'
 
 services:
-  simplewebapp:
-    image: ${DOCKER_REGISTRY-}simplewebapp
+  sample05-docker:
+    image: ${DOCKER_REGISTRY-}sample05docker
+    ports:
+      - 5000:5000
     build:
       context: .
-      dockerfile: Sample/SimpleWebApp/Dockerfile
+      dockerfile: Samples/Sample05-Docker/Dockerfile
+    links:
+      - "db:database"
+    networks:
+      - frontend
+      - backend
+  db:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+    networks:
+      - backend
+networks:
+  frontend:
+  backend:
+    internal: true

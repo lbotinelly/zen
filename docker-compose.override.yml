@@ -1,14 +1,13 @@
 version: '3.4'
 
 services:
-  simplewebapp:
+  sample05-docker:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_HTTPS_PORT=44318
     ports:
-      - "59641:80"
-      - "44318:443"
+      - "80"
+      - "443"
     volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
