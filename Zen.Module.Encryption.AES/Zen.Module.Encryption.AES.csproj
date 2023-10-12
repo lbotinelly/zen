@@ -7,7 +7,7 @@
     <RootNamespace>Zen.Module.Encryption.AES</RootNamespace>
     <LangVersion>7.2</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Copyright>Copyright (c) 2020-2022 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020-2023 Zen Development Team</Copyright>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
