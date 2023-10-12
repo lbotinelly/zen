@@ -83,9 +83,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.OpenId", "Zen.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Provider.Discord", "Zen.Provider.Discord\Zen.Provider.Discord.csproj", "{480AC12F-C560-41A8-800F-5B2E3B4A2748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample05-Docker", "Samples\Sample05-Docker\Sample05-Docker.csproj", "{C77E403D-ADAD-4613-B19C-C603EA98DCA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample05-Docker", "Samples\Sample05-Docker\Sample05-Docker.csproj", "{C77E403D-ADAD-4613-B19C-C603EA98DCA3}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{B7D3FBD5-FA0E-42D8-8871-22F50394ADBC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.MessageQueue", "Zen.MessageQueue\Zen.MessageQueue.csproj", "{AA3CEC1D-AB1C-46C4-8F9A-BEADEEE3E149}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zen.Module.MQ.RabbitMQ", "Zen.Module.MQ.RabbitMQ\Zen.Module.MQ.RabbitMQ.csproj", "{52F92880-A5A2-44ED-AA24-D2A7F0DA0201}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -257,6 +261,14 @@ Global
 		{B7D3FBD5-FA0E-42D8-8871-22F50394ADBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7D3FBD5-FA0E-42D8-8871-22F50394ADBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7D3FBD5-FA0E-42D8-8871-22F50394ADBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA3CEC1D-AB1C-46C4-8F9A-BEADEEE3E149}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA3CEC1D-AB1C-46C4-8F9A-BEADEEE3E149}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA3CEC1D-AB1C-46C4-8F9A-BEADEEE3E149}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA3CEC1D-AB1C-46C4-8F9A-BEADEEE3E149}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52F92880-A5A2-44ED-AA24-D2A7F0DA0201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52F92880-A5A2-44ED-AA24-D2A7F0DA0201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52F92880-A5A2-44ED-AA24-D2A7F0DA0201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52F92880-A5A2-44ED-AA24-D2A7F0DA0201}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
