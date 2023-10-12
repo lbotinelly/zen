@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>Zen Development Team</Authors>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>Copyright (c) 2020-2022 Zen Development Team</Copyright>
+    <Copyright>Copyright (c) 2020-2023 Zen Development Team</Copyright>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <PackageIcon>zen-icon.png</PackageIcon>
     <PackageIconUrl />
