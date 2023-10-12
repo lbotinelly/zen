@@ -10,15 +10,19 @@
     <PackageLicenseUrl>https://github.com/lbotinelly/zen/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
-    <PackageIconUrl></PackageIconUrl>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright (c) 2020-2023 Zen Development Team</Copyright>
     <PackageTags>middleware orm dotnet core</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageIcon>zen-icon.png</PackageIcon>
     <Authors>Zen Development Team</Authors>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\static\res\zen-icon.png" Link="zen-icon.png">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Zen.Base\Zen.Base.csproj" />
