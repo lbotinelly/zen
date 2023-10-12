@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Zen.Base.Module.Data.Connection;
-using Zen.Base.Module.Log;
 
 namespace Zen.Base.Module.Data.Adapter
 {
