@@ -14,12 +14,26 @@ namespace Zen.MessageQueue
     {
         private static readonly IMessageQueueBundle DefaultBundle = (IMessageQueueBundle)IoC.GetClassesByInterface<IMessageQueueBundle>(false)?.First()?.CreateInstance();
 
-        private static readonly Dictionary<Type, object> _cache = new Dictionary<Type, object>();
+        private static readonly Dictionary<Type, object> _cache = new();
 
         public static event MessageReceivedHandler Receive;
 
+        public static void RegisterType<T>(this T targetObject, bool subscribe = false)
+        {
+            var adapter = GetAdapter(targetObject);
 
-        public static void RegisterType<T>(this T targetObject)
+            if (subscribe)
+            {
+                adapter.Receive += (item) =>
+                {
+                    Receive?.Invoke(item);
+                };
+
+                adapter.Subscribe();
+            }
+        }
+
+        public static MessageQueuePrimitive<T> GetAdapter<T>(this T targetObject, bool subscribe = false)
         {
 
             if (DefaultBundle == null)
@@ -27,20 +41,20 @@ namespace Zen.MessageQueue
 
             var type = typeof(T);
 
-            if (_cache.ContainsKey(type)) return;
+            if (_cache.ContainsKey(type)) return (MessageQueuePrimitive<T>)_cache[typeof(T)];
+
             MessageQueuePrimitive<T> adapter = DefaultBundle.AdapterType.CreateGenericInstance<T, MessageQueuePrimitive<T>>();
+
+            Base.Log.KeyValuePair("Zen.MessageQueue", $"{typeof(T).Name} adapter - {adapter.GetType().Namespace}", Base.Module.Log.Message.EContentType.Info);
 
             _cache[typeof(T)] = adapter;
 
-            adapter.Receive += (item) =>
-            {
-                Receive?.Invoke(item);
-            };
+            return adapter;
         }
 
-        public static void Send<T>(this T targetObject)
+        public static void Send<T>(this T targetObject, EDistributionStyle distributionStyle = EDistributionStyle.Broadcast)
         {
-            ((MessageQueuePrimitive<T>)_cache[typeof(T)]).Send(targetObject);
+            GetAdapter(targetObject).Send(targetObject, distributionStyle);
         }
     }
 }

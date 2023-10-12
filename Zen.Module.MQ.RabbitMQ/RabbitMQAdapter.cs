@@ -16,6 +16,10 @@ namespace Zen.Module.MQ.RabbitMQ
         private readonly string _queueName;
         private readonly List<string> _categories;
 
+        private static string _broadcastExchange = "broadcast";
+        private static string _roundRobinExchange = "roundRobin";
+
+
         public RabbitMQAdapter()
         {
             _options = new Configuration.Options().GetSettings<Configuration.IOptions, Configuration.Options>("MessageQueue:RabbitMQ");
@@ -27,9 +31,31 @@ namespace Zen.Module.MQ.RabbitMQ
             _categories = typeof(T).GetParentTypes().Select(i => i.Name).ToList();
             _queueName = typeof(T).FullName;
 
+            _channel.ExchangeDeclare(_roundRobinExchange, ExchangeType.Direct, true, false);
+            _channel.ExchangeDeclare(_broadcastExchange, ExchangeType.Fanout, true, false);
 
             _channel.QueueDeclare(_queueName, durable: _options.Durable, exclusive: _options.Exclusive, autoDelete: _options.AutoDelete);
 
+            _channel.QueueBind(queue: _queueName, exchange: _broadcastExchange, routingKey: _queueName);
+            _channel.QueueBind(queue: _queueName, exchange: _roundRobinExchange, routingKey: _queueName);
+
+        }
+
+        public override event MessageReceivedHandler<T> Receive;
+
+        public override void Send(T item, EDistributionStyle distributionStyle = EDistributionStyle.Broadcast)
+        {
+            var payload = item.ToJson();
+            var body = Encoding.UTF8.GetBytes(payload);
+
+            var dist = distributionStyle == EDistributionStyle.RoundRobin ? _roundRobinExchange : _broadcastExchange;
+
+            _channel.BasicPublish(exchange: dist, routingKey: _queueName, body: body);
+            //_channel.BasicPublish(exchange: string.Empty, routingKey: _queueName, body: body);
+        }
+
+        public override void Subscribe()
+        {
             var consumer = new EventingBasicConsumer(_channel);
 
             consumer.Received += (model, ea) =>
@@ -41,16 +67,6 @@ namespace Zen.Module.MQ.RabbitMQ
             };
 
             _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
-        }
-
-        public override event MessageReceivedHandler<T> Receive;
-
-        public override void Send(T item)
-        {
-            var payload = item.ToJson();
-            var body = Encoding.UTF8.GetBytes(payload);
-
-            _channel.BasicPublish(exchange: string.Empty, routingKey: _queueName, basicProperties: null, body: body);
         }
     }
 }
