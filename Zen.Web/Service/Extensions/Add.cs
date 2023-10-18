@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Cors;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -23,8 +24,15 @@ namespace Zen.Web.Service.Extensions
                 options.GetSettings<Configuration.IOptions, Configuration.IOptions>("Web");
             });
 
-            var mvcBuilder = services.AddMvc(options => { });
+            services.AddCors(o => o.AddDefaultPolicy(builder =>
+            {
+                builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
 
+            var mvcBuilder = services.AddMvc(options => { });
             mvcBuilder.AddNewtonsoftJson(options =>
                 {
                     //Json serializer settings Enum as string, omit nulls.
@@ -45,9 +53,10 @@ namespace Zen.Web.Service.Extensions
             var hcTypes = IoC.GetClassesByInterface<IZenHealthCheck>(false);
             var hcInstances = hcTypes.CreateInstances<IZenHealthCheck>().ToList();
 
-            hcInstances.ForEach(i => hcBuilder.AddCheck(i.Name, i, i.FailureStatus, i.Tags   ));
+            hcInstances.ForEach(i => hcBuilder.AddCheck(i.Name, i, i.FailureStatus, i.Tags));
 
-            services.AddHeaderPropagation(options => {
+            services.AddHeaderPropagation(options =>
+            {
                 options.Headers.Add("X-Correlation-ID");
             });
 

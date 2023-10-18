@@ -31,6 +31,8 @@ namespace Zen.Web.Service.Extensions
             if (options.EnableHtml5)
                 app.UseHtml5Routing();
 
+            app.UseCors();
+
             if (!usePrefix)
             {
                 // Default behavior: nothing to see here.
