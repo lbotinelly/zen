@@ -32,6 +32,7 @@ namespace Zen.Web
             public bool UseIisIntegration { get; set; }
             public BehaviorDescriptor Behavior { get; set; }
             public string CertificateSubject { get; set; }
+            public string CertificateFile { get; set; }
             public string CertificatePassword { get; set; }
             public string QualifiedServerName { get; set; }
             public string RoutePrefix { get; set; }
@@ -41,7 +42,6 @@ namespace Zen.Web
             public bool EnableHsts { get; set; }
             public bool EnableHttpsRedirection { get; set; }
             public PathString DefaultPage { get; set; }
-
         }
 
         [IoCIgnore]
@@ -56,6 +56,7 @@ namespace Zen.Web
             public bool UseIisIntegration { get; set; } = false;
             public BehaviorDescriptor Behavior { get; set; } = new BehaviorDescriptor();
             public string CertificateSubject { get; set; }
+            public string CertificateFile { get; set; }
             public string CertificatePassword { get; set; }
             public string QualifiedServerName { get; set; }
             public string RoutePrefix { get; set; }

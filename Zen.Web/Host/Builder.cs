@@ -60,7 +60,7 @@ namespace Zen.Web.Host
             else
             {
 
-                
+
 
                 IWebHostBuilder hostBuilder = WebHost.CreateDefaultBuilder() // Pretty standard pipeline,
                     .UseContentRoot(Directory.GetCurrentDirectory())
@@ -145,26 +145,44 @@ namespace Zen.Web.Host
                 return targetCertificate;
             }
 
-            var certPath = $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
+            string certFile = Current.Options?.CertificateFile;
 
-            if (!Directory.Exists(certPath))
+            if (certFile == null)
             {
-                Log.Warn($"No physical certificate storage [{certPath}]");
+
+                var certPath = $"{Base.Host.DataDirectory}{Path.DirectorySeparatorChar}certificate{Path.DirectorySeparatorChar}";
+
+                if (!Directory.Exists(certPath))
+                {
+                    Log.Warn($"No physical certificate storage [{certPath}]");
+                }
+                else
+                {
+                    certFile = Directory.GetFiles(certPath).FirstOrDefault();
+                    if (certFile == null)
+                        Log.Warn($"No certificate in physical storage [{certPath}]");
+                }
+
             }
-            else
-            {
-                var certFile = Directory.GetFiles(certPath).FirstOrDefault();
 
-                if (certFile == null)
-                    Log.Warn($"No certificate in physical storage [{certPath}]");
+
+            if (certFile != null)
+            {
+
+                if (!File.Exists(certFile))
+                {
+                    Log.KeyValuePair("Physical certificate", "Not Found", Base.Module.Log.Message.EContentType.Warning);
+                    Log.KeyValuePair("Certificate path", certFile, Base.Module.Log.Message.EContentType.Warning);
+                }
                 else
                 {
                     Log.KeyValuePair("Physical certificate", certFile, Base.Module.Log.Message.EContentType.Info);
 
                     if (Current.Options?.CertificatePassword != null)
-                    targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile), Current.Options?.CertificatePassword);
+                        targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile), Current.Options?.CertificatePassword);
                 }
             }
+
 
             return targetCertificate;
         }
