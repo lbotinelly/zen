@@ -43,7 +43,7 @@ namespace Zen.MessageQueue
 
             if (_cache.ContainsKey(type)) return (MessageQueuePrimitive<T>)_cache[typeof(T)];
 
-            MessageQueuePrimitive<T> adapter = DefaultBundle.AdapterType.CreateGenericInstance<T, MessageQueuePrimitive<T>>();
+            var adapter = DefaultBundle.AdapterType.CreateGenericInstance<T, MessageQueuePrimitive<T>>();
 
             Base.Log.KeyValuePair("Zen.MessageQueue", $"{typeof(T).Name} adapter - {adapter.GetType().Namespace}", Base.Module.Log.Message.EContentType.Info);
 

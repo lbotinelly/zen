@@ -60,6 +60,8 @@ namespace Zen.Module.MQ.RabbitMQ
 
             consumer.Received += (model, ea) =>
             {
+                if (ea.RoutingKey != _queueName) return;
+
                 var body = ea.Body.ToArray();
                 var item = Encoding.UTF8.GetString(body).FromJson<T>();
 

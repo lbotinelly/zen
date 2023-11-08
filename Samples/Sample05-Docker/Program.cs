@@ -22,8 +22,6 @@ namespace Sample05_Docker
             Zen.MessageQueue.Queue.Send(new List<string> { "a", "b" }, EDistributionStyle.Broadcast);
 
             Builder.Start<Startup>(args);
-
-
         }
     }
 }
