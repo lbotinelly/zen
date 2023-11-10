@@ -27,6 +27,8 @@ namespace Zen.Storage.Cache
             var targetFile = Path.Combine(BasePath, key);
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile));
 
+            Log.KeyValuePair("Local Cache Write", targetFile, Base.Module.Log.Message.EContentType.Debug);
+
             using (var fileStream = File.Create(targetFile))
             {
                 source.Seek(0, SeekOrigin.Begin);
