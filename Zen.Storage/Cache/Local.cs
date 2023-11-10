@@ -6,7 +6,13 @@ namespace Zen.Storage.Cache
 {
     public static class Local
     {
-        public static readonly string BasePath = Base.Current.Options?.CachePath ?? $"{Host.DataDirectory}{Path.DirectorySeparatorChar}cache{Path.DirectorySeparatorChar}";
+        public static readonly string BasePath;
+
+        static Local()
+        {
+            BasePath = Base.Current.Options?.CachePath ?? Path.Combine(Host.DataDirectory, "cache");
+            Base.Current.Log.KeyValuePair("Local Cache BasePath", BasePath, Base.Module.Log.Message.EContentType.StartupSequence);
+        }
 
         public static string WriteString(string key, string source) { return Write(key, new MemoryStream(Encoding.UTF8.GetBytes(source))); }
 
