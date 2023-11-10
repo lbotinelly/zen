@@ -19,7 +19,7 @@ namespace Zen.Base
                         .SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("zen.json", true, true)
                         .AddJsonFile("appsettings.json", true, true)
-                        .AddEnvironmentVariables("ZEN_")
+                        .AddEnvironmentVariables()
                 ;
 
             Options = configurationBuilder.Build();
