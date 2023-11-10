@@ -76,41 +76,48 @@ namespace Zen.Web.Host
 
 
 
-                if (!Base.Host.IsContainer)
-                {
-                    hostBuilder
-                        .UseKestrel(k =>
+                //if (!Base.Host.IsContainer)
+                //{
+                hostBuilder
+                    .UseKestrel(k =>
+                    {
+
+                        var injectors = IoC.GetClassesByInterface<IKestrelConfigurationInjector>().CreateInstances<IKestrelConfigurationInjector>().ToList();
+                        foreach (var injector in injectors) injector.Handle(k);
+                    })
+                    .ConfigureKestrel((context, options) =>
+                    {
+                        // We'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
+                        var localAddress = IPAddress.Any;
+
+                        var currentEnv = Current.Options;
+
+                        var httpPort = currentEnv.HttpPort;
+                        var httpsPort = currentEnv.HttpsPort;
+
+                        options.Listen(localAddress, httpPort);
+
+                        var hostCertificate = GetCertificate();
+
+                        // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default dev cert created by VS.
+                        if (hostCertificate == null)
                         {
+                            Base.Current.Log.KeyValuePair("Certificate", "No certificate found. HTTPS disabled.");
+                            return;
+                        }
 
-                            var injectors = IoC.GetClassesByInterface<IKestrelConfigurationInjector>().CreateInstances<IKestrelConfigurationInjector>().ToList();
-                            foreach (var injector in injectors) injector.Handle(k);
-                        })
-                        .ConfigureKestrel((context, options) =>
+                        Base.Current.Log.KeyValuePair("Certificate", $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
+
+                        options.Listen(localAddress, httpsPort, listenOptions =>
                         {
-                            // We'll map to 0.0.0.0 in order to allow inbound connections from all adapters.
-                            var localAddress = IPAddress.Parse("0.0.0.0");
-
-                            var currentEnv = Current.Options;
-
-                            var httpPort = Base.Host.Variables.Get(Keys.WebHttpPort, currentEnv.HttpPort);
-                            var httpsPort = Base.Host.Variables.Get(Keys.WebHttpsPort, currentEnv.HttpsPort);
-
-                            options.Listen(localAddress, httpPort);
-
-                            var hostCertificate = GetCertificate();
-
-                            // Only offer HTTPS if we manage to pinpoint a development time self-signed certificate, be it custom or just the default dev cert created by VS.
-                            if (hostCertificate == null)
+                            listenOptions.UseHttps(adapterOptions =>
                             {
-                                Base.Current.Log.KeyValuePair("Certificate", "No certificate found. HTTPS disabled.");
-                                return;
-                            }
+                                adapterOptions.ServerCertificate = hostCertificate;
 
-                            Base.Current.Log.KeyValuePair("Certificate", $"{hostCertificate.Thumbprint} | {hostCertificate.FriendlyName}");
-
-                            options.Listen(localAddress, httpsPort, listenOptions => { listenOptions.UseHttps(hostCertificate); });
+                            });
                         });
-                }
+                    });
+                //}
 
                 hostBuilder.UseStartup<T>();
 
@@ -146,6 +153,7 @@ namespace Zen.Web.Host
             }
 
             string certFile = Current.Options?.CertificateFile;
+            string certPass = Current.Options?.CertificatePassword;
 
             if (certFile == null)
             {
@@ -158,9 +166,14 @@ namespace Zen.Web.Host
                 }
                 else
                 {
-                    certFile = Directory.GetFiles(certPath).FirstOrDefault();
+                    certFile = Directory.GetFiles(certPath).FirstOrDefault(i=> i.EndsWith(".pfx"));
                     if (certFile == null)
                         Log.Warn($"No certificate in physical storage [{certPath}]");
+                    else
+                    {
+                        if (certPass==null)   
+                        certPass = File.ReadAllText(certFile.Replace(".pfx", ".pwd"));
+                    }
                 }
 
             }
@@ -178,8 +191,8 @@ namespace Zen.Web.Host
                 {
                     Log.KeyValuePair("Physical certificate", certFile, Base.Module.Log.Message.EContentType.Info);
 
-                    if (Current.Options?.CertificatePassword != null)
-                        targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile), Current.Options?.CertificatePassword);
+                    if (certPass != null)
+                        targetCertificate = new X509Certificate2(File.ReadAllBytes(certFile), certPass);
                 }
             }
 
