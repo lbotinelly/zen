@@ -10,13 +10,18 @@ namespace Zen.Web.App.Media
     [Route("api/media/external")]
     public class MediaExternalController : ControllerBase
     {
-        private Semaphore _pool = new Semaphore(1, 3, "Zen.Web.App.Media.MediaExternalController.Get");
+
+        private static string _key = "Zen.Web.App.Media.MediaExternalController.Get";
+
+        private readonly Mutex mutex = new(false, _key);
+
+        // private Semaphore _pool = new Semaphore(1, 3, "Zen.Web.App.Media.MediaExternalController.Get");
 
         [HttpGet("")]
         [ResponseCache(Duration = 1 * 24 * 60 * 60, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Get()
         {
-            _pool.WaitOne();
+            mutex.WaitOne();
 
             var query = Request.Query;
             if (!query.ContainsKey("url")) return null;
@@ -45,7 +50,7 @@ namespace Zen.Web.App.Media
             }
             finally
             {
-                _pool.Release();
+                mutex.ReleaseMutex();
             }
         }
     }
