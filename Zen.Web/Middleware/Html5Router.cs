@@ -56,20 +56,20 @@ namespace Zen.Web.Middleware
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path.ToString().ToLower();
-                if (path.StartsWith("/")) path = path[1..];
 
-                var physicalPath = Path.Combine("wwwroot", path);
+                if (path.StartsWith("/api") || path.EndsWith(".map")) { await next.Invoke(); return; }
+
+                var pathParts = path.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+                pathParts.Insert(0, "wwwroot");
+
+                var physicalPath = Path.Combine(pathParts.ToArray());
+
+                Zen.Base.Log.Add(context.Request.Path + context.Request.QueryString, Base.Module.Log.Message.EContentType.Debug);
+                Zen.Base.Log.Add(physicalPath, Base.Module.Log.Message.EContentType.Debug);
 
                 await LogRequest(context);
 
-                if (File.Exists(physicalPath) ||
-                path.StartsWith("/api") ||
-                path.EndsWith(".map")
-                )
-                {
-                    await next.Invoke();
-                    return;
-                }
+                if (File.Exists(physicalPath)) { await next.Invoke(); return; }
 
                 if (context.Request.Headers.ContainsKey("user-agent"))
                 {
@@ -78,7 +78,7 @@ namespace Zen.Web.Middleware
                     if (sig != null)
                     {
                         var result = cardRender.GetCardDetails(context.Request).Render(context.Request);
-                        Base.Log.KeyValuePair("Card Generator", sig + "::" + path);
+                        Base.Log.KeyValuePair("Card Generator", $"{sig}::{path}");
                         context.Response.ContentType = "text/html; charset=utf-8";
                         await context.Response.WriteAsync(result);
                         return;
