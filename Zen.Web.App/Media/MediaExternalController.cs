@@ -21,10 +21,10 @@ namespace Zen.Web.App.Media
         [ResponseCache(Duration = 1 * 24 * 60 * 60, Location = ResponseCacheLocation.Any, NoStore = false)]
         public IActionResult Get()
         {
-            mutex.WaitOne();
-
             var query = Request.Query;
             if (!query.ContainsKey("url")) return null;
+
+            mutex.WaitOne();
 
             var url = query["url"];
 
@@ -35,11 +35,7 @@ namespace Zen.Web.App.Media
             {
                 var result = Helpers.GetAndCacheExternalResource(dictQuery);
 
-
-                if (result == null)
-                {
-                    return NotFound();
-                }
+                if (result == null) return NotFound();
 
                 return File(result.Stream, result.MimeType);
             }
@@ -70,7 +66,7 @@ namespace Zen.Web.App.Media
                 graph.Image,
                 graph.OriginalUrl,
                 graph.Type,
-                Description = graph.Metadata.FirstOrDefault(i=> i.Key == "og:description").Value.FirstOrDefault().Value
+                Description = graph.Metadata.FirstOrDefault(i => i.Key == "og:description").Value.FirstOrDefault().Value
             };
 
             return data;
