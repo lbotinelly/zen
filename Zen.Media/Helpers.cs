@@ -219,7 +219,6 @@ namespace Zen.Media
                 return null;
             }
 
-
             Storage.Cache.Local.Write(cacheTag, result.Stream);
             Storage.Cache.Local.WriteString(mimeCacheTag, result.MimeType);
 
