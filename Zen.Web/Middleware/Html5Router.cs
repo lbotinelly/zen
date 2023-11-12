@@ -55,17 +55,18 @@ namespace Zen.Web.Middleware
         {
             app.Use(async (context, next) =>
             {
-                var path = context.Request.Path.ToString().ToLower();
+                var path = context.Request.Path.ToString();
+                var lowerPath = path.ToLower();
 
-                if (path.StartsWith("/api") || path.EndsWith(".map")) { await next.Invoke(); return; }
+                if (lowerPath.StartsWith("/api") || lowerPath.EndsWith(".map")) { await next.Invoke(); return; }
 
                 var pathParts = path.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
                 pathParts.Insert(0, "wwwroot");
 
                 var physicalPath = Path.Combine(pathParts.ToArray());
 
-                Zen.Base.Log.Add(context.Request.Path + context.Request.QueryString, Base.Module.Log.Message.EContentType.Debug);
-                Zen.Base.Log.Add(physicalPath, Base.Module.Log.Message.EContentType.Debug);
+                Base.Log.Add(context.Request.Path + context.Request.QueryString, Base.Module.Log.Message.EContentType.Debug);
+                Base.Log.Add(physicalPath, Base.Module.Log.Message.EContentType.Debug);
 
                 await LogRequest(context);
 
