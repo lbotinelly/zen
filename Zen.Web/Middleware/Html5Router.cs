@@ -49,7 +49,6 @@ namespace Zen.Web.Middleware
 ;
 
             return template;
-
         }
 
         public static void UseHtml5Routing(this IApplicationBuilder app)
@@ -57,7 +56,9 @@ namespace Zen.Web.Middleware
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path.ToString().ToLower();
-                var physicalPath = Path.Combine("wwwroot" + path);
+                if (path.StartsWith("/")) path = path[1..];
+
+                var physicalPath = Path.Combine("wwwroot", path);
 
                 await LogRequest(context);
 
