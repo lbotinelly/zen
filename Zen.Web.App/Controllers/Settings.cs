@@ -20,7 +20,7 @@ namespace Zen.Web.App.Controllers
         internal JavaScriptResult JavaScriptSettingsPayload(string variableName)
         {
 
-            Base.Log.KeyValuePair("JavaScriptSettingsPayload","New Instance");
+            Base.Log.KeyValuePair(nameof(JavaScriptSettingsPayload),"New Instance");
 
 
             var zen_ver = "";
