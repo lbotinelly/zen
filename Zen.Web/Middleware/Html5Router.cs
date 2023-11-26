@@ -17,7 +17,7 @@ namespace Zen.Web.Middleware
     {
         private static readonly IZenWebCardRender cardRender = IoC.GetClassesByInterface<IZenWebCardRender>(false).FirstOrDefault()?.CreateInstance<IZenWebCardRender>();
 
-        private static readonly List<string> _botSignatures = new() { "Discordbot/", "Twitterbot/", "Needle/", "node-fetch/", "Tumblr/", "OpenGraphNet/" };
+        private static readonly List<string> _botSignatures = new() { "Discordbot/", "Twitterbot/", "Needle/", "node-fetch/", "Tumblr/", "OpenGraphNet/", "Bluesky" };
 
         private static string Render(this ZenWebCardDetails source, HttpRequest request)
         {
