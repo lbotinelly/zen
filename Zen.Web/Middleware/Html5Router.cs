@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,10 +64,10 @@ namespace Zen.Web.Middleware
 
                 var physicalPath = Path.Combine(pathParts.ToArray());
 
-                Base.Log.Add(context.Request.Path + context.Request.QueryString, Base.Module.Log.Message.EContentType.Debug);
-                Base.Log.Add(physicalPath, Base.Module.Log.Message.EContentType.Debug);
+                //Base.Log.Add(context.Request.Path + context.Request.QueryString, Base.Module.Log.Message.EContentType.Debug);
+                //Base.Log.Add(physicalPath, Base.Module.Log.Message.EContentType.Debug);
 
-                await LogRequest(context);
+                await LogAnalytics(context);
 
                 if (File.Exists(physicalPath)) { await next.Invoke(); return; }
 
@@ -92,7 +91,7 @@ namespace Zen.Web.Middleware
             });
         }
 
-        private static async Task LogRequest(HttpContext context)
+        private static async Task LogAnalytics(HttpContext context)
         {
             var url = context.Request.GetDisplayUrl();
 
@@ -102,7 +101,13 @@ namespace Zen.Web.Middleware
 
             try
             {
-                new RequestLog() { Referer = context.Request.Headers["referer"].ToString(), Url = context.Request.GetDisplayUrl(), }.Save();
+                new Model.Analytics.Request()
+                {
+                    Url = context.Request.GetDisplayUrl(),
+                    Headers = context.Request.Headers.ToDictionary(i => i.Key.ToString(), i => i.Value.ToString()),
+                    Path = context.Request.Path + context.Request.QueryString,
+                    Type = Model.Analytics.Request.EType.Html5Redirect
+                }.Save();
             }
             catch (Exception) { }
 
