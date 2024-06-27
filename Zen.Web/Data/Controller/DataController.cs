@@ -248,7 +248,7 @@ namespace Zen.Web.Data.Controller
 
                         var payload = BeforeCollectionEmit(EHttpMethod.Get, EActionType.Read, mutator, bufferCollection) ?? bufferCollection;
 
-                        outputCollection = bufferCollection;
+                        outputCollection = payload;
                     }
 
                 return PrepareResponse(outputCollection);
