@@ -349,7 +349,7 @@ namespace Zen.Module.Data.MongoDB
 
                 try
                 {
-                    var indexOptions = new CreateIndexOptions { Unique = false, Name = "fullTextSearch", Background = true };
+                    var indexOptions = new CreateIndexOptions { Unique = false, Name = "fullTextSearch", Background = true, LanguageOverride = "___LanguageOverride" };
                     var model = new CreateIndexModel<BsonDocument>(Builders<BsonDocument>.IndexKeys.Text("$**"), indexOptions);
                     _collectionCache[referenceCode].Indexes.CreateOne(model);
                 }
