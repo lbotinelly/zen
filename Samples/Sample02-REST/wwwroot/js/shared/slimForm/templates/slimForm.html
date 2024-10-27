@@ -1,0 +1,44 @@
+﻿<form name="record" role="form">
+    <div class="block-header">
+
+        <div class="pull-right">
+            <div style="display: block; float: left; margin-top: 3px;">
+                <span ng-repeat="(k,v) in filterHandler.set" class="chip alt mini" ng-click="filterHandler.del(v)" style="cursor: pointer;">
+                    <span class="icon bgm-blue">
+                        <i class="zmdi zmdi-close zmdi-hc-fw"></i>
+                    </span>
+                    {{v.display}}
+                </span>
+            </div>
+
+            <span class="visible-sm-inline-block visible-xs-inline-block">
+                <a ng-click="goUpState()">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    up
+                </a>
+            </span>
+
+            <span>
+                <a ng-click="loadAll()">
+                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Reload
+                </a>
+            </span>
+        </div>
+
+        <h2 class="ng-binding">
+
+
+            <span>{{config.title}}</span>
+            <span ng-if="!settings.labels.count.hide && !config.form.labels.count.hide">
+                <span class="faded" ng-if="!searchTerm">· <ng-pluralize count="pagination.records || data.items.length" when="{'0': 'No items', 'one': 'One item', 'other': '{} items'}"></ng-pluralize></span>
+                <span class="faded" ng-if="!!searchTerm">· {{data.list.length}} out of <ng-pluralize count="pagination.records || data.items.length" when="{'0': 'No items', 'one': 'One item', 'other': '{} items'}"></ng-pluralize></span>
+            </span>
+            <span ng-transclude="header"></span>
+        </h2>
+    </div>
+    <div ng-class="{'col-md-6': !!!config.isFullList }">
+        <div ng-transclude></div>
+    </div>
+    <div class="flexContainer" ng-class="{'col-md-6': !!!config.isFullList}" ui-view>
+    </div>
+</form>

@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AssemblyName>Zen.Pebble.Geo</AssemblyName>
+    <RootNamespace>Zen.Pebble.Geo</RootNamespace>
+    <Deterministic>False</Deterministic>
+    <AssemblyVersion>0.0.1.*</AssemblyVersion>
+    <FileVersion>0.0.1.*</FileVersion>
+    <PackageProjectUrl>https://github.com/lbotinelly/zen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
+    <PackageTags>middleware orm dotnet core</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageIconUrl></PackageIconUrl>
+    <Version>0.0.1.0</Version>
+    <Description>A Geolocation Zen pebble.</Description>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <Copyright>Copyright (c) 2020-2023 Zen Development Team</Copyright>
+    <LangVersion>7.2</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageIcon>zen-icon.png</PackageIcon>
+    <Authors>Zen Development Team</Authors>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\static\res\zen-icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.3.37" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,95 @@
+﻿<div class="alert alert-danger" role="alert" type="danger" ng-if="!!data.error">
+    {{data.error.data.Message}}
+</div>
+
+<div class="card flexcard" role="form" ng-if="!data.error">
+    <div class="card-header" ng-class="settings.headerClass || 'ch-alt'" ng-if="!!config.form.model.header.hide">
+
+        <span ng-transclude="mainButton"></span>
+
+        <ul class="actions" ng-if="!config.actions.asButtons">
+            <li class="visible-sm-inline-block visible-xs-inline-block" data-ng-class="{'visible-md-inline-block visible-lg-inline-block': !(!!state.current.id && !config.isFullList)}">
+                <a ng-click="goUpState()">
+                    <i class="zmdi zmdi-chevron-left"></i>
+                </a>
+            </li>
+
+            <li ng-repeat="(k,ic) in config.actions[state.mode].icons" ng-if="ic.canShow">
+                <a class="clickable" ng-click="ic.callback()" ng-attr-title="{{ic.title}}">
+                    <i class="zmdi" ng-class="ic.icon"></i>
+                </a>
+            </li>
+
+            <li ng-if="(state.mode ==='view') && access.write">
+                <a ui-sref="{verb:'edit'}" title="Edit">
+                    <i class="zmdi zmdi-edit"></i>
+                </a>
+            </li>
+            <li ng-if="(state.mode ==='edit' || state.mode ==='del') && access.write">
+                <a ng-click="revert()" title="Revert">
+                    <i class="zmdi zmdi-arrow-missed"></i>
+                </a>
+            </li>
+            <li ng-if="state.mode ==='view' && access.remove">
+                <a ui-sref="{verb:'del'}" title="Delete">
+                    <i class="zmdi zmdi-close"></i>
+                </a>
+            </li>
+            <li class="dropdown" uib-dropdown="" ng-if="access.write">
+                <a href="" uib-dropdown-toggle="" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a ui-sref="{verb:'edit'}" ng-disabled="!access.write">Edit</a>
+                    </li>
+                    <li>
+                        <a href="" ui-sref="{verb:'del'}" ng-disabled="access.remove">Delete</a>
+                    </li>
+                    <li class="visible-sm visible-xs">
+                        <a ui-sref="^">
+                            Return to List
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <ng-transclude></ng-transclude>
+
+    <div ng-if="canShowActionSet(state.mode)" class="card-footer p-15 ch-alt">
+        <div class="form-actions">
+            <div class="form-actions-label">
+                &nbsp;
+            </div>
+
+            <div ng-if="!!config.actions.asButtons">
+                <button type="button" class="btn btn-default" ng-click="goUpState()" data-ng-class="{'visible-md-inline-block visible-lg-inline-block': !(!!state.current.id && !config.isFullList)}">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Back to List
+                </button>
+
+                <button type="button" class="btn btn-default" ng-if="(state.mode ==='edit' || state.mode ==='del') && access.write" ng-click="revert()">
+                    <i class="zmdi zmdi-arrow-missed"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-default" ng-if="(state.mode ==='view') && access.write" ui-sref="{verb:'edit'}" title="Edit">
+                    <i class="zmdi zmdi-edit"></i> Edit
+                </button>
+                <button type="button" class="btn btn-default" ng-if="state.mode ==='view' && access.remove" ui-sref="{verb:'del'}" title="Delete">
+                    <i class="zmdi zmdi-close"></i> Delete
+                </button>
+
+                <button type="button" class="btn btn-default pull-right" ng-repeat="(k,ic) in config.actions[state.mode].buttons" ng-if="evalShow(ic.canShow)" ng-click="ic.callback()">
+                    <span ng-bind-html="ic.label | unsafe"></span>
+                </button>
+
+            </div>
+
+            <div class="form-actions-button">
+            </div>
+        </div>
+    </div>
+
+</div>

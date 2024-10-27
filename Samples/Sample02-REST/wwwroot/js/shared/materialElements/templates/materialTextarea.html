@@ -1,0 +1,9 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit'">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+        <textarea class="form-control fg-input" ng-if="mode === 'edit'" auto-size id="{{elemId}}" name="{{elemId}}"  ng-minlength="{{ngMinlength}}" ng-maxlength="{{ngMaxlength}}" placeholder="{{placeholder}}" ng-model="$parent.$parent.localModel" ng-required="required"></textarea>
+        <div class="form-label" ng-if="mode !== 'edit'">{{localModel}}</div>
+    </div>
+</div>

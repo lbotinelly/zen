@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Zen.Web.App": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:58183;http://localhost:58185"
+    }
+  }
+}

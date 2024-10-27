@@ -1,0 +1,59 @@
+﻿<div class="card flexcard" data-ng-class="{
+    'visible-md visible-lg': (!!state.current.id && !config.isFullList) ,
+    'ng-hide': (!!state.current.id && config.isFullList) ,
+    }">
+    <div class="card-header" ng-class="settings.headerClass || 'ch-alt'">
+        <h2>
+            <input type="text" class="form-control" ng-model="searchTerm" placeholder="Search..." ng-model-options="{ debounce: 500 }" no-dirty-check>
+        </h2>
+    </div>
+    <div class="card-body card-padding p-0" id="slimFormListInnerContainer">
+        <div class="listview">
+            <div class="lv-body">
+                <ng-transclude></ng-transclude>
+            </div>
+
+            <div class="lv-body p-15" ng-if="data.items.length === 0">
+                <div class="alert alert-info" role="alert" close="true">
+                    No items meet your criteria.
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer" ng-if="!!config.data.paged && !moderation.mode && !config.isInfiniteScroll">
+        <ul ng-if="pagination" class="pagination">
+            <li ng-class="{'disabled': pagination.query.page === 0}">
+                <a href="" ng-click="fetchPage(0)">«</a>
+            </li>
+            <li ng-repeat="i in [-100,-10,-1]" ng-if="(i + pagination.query.page) >= 0">
+                <a href="" ng-click="fetchPage(i + pagination.query.page)">
+                    <span ng-bind="i + pagination.query.page + 1" class="ng-binding"></span>
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="">
+                    <span ng-bind="pagination.query.page + 1" class="ng-binding"></span>
+                </a>
+            </li>
+
+            <li ng-repeat="i in [1,10,100]" ng-if="(i + pagination.query.page) < pagination.pages">
+                <a href="" ng-click="fetchPage(i + pagination.query.page)">
+                    <span ng-bind="i + pagination.query.page + 1" class="ng-binding"></span>
+                </a>
+            </li>
+
+            <li ng-class="{'disabled': pagination.query.page >= pagination.pages - 1}">
+                <a href="" ng-click="fetchPage(pagination.pages - 1)">»</a>
+            </li>
+        </ul>
+    </div>
+
+    <hr />
+    <div class="pull-right">
+        <button class="btn btn-default" ng-if="!config.actions.list.mainButton.hide && (_form.config.access.write || !_form.config.autoResolution) && !moderation.mode" ng-click="config.actions.list.mainButton.callback()">
+            <span ng-class="config.actions.list.mainButton.icon" aria-hidden="true"></span> {{config.actions.list.mainButton.label}}
+        </button>
+    </div>
+
+</div>

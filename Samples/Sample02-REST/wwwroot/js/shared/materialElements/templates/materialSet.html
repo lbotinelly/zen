@@ -1,0 +1,20 @@
+﻿    <div class="panel-heading">
+    <h4 class="panel-title">
+
+        <span class="pull-right" ng-if="$parent.state.mode=='edit'" style="padding:5px;">
+            <span class="btn-group">
+                <button type="button" class="btn btn-default waves-effect" ng-disabled="$parent.$parent.$first" ng-click="$parent.$parent.materialSet.actions.moveUp($parent.$parent.$index)"><i class="zmdi zmdi-chevron-up"></i></button>
+                <button type="button" class="btn btn-default waves-effect" ng-disabled="$parent.$parent.$last"  ng-click="$parent.$parent.materialSet.actions.moveDown($parent.$parent.$index)"><i class="zmdi zmdi-chevron-down"></i></button>
+                <button type="button" class="btn btn-default waves-effect" ng-click="$parent.$parent.materialSet.actions.del($parent.$parent.$index)"><i class="zmdi zmdi-close"></i></button>
+            </span>
+        </span>
+        <a href tabindex="0" class="accordion-toggle" ng-click="toggleOpen()" uib-accordion-transclude="heading">
+            <span uib-accordion-header ng-class="{'text-muted': isDisabled}">
+                {{heading}}
+            </span>
+        </a>
+    </h4>
+</div>
+<div class="panel-collapse collapse" uib-collapse="!isOpen">
+    <div class="panel-body" ng-transclude></div>
+</div>

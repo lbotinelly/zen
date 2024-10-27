@@ -1,0 +1,23 @@
+{
+  "Authentication": {
+    "Mode": "StandAlone",
+    "Provider": {
+      "Facebook": {
+        "AppId": "{{FacebookClientId}}",
+        "AppSecret": "{{FacebookClientSecret}}"
+      },
+      "GitHub": {
+        "ClientId": "{{GitHubClientId}}",
+        "ClientSecret": "{{GitHubClientSecret}}"
+      },
+      "google": {
+        "ClientId": "{{GoogleClientId}}",
+        "ClientSecret": "{{GoogleClientSecret}}"
+      },
+      "Microsoft": {
+        "ClientId": "{{MicrosoftClientId}}",
+        "ClientSecret": "{{MicrosoftClientSecret}}"
+      }
+    }
+  }
+}

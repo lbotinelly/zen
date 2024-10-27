@@ -1,0 +1,41 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit'">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+        <tags-input ng-if="mode === 'edit'"
+                    id="{{elemId}}" name="{{elemId}}"
+                    ng-model="$parent.$parent.localModel"
+                    placeholder="{{placeholder}}"
+                    use-strings="true"
+                    class="form-control"
+                    replace-spaces-with-dashes="false"
+                    add-from-autocomplete-only="false"
+                    add-on-space="true"
+                    add-on-paste="true"
+                    display-property="{{displayProperty}}"
+                    key-property="{{keyProperty}}">
+
+            <auto-complete source="getFilteredTags($query)"
+                           min-length="0"
+                           debounce-delay="0"
+                           max-results-to-show="10"
+                           template="material-tag-autocomplete-template">
+
+            </auto-complete>
+        </tags-input>
+
+        <div class="form-label" ng-if="mode !== 'edit'">
+            <span ng-if="(localModel != modelCopy) && compare" processing-diff right-obj="localModel" left-obj="modelCopy"></span>
+            <span ng-if="(localModel == modelCopy) && compare || !compare" ng-class="{'filter-setting':filterSetting}">
+                <span class="chip alt mini clickable bgm-gray c-white" ng-repeat="i in localModel">{{i}}</span>
+            </span>
+        </div>
+    </div>
+
+    <script type="text/ng-template" id="material-tag-autocomplete-template">
+        <div class="autocomplete-template" ng-class="data[$parent.$parent.$parent.$parent.$parent.elementClassProperty]">
+            <span ng-bind-html="$highlight($getDisplayText())"></span>
+        </div>
+    </script>
+</div>

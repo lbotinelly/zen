@@ -1,0 +1,24 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div ng-if="mode === 'edit'">
+            <div class="actions">
+                <a ng-if="!!$parent.$parent.localModel" ng-click="clear()">
+                    <i class="zmdi zmdi-close"></i>
+                </a>
+            </div>
+
+            <div class="select">
+                <select class="form-control" ng-model="$parent.$parent.$parent.localModel" ng-if="!arraySource">
+                    <option ng-repeat="item in selectSource" value="{{item[keyProperty]}}">{{item[displayProperty]}}</option>
+                </select>
+                <select class="form-control" ng-model="$parent.$parent.$parent.localModel" ng-if="!!arraySource">
+                    <option ng-repeat="(k,v) in selectSource" value="{{$eval(keyProperty)}}">{{$eval(displayProperty)}}</option>
+                </select>
+            </div>
+        </div>
+        <div ng-if="mode !== 'edit'">
+            <span ng-class="{'filter-setting':filterSetting}" ng-click="setFilter()" ng-repeat="i in selectSource" ng-if="!arraySource && i[keyProperty]==localModel">{{i[displayProperty]}}</span>
+            <span ng-if="!!arraySource" ng-class="{'filter-setting':filterSetting}" ng-click="setFilter()">{{localModel}}</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>aspnet-Sample04_AuthenticatedWeb-12F65791-50B9-44C7-A879-994B0BF4CAA2</UserSecretsId>
+    <RootNamespace>Sample04_AuthenticatedWeb</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="32.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Zen.Base\Zen.Base.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Cache.Memory\Zen.Module.Cache.Memory.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Data.LiteDB\Zen.Module.Data.LiteDB.csproj" />
+    <ProjectReference Include="..\..\Zen.Module.Encryption.AES\Zen.Module.Encryption.AES.csproj" />
+    <ProjectReference Include="..\..\Zen.Provider.Facebook\Zen.Provider.Facebook.csproj" />
+    <ProjectReference Include="..\..\Zen.Provider.Google\Zen.Provider.Google.csproj" />
+    <ProjectReference Include="..\..\Zen.Provider.Microsoft\Zen.Provider.Microsoft.csproj" />
+    <ProjectReference Include="..\..\Zen.Provider.Steam\Zen.Provider.Steam.csproj" />
+    <ProjectReference Include="..\..\Zen.Web.Auth\Zen.Web.Auth.csproj" />
+    <ProjectReference Include="..\..\Zen.Web.OpenApi\Zen.Web.OpenApi.csproj" />
+    <ProjectReference Include="..\..\Zen.Web\Zen.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.3.37" />
+  </ItemGroup>
+
+</Project>

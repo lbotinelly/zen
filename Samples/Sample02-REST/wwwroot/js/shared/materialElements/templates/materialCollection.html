@@ -1,0 +1,16 @@
+﻿<div class="ng-scope">
+    <div ng-repeat="$entry in localModel">
+        <div class="selectable-item clickable nobg">
+            <div class="selectable-item-content" ng-click="setFocusItem($entry)">
+                <div ng-transclude></div>
+            </div>
+            <div class="selectable-item-label" ng-transclude="label"></div>
+            <div class="selectable-item-actions" ng-if="mode ==='edit' && !static" ng-transclude="actions">
+                <span ng-click="removeItem($index, $entry)" class="selectable-item-action"><i class="zmdi zmdi-close"></i> Remove</span>
+            </div>
+        </div>
+    </div>
+    <div class="pull-right m-t-10" ng-if="mode ==='edit' && !static">
+        <button class="btn btn-default btn-icon-text waves-effect" ng-click="addNewItem()"><i class="zmdi zmdi-plus"></i>Add New</button>
+    </div>
+</div>

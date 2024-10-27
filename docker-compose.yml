@@ -1,0 +1,45 @@
+version: '3.4'
+
+services:
+  sample05-docker:
+    image: ${DOCKER_REGISTRY-}sample05docker
+    ports:
+      - 5000:80
+      - 5001:443
+    build:
+      context: .
+      dockerfile: Samples/Sample05-Docker/Dockerfile
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - "database"
+      - "messagequeue"
+ 
+  database:
+    image: mongo:latest
+    hostname: "db"
+    labels:
+      NAME: "MongoDB"
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+    networks:
+      - backend
+ 
+  messagequeue: # login guest:guest
+    image: rabbitmq:3-management
+    hostname: "mq"
+    labels:
+      NAME: "rabbitmq"
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+    internal: true

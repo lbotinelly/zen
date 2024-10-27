@@ -1,0 +1,23 @@
+﻿<div class="form-container" ng-class="mode">
+    <div ng-show="canShowContent()">
+        <div class="form-container-notification pull-right" ng-if="(mode === 'edit')">
+            <small>
+                <span ng-show="(!!ngMaxlength) && (!!localModel.length)">
+                    {{localModel.length}}<span>{{ngMaxlength ? "/" + ngMaxlength: ""}}</span>
+                </span>
+            </small>
+            <small class="c-red">
+                <span ng-show="$parent.$parent.record[elemId].$error.required">required</span>
+                <span ng-show="$parent.$parent.record[elemId].$error.max">over {{ngMax}}</span>
+                <span ng-show="$parent.$parent.record[elemId].$error.min">under {{ngMin}}</span>
+                <span ng-show="$parent.$parent.record[elemId].$error.minlength">too short (min {{ngMinlength}} char)</span>
+                <span ng-show="$parent.$parent.record[elemId].$error.maxlength">too long (max {{ngMaxlength}} char)</span>
+            </small>
+        </div>
+        <small class="ellipsed-text" ng-class="{'m-t-5': (!!compare) && (mode === 'edit')}" ng-if="!!label">{{label}}</small>
+        <div class="form-group m-b-0">
+            <div ng-transclude></div>
+        </div>
+        <small class="ellipsed-text" ng-if="(!!compare) && (mode === 'edit')" processing-diff right-obj="processor.display(localModel)" left-obj="processor.display(modelCopy)"></small>
+    </div>
+</div>

@@ -1,0 +1,8 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit' && !readOnly">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+        <button class="btn waves-effect display-inline-block visible-md-inline-block visible-lg-inline-block" ng-if="mode === 'edit' && !readOnly" ng-click="tryUpload('$parent.$parent.localModel')" id="{{elemId}}">{{placeholder}}</button>
+    </div>
+</div>

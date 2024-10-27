@@ -1,0 +1,12 @@
+﻿<div>
+    <div class="materialField" label="{{label}}">
+        <div class="actions" ng-if="mode === 'edit'">
+            <a ng-if="!!$parent.localModel" ng-click="clear()"><i class="icon-cancel"></i></a>
+        </div>
+        <input type="number" class="form-control" ng-if="mode === 'edit'" id="{{elemId}}" name="{{elemId}}" placeholder="{{placeholder}}" ng-model="$parent.$parent.localModel" ng-required="required" min="{{ngMin}}" max="{{ngMax}}">
+        <div class="form-label" ng-if="mode !== 'edit'">
+            <span ng-if="localModel != modelCopy" processing-diff right-obj="localModel" left-obj="modelCopy"></span>
+            <span ng-if="localModel == modelCopy">{{localModel}}</span>
+        </div>
+    </div>
+</div>
