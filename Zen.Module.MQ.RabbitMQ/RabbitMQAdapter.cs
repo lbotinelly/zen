@@ -16,7 +16,7 @@ namespace Zen.Module.MQ.RabbitMQ
         private readonly string _queueName;
         private readonly List<string> _categories;
 
-        private static string _broadcastExchange = "broadcast";
+        private static string _broadcastExchange = "broadcast"; // Changed to Topic exchange
         private static string _roundRobinExchange = "roundRobin";
 
 
@@ -32,13 +32,10 @@ namespace Zen.Module.MQ.RabbitMQ
             _queueName = typeof(T).FullName;
 
             _channel.ExchangeDeclare(_roundRobinExchange, ExchangeType.Direct, true, false);
-            _channel.ExchangeDeclare(_broadcastExchange, ExchangeType.Fanout, true, false);
+            _channel.ExchangeDeclare(_broadcastExchange, ExchangeType.Topic, true, false);
 
             _channel.QueueDeclare(_queueName, durable: _options.Durable, exclusive: _options.Exclusive, autoDelete: _options.AutoDelete);
-
-            _channel.QueueBind(queue: _queueName, exchange: _broadcastExchange, routingKey: _queueName);
             _channel.QueueBind(queue: _queueName, exchange: _roundRobinExchange, routingKey: _queueName);
-
         }
 
         public override event MessageReceivedHandler<T> Receive;
@@ -48,27 +45,47 @@ namespace Zen.Module.MQ.RabbitMQ
             var payload = item.ToJson();
             var body = Encoding.UTF8.GetBytes(payload);
 
-            var dist = distributionStyle == EDistributionStyle.RoundRobin ? _roundRobinExchange : _broadcastExchange;
+            string exchangeName = string.Empty;
+            string routingKey = _queueName; // Default routing key for round-robin
 
-            _channel.BasicPublish(exchange: dist, routingKey: _queueName, body: body);
-            //_channel.BasicPublish(exchange: string.Empty, routingKey: _queueName, body: body);
+            if (distributionStyle == EDistributionStyle.RoundRobin)
+            {
+                exchangeName = _roundRobinExchange;
+            }
+            else if (distributionStyle == EDistributionStyle.Broadcast)
+            {
+                exchangeName = _broadcastExchange;
+                routingKey = typeof(T).FullName; // Use the full type name as the routing key
+            }
+
+            _channel.BasicPublish(exchange: exchangeName, routingKey: routingKey, basicProperties: null, body: body);
         }
 
         public override void Subscribe()
         {
-            var consumer = new EventingBasicConsumer(_channel);
-
-            consumer.Received += (model, ea) =>
+            var roundRobinConsumer = new EventingBasicConsumer(_channel);
+            roundRobinConsumer.Received += (model, ea) =>
             {
-                if (ea.RoutingKey != _queueName) return;
+                if (ea.RoutingKey == _queueName)
+                {
+                    var body = ea.Body.ToArray();
+                    var item = Encoding.UTF8.GetString(body).FromJson<T>();
+                    Receive?.Invoke(item);
+                }
+            };
+            _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: roundRobinConsumer);
 
+            var broadcastQueueName = _channel.QueueDeclare().QueueName;
+            _channel.QueueBind(queue: broadcastQueueName, exchange: _broadcastExchange, routingKey: typeof(T).FullName);
+
+            var broadcastConsumer = new EventingBasicConsumer(_channel);
+            broadcastConsumer.Received += (model, ea) =>
+            {
                 var body = ea.Body.ToArray();
                 var item = Encoding.UTF8.GetString(body).FromJson<T>();
-
                 Receive?.Invoke(item);
             };
-
-            _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
+            _channel.BasicConsume(queue: broadcastQueueName, autoAck: true, consumer: broadcastConsumer);
         }
     }
 }
