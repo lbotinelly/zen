@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>Sample01_Console</RootNamespace>
     <Version>0.0.1.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <UserSecretsId>aspnet-Sample04_AuthenticatedWeb-12F65791-50B9-44C7-A879-994B0BF4CAA2</UserSecretsId>
     <RootNamespace>Sample04_AuthenticatedWeb</RootNamespace>
   </PropertyGroup>

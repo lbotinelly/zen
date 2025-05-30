@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Zen.Module.Cache.Redis</AssemblyName>
@@ -19,7 +19,7 @@
     <PackageTags>middleware orm dotnet core</PackageTags>
     <RepositoryUrl>https://github.com/lbotinelly/zen</RepositoryUrl>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Version>0.0.1.0</Version>
   </PropertyGroup>
 
